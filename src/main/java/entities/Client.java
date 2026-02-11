@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 public class Client {
-
+    private int clientID;
     private String adresse;
     private Date dateNaissance;
     private List<Like> likeList = new ArrayList<>();
@@ -14,11 +14,19 @@ public class Client {
 
 
     public Client(){}
-    public Client(String adresse, Date dateNaissance) {
+    public Client(int clientID,String adresse, Date dateNaissance) {
         super();
         this.adresse = adresse;
         this.dateNaissance = dateNaissance;
+        this.clientID = clientID;
     }
+    public int getClientID() {
+        return clientID;
+    }
+    public void setClientID(int clientID) {
+        this.clientID = clientID;
+    }
+
     public String getAdresse() {
         return adresse;
     }

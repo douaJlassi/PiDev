@@ -27,7 +27,7 @@ public class PublicationService implements CRUD<Publication> {
 
         ps.setString(1, p.getContent());
         ps.setTimestamp(2, new Timestamp(p.getDatePublication().getTime()));
-        // ps.setInt(3, p.getClient().getClientID()); // FK
+        ps.setInt(3, p.getClient().getClientID()); // FK
 
         ps.executeUpdate();
     }
@@ -36,13 +36,13 @@ public class PublicationService implements CRUD<Publication> {
     @Override
     public void updateOne(Publication p) throws SQLException {
 
-        String req = "UPDATE publication SET content=?, datePublication=?, client_id=? WHERE publicationID=?";
+        String req = "UPDATE publication SET content=?, datePublication=? , client_id=? WHERE publicationID=?";
 
         PreparedStatement ps = cnx.prepareStatement(req);
 
         ps.setString(1, p.getContent());
         ps.setTimestamp(2, new Timestamp(p.getDatePublication().getTime()));
-       // ps.setInt(3, p.getClient().getClientID()); lezm entity Utilisateur mawjouda!
+       ps.setInt(3, p.getClient().getClientID()); // lezm entity Utilisateur mawjouda!
         ps.setInt(4, p.getPublicationID());
 
         ps.executeUpdate();
@@ -75,7 +75,7 @@ public class PublicationService implements CRUD<Publication> {
 
             // minimal Client (only ID for now)
             Client c = new Client();
-            // c.setClientID(rs.getInt("client_id"));
+            c.setClientID(rs.getInt("client_id"));
 
             Publication p = new Publication(
                     c,
