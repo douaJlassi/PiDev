@@ -10,17 +10,19 @@ public class Message {
     private LocalDateTime dateEnvoi;
     private boolean lu;
     private Conversation conversation;
+    private Utilisateur expediteur;
 
 
     public Message() {
     }
 
-    public Message(int idMessage, String contenu, LocalDateTime dateEnvoi, boolean lu, int idConversation) {
+    public Message(int idMessage, String contenu, LocalDateTime dateEnvoi, boolean lu, Conversation conversation,  Utilisateur utilisateur) {
         this.idMessage = idMessage;
         this.contenu = contenu;
         this.dateEnvoi = dateEnvoi;
         this.lu = lu;
         this.conversation = conversation;
+        this.expediteur = utilisateur;
     }
 
     public int getIdMessage() {
@@ -55,12 +57,19 @@ public class Message {
         this.lu = lu;
     }
 
-    public Conversation getIdConversation() {
+    public Conversation getConversation() {
         return conversation;
     }
 
-    public void setIdConversation(Conversation conversation) {
+    public void setConversation(Conversation conversation) {
         this.conversation = conversation;
+    }
+
+    public Utilisateur getExpediteur() {
+        return expediteur;
+    }
+    public void setExpediteur(Utilisateur expediteur) {
+        this.expediteur = expediteur;
     }
 
     @Override
@@ -71,18 +80,18 @@ public class Message {
                 ", dateEnvoi=" + dateEnvoi +
                 ", lu=" + lu +
                 ", conversation=" + conversation +
+                ", expediteur=" + expediteur +
                 '}';
     }
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        Message message = (Message) o;
-        return idMessage == message.idMessage && lu == message.lu && conversation == message.conversation && Objects.equals(contenu, message.contenu) && Objects.equals(dateEnvoi, message.dateEnvoi);
+        if (!(o instanceof Message message)) return false;
+        return idMessage == message.idMessage && lu == message.lu && Objects.equals(contenu, message.contenu) && Objects.equals(dateEnvoi, message.dateEnvoi) && Objects.equals(conversation, message.conversation) && Objects.equals(expediteur, message.expediteur);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idMessage, contenu, dateEnvoi, lu, conversation);
+        return Objects.hash(idMessage, contenu, dateEnvoi, lu, conversation, expediteur);
     }
 }

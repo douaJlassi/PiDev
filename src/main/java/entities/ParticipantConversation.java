@@ -5,16 +5,32 @@ import java.util.Objects;
 
 public class ParticipantConversation {
 
+    private int idParticipant;
     private Utilisateur participant;
-    private Message message;
+    private Conversation conversation;
     private LocalDateTime dateAjout;
 
     public ParticipantConversation() {}
 
-    public ParticipantConversation(Utilisateur participant, Message message, LocalDateTime dateAjout) {
+    public ParticipantConversation(int idParticipant, Utilisateur participant, Conversation conversation, LocalDateTime dateAjout) {
+        this.idParticipant = idParticipant;
         this.participant = participant;
-        this.message = message;
+        this.conversation = conversation;
         this.dateAjout = dateAjout;
+    }
+    public ParticipantConversation(Utilisateur participant, Conversation conversation, LocalDateTime dateAjout) {
+        this.idParticipant = idParticipant;
+        this.participant = participant;
+        this.conversation = conversation;
+        this.dateAjout = dateAjout;
+    }
+
+    public int getIdParticipant() {
+        return idParticipant;
+    }
+
+    public void setIdParticipant(int idParticipant) {
+        this.idParticipant = idParticipant;
     }
 
     public Utilisateur getParticipant() {
@@ -25,12 +41,12 @@ public class ParticipantConversation {
         this.participant = participant;
     }
 
-    public Message getMessage() {
-        return message;
+    public Conversation getConversation() {
+        return conversation;
     }
 
-    public void setMessage(Message message) {
-        this.message = message;
+    public void setConversation(Conversation conversation) {
+        this.conversation = conversation;
     }
 
     public LocalDateTime getDateAjout() {
@@ -45,7 +61,7 @@ public class ParticipantConversation {
     public String toString() {
         return "ParticipantConversation{" +
                 "participant=" + participant +
-                ", message=" + message +
+                ", conversation=" + conversation +
                 ", dateAjout=" + dateAjout +
                 '}';
     }
@@ -53,11 +69,11 @@ public class ParticipantConversation {
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof ParticipantConversation that)) return false;
-        return Objects.equals(participant, that.participant) && Objects.equals(message, that.message) && Objects.equals(dateAjout, that.dateAjout);
+        return Objects.equals(participant, that.participant) && Objects.equals(conversation, that.conversation) && Objects.equals(dateAjout, that.dateAjout);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(participant, message, dateAjout);
+        return Objects.hash(participant, conversation, dateAjout);
     }
 }
