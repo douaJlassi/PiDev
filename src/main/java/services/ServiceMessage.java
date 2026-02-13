@@ -36,6 +36,14 @@ public class ServiceMessage implements CRUD<Message>{
             message.setIdMessage(rs.getInt(1));
         }
         System.out.println("Message envoyé");
+
+        String updateQuery = "UPDATE `message` SET lu = 1 " +
+                "WHERE idConversation = ? AND idExpediteur != ? AND lu = 0";
+        pst = cnx.prepareStatement(updateQuery);
+        pst.setInt(1, message.getConversation().getIdConversation());
+        pst.setInt(2, message.getExpediteur().getIdUtilisateur());
+        pst.executeUpdate();
+        System.out.println("Message envoyé et anciens messages marqués comme lus !");
     }
 
     @Override
