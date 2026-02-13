@@ -13,7 +13,6 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ServiceConversationTest {
 
     static ServiceConversation sc;
-    int id;
     @BeforeAll
     static void setUp() {
         sc = new ServiceConversation();
