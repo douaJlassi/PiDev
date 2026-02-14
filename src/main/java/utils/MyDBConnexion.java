@@ -23,8 +23,10 @@ public class MyDBConnexion {
         }
     }
 
-    public static MyDBConnexion getInstance() {
-        if (instance == null) {
+    public static MyDBConnexion getInstance()
+    {
+        if (instance == null)
+        {
             instance = new MyDBConnexion();
         }
         return instance;
