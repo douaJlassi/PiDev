@@ -18,8 +18,8 @@ public class Test {
         java.util.Date utilDate = new java.util.Date();
         java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
         System.out.println(sqlDate);
-        vol v1=new vol(1,"vol444","description",105.2,false,120,"52","tunisie","japan",sqlDate,sqlDate);
-        Hotel h1=new Hotel(2,"hotel1","description",105.2,false,500,5,"sousse","SINGLE");
+        vol v1=new vol(3,"vol444","description",105.2,false,120,"52","tunisie","japan",sqlDate,sqlDate);
+        Hotel h1=new Hotel(6,"hotel2","description",105.2,false,500,5,"sousse","SINGLE");
         VolService vs = new VolService();
         HotelService hs = new HotelService();
          //vs.insertOne(v1);
@@ -29,6 +29,6 @@ public class Test {
         //hs.insertOne(h1);
         // hs.updateOne(h1);
        // hs.deleteOne(h1);
-       // hs.selectALL();
+        //System.out.println(hs.selectALL());
 }
 }

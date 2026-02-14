@@ -14,7 +14,7 @@ public class HotelService implements CRUD<Hotel> {
     @Override
     public void insertOne(Hotel hotel) throws SQLException {
         String req = "INSERT INTO `services`(`idService`,`nom`,`description`,`prix`,`disponibilite`,`capacite`,`nombreEtoiles`,`localisation`,`typeChambre`,`type`) VALUES " +
-                "('"+hotel.getId()+"','"+hotel.getNom()+"','"+hotel.getDescription()+"','"+hotel.getPrix()+"','"+hotel.getDisponibilite()+"','"+hotel.getCapacite()+"' ,  '"+hotel.getNbEtoiles()+"' , '"+hotel.getLocalisation()+"' , '"+hotel.getChambre() +"' ,'hotel')";
+                "('"+hotel.getId()+"','"+hotel.getNom()+"','"+hotel.getDescription()+"','"+hotel.getPrix()+"','"+hotel.getDisponibilite()+"','"+hotel.getCapacite()+"' ,  '"+hotel.getNbEtoiles()+"' , '"+hotel.getLocalisation()+"' , '"+hotel.getChambre() +"','hotel')";
         Statement stmt = connection.createStatement();
         stmt.executeUpdate(req);
     }
@@ -39,7 +39,7 @@ public class HotelService implements CRUD<Hotel> {
     public List<Hotel> selectALL() throws SQLException {
         List<Hotel> hotelList = new ArrayList<>();
 
-        String req = "SELECT * FROM `services` WHERE `type` = 'hotel' ";
+        String req = "SELECT * FROM `services` WHERE `type`='hotel' ";
         Statement st = connection.createStatement();
 
         ResultSet rs = st.executeQuery(req);
