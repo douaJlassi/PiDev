@@ -1,4 +1,4 @@
-package projet.test;
+package projet.Main;
 
 import projet.entites.Hotel;
 import projet.services.HotelService;
@@ -8,9 +8,6 @@ import  projet.entites.vol;
 import projet.services.VolService;
 
 import java.sql.SQLException;
-import java.sql.Time;
-import java.util.Date;
-import java.util.List;
 
 public class Test {
     public static void main(String[] args) throws SQLException {

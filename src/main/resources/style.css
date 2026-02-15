@@ -1,0 +1,46 @@
+.root {
+    -fx-background-color: #fdf6ee;
+}
+
+/* Carte centrale */
+.card {
+    -fx-background-color: white;
+    -fx-padding: 25;
+    -fx-border-radius: 20;
+    -fx-background-radius: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 20,0,0,5);
+    -fx-min-width: 400;
+}
+
+/* Titre */
+.title {
+    -fx-font-size: 22px;
+    -fx-text-fill: #1b3a6f;
+    -fx-font-weight: bold;
+}
+
+/* Champs */
+.text-field {
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: #ddd;
+    -fx-padding: 8;
+}
+
+/* Checkbox */
+.checkbox {
+    -fx-text-fill: #1b3a6f;
+}
+
+/* Bouton */
+.btn {
+    -fx-background-color: linear-gradient(#f9c74f, #f9844a);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 20;
+    -fx-padding: 10 20;
+}
+
+.btn:hover {
+    -fx-background-color: linear-gradient(#f9844a, #f9c74f);
+}
