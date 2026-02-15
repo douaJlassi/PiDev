@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<?import javafx.scene.control.ListView?>
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="controllers.OffreFormController"
+      spacing="12">
+
+    <padding>
+        <Insets top="16" right="16" bottom="16" left="16"/>
+    </padding>
+
+    <Label fx:id="formTitleLbl" styleClass="h1" text="Offer Form"/>
+
+    <GridPane hgap="10" vgap="10">
+
+        <Label text="Title:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="titleTf" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+        <Label text="Price:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextField fx:id="priceTf" promptText="e.g. 199.99" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <Label text="Start date:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <DatePicker fx:id="startDp" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+        <Label text="End date:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <DatePicker fx:id="endDp" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+        <Label text="Image:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+
+        <HBox spacing="8" GridPane.rowIndex="5" GridPane.columnIndex="1">
+            <TextField fx:id="imageTf" editable="false" promptText="Choose an image..."/>
+            <Button text="Browse..." onAction="#onBrowseImage"/>
+        </HBox>
+
+
+        <Label text="Description:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+        <TextArea fx:id="descTa" prefRowCount="5" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+
+        <Label text="Services:" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+        <ListView fx:id="servicesLv" prefHeight="160" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+
+
+
+    </GridPane>
+
+    <Label fx:id="errorLbl" styleClass="error"/>
+
+    <HBox spacing="10">
+        <Button text="Save" onAction="#onSave"/>
+        <Button text="Cancel" onAction="#onCancel"/>
+    </HBox>
+
+</VBox>
