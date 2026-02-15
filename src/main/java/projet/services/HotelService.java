@@ -10,19 +10,21 @@ import java.util.List;
 
 public class HotelService implements CRUD<Hotel> {
     private Connection connection;
+    private String nom;
     public HotelService() {connection= MyDBConnexion.getInstance().getConnection();}
     @Override
     public void insertOne(Hotel hotel) throws SQLException {
-        String req = "INSERT INTO `services`(`idService`,`nom`,`description`,`prix`,`disponibilite`,`capacite`,`nombreEtoiles`,`localisation`,`typeChambre`,`type`) VALUES " +
-                "('"+hotel.getId()+"','"+hotel.getNom()+"','"+hotel.getDescription()+"','"+hotel.getPrix()+"','"+hotel.getDisponibilite()+"','"+hotel.getCapacite()+"' ,  '"+hotel.getNbEtoiles()+"' , '"+hotel.getLocalisation()+"' , '"+hotel.getChambre() +"','hotel')";
+        String req = "INSERT INTO `services`(`nom`,`description`,`prix`,`disponibilite`,`capacite`,`nombreEtoiles`,`localisation`,`typeChambre`,`type`) VALUES " +
+                "('"+hotel.getNom()+"','"+hotel.getDescription()+"','"+hotel.getPrix()+"','"+hotel.getDisponibilite()+"','"+hotel.getCapacite()+"' ,  '"+hotel.getNbEtoiles()+"' , '"+hotel.getLocalisation()+"' , '"+hotel.getChambre() +"','hotel')";
         Statement stmt = connection.createStatement();
         stmt.executeUpdate(req);
+        nom=hotel.getNom();
     }
     @Override
     public void updateOne(Hotel hotel) throws SQLException {
-        String req="UPDATE services SET idService='"+hotel.getId()+"',nom='"+hotel.getNom()+"',description='"+hotel.getDescription()+"'" +
+        String req="UPDATE services SET nom='"+hotel.getNom()+"',description='"+hotel.getDescription()+"'" +
                 ",prix='"+hotel.getPrix()+"',disponibilite='"+hotel.getDisponibilite()+"',capacite='"+hotel.getCapacite()+"'" +
-                ",nombreEtoiles='"+hotel.getNbEtoiles()+"',localisation='"+hotel.getLocalisation()+"',typeChambre='"+hotel.getChambre()+"' WHERE idService='"+hotel.getId()+"'";
+                ",nombreEtoiles='"+hotel.getNbEtoiles()+"',localisation='"+hotel.getLocalisation()+"',typeChambre='"+hotel.getChambre()+"' WHERE nom='"+nom+"'";
 
         Statement stmt = connection.createStatement();
         stmt.executeUpdate(req);
@@ -30,7 +32,7 @@ public class HotelService implements CRUD<Hotel> {
 
     @Override
     public void deleteOne(Hotel hotel) throws SQLException {
-        String req = "DELETE FROM `services` WHERE `idService` = " + "'" + hotel.getId() + "'";
+        String req = "DELETE FROM `services` WHERE `nom` = " + "'" + hotel.getNom() + "'";
         PreparedStatement ps = connection.prepareStatement(req);
         ps.executeUpdate();
     }
@@ -47,7 +49,6 @@ public class HotelService implements CRUD<Hotel> {
         while (rs.next()) {
 
             Hotel sr = new Hotel(
-                    rs.getInt(1),
                     rs.getString(2),
                     rs.getString(3),
                     rs.getDouble(4),

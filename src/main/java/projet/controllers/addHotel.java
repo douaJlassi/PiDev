@@ -45,7 +45,7 @@ public class addHotel {
     String chambre=tfChambre.getText();
     boolean disponibilite=cbDisponibilite.isSelected();
     HotelService hs = new HotelService();
-    Hotel hotel=new Hotel(1,nom,description,prix,disponibilite,capacite,nbEtoiles,localisation,chambre);
+    Hotel hotel=new Hotel(nom,description,prix,disponibilite,capacite,nbEtoiles,localisation,chambre);
     try {
         hs.insertOne(hotel);
 

@@ -1,26 +1,20 @@
 package projet.entites;
 import java.util.Objects;
 public class service {
-    private int id;
+
     private String nom, description;
     private  double prix;
     private  boolean disponibilite;
     private int capacite;
     public service(){}
-    public service(int id,String nom,String description,double prix,boolean disponibilite,int capacite){
-        this.id=id;
+    public service(String nom,String description,double prix,boolean disponibilite,int capacite){
         this.nom=nom;
-    this.description=description;
-    this.prix=prix;
-    this.disponibilite=disponibilite;
-    this.capacite=capacite;
+        this.description=description;
+        this.prix=prix;
+        this.disponibilite=disponibilite;
+        this.capacite=capacite;
 }
-    public int getId() {
-        return id;
-    }
-    public void setId(int id) {
-        this.id = id;
-    }
+
     public String getNom() {
     return nom;
    }

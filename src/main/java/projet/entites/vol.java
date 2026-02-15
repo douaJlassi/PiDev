@@ -5,8 +5,8 @@ import java.util.Objects;
 public class vol extends service{
     private String numeroVol,villeDepart,villeArrivee;
     private Date dateDepart,dateArrivee;
-    public vol(int id,String nom,String description,double prix,boolean disponibilite,int capacite,String numeroVol,String villeDepart,String villeArrivee,Date dateDepart,Date dateArrivee){
-        super(id,nom,description,prix,disponibilite,capacite);
+    public vol(String nom,String description,double prix,boolean disponibilite,int capacite,String numeroVol,String villeDepart,String villeArrivee,Date dateDepart,Date dateArrivee){
+        super(nom,description,prix,disponibilite,capacite);
         this.numeroVol=numeroVol;
         this.villeDepart=villeDepart;
         this.villeArrivee=villeArrivee;

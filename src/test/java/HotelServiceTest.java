@@ -14,16 +14,16 @@ public class HotelServiceTest {
     @Test
     @Order(1)
     void addHotel() throws SQLException {
-        Hotel h1=new Hotel(3,"hotelTest","description",105.2,false,500,5,"sousse","SINGLE");
+        Hotel h1=new Hotel("hotelTest","description",105.2,false,500,5,"sousse","SINGLE");
         hotelService.insertOne(h1);
         List<Hotel> hotels = hotelService.selectALL();
-        assertTrue(hotels.stream().anyMatch(hotel->hotel.getId()==h1.getId()));
+        assertTrue(hotels.stream().anyMatch(hotel->hotel.getNom().equals(h1.getNom())));
     }
     @Test
     @Order(2)
     void updateHotel() throws SQLException {
-        Hotel h1=new Hotel(3,"hotelTestModified","description",105.2,false,500,5,"sousse","SINGLE");
-        hotelService.updateOne(h1);
+        Hotel h2=new Hotel("hotelTestModified","description",105.2,false,500,5,"sousse","SINGLE");
+        hotelService.updateOne(h2);
         List<Hotel> hotels=hotelService.selectALL();
         assertTrue(hotels.stream().anyMatch(h->h.getNom().equals("hotelTestModified")));
 
@@ -31,9 +31,9 @@ public class HotelServiceTest {
     @Test
     @Order(3)
     void deleteHotel() throws SQLException {
-        Hotel h1=new Hotel(3,"modifiedhotelTest","description",105.2,false,500,5,"sousse","SINGLE");
+        Hotel h1=new Hotel("hotelTestModified","description",105.2,false,500,5,"sousse","SINGLE");
         hotelService.deleteOne(h1);
         List<Hotel> hotels=hotelService.selectALL();
-        assertFalse(hotels.stream().anyMatch(hotel->hotel.getId()==h1.getId()));
+        assertFalse(hotels.stream().anyMatch(hotel->hotel.getNom().equals(h1.getNom())));
     }
 }
