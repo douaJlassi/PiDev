@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="523.0" prefWidth="622.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="projet.controllers.addVol">
+
+    <children>
+
+        <Label layoutX="220" layoutY="15" styleClass="title" text="Ajouter un Vol" />
+
+        <Label layoutX="50" layoutY="60" text="Nom :" />
+        <TextField fx:id="tfNom" layoutX="200" layoutY="55" />
+
+        <Label layoutX="51.0" layoutY="108.0" text="Description :" />
+        <TextArea fx:id="taDescription" layoutX="168.0" layoutY="100.0" prefHeight="89.0" prefWidth="242.0" />
+
+        <Label layoutX="47.0" layoutY="205.0" text="Prix :" />
+        <TextField fx:id="tfPrix" layoutX="197.0" layoutY="200.0" />
+
+        <Label layoutX="376.0" layoutY="213.0" text="Disponibilité :" />
+        <CheckBox fx:id="cbDisponibilite" layoutX="456.0" layoutY="213.0" />
+
+        <Label layoutX="50" layoutY="250" text="Capacité :" />
+        <TextField fx:id="tfCapacite" layoutX="200" layoutY="245" />
+
+        <Label layoutX="371.0" layoutY="249.0" text="Numéro Vol :" />
+        <TextField fx:id="tfNumeroVol" layoutX="464.0" layoutY="240.0" prefHeight="17.0" prefWidth="119.0" />
+
+        <Label layoutX="50" layoutY="330" text="Ville Départ :" />
+        <TextField fx:id="tfVilleDepart" layoutX="200.0" layoutY="325.0" />
+
+        <Label layoutX="375.0" layoutY="330.0" text="Ville Arrivée :" />
+        <TextField fx:id="tfVilleArrivee" layoutX="464.0" layoutY="321.0" prefHeight="36.0" prefWidth="119.0" />
+
+        <Label layoutX="50" layoutY="410" text="Date Départ :" />
+        <DatePicker fx:id="dpDateDepart" layoutX="132.0" layoutY="401.0" />
+
+        <Label layoutX="343.0" layoutY="410.0" text="Date Arrivée :" />
+        <DatePicker fx:id="dpDateArrivee" layoutX="423.0" layoutY="401.0" />
+
+        <Button layoutX="277.0" layoutY="471.0" onAction="#ajouterVol" styleClass="btn" text="Ajouter" />
+
+    </children>
+</AnchorPane>

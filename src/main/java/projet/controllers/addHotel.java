@@ -48,7 +48,6 @@ public class addHotel {
     Hotel hotel=new Hotel(nom,description,prix,disponibilite,capacite,nbEtoiles,localisation,chambre);
     try {
         hs.insertOne(hotel);
-
     }catch (SQLException e){
         System.out.println(e.getMessage());
     }
