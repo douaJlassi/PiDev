@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="controllers.OfferDetailsController"
+      spacing="12"
+      styleClass="page">
+
+    <padding>
+        <Insets top="16" right="16" bottom="16" left="16"/>
+    </padding>
+
+    <!-- Top bar -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Button text="← Back" onAction="#onBack"/>
+        <Label fx:id="titleLbl" styleClass="h1"/>
+        <Label fx:id="kindLbl" styleClass="badge"/>
+    </HBox>
+
+    <!-- Offer summary -->
+    <HBox spacing="16">
+        <ImageView fx:id="offerImg" fitWidth="220" fitHeight="140" preserveRatio="true"/>
+
+        <VBox spacing="6">
+            <Label fx:id="agencyLbl" styleClass="muted"/>
+            <Label fx:id="datesLbl" styleClass="muted"/>
+            <Label fx:id="priceLbl" styleClass="price"/>
+            <Label text="Description:" styleClass="muted"/>
+            <Label fx:id="descLbl" wrapText="true"/>
+        </VBox>
+    </HBox>
+
+    <!-- Services list -->
+    <Label text="Services included:" styleClass="h2"/>
+
+    <ScrollPane fitToWidth="true">
+        <content>
+            <VBox fx:id="servicesBox" spacing="10">
+                <padding>
+                    <Insets top="10" right="10" bottom="10" left="10"/>
+                </padding>
+            </VBox>
+
+        </content>
+    </ScrollPane>
+
+    <!-- Actions -->
+    <HBox spacing="10">
+        <Button fx:id="addToCartBtn" text="Add to Cart" onAction="#onAddToCart"/>
+    </HBox>
+
+</VBox>
