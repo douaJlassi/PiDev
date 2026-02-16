@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="controllers.ActiviteController"
+      spacing="15" styleClass="mainContent" alignment="TOP_CENTER">
+
+    <!-- TITRE -->
+    <Label text="Activités Récentes" styleClass="title"/>
+
+    <!-- Barre de recherche -->
+    <HBox spacing="10" alignment="CENTER">
+        <TextField fx:id="searchField" promptText="Rechercher une activité..." HBox.hgrow="ALWAYS"/>
+        <Button text="Rafraîchir" onAction="#refreshTable"/>
+    </HBox>
+
+    <!-- Liste des activités -->
+    <ListView fx:id="activityList" VBox.vgrow="ALWAYS">
+        <!-- Tu peux ajouter des cellules custom plus tard -->
+    </ListView>
+
+</VBox>

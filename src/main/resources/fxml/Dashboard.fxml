@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+
+<HBox prefHeight="800.0" prefWidth="1200.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.DashboardController">
+    <!-- SIDEBAR (gauche) sans profil -->
+    <VBox prefWidth="280.0" spacing="20" styleClass="sidebar">
+        <padding>
+            <Insets top="30" right="20" bottom="30" left="20" />
+        </padding>
+        <ImageView fitHeight="250" fitWidth="150" preserveRatio="true" styleClass="bottom-image">
+            <image>
+                <Image url="@/images/image2.png" />
+            </image>
+        </ImageView>
+        <!-- Navigation uniquement -->
+        <VBox spacing="5">
+            <Label styleClass="section-label" text="NAVIGATION" />
+            <Button maxWidth="1.7976931348623157E308" styleClass="nav-button, nav-button-active" text="🏠 Dashboard" />
+            <Button maxWidth="1.7976931348623157E308" styleClass="nav-button" text="📊 Gestion des Activités" />
+            <Button maxWidth="1.7976931348623157E308" styleClass="nav-button" text="🎫 Mes Réservations" />
+            <Button maxWidth="1.7976931348623157E308" styleClass="nav-button" text="💬 Messagerie" />
+        </VBox>
+
+        <!-- Espace flexible pour pousser le bas -->
+        <Region VBox.vgrow="ALWAYS" />
+
+        <!-- Section bas : bouton déconnexion + image -->
+        <VBox spacing="10" alignment="CENTER">
+            <Button maxWidth="1.7976931348623157E308" styleClass="logout-button" text="🔒 Déconnexion" />
+        </VBox>
+    </VBox>
+
+    <!-- CONTENU PRINCIPAL (défilable) -->
+    <ScrollPane fitToWidth="true" styleClass="content-scroll" HBox.hgrow="ALWAYS">
+        <VBox spacing="30" style="-fx-padding: 40;">
+            <!-- Header avec message de bienvenue à gauche, bouton, et profil à droite -->
+            <HBox alignment="CENTER_LEFT" spacing="20">
+                <!-- Message de bienvenue (prend l'espace disponible) -->
+                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                    <Text styleClass="welcome-title" text="Bonjour, Alexandre !" />
+                    <Label styleClass="welcome-subtitle" text="Prêt pour votre prochaine aventure ?" />
+                </VBox>
+
+                <HBox spacing="15" alignment="CENTER_RIGHT">
+                    <VBox spacing="2" alignment="CENTER_RIGHT">
+                        <Text styleClass="user-name-main" text="Alexandre Voyageur" />
+                        <Label styleClass="user-badge-main" text="Client Premium" />
+                    </VBox>
+                    <Circle fill="DODGERBLUE" radius="40.0" stroke="WHITE" strokeType="INSIDE" strokeWidth="2" />
+                </HBox>
+            </HBox>
+
+            <!-- Séparateur avec option Filtrer -->
+            <HBox alignment="CENTER_LEFT" spacing="20">
+                <Label styleClass="filter-label" text="🔍 Filtrer :" />
+                <Button styleClass="filter-chip" text="À la Une ✔️" />
+                <Button styleClass="filter-chip" text="Aventure" />
+                <Button styleClass="filter-chip" text="Sport" />
+                <Button styleClass="filter-chip" text="Gastronomie" />
+            </HBox>
+
+            <!-- Section : Activités & Offres Recommandées -->
+            <Text styleClass="section-title" text="✨ Activités et Offres Recommandées" />
+
+            <!-- Grille de cartes DYNAMIQUE (remplie par le contrôleur) -->
+            <FlowPane fx:id="activitiesFlowPane" hgap="25" vgap="25" prefWrapLength="950" />
+
+            <!-- Deuxième ligne de cartes (statique) -->
+            <FlowPane hgap="25" vgap="25" prefWrapLength="950">
+                <!-- Carte Statistiques -->
+                <VBox prefWidth="300.0" styleClass="card">
+                    <StackPane prefHeight="160.0" styleClass="card-image">
+                        <Label styleClass="badge-category" text="Stats" StackPane.alignment="TOP_LEFT">
+                            <StackPane.margin><Insets left="10" top="10" /></StackPane.margin>
+                        </Label>
+                    </StackPane>
+                    <VBox spacing="8" styleClass="card-content">
+                        <Text styleClass="card-title" text="Statistiques du mois" />
+                        <Label styleClass="card-location" text="📊 5 Réservations" />
+                        <Label styleClass="card-location" text="💰 723 DT de Gains" />
+                        <HBox alignment="CENTER_LEFT">
+                            <Label styleClass="card-rating" text="★ 4.8 (121)">
+                                <padding><Insets left="5" /></padding>
+                            </Label>
+                            <Region HBox.hgrow="ALWAYS" />
+                            <Button styleClass="btn-details" text="Voir Plus" />
+                        </HBox>
+                    </VBox>
+                </VBox>
+            </FlowPane>
+
+            <Region prefHeight="20" />
+        </VBox>
+    </ScrollPane>
+</HBox>

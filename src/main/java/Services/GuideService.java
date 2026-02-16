@@ -1,7 +1,7 @@
-package tn.esprit.projet.services;
+package Services;
 
-import tn.esprit.projet.entities.Guide;
-import tn.esprit.projet.utils.MyDBConnexion;
+import gestion_activite.Guide;
+import utils.MyDBConnexion;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -12,21 +12,26 @@ public class GuideService implements CRUD<Guide> {
     private Connection cnx;
 
     public GuideService() {
-        cnx = MyDBConnexion.getInstance().getCnx();
+        cnx = MyDBConnexion.getInstance().getConnection();
     }
 
     // ===================== INSERT =====================
+    // Note: Physically inserts only idUser and disponibilite into the 'guide' table
     @Override
-    public void insertOne(Guide guide) throws SQLException {
-        if (guide.getIdUser() <= 0) {
-            throw new IllegalArgumentException("L'ID utilisateur doit être valide");
-        }
 
-        String req = "INSERT INTO `guide` (`idUser`, `disponibilite`) VALUES (?, ?)";
+    public void insertOne(Guide guide) throws SQLException {
+        // We must include all the columns now that you added them physically to the table
+        String req = "INSERT INTO `guide` (`idUser`, `disponibilite`, `nom`, `prenom`, `email`, `telephone`) " +
+                "VALUES (?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = cnx.prepareStatement(req)) {
             ps.setInt(1, guide.getIdUser());
             ps.setBoolean(2, guide.isDisponibilite());
+            ps.setString(3, guide.getNom());      // Add this
+            ps.setString(4, guide.getPrenom());   // Add this
+            ps.setString(5, guide.getEmail());    // Add this
+            ps.setString(6, guide.getTelephone());// Add this
+
             ps.executeUpdate();
         }
     }
@@ -54,12 +59,15 @@ public class GuideService implements CRUD<Guide> {
         }
     }
 
-    // ===================== SELECT ALL =====================
+    // ===================== SELECT ALL (WITH JOIN) =====================
     @Override
     public List<Guide> selectALL() throws SQLException {
         List<Guide> guideList = new ArrayList<>();
 
-        String req = "SELECT * FROM `guide`";
+        // Join with the user table to get names, email, and phone
+        String req = "SELECT g.idUser, g.disponibilite, u.nom, u.prenom, u.email, u.telephone " +
+                "FROM `guide` g " +
+                "INNER JOIN `user` u ON g.idUser = u.idUser";
 
         try (Statement st = cnx.createStatement();
              ResultSet rs = st.executeQuery(req)) {
@@ -67,18 +75,24 @@ public class GuideService implements CRUD<Guide> {
             while (rs.next()) {
                 Guide g = new Guide(
                         rs.getInt("idUser"),
-                        rs.getBoolean("disponibilite")
+                        rs.getBoolean("disponibilite"),
+                        rs.getString("nom"),
+                        rs.getString("prenom"),
+                        rs.getString("email"),
+                        rs.getString("telephone")
                 );
                 guideList.add(g);
             }
         }
-
         return guideList;
     }
 
-    // ===================== SELECT BY ID =====================
+    // ===================== SELECT BY ID (WITH JOIN) =====================
     public Guide selectById(int idUser) throws SQLException {
-        String req = "SELECT * FROM `guide` WHERE `idUser`=?";
+        String req = "SELECT g.idUser, g.disponibilite, u.nom, u.prenom, u.email, u.telephone " +
+                "FROM `guide` g " +
+                "INNER JOIN `user` u ON g.idUser = u.idUser " +
+                "WHERE g.idUser = ?";
 
         try (PreparedStatement ps = cnx.prepareStatement(req)) {
             ps.setInt(1, idUser);
@@ -87,20 +101,26 @@ public class GuideService implements CRUD<Guide> {
                 if (rs.next()) {
                     return new Guide(
                             rs.getInt("idUser"),
-                            rs.getBoolean("disponibilite")
+                            rs.getBoolean("disponibilite"),
+                            rs.getString("nom"),
+                            rs.getString("prenom"),
+                            rs.getString("email"),
+                            rs.getString("telephone")
                     );
                 }
             }
         }
-
         return null;
     }
 
-    // ===================== SELECT GUIDES DISPONIBLES =====================
+    // ===================== SELECT GUIDES DISPONIBLES (WITH JOIN) =====================
     public List<Guide> selectGuidesDisponibles() throws SQLException {
         List<Guide> guideList = new ArrayList<>();
 
-        String req = "SELECT * FROM `guide` WHERE `disponibilite` = TRUE";
+        String req = "SELECT g.idUser, g.disponibilite, u.nom, u.prenom, u.email, u.telephone " +
+                "FROM `guide` g " +
+                "INNER JOIN `user` u ON g.idUser = u.idUser " +
+                "WHERE g.disponibilite = TRUE";
 
         try (Statement st = cnx.createStatement();
              ResultSet rs = st.executeQuery(req)) {
@@ -108,12 +128,15 @@ public class GuideService implements CRUD<Guide> {
             while (rs.next()) {
                 Guide g = new Guide(
                         rs.getInt("idUser"),
-                        rs.getBoolean("disponibilite")
+                        rs.getBoolean("disponibilite"),
+                        rs.getString("nom"),
+                        rs.getString("prenom"),
+                        rs.getString("email"),
+                        rs.getString("telephone")
                 );
                 guideList.add(g);
             }
         }
-
         return guideList;
     }
 

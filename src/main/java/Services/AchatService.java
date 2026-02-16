@@ -1,18 +1,25 @@
-package tn.esprit.projet.services;
+package Services;
 
-import tn.esprit.projet.entities.Achat;
-import tn.esprit.projet.utils.MyDBConnexion;
-
-import java.sql.*;
+import gestion_activite.Achat;
+import utils.MyDBConnexion;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+
+import java.sql.Connection;           // Required for the 'cnx' variable
+import java.sql.PreparedStatement;    // Required for prepared statements
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Date;
+
 
 public class AchatService implements CRUD<Achat> {
 
     private Connection cnx;
 
     public AchatService() {
-        cnx = MyDBConnexion.getInstance().getCnx();
+        cnx = MyDBConnexion.getInstance().getConnection();
     }
 
     // ===================== INSERT =====================

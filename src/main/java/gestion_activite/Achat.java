@@ -1,4 +1,4 @@
-package tn.esprit.projet.entities;
+package gestion_activite;
 
 import java.util.Date;
 

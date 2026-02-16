@@ -1,17 +1,18 @@
-package tn.esprit.projet.services;
+package Services;
 
-import tn.esprit.projet.utils.MyDBConnexion;
+import utils.MyDBConnexion;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ActiviteAchatService {
+public class ActiviteAchatService
+{
 
     private Connection cnx;
 
     public ActiviteAchatService() {
-        cnx = MyDBConnexion.getInstance().getCnx();
+        cnx = MyDBConnexion.getInstance().getConnection();
     }
 
     // ===================== AJOUTER ASSOCIATION =====================

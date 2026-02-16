@@ -1,38 +1,24 @@
 package gestion_activite;
 
-import java.util.Date;
+import java.sql.Timestamp;
 
 public class Activite {
-
     private int idActivite;
     private String titre;
     private String description;
     private String lieu;
-    private Date dateActivite;
+    private Timestamp dateActivite; // Note: Ensure you use java.sql.Timestamp or java.util.Date
     private int dureParJour;
     private double prix;
     private int idGuide;
+    private String image; // The new field
 
-    public Activite() {
-    }
+    // ===================== CONSTRUCTORS =====================
 
-    public Activite(String titre, String description, String lieu,
-                    Date dateActivite, int dureParJour,
-                    double prix, int idGuide) {
+    public Activite() {}
 
-        this.titre = titre;
-        this.description = description;
-        this.lieu = lieu;
-        this.dateActivite = dateActivite;
-        this.dureParJour = dureParJour;
-        this.prix = prix;
-        this.idGuide = idGuide;
-    }
-
-    public Activite(int idActivite, String titre, String description,
-                    String lieu, Date dateActivite,
-                    int dureParJour, double prix, int idGuide) {
-
+    // 1. COMPLETE CONSTRUCTOR (Matches the Service Mapper)
+    public Activite(int idActivite, String titre, String description, String lieu, Timestamp dateActivite, int dureParJour, double prix, int idGuide, String image) {
         this.idActivite = idActivite;
         this.titre = titre;
         this.description = description;
@@ -41,9 +27,23 @@ public class Activite {
         this.dureParJour = dureParJour;
         this.prix = prix;
         this.idGuide = idGuide;
+        this.image = image;
     }
 
-    // Getters & Setters
+    // 2. CONSTRUCTOR WITHOUT ID (Useful for Insertions)
+    public Activite(String titre, String description, String lieu, Timestamp dateActivite, int dureParJour, double prix, int idGuide, String image) {
+        this.titre = titre;
+        this.description = description;
+        this.lieu = lieu;
+        this.dateActivite = dateActivite;
+        this.dureParJour = dureParJour;
+        this.prix = prix;
+        this.idGuide = idGuide;
+        this.image = image;
+    }
+
+    // ===================== GETTERS & SETTERS =====================
+
     public int getIdActivite() { return idActivite; }
     public void setIdActivite(int idActivite) { this.idActivite = idActivite; }
 
@@ -56,8 +56,8 @@ public class Activite {
     public String getLieu() { return lieu; }
     public void setLieu(String lieu) { this.lieu = lieu; }
 
-    public Date getDateActivite() { return dateActivite; }
-    public void setDateActivite(Date dateActivite) { this.dateActivite = dateActivite; }
+    public Timestamp getDateActivite() { return dateActivite; }
+    public void setDateActivite(Timestamp dateActivite) { this.dateActivite = dateActivite; }
 
     public int getDureParJour() { return dureParJour; }
     public void setDureParJour(int dureParJour) { this.dureParJour = dureParJour; }
@@ -67,4 +67,18 @@ public class Activite {
 
     public int getIdGuide() { return idGuide; }
     public void setIdGuide(int idGuide) { this.idGuide = idGuide; }
+
+    public String getImage() { return image; }
+    public void setImage(String image) { this.image = image; }
+
+    // ===================== TOSTRING =====================
+    @Override
+    public String toString() {
+        return "Activite{" +
+                "idActivite=" + idActivite +
+                ", titre='" + titre + '\'' +
+                ", prix=" + prix +
+                ", image='" + image + '\'' +
+                '}';
+    }
 }

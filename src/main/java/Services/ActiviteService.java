@@ -1,130 +1,169 @@
-package tn.esprit.projet.services;
+package Services;
 
-import tn.esprit.projet.entities.Guide;
-import tn.esprit.projet.utils.MyDBConnexion;
+import gestion_activite.Activite;
+import utils.MyDBConnexion;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GuideService implements CRUD<Guide> {
+public class ActiviteService implements CRUD<Activite> {
 
     private Connection cnx;
 
-    public GuideService() {
-        cnx = MyDBConnexion.getInstance().getCnx();
+    public ActiviteService() {
+        cnx = MyDBConnexion.getInstance().getConnection();
     }
 
     // ===================== INSERT =====================
     @Override
-    public void insertOne(Guide guide) throws SQLException {
-        if (guide.getIdUser() <= 0) {
-            throw new IllegalArgumentException("L'ID utilisateur doit être valide");
+    public void insertOne(Activite activite) throws SQLException {
+        if (activite.getTitre() == null || activite.getTitre().isEmpty()) {
+            throw new IllegalArgumentException("Le titre de l'activité est obligatoire");
+        }
+        if (activite.getPrix() < 0) {
+            throw new IllegalArgumentException("Le prix ne peut pas être négatif");
+        }
+        if (activite.getDureParJour() <= 0) {
+            throw new IllegalArgumentException("La durée par jour doit être positive");
         }
 
-        String req = "INSERT INTO `guide` (`idUser`, `disponibilite`) VALUES (?, ?)";
+        String req = "INSERT INTO `activite`(`titre`, `description`, `lieu`, `dateActivite`, `dureParJour`, `prix`, `idGuide`, `image`) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = cnx.prepareStatement(req)) {
-            ps.setInt(1, guide.getIdUser());
-            ps.setBoolean(2, guide.isDisponibilite());
+            ps.setString(1, activite.getTitre());
+            ps.setString(2, activite.getDescription());
+            ps.setString(3, activite.getLieu());
+            ps.setTimestamp(4, new Timestamp(activite.getDateActivite().getTime()));
+            ps.setInt(5, activite.getDureParJour());
+            ps.setDouble(6, activite.getPrix());
+            ps.setInt(7, activite.getIdGuide());
+            ps.setString(8, activite.getImage());
+
             ps.executeUpdate();
         }
     }
 
     // ===================== UPDATE =====================
     @Override
-    public void updateOne(Guide guide) throws SQLException {
-        String req = "UPDATE `guide` SET `disponibilite`=? WHERE `idUser`=?";
+    public void updateOne(Activite activite) throws SQLException {
+        String req = "UPDATE `activite` SET `titre`=?, `description`=?, `lieu`=?, `dateActivite`=?, `dureParJour`=?, `prix`=?, `idGuide`=?, `image`=? " +
+                "WHERE `idActivite`=?";
 
         try (PreparedStatement ps = cnx.prepareStatement(req)) {
-            ps.setBoolean(1, guide.isDisponibilite());
-            ps.setInt(2, guide.getIdUser());
+            ps.setString(1, activite.getTitre());
+            ps.setString(2, activite.getDescription());
+            ps.setString(3, activite.getLieu());
+            ps.setTimestamp(4, new Timestamp(activite.getDateActivite().getTime()));
+            ps.setInt(5, activite.getDureParJour());
+            ps.setDouble(6, activite.getPrix());
+            ps.setInt(7, activite.getIdGuide());
+            ps.setString(8, activite.getImage());
+            ps.setInt(9, activite.getIdActivite());
+
             ps.executeUpdate();
         }
     }
 
     // ===================== DELETE =====================
     @Override
-    public void deleteOne(Guide guide) throws SQLException {
-        String req = "DELETE FROM `guide` WHERE `idUser`=?";
+    public void deleteOne(Activite activite) throws SQLException {
+        String req = "DELETE FROM `activite` WHERE `idActivite`=?";
 
         try (PreparedStatement ps = cnx.prepareStatement(req)) {
-            ps.setInt(1, guide.getIdUser());
+            ps.setInt(1, activite.getIdActivite());
             ps.executeUpdate();
         }
     }
 
     // ===================== SELECT ALL =====================
     @Override
-    public List<Guide> selectALL() throws SQLException {
-        List<Guide> guideList = new ArrayList<>();
-
-        String req = "SELECT * FROM `guide`";
+    public List<Activite> selectALL() throws SQLException {
+        List<Activite> activiteList = new ArrayList<>();
+        String req = "SELECT * FROM `activite`";
 
         try (Statement st = cnx.createStatement();
              ResultSet rs = st.executeQuery(req)) {
-
             while (rs.next()) {
-                Guide g = new Guide(
-                        rs.getInt("idUser"),
-                        rs.getBoolean("disponibilite")
-                );
-                guideList.add(g);
+                activiteList.add(mapResultSetToActivite(rs));
             }
         }
-
-        return guideList;
+        return activiteList;
     }
 
     // ===================== SELECT BY ID =====================
-    public Guide selectById(int idUser) throws SQLException {
-        String req = "SELECT * FROM `guide` WHERE `idUser`=?";
-
+    public Activite selectById(int idActivite) throws SQLException {
+        String req = "SELECT * FROM `activite` WHERE `idActivite`=?";
         try (PreparedStatement ps = cnx.prepareStatement(req)) {
-            ps.setInt(1, idUser);
-
+            ps.setInt(1, idActivite);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return new Guide(
-                            rs.getInt("idUser"),
-                            rs.getBoolean("disponibilite")
-                    );
+                    return mapResultSetToActivite(rs);
                 }
             }
         }
-
         return null;
     }
 
-    // ===================== SELECT GUIDES DISPONIBLES =====================
-    public List<Guide> selectGuidesDisponibles() throws SQLException {
-        List<Guide> guideList = new ArrayList<>();
-
-        String req = "SELECT * FROM `guide` WHERE `disponibilite` = TRUE";
-
-        try (Statement st = cnx.createStatement();
-             ResultSet rs = st.executeQuery(req)) {
-
-            while (rs.next()) {
-                Guide g = new Guide(
-                        rs.getInt("idUser"),
-                        rs.getBoolean("disponibilite")
-                );
-                guideList.add(g);
+    // ===================== SEARCH BY LIEU =====================
+    public List<Activite> selectByLieu(String lieu) throws SQLException {
+        List<Activite> activiteList = new ArrayList<>();
+        String req = "SELECT * FROM `activite` WHERE `lieu` LIKE ?";
+        try (PreparedStatement ps = cnx.prepareStatement(req)) {
+            ps.setString(1, "%" + lieu + "%");
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    activiteList.add(mapResultSetToActivite(rs));
+                }
             }
         }
-
-        return guideList;
+        return activiteList;
     }
 
-    // ===================== ACTIVER/DESACTIVER GUIDE =====================
-    public void toggleDisponibilite(int idUser) throws SQLException {
-        Guide guide = selectById(idUser);
-        if (guide != null) {
-            guide.setDisponibilite(!guide.isDisponibilite());
-            updateOne(guide);
-        } else {
-            throw new SQLException("Guide avec l'ID " + idUser + " non trouvé");
+    // ===================== SEARCH BY GUIDE =====================
+    public List<Activite> selectByGuide(int idGuide) throws SQLException {
+        List<Activite> activiteList = new ArrayList<>();
+        String req = "SELECT * FROM `activite` WHERE `idGuide`=?";
+        try (PreparedStatement ps = cnx.prepareStatement(req)) {
+            ps.setInt(1, idGuide);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    activiteList.add(mapResultSetToActivite(rs));
+                }
+            }
         }
+        return activiteList;
+    }
+
+    // ===================== SEARCH BY PRIX RANGE =====================
+    public List<Activite> selectByPrixRange(double minPrix, double maxPrix) throws SQLException {
+        List<Activite> activiteList = new ArrayList<>();
+        String req = "SELECT * FROM `activite` WHERE `prix` BETWEEN ? AND ?";
+        try (PreparedStatement ps = cnx.prepareStatement(req)) {
+            ps.setDouble(1, minPrix);
+            ps.setDouble(2, maxPrix);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    activiteList.add(mapResultSetToActivite(rs));
+                }
+            }
+        }
+        return activiteList;
+    }
+
+    // ===================== HELPER MAPPER =====================
+    private Activite mapResultSetToActivite(ResultSet rs) throws SQLException {
+        return new Activite(
+                rs.getInt("idActivite"),
+                rs.getString("titre"),
+                rs.getString("description"),
+                rs.getString("lieu"),
+                rs.getTimestamp("dateActivite"),
+                rs.getInt("dureParJour"),
+                rs.getDouble("prix"),
+                rs.getInt("idGuide"),
+                rs.getString("image") // Mapping the new image column
+        );
     }
 }
