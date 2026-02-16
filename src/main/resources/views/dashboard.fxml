@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controllers.DashboardController"
+            styleClass="dashboard-root"
+            stylesheets="@../styles/dashboard.css">
+
+    <!-- Top Navigation Bar -->
+    <top>
+        <HBox styleClass="nav-bar" alignment="CENTER_LEFT" spacing="20">
+            <padding>
+                <Insets top="15" right="30" bottom="15" left="30"/>
+            </padding>
+
+            <Label text="Community Posts" styleClass="nav-title"/>
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <Button fx:id="createPostBtn" text="+ Create Post" styleClass="primary-btn" onAction="#showCreatePostDialog"/>
+            <Button fx:id="refreshBtn" text="⟳" styleClass="icon-btn" onAction="#refreshPosts"/>
+        </HBox>
+    </top>
+
+    <!-- Main Content Area -->
+    <center>
+        <VBox styleClass="main-content" spacing="0">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <!-- Posts Container -->
+            <ScrollPane fx:id="postsScrollPane" styleClass="posts-scroll-pane" fitToWidth="true" VBox.vgrow="ALWAYS">
+                <VBox fx:id="postsContainer" styleClass="posts-container" spacing="20">
+                    <padding>
+                        <Insets top="10" right="10" bottom="10" left="10"/>
+                    </padding>
+                </VBox>
+            </ScrollPane>
+        </VBox>
+    </center>
+</BorderPane>
