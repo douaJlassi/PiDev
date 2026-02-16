@@ -1,32 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="600" prefWidth="900" stylesheets="@style.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="projet.controllers.addHotel">
+<AnchorPane stylesheets="@style.css"
+            xmlns="http://javafx.com/javafx/25"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="projet.controllers.addHotel">
 
-    <!-- Carte centrale -->
-    <VBox layoutX="250.0" layoutY="27.0" spacing="12" styleClass="card">
+    <children>
+        <VBox alignment="CENTER"
+              AnchorPane.topAnchor="0"
+              AnchorPane.bottomAnchor="0"
+              AnchorPane.leftAnchor="0"
+              AnchorPane.rightAnchor="0">
 
-        <Label styleClass="title" text="Ajouter un Hôtel" />
+            <VBox styleClass="card" spacing="15">
 
+                <Label text="🏨 Ajouter un Hôtel" styleClass="title"/>
 
-        <TextField fx:id="tfNom" promptText="Nom" />
-        <TextField fx:id="tfDescription" promptText="Description" />
-        <TextField fx:id="tfPrix" promptText="Prix" />
-        <TextField fx:id="tfCapacite" promptText="Capacité" />
-        <TextField fx:id="tfNbEtoiles" promptText="Nombre d'étoiles" />
-        <TextField fx:id="tfLocalisation" promptText="Localisation" />
-        <TextField fx:id="tfChambre" promptText="Type de chambre" />
+                <GridPane hgap="15" vgap="12">
 
-        <CheckBox fx:id="cbDisponibilite" styleClass="checkbox" text="Disponible" />
+                    <TextField fx:id="tfNom" promptText="Nom"
+                               GridPane.rowIndex="0" GridPane.columnIndex="0"/>
 
-        <Button onAction="#addHotel" styleClass="btn" text="Ajouter Hôtel" />
+                    <TextField fx:id="tfDescription" promptText="Description"
+                               GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-    </VBox>
+                    <TextField fx:id="tfPrix" promptText="Prix"
+                               GridPane.rowIndex="1" GridPane.columnIndex="0"/>
 
+                    <TextField fx:id="tfCapacite" promptText="Capacité"
+                               GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                    <TextField fx:id="tfNbEtoiles" promptText="Nombre d'étoiles"
+                               GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+
+                    <TextField fx:id="tfLocalisation" promptText="Localisation"
+                               GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                    <TextField fx:id="tfChambre" promptText="Type de chambre"
+                               GridPane.rowIndex="3" GridPane.columnIndex="0"
+                               GridPane.columnSpan="2"/>
+
+                </GridPane>
+
+                <CheckBox fx:id="cbDisponibilite" text="Disponible" styleClass="checkbox"/>
+
+                <Button text="Ajouter Hôtel" onAction="#addHotel" styleClass="btn"/>
+
+            </VBox>
+        </VBox>
+    </children>
 </AnchorPane>

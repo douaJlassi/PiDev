@@ -1,46 +1,64 @@
 .root {
-    -fx-background-color: #fdf6ee;
+    -fx-background-color: linear-gradient(to bottom right, #fdf6ee, #eef2ff);
+    -fx-font-family: "Segoe UI", "Arial";
 }
 
-/* Carte centrale */
+/* Card */
 .card {
     -fx-background-color: white;
-    -fx-padding: 25;
-    -fx-border-radius: 20;
-    -fx-background-radius: 20;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 20,0,0,5);
-    -fx-min-width: 400;
+    -fx-padding: 35;
+    -fx-spacing: 15;
+    -fx-border-radius: 25;
+    -fx-background-radius: 25;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 30,0,0,8);
 }
 
-/* Titre */
+/* Title */
 .title {
-    -fx-font-size: 22px;
+    -fx-font-size: 26px;
     -fx-text-fill: #1b3a6f;
     -fx-font-weight: bold;
 }
 
-/* Champs */
-.text-field {
-    -fx-background-radius: 10;
-    -fx-border-radius: 10;
-    -fx-border-color: #ddd;
-    -fx-padding: 8;
+/* Inputs */
+.input {
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: #d1d5db;
+    -fx-padding: 10;
+    -fx-background-color: #f9fafb;
+    -fx-font-size: 13px;
 }
+
+.input:focused {
+    -fx-border-color: #6366f1;
+    -fx-effect: dropshadow(gaussian, rgba(99,102,241,0.4), 10,0,0,0);
+    -fx-background-color: white;
+}
+
+
 
 /* Checkbox */
-.checkbox {
-    -fx-text-fill: #1b3a6f;
+.check-box {
+    -fx-text-fill: #374151;
 }
 
-/* Bouton */
+/* Button */
 .btn {
-    -fx-background-color: linear-gradient(#f9c74f, #f9844a);
+    -fx-background-color: linear-gradient(#6366f1, #4f46e5);
     -fx-text-fill: white;
     -fx-font-weight: bold;
-    -fx-background-radius: 20;
-    -fx-padding: 10 20;
+    -fx-background-radius: 25;
+    -fx-padding: 12 30;
 }
 
 .btn:hover {
-    -fx-background-color: linear-gradient(#f9844a, #f9c74f);
+    -fx-background-color: linear-gradient(#4f46e5, #4338ca);
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(79,70,229,0.4), 15,0,0,0);
+}
+
+.btn:pressed {
+    -fx-scale-x: 0.96;
+    -fx-scale-y: 0.96;
 }
