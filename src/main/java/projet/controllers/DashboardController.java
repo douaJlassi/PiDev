@@ -1,16 +1,22 @@
 package projet.controllers;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import projet.entites.Hotel;
 import projet.services.HotelService;
 
 
+import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -21,7 +27,10 @@ public class DashboardController implements Initializable {
 
     @FXML
     private VBox pnItems; // The container in FXML
-
+    @FXML
+    private StackPane contentArea;
+    @FXML
+    private ScrollPane pnlOverview;
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         // Fetch data from your service
@@ -44,8 +53,6 @@ public class DashboardController implements Initializable {
         }
         return list;
     }
-
-
     private HBox createServiceRow(Hotel service) {
         HBox row = new HBox();
         row.setAlignment(Pos.CENTER_LEFT);
@@ -80,7 +87,7 @@ public class DashboardController implements Initializable {
         else {
             Label statusLbl = new Label("Non Disponible");
             statusLbl.setMinWidth(90);
-            statusLbl.getStyleClass().add("status-pending");
+            statusLbl.getStyleClass().add("status-inactive");
             row.getChildren().addAll(nameLbl, typeLbl, priceLbl, capLbl, statusLbl);
 
         }
@@ -91,5 +98,51 @@ public class DashboardController implements Initializable {
 
 
         return row;
+    }
+    @FXML
+    private void handleShowVolForm(ActionEvent event) {
+        try {
+            // Load the addVol.fxml
+            Parent volForm = FXMLLoader.load(getClass().getResource("/addVol.fxml"));
+
+            // Clear current view and add the form
+            contentArea.getChildren().removeAll(); // Clears everything? No, we want to keep logic simple.
+
+            // Better approach: Make pnlOverview invisible and add form on top
+            pnlOverview.setVisible(false);
+
+            // Check if form is already added to avoid duplicates (Optional optimization)
+            contentArea.getChildren().add(volForm);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    @FXML
+    private void handleShowHotelForm(ActionEvent event) {
+        try {
+            // Load the addVol.fxml
+            Parent HotelForm = FXMLLoader.load(getClass().getResource("/AddHotel.fxml"));
+
+            // Clear current view and add the form
+            contentArea.getChildren().removeAll(); // Clears everything? No, we want to keep logic simple.
+
+            // Better approach: Make pnlOverview invisible and add form on top
+            pnlOverview.setVisible(false);
+
+            // Check if form is already added to avoid duplicates (Optional optimization)
+            contentArea.getChildren().add(HotelForm);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    @FXML
+    private void handleShowDashboard(ActionEvent event) {
+        // Remove any forms (anything that is NOT pnlOverview)
+        contentArea.getChildren().removeIf(node -> node != pnlOverview);
+
+        // Show the stats again
+        pnlOverview.setVisible(true);
     }
 }

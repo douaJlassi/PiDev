@@ -179,3 +179,16 @@
     -fx-border-color: #4ba3a1;     /* Rehletna Teal Border */
     -fx-text-fill: #4ba3a1;        /* Rehletna Teal Text */
 }
+/* Add Button Styling */
+.btn-add {
+    -fx-background-color: #4ba3a1; /* Rehletna Teal */
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5;
+    -fx-padding: 6 15;
+    -fx-cursor: hand;
+}
+
+.btn-add:hover {
+    -fx-background-color: #3a8a88; /* Darker Teal */
+}

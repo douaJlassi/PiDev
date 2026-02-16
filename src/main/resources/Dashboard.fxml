@@ -14,6 +14,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.layout.StackPane?>
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="750.0" prefWidth="1050.0" styleClass="root-pane" stylesheets="@styleDash.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="projet.controllers.DashboardController">
 
     <!-- ================= LEFT SIDEBAR ================= -->
@@ -37,7 +38,7 @@
 
                 <VBox prefHeight="400.0" prefWidth="250.0" spacing="10.0" VBox.vgrow="ALWAYS">
                     <children>
-                        <Button alignment="BASELINE_LEFT" graphicTextGap="15.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="nav-btn, active-nav-btn" text="📉 Dashboard" />
+                        <Button onAction="#handleShowDashboard" alignment="BASELINE_LEFT" graphicTextGap="15.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="nav-btn, active-nav-btn" text="📉 Dashboard" />
                         <Button alignment="BASELINE_LEFT" graphicTextGap="15.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="nav-btn" text="👨🏻‍💻 Services" />
                         <Button alignment="BASELINE_LEFT" graphicTextGap="15.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="nav-btn" text="📦 Packages" />
                         <Button alignment="BASELINE_LEFT" graphicTextGap="15.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="nav-btn" text="⚙ Settings" />
@@ -57,11 +58,13 @@
     </left>
 
     <!-- ================= MAIN CONTENT ================= -->
+    <!-- ... inside BorderPane ... -->
+
     <center>
         <VBox prefHeight="200.0" prefWidth="100.0" styleClass="content-area" BorderPane.alignment="CENTER">
             <children>
 
-                <!-- Top Search/Profile Bar -->
+                <!-- Top Search/Profile Bar (Kept the same) -->
                 <HBox alignment="CENTER_LEFT" prefHeight="70.0" prefWidth="800.0" spacing="20.0" style="-fx-background-color: white;">
                     <children>
                         <Label styleClass="page-title" text="Dashboard Overview" />
@@ -74,49 +77,75 @@
                     </padding>
                 </HBox>
 
-                <ScrollPane fitToWidth="true" styleClass="scroll-pane-clean" VBox.vgrow="ALWAYS">
-                    <!-- ... inside ScrollPane ... -->
-                    <content>
-                        <VBox spacing="30.0">
-                            <children>
-                                <!-- Statistics Cards HBox here (keep as is) -->
+                <!-- *** MAIN CONTENT CONTAINER *** -->
+                <!-- Used StackPane to swap views easily -->
+                <StackPane fx:id="contentArea" VBox.vgrow="ALWAYS">
+                    <children>
 
-                                <!-- RECENT ACTIVITY SECTION -->
-                                <VBox spacing="15.0" VBox.vgrow="ALWAYS">
+                        <!-- LAYER 1: The Original Dashboard View -->
+                        <ScrollPane fx:id="pnlOverview" fitToWidth="true" styleClass="scroll-pane-clean">
+                            <content>
+                                <VBox spacing="30.0">
                                     <children>
-                                        <!-- Header and Filter Button (keep as is) -->
-                                        <HBox alignment="CENTER_LEFT">
-                                            <Label styleClass="section-header" text="Recent Services Added" />
-                                            <Pane HBox.hgrow="ALWAYS" />
-                                            <Button mnemonicParsing="false" styleClass="filter-btn" text="🌪 Filter By" />
+
+                                        <!-- Statistics Cards (Same as before) -->
+                                        <HBox spacing="30.0">
+                                            <!-- ... Your Card Code ... -->
+                                            <VBox prefHeight="140.0" prefWidth="240.0" styleClass="stat-card, card-teal">
+                                                <children>
+                                                    <Label styleClass="card-title" text="Total Packages" />
+                                                    <Label styleClass="card-value" text="124" />
+                                                </children>
+                                            </VBox>
+                                            <!-- Add other cards here -->
                                         </HBox>
 
-                                        <!-- Table Header -->
-                                        <HBox styleClass="table-header">
+                                        <!-- RECENT ACTIVITY SECTION -->
+                                        <VBox spacing="15.0" VBox.vgrow="ALWAYS">
                                             <children>
-                                                <Label minWidth="200.0" text="Service Name" HBox.hgrow="ALWAYS" />
-                                                <Label minWidth="150.0" text="Type" />
-                                                <Label minWidth="100.0" text="Price" />
-                                                <Label minWidth="150.0" text="Capacité" />
-                                                <Label minWidth="100.0" text="Status" />
+
+                                                <!-- *** HEADER WITH NEW BUTTONS *** -->
+                                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                    <children>
+                                                        <Label styleClass="section-header" text="Recent Services" />
+                                                        <Pane HBox.hgrow="ALWAYS" />
+
+                                                        <!-- NEW BUTTONS -->
+                                                        <Button onAction="#handleShowVolForm" mnemonicParsing="false" styleClass="btn-add" text="+ Add Vol" />
+                                                        <Button onAction="#handleShowHotelForm" mnemonicParsing="false" styleClass="btn-add" text="+ Add Hotel" />
+
+                                                        <Button mnemonicParsing="false" styleClass="filter-btn" text="🌪 Filter By" />
+                                                    </children>
+                                                </HBox>
+
+                                                <!-- Table Header -->
+                                                <HBox styleClass="table-header">
+                                                    <children>
+                                                        <Label minWidth="200.0" text="Service Name" HBox.hgrow="ALWAYS" />
+                                                        <Label minWidth="150.0" text="Type" />
+                                                        <Label minWidth="100.0" text="Price" />
+                                                        <Label minWidth="100.0" text="Capacity" />
+                                                        <Label minWidth="150.0" text="Status" />
+                                                    </children>
+                                                </HBox>
+
+                                                <!-- Items Container -->
+                                                <VBox fx:id="pnItems" spacing="5.0" style="-fx-background-color: white;" />
+
                                             </children>
-                                        </HBox>
-
-                                        <!-- DYNAMIC ITEMS CONTAINER -->
-                                        <!-- I added fx:id="pnItems" here so we can add rows from Java -->
-                                        <VBox fx:id="pnItems" spacing="5.0" style="-fx-background-color: white;">
-                                            <!-- Rows will be added here by the Controller -->
                                         </VBox>
-
                                     </children>
+                                    <padding>
+                                        <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+                                    </padding>
                                 </VBox>
-                            </children>
-                            <padding>
-                                <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
-                            </padding>
-                        </VBox>
-                    </content>
-                </ScrollPane>
+                            </content>
+                        </ScrollPane>
+
+                        <!-- LAYER 2: Forms will be loaded here dynamically by Controller -->
+
+                    </children>
+                </StackPane>
             </children>
         </VBox>
     </center>
