@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.text.Text?>
+<?import javafx.scene.image.Image?>
 
 <BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="controllers.DashboardController"
@@ -15,12 +15,26 @@
     <top>
         <HBox styleClass="nav-bar" alignment="CENTER_LEFT" spacing="20">
             <padding>
-                <Insets top="15" right="30" bottom="15" left="30"/>
+                <Insets top="12" right="30" bottom="12" left="30"/>
             </padding>
 
-            <Label text="Community Posts" styleClass="nav-title"/>
+            <!-- Logo -->
+            <ImageView fx:id="logoImage" fitHeight="45" preserveRatio="true">
+                <image>
+                    <Image url="@../images/rehletna-logo.png"/>
+                </image>
+            </ImageView>
 
             <Region HBox.hgrow="ALWAYS"/>
+
+            <!-- View Toggle -->
+            <HBox spacing="8" alignment="CENTER" styleClass="view-toggle-container">
+                <Button fx:id="gridViewBtn" text="⊞ Grid" styleClass="view-toggle-btn, active-view" onAction="#switchToGridView"/>
+                <Button fx:id="listViewBtn" text="☰ Feed" styleClass="view-toggle-btn" onAction="#switchToListView"/>
+            </HBox>
+
+            <!-- Search Bar -->
+            <TextField fx:id="searchField" promptText="🔍 Search posts..." styleClass="search-field" prefWidth="250"/>
 
             <Button fx:id="createPostBtn" text="+ Create Post" styleClass="primary-btn" onAction="#showCreatePostDialog"/>
             <Button fx:id="refreshBtn" text="⟳" styleClass="icon-btn" onAction="#refreshPosts"/>
@@ -29,19 +43,23 @@
 
     <!-- Main Content Area -->
     <center>
-        <VBox styleClass="main-content" spacing="0">
-            <padding>
-                <Insets top="20" right="20" bottom="20" left="20"/>
-            </padding>
-
-            <!-- Posts Container -->
-            <ScrollPane fx:id="postsScrollPane" styleClass="posts-scroll-pane" fitToWidth="true" VBox.vgrow="ALWAYS">
-                <VBox fx:id="postsContainer" styleClass="posts-container" spacing="20">
+        <ScrollPane fx:id="postsScrollPane" styleClass="posts-scroll-pane" fitToWidth="true" VBox.vgrow="ALWAYS">
+            <!-- Container that will hold either grid or list -->
+            <StackPane fx:id="contentContainer">
+                <!-- Grid View -->
+                <FlowPane fx:id="postsGrid" styleClass="posts-grid" hgap="24" vgap="24" alignment="TOP_CENTER" visible="true" managed="true">
                     <padding>
-                        <Insets top="10" right="10" bottom="10" left="10"/>
+                        <Insets top="30" right="30" bottom="30" left="30"/>
+                    </padding>
+                </FlowPane>
+
+                <!-- List View -->
+                <VBox fx:id="postsList" styleClass="posts-list" spacing="20" alignment="TOP_CENTER" visible="false" managed="false">
+                    <padding>
+                        <Insets top="30" right="30" bottom="30" left="30"/>
                     </padding>
                 </VBox>
-            </ScrollPane>
-        </VBox>
+            </StackPane>
+        </ScrollPane>
     </center>
 </BorderPane>

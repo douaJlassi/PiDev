@@ -1,6 +1,7 @@
 package controllers;
 
 import entities.Client;
+import entities.Comment;
 import entities.Publication;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -11,8 +12,9 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
-import javafx.stage.Stage;
+import services.CommentService;
 import services.PublicationService;
 
 import java.io.File;
@@ -26,11 +28,18 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class DashboardController {
 
     @FXML
-    private VBox postsContainer;
+    private FlowPane postsGrid;
+
+    @FXML
+    private VBox postsList;
+
+    @FXML
+    private StackPane contentContainer;
 
     @FXML
     private ScrollPane postsScrollPane;
@@ -41,53 +50,122 @@ public class DashboardController {
     @FXML
     private Button refreshBtn;
 
+    @FXML
+    private Button gridViewBtn;
+
+    @FXML
+    private Button listViewBtn;
+
+    @FXML
+    private TextField searchField;
+
+    @FXML
+    private ImageView logoImage;
+
     private PublicationService publicationService;
-
-    // This should be set based on your logged-in user
+    private CommentService commentService;
     private Client currentUser;
-
-    // Directory to store uploaded images
     private static final String UPLOAD_DIR = "uploads/images/";
+    private List<Publication> allPosts;
+    private boolean isGridView = true;
 
     @FXML
     public void initialize() {
         publicationService = new PublicationService();
+        commentService = new CommentService();
 
-        // Initialize current user (you should get this from your session/login system)
         currentUser = new Client();
         currentUser.setClientID(1); // Replace with actual logged-in user ID
 
-        // Create upload directory if it doesn't exist
         try {
             Files.createDirectories(Paths.get(UPLOAD_DIR));
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        // Load posts
+        setupSearchFilter();
         loadPosts();
-
-        // Add smooth scrolling
         postsScrollPane.setVvalue(0);
+    }
+
+    private void setupSearchFilter() {
+        if (searchField != null) {
+            searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+                filterPosts(newValue);
+            });
+        }
+    }
+
+    private void filterPosts(String searchTerm) {
+        if (allPosts == null) return;
+
+        if (searchTerm == null || searchTerm.trim().isEmpty()) {
+            displayPosts(allPosts);
+        } else {
+            String lowerSearch = searchTerm.toLowerCase();
+            List<Publication> filtered = allPosts.stream()
+                    .filter(p -> p.getContent().toLowerCase().contains(lowerSearch) ||
+                            (p.getPlace() != null && p.getPlace().toLowerCase().contains(lowerSearch)))
+                    .collect(Collectors.toList());
+
+            if (filtered.isEmpty()) {
+                showNoResultsState(searchTerm);
+            } else {
+                displayPosts(filtered);
+            }
+        }
+    }
+
+    @FXML
+    private void switchToGridView() {
+        if (isGridView) return;
+
+        isGridView = true;
+        gridViewBtn.getStyleClass().add("active-view");
+        listViewBtn.getStyleClass().remove("active-view");
+
+        postsGrid.setVisible(true);
+        postsGrid.setManaged(true);
+        postsList.setVisible(false);
+        postsList.setManaged(false);
+
+        if (allPosts != null) {
+            displayPosts(allPosts);
+        }
+    }
+
+    @FXML
+    private void switchToListView() {
+        if (!isGridView) return;
+
+        isGridView = false;
+        listViewBtn.getStyleClass().add("active-view");
+        gridViewBtn.getStyleClass().remove("active-view");
+
+        postsList.setVisible(true);
+        postsList.setManaged(true);
+        postsGrid.setVisible(false);
+        postsGrid.setManaged(false);
+
+        if (allPosts != null) {
+            displayPosts(allPosts);
+        }
     }
 
     @FXML
     private void showCreatePostDialog() {
         Dialog<Publication> dialog = new Dialog<>();
         dialog.setTitle("Create New Post");
-        dialog.setHeaderText("Share your thoughts with the community");
+        dialog.setHeaderText("Share your adventure with the community 🌍");
 
-        // Set the button types
         ButtonType createButtonType = new ButtonType("Post", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(createButtonType, ButtonType.CANCEL);
 
-        // Apply custom styling
         dialog.getDialogPane().getStylesheets().add(
                 getClass().getResource("/styles/dashboard.css").toExternalForm()
         );
         dialog.getDialogPane().getStyleClass().add("dialog-pane");
 
-        // Create the form
         GridPane grid = new GridPane();
         grid.setHgap(15);
         grid.setVgap(15);
@@ -95,19 +173,18 @@ public class DashboardController {
 
         TextArea contentArea = new TextArea();
         contentArea.setPromptText("What's on your mind?");
-        contentArea.setPrefRowCount(5);
+        contentArea.setPrefRowCount(6);
         contentArea.setWrapText(true);
         contentArea.getStyleClass().add("dialog-text-area");
 
         TextField placeField = new TextField();
-        placeField.setPromptText("Location (optional)");
+        placeField.setPromptText("Add location (e.g., Tunis, Carthage...)");
         placeField.getStyleClass().add("dialog-text-field");
 
-        // Image selection
         Label imageLabel = new Label("No image selected");
         imageLabel.getStyleClass().add("file-label");
 
-        Button selectImageBtn = new Button("Choose Image");
+        Button selectImageBtn = new Button("📷 Add Photo");
         selectImageBtn.getStyleClass().add("file-btn");
 
         final File[] selectedImageFile = {null};
@@ -122,21 +199,21 @@ public class DashboardController {
             File file = fileChooser.showOpenDialog(dialog.getOwner());
             if (file != null) {
                 selectedImageFile[0] = file;
-                imageLabel.setText(file.getName());
+                imageLabel.setText("✓ " + file.getName());
+                imageLabel.setStyle("-fx-text-fill: #17B3A6; -fx-font-weight: bold;");
             }
         });
 
-        HBox imageBox = new HBox(10, selectImageBtn, imageLabel);
+        HBox imageBox = new HBox(12, selectImageBtn, imageLabel);
         imageBox.setAlignment(Pos.CENTER_LEFT);
 
-        // Labels
-        Label contentLabel = new Label("Content:");
+        Label contentLabel = new Label("Content");
         contentLabel.getStyleClass().add("dialog-label");
 
-        Label placeLabel = new Label("Location:");
+        Label placeLabel = new Label("Location");
         placeLabel.getStyleClass().add("dialog-label");
 
-        Label imageSelectLabel = new Label("Image:");
+        Label imageSelectLabel = new Label("Photo");
         imageSelectLabel.getStyleClass().add("dialog-label");
 
         grid.add(contentLabel, 0, 0);
@@ -148,22 +225,18 @@ public class DashboardController {
 
         dialog.getDialogPane().setContent(grid);
 
-        // Enable/Disable create button
         Button createButton = (Button) dialog.getDialogPane().lookupButton(createButtonType);
         createButton.getStyleClass().add("primary-btn");
         createButton.setDisable(true);
 
-        // Validation
         contentArea.textProperty().addListener((observable, oldValue, newValue) -> {
             createButton.setDisable(newValue.trim().isEmpty());
         });
 
-        // Convert the result
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == createButtonType) {
                 String imagePath = null;
 
-                // Handle image upload
                 if (selectedImageFile[0] != null) {
                     try {
                         String fileName = System.currentTimeMillis() + "_" + selectedImageFile[0].getName();
@@ -176,7 +249,7 @@ public class DashboardController {
                     }
                 }
 
-                Publication publication = new Publication(
+                return new Publication(
                         currentUser,
                         0,
                         contentArea.getText().trim(),
@@ -184,8 +257,6 @@ public class DashboardController {
                         imagePath,
                         placeField.getText().trim().isEmpty() ? null : placeField.getText().trim()
                 );
-
-                return publication;
             }
             return null;
         });
@@ -195,7 +266,7 @@ public class DashboardController {
             try {
                 publicationService.insertOne(publication);
                 loadPosts();
-                showSuccess("Post created successfully!");
+                showSuccess("Post shared successfully! 🎉");
             } catch (SQLException e) {
                 e.printStackTrace();
                 showError("Failed to create post: " + e.getMessage());
@@ -209,12 +280,11 @@ public class DashboardController {
     }
 
     private void loadPosts() {
-        postsContainer.getChildren().clear();
+        clearCurrentView();
 
-        // Show loading indicator
-        VBox loadingBox = new VBox(10);
+        VBox loadingBox = new VBox(12);
         loadingBox.setAlignment(Pos.CENTER);
-        loadingBox.getStyleClass().add("loading-indicator");
+        loadingBox.getStyleClass().add("loading-container");
 
         ProgressIndicator progressIndicator = new ProgressIndicator();
         progressIndicator.setMaxSize(50, 50);
@@ -223,153 +293,533 @@ public class DashboardController {
         loadingText.getStyleClass().add("loading-text");
 
         loadingBox.getChildren().addAll(progressIndicator, loadingText);
-        postsContainer.getChildren().add(loadingBox);
 
-        // Load posts in background
+        if (isGridView) {
+            postsGrid.getChildren().add(loadingBox);
+        } else {
+            postsList.getChildren().add(loadingBox);
+        }
+
         new Thread(() -> {
             try {
                 List<Publication> publications = publicationService.selectALL();
+                allPosts = publications;
 
                 Platform.runLater(() -> {
-                    postsContainer.getChildren().clear();
+                    clearCurrentView();
 
                     if (publications.isEmpty()) {
                         showEmptyState();
                     } else {
-                        for (Publication publication : publications) {
-                            VBox postCard = createPostCard(publication);
-                            postsContainer.getChildren().add(postCard);
-                        }
+                        displayPosts(publications);
+                    }
+
+                    if (searchField != null) {
+                        searchField.clear();
                     }
                 });
             } catch (SQLException e) {
                 e.printStackTrace();
                 Platform.runLater(() -> {
-                    postsContainer.getChildren().clear();
+                    clearCurrentView();
                     showError("Failed to load posts: " + e.getMessage());
                 });
             }
         }).start();
     }
 
-    private VBox createPostCard(Publication publication) {
-        VBox card = new VBox();
-        card.getStyleClass().add("post-card");
-        card.setMaxWidth(Double.MAX_VALUE);
+    private void clearCurrentView() {
+        postsGrid.getChildren().clear();
+        postsList.getChildren().clear();
+    }
 
-        // Header (Author info and date)
-        HBox header = new HBox(10);
-        header.getStyleClass().add("post-header");
-        header.setAlignment(Pos.CENTER_LEFT);
+    private void displayPosts(List<Publication> publications) {
+        clearCurrentView();
 
-        // Avatar placeholder (you can replace with actual avatar)
-        Circle avatar = new Circle(20);
-        avatar.setFill(javafx.scene.paint.Color.web("#667eea"));
+        for (Publication publication : publications) {
+            VBox postCard = isGridView ? createGridPostCard(publication) : createListPostCard(publication);
 
-        VBox authorInfo = new VBox(2);
-        authorInfo.setAlignment(Pos.CENTER_LEFT);
-
-        Label authorLabel = new Label("User #" + publication.getClient().getClientID());
-        authorLabel.getStyleClass().add("post-author");
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy 'at' hh:mm a");
-        Label dateLabel = new Label(dateFormat.format(publication.getDatePublication()));
-        dateLabel.getStyleClass().add("post-date");
-
-        authorInfo.getChildren().addAll(authorLabel, dateLabel);
-
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-
-        // Place tag
-        HBox placeBox = new HBox();
-        if (publication.getPlace() != null && !publication.getPlace().isEmpty()) {
-            Label placeLabel = new Label("📍 " + publication.getPlace());
-            placeLabel.getStyleClass().add("post-place");
-            placeBox.getChildren().add(placeLabel);
-        }
-
-        header.getChildren().addAll(avatar, authorInfo, spacer, placeBox);
-
-        // Content
-        VBox contentSection = new VBox(10);
-        contentSection.getStyleClass().add("post-content-section");
-
-        Text contentText = new Text(publication.getContent());
-        contentText.getStyleClass().add("post-content");
-        contentText.wrappingWidthProperty().bind(card.widthProperty().subtract(40));
-
-        contentSection.getChildren().add(contentText);
-
-        // Image (if exists)
-        if (publication.getImagePath() != null && !publication.getImagePath().isEmpty()) {
-            VBox imageContainer = new VBox();
-            imageContainer.getStyleClass().add("post-image-container");
-
-            try {
-                File imageFile = new File(publication.getImagePath());
-                if (imageFile.exists()) {
-                    Image image = new Image(imageFile.toURI().toString());
-                    ImageView imageView = new ImageView(image);
-                    imageView.getStyleClass().add("post-image");
-                    imageView.setPreserveRatio(true);
-                    imageView.setFitWidth(700);
-                    imageView.setSmooth(true);
-
-                    imageContainer.getChildren().add(imageView);
-                    contentSection.getChildren().add(imageContainer);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
+            if (isGridView) {
+                postsGrid.getChildren().add(postCard);
+            } else {
+                postsList.getChildren().add(postCard);
             }
         }
+    }
 
-        // Actions footer
-        HBox actionsBox = new HBox(20);
-        actionsBox.getStyleClass().add("post-actions");
-        actionsBox.setAlignment(Pos.CENTER_LEFT);
+    private VBox createGridPostCard(Publication publication) {
+        VBox card = new VBox();
+        card.getStyleClass().add("post-card-grid");
 
-        // Like button
-        Button likeBtn = new Button("❤ " + publication.getLikes().size() + " Likes");
-        likeBtn.getStyleClass().add("secondary-btn");
-        likeBtn.setOnAction(e -> handleLike(publication));
+        // Clip to bounds to prevent overflow
+        javafx.scene.shape.Rectangle clipRect = new javafx.scene.shape.Rectangle(420, 0);
+        clipRect.setArcWidth(12);
+        clipRect.setArcHeight(12);
+        clipRect.heightProperty().bind(card.heightProperty());
+        card.setClip(clipRect);
 
-        // Comment button
-        Button commentBtn = new Button("💬 " + publication.getComments().size() + " Comments");
-        commentBtn.getStyleClass().add("secondary-btn");
-        commentBtn.setOnAction(e -> handleComment(publication));
+        // Header
+        card.getChildren().add(createPostHeader(publication));
 
-        actionsBox.getChildren().addAll(likeBtn, commentBtn);
+        // Content
+        VBox contentArea = new VBox(12);
+        contentArea.getStyleClass().add("post-content-area");
 
-        // Add edit/delete buttons if current user is the author
-        if (currentUser.getClientID() == publication.getClient().getClientID()) {
-            Region actionSpacer = new Region();
-            HBox.setHgrow(actionSpacer, Priority.ALWAYS);
-
-            Button editBtn = new Button("Edit");
-            editBtn.getStyleClass().add("secondary-btn");
-            editBtn.setOnAction(e -> handleEdit(publication));
-
-            Button deleteBtn = new Button("Delete");
-            deleteBtn.getStyleClass().add("danger-btn");
-            deleteBtn.setOnAction(e -> handleDelete(publication));
-
-            actionsBox.getChildren().addAll(actionSpacer, editBtn, deleteBtn);
+        String content = publication.getContent();
+        if (content.length() > 200) {
+            content = content.substring(0, 200) + "...";
         }
 
-        card.getChildren().addAll(header, contentSection, actionsBox);
+        Text contentText = new Text(content);
+        contentText.getStyleClass().add("post-text-preview");
+        contentText.wrappingWidthProperty().bind(card.widthProperty().subtract(32));
+
+        contentArea.getChildren().add(contentText);
+        card.getChildren().add(contentArea);
+
+        // Image
+        if (publication.getImagePath() != null && !publication.getImagePath().isEmpty()) {
+            card.getChildren().add(createImageContainer(publication, true));
+        }
+
+        // Stats
+        card.getChildren().add(createStatsBar(publication));
+
+        // Actions
+        card.getChildren().add(createActionsBar(publication, true));
 
         return card;
     }
 
+    private VBox createListPostCard(Publication publication) {
+        VBox card = new VBox();
+        card.getStyleClass().add("post-card-list");
+
+        // Clip to bounds to prevent overflow
+        javafx.scene.shape.Rectangle clipRect = new javafx.scene.shape.Rectangle(680, 0);
+        clipRect.setArcWidth(12);
+        clipRect.setArcHeight(12);
+        clipRect.heightProperty().bind(card.heightProperty());
+        card.setClip(clipRect);
+
+        // Header
+        card.getChildren().add(createPostHeader(publication));
+
+        // Content
+        VBox contentArea = new VBox(12);
+        contentArea.getStyleClass().add("post-content-area");
+
+        Text contentText = new Text(publication.getContent());
+        contentText.getStyleClass().add("post-text");
+        contentText.wrappingWidthProperty().bind(card.widthProperty().subtract(32));
+
+        contentArea.getChildren().add(contentText);
+        card.getChildren().add(contentArea);
+
+        // Image
+        if (publication.getImagePath() != null && !publication.getImagePath().isEmpty()) {
+            card.getChildren().add(createImageContainer(publication, false));
+        }
+
+        // Stats
+        card.getChildren().add(createStatsBar(publication));
+
+        // Actions
+        card.getChildren().add(createActionsBar(publication, false));
+
+        return card;
+    }
+
+    private HBox createPostHeader(Publication publication) {
+        HBox header = new HBox(12);
+        header.getStyleClass().add("post-header");
+        header.setAlignment(Pos.CENTER_LEFT);
+
+        // Avatar
+        Region avatar = new Region();
+        avatar.getStyleClass().add("avatar");
+        avatar.setPrefSize(40, 40);
+        avatar.setMinSize(40, 40);
+        avatar.setMaxSize(40, 40);
+
+        // Author info
+        VBox authorInfo = new VBox(2);
+
+        Label authorName = new Label("Traveler #" + publication.getClient().getClientID());
+        authorName.getStyleClass().add("post-author-name");
+
+        HBox metaBox = new HBox(8);
+        metaBox.setAlignment(Pos.CENTER_LEFT);
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd 'at' hh:mm a");
+        Label dateLabel = new Label(dateFormat.format(publication.getDatePublication()));
+        dateLabel.getStyleClass().add("post-meta");
+
+        metaBox.getChildren().add(dateLabel);
+
+        if (publication.getPlace() != null && !publication.getPlace().isEmpty()) {
+            Label dot = new Label("•");
+            dot.getStyleClass().add("post-meta");
+            Label placeLabel = new Label("📍 " + publication.getPlace());
+            placeLabel.getStyleClass().add("post-place-tag");
+            metaBox.getChildren().addAll(dot, placeLabel);
+        }
+
+        authorInfo.getChildren().addAll(authorName, metaBox);
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        // Menu button
+        Button menuBtn = new Button("⋯");
+        menuBtn.getStyleClass().add("post-menu-btn");
+        if (currentUser.getClientID() == publication.getClient().getClientID()) {
+            menuBtn.setOnAction(e -> showPostMenu(publication, menuBtn));
+        } else {
+            menuBtn.setVisible(false);
+        }
+
+        header.getChildren().addAll(avatar, authorInfo, spacer, menuBtn);
+        return header;
+    }
+
+    private VBox createImageContainer(Publication publication, boolean isGrid) {
+        VBox imageContainer = new VBox();
+        imageContainer.getStyleClass().add("post-image-container");
+        imageContainer.setMaxWidth(isGrid ? 420 : 680);
+
+        try {
+            File imageFile = new File(publication.getImagePath());
+            if (imageFile.exists()) {
+                Image image = new Image(imageFile.toURI().toString());
+                ImageView imageView = new ImageView(image);
+                imageView.getStyleClass().add(isGrid ? "post-image-grid" : "post-image-list");
+                imageView.setPreserveRatio(true);
+                imageView.setSmooth(true);
+                imageView.setFitWidth(isGrid ? 420 : 680);
+
+                imageContainer.getChildren().add(imageView);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return imageContainer;
+    }
+
+    private HBox createStatsBar(Publication publication) {
+        HBox stats = new HBox(16);
+        stats.getStyleClass().add("post-stats");
+        stats.setAlignment(Pos.CENTER_LEFT);
+
+        // Load actual comment count from database
+        int commentCount = 0;
+        try {
+            commentCount = commentService.getCommentCount(publication.getPublicationID());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        if (publication.getLikes().size() > 0 || commentCount > 0) {
+            if (publication.getLikes().size() > 0) {
+                Label likesLabel = new Label("❤️ " + publication.getLikes().size());
+                likesLabel.getStyleClass().add("post-stats-text");
+                stats.getChildren().add(likesLabel);
+            }
+
+            Region spacer = new Region();
+            HBox.setHgrow(spacer, Priority.ALWAYS);
+            stats.getChildren().add(spacer);
+
+            if (commentCount > 0) {
+                Label commentsLabel = new Label(commentCount + " comment" + (commentCount != 1 ? "s" : ""));
+                commentsLabel.getStyleClass().add("post-stats-text");
+                stats.getChildren().add(commentsLabel);
+            }
+        }
+
+        return stats;
+    }
+
+    private HBox createActionsBar(Publication publication, boolean isCompact) {
+        HBox actions = new HBox(8);
+        actions.getStyleClass().add("post-actions");
+        actions.setAlignment(Pos.CENTER);
+
+        Button likeBtn = new Button("👍 Like");
+        likeBtn.getStyleClass().add("action-btn");
+        likeBtn.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(likeBtn, Priority.ALWAYS);
+        likeBtn.setOnAction(e -> handleLike(publication));
+
+        Button commentBtn = new Button("💬 Comment");
+        commentBtn.getStyleClass().add("action-btn");
+        commentBtn.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(commentBtn, Priority.ALWAYS);
+        commentBtn.setOnAction(e -> handleComment(publication));
+
+        Button shareBtn = new Button("↗️ Share");
+        shareBtn.getStyleClass().add("action-btn");
+        shareBtn.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(shareBtn, Priority.ALWAYS);
+
+        actions.getChildren().addAll(likeBtn, commentBtn, shareBtn);
+        return actions;
+    }
+
+    private void showPostMenu(Publication publication, Button menuBtn) {
+        ContextMenu menu = new ContextMenu();
+
+        MenuItem editItem = new MenuItem("✏️ Edit Post");
+        editItem.setOnAction(e -> handleEdit(publication));
+
+        MenuItem deleteItem = new MenuItem("🗑️ Delete Post");
+        deleteItem.setOnAction(e -> handleDelete(publication));
+
+        menu.getItems().addAll(editItem, deleteItem);
+        menu.show(menuBtn, javafx.geometry.Side.BOTTOM, 0, 0);
+    }
+
     private void handleLike(Publication publication) {
-        // Implement like functionality
-        showInfo("Like functionality - to be implemented with your Like entity");
+        showInfo("Like functionality - to be implemented");
     }
 
     private void handleComment(Publication publication) {
-        // Implement comment functionality
-        showInfo("Comment functionality - to be implemented with your Comment entity");
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Comments");
+        dialog.setHeaderText(publication.getComments().size() + " Comments");
+
+        ButtonType closeButtonType = new ButtonType("Close", ButtonBar.ButtonData.CANCEL_CLOSE);
+        dialog.getDialogPane().getButtonTypes().add(closeButtonType);
+
+        dialog.getDialogPane().getStylesheets().add(
+                getClass().getResource("/styles/dashboard.css").toExternalForm()
+        );
+        dialog.getDialogPane().getStyleClass().add("dialog-pane");
+        dialog.getDialogPane().setPrefWidth(600);
+        dialog.getDialogPane().setPrefHeight(500);
+
+        VBox mainContainer = new VBox(16);
+        mainContainer.setPadding(new Insets(0));
+
+        // Comment input area
+        HBox commentInputArea = new HBox(12);
+        commentInputArea.setPadding(new Insets(0, 0, 16, 0));
+        commentInputArea.setAlignment(Pos.CENTER_LEFT);
+        commentInputArea.setStyle("-fx-border-color: #e4e6eb; -fx-border-width: 0 0 1 0;");
+
+        // User avatar
+        Region userAvatar = new Region();
+        userAvatar.getStyleClass().add("avatar");
+        userAvatar.setPrefSize(32, 32);
+        userAvatar.setMinSize(32, 32);
+        userAvatar.setMaxSize(32, 32);
+
+        // Comment input
+        TextField commentInput = new TextField();
+        commentInput.setPromptText("Write a comment...");
+        commentInput.getStyleClass().add("dialog-text-field");
+        HBox.setHgrow(commentInput, Priority.ALWAYS);
+
+        // Post button
+        Button postButton = new Button("Post");
+        postButton.getStyleClass().add("primary-btn");
+        postButton.setDisable(true);
+
+        commentInput.textProperty().addListener((obs, old, newVal) -> {
+            postButton.setDisable(newVal.trim().isEmpty());
+        });
+
+        postButton.setOnAction(e -> {
+            String commentText = commentInput.getText().trim();
+            if (!commentText.isEmpty()) {
+                try {
+                    Comment newComment = new Comment(
+                            currentUser,
+                            publication,
+                            commentText,
+                            new Date()
+                    );
+                    commentService.insertOne(newComment);
+                    publication.addComment(newComment);
+
+                    commentInput.clear();
+                    dialog.setHeaderText(publication.getComments().size() + " Comments");
+
+                    // Reload comments
+                    loadCommentsInDialog(mainContainer, publication);
+
+                    // Refresh the post card to update comment count
+                    loadPosts();
+
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                    showError("Failed to post comment: " + ex.getMessage());
+                }
+            }
+        });
+
+        commentInput.setOnAction(e -> postButton.fire());
+
+        commentInputArea.getChildren().addAll(userAvatar, commentInput, postButton);
+
+        // Comments list container
+        ScrollPane commentsScrollPane = new ScrollPane();
+        commentsScrollPane.setFitToWidth(true);
+        commentsScrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+        VBox.setVgrow(commentsScrollPane, Priority.ALWAYS);
+
+        VBox commentsList = new VBox(12);
+        commentsList.setPadding(new Insets(16, 0, 0, 0));
+        commentsScrollPane.setContent(commentsList);
+
+        mainContainer.getChildren().addAll(commentInputArea, commentsScrollPane);
+
+        // Load existing comments
+        loadCommentsInDialog(mainContainer, publication);
+
+        dialog.getDialogPane().setContent(mainContainer);
+        dialog.showAndWait();
+    }
+
+    private void loadCommentsInDialog(VBox mainContainer, Publication publication) {
+        // Get the comments scroll pane
+        ScrollPane scrollPane = (ScrollPane) mainContainer.getChildren().get(1);
+        VBox commentsList = (VBox) scrollPane.getContent();
+        commentsList.getChildren().clear();
+
+        try {
+            List<Comment> comments = commentService.getCommentsByPublication(publication.getPublicationID());
+
+            if (comments.isEmpty()) {
+                Label noComments = new Label("No comments yet. Be the first to comment!");
+                noComments.setStyle("-fx-text-fill: #65676b; -fx-font-size: 14px; -fx-padding: 20;");
+                commentsList.getChildren().add(noComments);
+            } else {
+                for (Comment comment : comments) {
+                    commentsList.getChildren().add(createCommentItem(comment, publication));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            Label errorLabel = new Label("Failed to load comments");
+            errorLabel.setStyle("-fx-text-fill: #e74c3c; -fx-font-size: 14px;");
+            commentsList.getChildren().add(errorLabel);
+        }
+    }
+
+    private HBox createCommentItem(Comment comment, Publication publication) {
+        HBox commentItem = new HBox(12);
+        commentItem.setPadding(new Insets(12));
+        commentItem.setStyle("-fx-background-color: #f0f2f5; -fx-background-radius: 8;");
+
+        // Avatar
+        Region avatar = new Region();
+        avatar.getStyleClass().add("avatar");
+        avatar.setPrefSize(32, 32);
+        avatar.setMinSize(32, 32);
+        avatar.setMaxSize(32, 32);
+
+        // Comment content
+        VBox contentBox = new VBox(4);
+        HBox.setHgrow(contentBox, Priority.ALWAYS);
+
+        // Author and content
+        VBox textBox = new VBox(4);
+        textBox.setStyle("-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 8 12;");
+
+        Label authorLabel = new Label("Traveler #" + comment.getClient().getClientID());
+        authorLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #050505;");
+
+        Label contentLabel = new Label(comment.getContent());
+        contentLabel.setWrapText(true);
+        contentLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #050505;");
+
+        textBox.getChildren().addAll(authorLabel, contentLabel);
+
+        // Meta info (time, actions)
+        HBox metaBox = new HBox(12);
+        metaBox.setAlignment(Pos.CENTER_LEFT);
+        metaBox.setPadding(new Insets(4, 0, 0, 12));
+
+        Label timeLabel = new Label(comment.getTimeAgo());
+        timeLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #65676b; -fx-font-weight: 600;");
+
+        metaBox.getChildren().add(timeLabel);
+
+        // Add edit/delete buttons if user owns the comment
+        if (comment.isOwnedBy(currentUser)) {
+            Button editBtn = new Button("Edit");
+            editBtn.setStyle("-fx-background-color: transparent; -fx-text-fill: #65676b; -fx-font-size: 12px; -fx-font-weight: 600; -fx-cursor: hand; -fx-padding: 0;");
+            editBtn.setOnAction(e -> handleEditComment(comment, publication));
+
+            Button deleteBtn = new Button("Delete");
+            deleteBtn.setStyle("-fx-background-color: transparent; -fx-text-fill: #e74c3c; -fx-font-size: 12px; -fx-font-weight: 600; -fx-cursor: hand; -fx-padding: 0;");
+            deleteBtn.setOnAction(e -> handleDeleteComment(comment, publication));
+
+            Label dot1 = new Label("•");
+            dot1.setStyle("-fx-text-fill: #65676b;");
+            Label dot2 = new Label("•");
+            dot2.setStyle("-fx-text-fill: #65676b;");
+
+            metaBox.getChildren().addAll(dot1, editBtn, dot2, deleteBtn);
+        }
+
+        contentBox.getChildren().addAll(textBox, metaBox);
+
+        commentItem.getChildren().addAll(avatar, contentBox);
+
+        return commentItem;
+    }
+
+    private void handleEditComment(Comment comment, Publication publication) {
+        TextInputDialog editDialog = new TextInputDialog(comment.getContent());
+        editDialog.setTitle("Edit Comment");
+        editDialog.setHeaderText("Edit your comment");
+        editDialog.setContentText("Comment:");
+
+        editDialog.getDialogPane().getStylesheets().add(
+                getClass().getResource("/styles/dashboard.css").toExternalForm()
+        );
+
+        Optional<String> result = editDialog.showAndWait();
+        result.ifPresent(newContent -> {
+            if (!newContent.trim().isEmpty()) {
+                try {
+                    comment.setContent(newContent.trim());
+                    commentService.updateOne(comment);
+                    showSuccess("Comment updated successfully!");
+                    // Reload would happen when dialog refreshes
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    showError("Failed to update comment: " + e.getMessage());
+                }
+            }
+        });
+    }
+
+    private void handleDeleteComment(Comment comment, Publication publication) {
+        Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmDialog.setTitle("Delete Comment");
+        confirmDialog.setHeaderText("Are you sure?");
+        confirmDialog.setContentText("This comment will be permanently deleted.");
+
+        confirmDialog.getDialogPane().getStylesheets().add(
+                getClass().getResource("/styles/dashboard.css").toExternalForm()
+        );
+
+        Optional<ButtonType> result = confirmDialog.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                commentService.deleteOne(comment);
+                publication.removeComment(comment);
+                showSuccess("Comment deleted successfully!");
+                loadPosts(); // Refresh to update comment count
+            } catch (SQLException e) {
+                e.printStackTrace();
+                showError("Failed to delete comment: " + e.getMessage());
+            }
+        }
     }
 
     private void handleEdit(Publication publication) {
@@ -391,17 +841,17 @@ public class DashboardController {
         grid.setPadding(new Insets(20));
 
         TextArea contentArea = new TextArea(publication.getContent());
-        contentArea.setPrefRowCount(5);
+        contentArea.setPrefRowCount(6);
         contentArea.setWrapText(true);
         contentArea.getStyleClass().add("dialog-text-area");
 
         TextField placeField = new TextField(publication.getPlace() != null ? publication.getPlace() : "");
         placeField.getStyleClass().add("dialog-text-field");
 
-        Label contentLabel = new Label("Content:");
+        Label contentLabel = new Label("Content");
         contentLabel.getStyleClass().add("dialog-label");
 
-        Label placeLabel = new Label("Location:");
+        Label placeLabel = new Label("Location");
         placeLabel.getStyleClass().add("dialog-label");
 
         grid.add(contentLabel, 0, 0);
@@ -438,9 +888,9 @@ public class DashboardController {
 
     private void handleDelete(Publication publication) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirm Delete");
-        alert.setHeaderText("Delete Post");
-        alert.setContentText("Are you sure you want to delete this post? This action cannot be undone.");
+        alert.setTitle("Delete Post");
+        alert.setHeaderText("Are you sure?");
+        alert.setContentText("This post will be permanently deleted.");
 
         alert.getDialogPane().getStylesheets().add(
                 getClass().getResource("/styles/dashboard.css").toExternalForm()
@@ -460,10 +910,12 @@ public class DashboardController {
     }
 
     private void showEmptyState() {
-        VBox emptyState = new VBox(15);
+        VBox emptyState = new VBox(20);
         emptyState.setAlignment(Pos.CENTER);
         emptyState.getStyleClass().add("empty-state");
-        emptyState.setPadding(new Insets(60));
+
+        Label icon = new Label("📝");
+        icon.getStyleClass().add("empty-state-icon");
 
         Label emptyText = new Label("No posts yet");
         emptyText.getStyleClass().add("empty-state-text");
@@ -475,8 +927,44 @@ public class DashboardController {
         createFirstPost.getStyleClass().add("primary-btn");
         createFirstPost.setOnAction(e -> showCreatePostDialog());
 
-        emptyState.getChildren().addAll(emptyText, emptySubtext, createFirstPost);
-        postsContainer.getChildren().add(emptyState);
+        emptyState.getChildren().addAll(icon, emptyText, emptySubtext, createFirstPost);
+
+        if (isGridView) {
+            postsGrid.getChildren().add(emptyState);
+        } else {
+            postsList.getChildren().add(emptyState);
+        }
+    }
+
+    private void showNoResultsState(String searchTerm) {
+        VBox noResults = new VBox(20);
+        noResults.setAlignment(Pos.CENTER);
+        noResults.getStyleClass().add("empty-state");
+
+        Label icon = new Label("🔍");
+        icon.getStyleClass().add("empty-state-icon");
+
+        Label noResultsText = new Label("No posts found");
+        noResultsText.getStyleClass().add("empty-state-text");
+
+        Label noResultsSubtext = new Label("Try a different search term");
+        noResultsSubtext.getStyleClass().add("empty-state-subtext");
+
+        Button clearSearch = new Button("Clear Search");
+        clearSearch.getStyleClass().add("secondary-btn");
+        clearSearch.setOnAction(e -> {
+            if (searchField != null) {
+                searchField.clear();
+            }
+        });
+
+        noResults.getChildren().addAll(icon, noResultsText, noResultsSubtext, clearSearch);
+
+        if (isGridView) {
+            postsGrid.getChildren().add(noResults);
+        } else {
+            postsList.getChildren().add(noResults);
+        }
     }
 
     private void showSuccess(String message) {
@@ -510,33 +998,5 @@ public class DashboardController {
                 getClass().getResource("/styles/dashboard.css").toExternalForm()
         );
         alert.showAndWait();
-    }
-
-    // Helper class for creating avatar circles
-    private static class Circle extends Region {
-        private final double radius;
-
-        public Circle(double radius) {
-            this.radius = radius;
-            setPrefSize(radius * 2, radius * 2);
-            setMaxSize(radius * 2, radius * 2);
-            setMinSize(radius * 2, radius * 2);
-            setStyle("-fx-background-radius: " + radius + "px;");
-        }
-
-        public void setFill(javafx.scene.paint.Paint paint) {
-            setStyle(getStyle() + "-fx-background-color: " + toRgbString(paint) + ";");
-        }
-
-        private String toRgbString(javafx.scene.paint.Paint paint) {
-            if (paint instanceof javafx.scene.paint.Color) {
-                javafx.scene.paint.Color color = (javafx.scene.paint.Color) paint;
-                return String.format("#%02X%02X%02X",
-                        (int) (color.getRed() * 255),
-                        (int) (color.getGreen() * 255),
-                        (int) (color.getBlue() * 255));
-            }
-            return "#667eea";
-        }
     }
 }
