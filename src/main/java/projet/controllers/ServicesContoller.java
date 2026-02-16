@@ -38,6 +38,12 @@ public class ServicesContoller implements Initializable {
         // 2. Render Cards
         renderServices(allServices);
     }
+    public void refreshServices() {
+        allServices = getDummyData();
+
+        // 2. Render Cards
+        renderServices(allServices);
+    }
 
     @FXML
     private void handleSearch() {
@@ -59,6 +65,7 @@ public class ServicesContoller implements Initializable {
     }
 
     private VBox createServiceCard(Hotel s) {
+        HotelService hotelService = new HotelService();
         // --- CONTAINER ---
         VBox card = new VBox();
         card.getStyleClass().add("service-card");
@@ -113,6 +120,14 @@ public class ServicesContoller implements Initializable {
         btnEdit.getStyleClass().add("btn-card-action");
 
         Button btnDelete = new Button("🗑");
+        btnDelete.setOnAction(event -> {
+            try {
+                hotelService.deleteOne(s);
+                refreshServices();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
         btnDelete.getStyleClass().addAll("btn-card-action", "btn-card-delete");
 
         Pane spacer = new Pane();

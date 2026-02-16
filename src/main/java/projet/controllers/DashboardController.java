@@ -30,10 +30,27 @@ public class DashboardController implements Initializable {
     @FXML
     private StackPane contentArea;
     @FXML
+    private HBox searchBox;
+    @FXML
     private ScrollPane pnlOverview;
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         // Fetch data from your service
+        List<Hotel> recentServices = getAllServices();
+        // Populate the table
+        for (Hotel hotel : recentServices) {
+            HBox row = createServiceRow(hotel);
+            pnItems.getChildren().add(row);
+        }
+    }
+    private void refreshData() {
+        System.out.println("Refreshing Dashboard Data...");
+
+        // STEP 1: CLEAR THE OLD DATA (Very Important!)
+        pnItems.getChildren().clear();
+
+        // STEP 2: Fetch fresh data from your Service/DB
+        // List<Service> recentServices = serviceService.getAll();
         List<Hotel> recentServices = getAllServices();
 
 
@@ -42,6 +59,8 @@ public class DashboardController implements Initializable {
             HBox row = createServiceRow(hotel);
             pnItems.getChildren().add(row);
         }
+
+
     }
     private List<Hotel> getAllServices() {
         HotelService hotelService = new HotelService();
@@ -104,7 +123,7 @@ public class DashboardController implements Initializable {
         try {
             // Load the addVol.fxml
             Parent volForm = FXMLLoader.load(getClass().getResource("/addVol.fxml"));
-
+            searchBox.setVisible(false);
             // Clear current view and add the form
             contentArea.getChildren().removeAll(); // Clears everything? No, we want to keep logic simple.
 
@@ -139,16 +158,18 @@ public class DashboardController implements Initializable {
     }
     @FXML
     private void handleShowDashboard(ActionEvent event) {
+        searchBox.setVisible(true);
         // Remove any forms (anything that is NOT pnlOverview)
         contentArea.getChildren().removeIf(node -> node != pnlOverview);
 
         // Show the stats again
         pnlOverview.setVisible(true);
-
+        refreshData();
     }
     @FXML
     private void handleShowServices(ActionEvent event) {
         try {
+           searchBox.setVisible(false);
             // Load the addVol.fxml
             Parent HotelForm = FXMLLoader.load(getClass().getResource("/Services.fxml"));
 
@@ -160,6 +181,7 @@ public class DashboardController implements Initializable {
 
             // Check if form is already added to avoid duplicates (Optional optimization)
             contentArea.getChildren().add(HotelForm);
+            refreshData();
 
         } catch (IOException e) {
             e.printStackTrace();

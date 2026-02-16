@@ -65,7 +65,7 @@
             <children>
 
                 <!-- Top Search/Profile Bar (Kept the same) -->
-                <HBox alignment="CENTER_LEFT" prefHeight="70.0" prefWidth="800.0" spacing="20.0" style="-fx-background-color: white;">
+                <HBox alignment="CENTER_LEFT" fx:id="searchBox" prefHeight="70.0" prefWidth="800.0" spacing="20.0" style="-fx-background-color: white;">
                     <children>
                         <Label styleClass="page-title" text="Dashboard Overview" />
                         <Pane HBox.hgrow="ALWAYS" />
@@ -80,6 +80,7 @@
                 <!-- *** MAIN CONTENT CONTAINER *** -->
                 <!-- Used StackPane to swap views easily -->
                 <StackPane fx:id="contentArea" VBox.vgrow="ALWAYS">
+
                     <children>
 
                         <!-- LAYER 1: The Original Dashboard View -->
