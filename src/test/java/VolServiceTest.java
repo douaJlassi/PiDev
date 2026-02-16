@@ -18,7 +18,7 @@ public class VolServiceTest {
     void addVol() throws SQLException {
         java.util.Date utilDate = new java.util.Date();
         java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
-        vol v1=new vol("testVol","description",105.2,false,120,"52","tunisie","japan",sqlDate,sqlDate);
+        vol v1=new vol("testVol","description",105.2,false,120,"52","tunisie","japan",sqlDate,sqlDate,"vol");
         volService.insertOne(v1);
         List<vol> vols = volService.selectALL();
         assertTrue(vols.stream().anyMatch(vol -> Objects.equals(vol.getNumeroVol(), v1.getNumeroVol())));
@@ -29,8 +29,8 @@ public class VolServiceTest {
     void updateVol() throws SQLException {
         java.util.Date utilDate = new java.util.Date();
         java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
-        vol v1=new vol("modifiedtestVol","description",105.2,false,120,"55","tunisie","japan",sqlDate,sqlDate);
-        volService.updateOne(v1);
+        vol v1=new vol("modifiedtestVol","description",105.2,false,120,"55","tunisie","japan",sqlDate,sqlDate,"vol");
+        volService.updateOne("52",v1);
         List<vol> vols = volService.selectALL();
         assertTrue(vols.stream().anyMatch(vol -> vol.getNom().equals("modifiedtestVol") ));
     }
@@ -39,7 +39,7 @@ public class VolServiceTest {
     void deleteVol() throws SQLException {
         java.util.Date utilDate = new java.util.Date();
         java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
-        vol v1=new vol("modifiedtestVol","description",105.2,false,120,"55","tunisie","japan",sqlDate,sqlDate);
+        vol v1=new vol("modifiedtestVol","description",105.2,false,120,"55","tunisie","japan",sqlDate,sqlDate,"vol");
         volService.deleteOne(v1);
         List<vol> vols = volService.selectALL();
         assertFalse(vols.stream().anyMatch(vol -> vol.getNumeroVol()==v1.getNumeroVol()));

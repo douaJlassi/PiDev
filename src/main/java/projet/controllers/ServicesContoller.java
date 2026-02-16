@@ -1,9 +1,11 @@
 package projet.controllers;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -12,8 +14,13 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 
 import projet.entites.Hotel;
+import projet.entites.service;
+import projet.entites.vol;
 import projet.services.HotelService;
+import projet.services.ServiceService;
+import projet.services.VolService;
 
+import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -28,7 +35,7 @@ public class ServicesContoller implements Initializable {
     @FXML
     private TextField txtSearch;
 
-    private List<Hotel> allServices;
+    private List<service> allServices;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -48,24 +55,25 @@ public class ServicesContoller implements Initializable {
     @FXML
     private void handleSearch() {
         String query = txtSearch.getText().toLowerCase();
-        List<Hotel> filtered = allServices.stream()
+        List<service> filtered = allServices.stream()
                 .filter(s -> s.getNom().toLowerCase().contains(query)
                         )
                 .toList();
         renderServices(filtered);
     }
 
-    private void renderServices(List<Hotel> services) {
+    private void renderServices(List<service> services) {
         cardsContainer.getChildren().clear();
 
-        for (Hotel s : services) {
+        for (service s : services) {
             VBox card = createServiceCard(s);
             cardsContainer.getChildren().add(card);
         }
     }
 
-    private VBox createServiceCard(Hotel s) {
-        HotelService hotelService = new HotelService();
+    private VBox createServiceCard(service s) {
+        ServiceService Service = new ServiceService();
+
         // --- CONTAINER ---
         VBox card = new VBox();
         card.getStyleClass().add("service-card");
@@ -101,7 +109,7 @@ public class ServicesContoller implements Initializable {
         details.setPadding(new Insets(10));
         details.setSpacing(5);
 
-        Label type = new Label("hotel");
+        Label type = new Label(s.getType());
         type.getStyleClass().add("card-type");
 
         Label name = new Label(s.getNom());
@@ -115,14 +123,17 @@ public class ServicesContoller implements Initializable {
         HBox actions = new HBox();
         actions.setAlignment(Pos.CENTER_RIGHT);
         actions.setSpacing(10);
-
         Button btnEdit = new Button("✎");
         btnEdit.getStyleClass().add("btn-card-action");
+        btnEdit.setOnAction(e -> {
+         handleEditAction(s);
+        });
+
 
         Button btnDelete = new Button("🗑");
         btnDelete.setOnAction(event -> {
             try {
-                hotelService.deleteOne(s);
+                Service.deleteOne(s);
                 refreshServices();
             } catch (SQLException e) {
                 throw new RuntimeException(e);
@@ -141,11 +152,65 @@ public class ServicesContoller implements Initializable {
         return card;
     }
 
-    private List<Hotel> getDummyData() {
-        HotelService hotelService = new HotelService();
-        List<Hotel> list = new ArrayList<>();
+    // Inside ServicesController.java
+
+    private void handleEditAction(service service) {
+
+        Parent root;
+        vol v;
+        Hotel h;
+        // === CASE 1: IT IS A VOL ===
+        if (service.getType().equals("vol")) {
+            // 1. Load the Vol FXML
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/updateVol.fxml"));
+            try {
+                VolService volService = new VolService();
+                try {
+                     v = volService.selectByNom(service.getNom());
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+                root = loader.load();
+                UpdateVolController controller = loader.getController();
+                controller.setServiceData(v);
+                cardsContainer.getScene().setRoot(root);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+
+        }}
+
+        // === CASE 2: IT IS A HOTEL ===
+        else if (service.getType().equals("hotel")) {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/updateHotel.fxml"));
+            try {
+                HotelService hotelService = new HotelService();
+                try {
+                    h=hotelService.selectOne(service.getNom());
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+                root = loader.load();
+                UpdateHotelController controller = loader.getController();
+                controller.setServiceData(h);
+                controller.setServiceData(h);
+                cardsContainer.getScene().setRoot(root);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+
+            }
+        }
+
+        // === CASE 3: UNKNOWN TYPE ===
+        else {
+            System.out.println("Unknown service type");
+            return;
+        }
+    }
+    private List<service> getDummyData() {
+        ServiceService Service = new ServiceService();
+        List<service> list = new ArrayList<>();
         try {
-            list=hotelService.selectALL();
+            list=Service.selectALL();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

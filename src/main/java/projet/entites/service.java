@@ -6,15 +6,28 @@ public class service {
     private  double prix;
     private  boolean disponibilite;
     private int capacite;
+
+
+
+    private String type;
     public service(){}
-    public service(String nom,String description,double prix,boolean disponibilite,int capacite){
+    public service(String nom,String description,double prix,boolean disponibilite,int capacite,String type){
         this.nom=nom;
         this.description=description;
         this.prix=prix;
         this.disponibilite=disponibilite;
         this.capacite=capacite;
+        this.type=type;
 }
-
+    public String getType() {
+        return type;
+    }
+    public void setType(String type) {
+        this.type = type;
+    }
+    public boolean isDisponibilite() {
+        return disponibilite;
+    }
     public String getNom() {
     return nom;
    }

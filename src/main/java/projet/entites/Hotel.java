@@ -9,8 +9,8 @@ public class Hotel extends service{
     private String chambre;
 
     public Hotel(){}
-    public Hotel(String nom,String description,double prix,boolean disponibilite,int capacite,int nbEtoiles,String localisation,String chambre){
-        super(nom,description,prix,disponibilite,capacite);
+    public Hotel(String nom,String description,double prix,boolean disponibilite,int capacite,String type,int nbEtoiles,String localisation,String chambre){
+        super(nom,description,prix,disponibilite,capacite,type);
      this.nbEtoiles = nbEtoiles;
      this.localisation = localisation;
      this.chambre = chambre;

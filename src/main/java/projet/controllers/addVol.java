@@ -61,7 +61,7 @@ public class addVol {
         java.sql.Date sqlDateArrive = java.sql.Date.valueOf(localDateArrivee);
         java.sql.Date sqlDateDepart = java.sql.Date.valueOf(localDateDepart);
         VolService service = new VolService();
-        vol vol = new vol(nom,description,prix,disponibilite,capacite,numeroVol,VilleDepart,VilleArrivee,sqlDateDepart,sqlDateArrive);
+        vol vol = new vol(nom,description,prix,disponibilite,capacite,numeroVol,VilleDepart,VilleArrivee,sqlDateDepart,sqlDateArrive,"vol");
         try {
             service.insertOne(vol);
         }catch (SQLException e){

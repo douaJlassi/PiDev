@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane stylesheets="style.css"
+        xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="projet.controllers.UpdateVolController"
+            prefHeight="400.0" prefWidth="600.0">
+    <children>
+        <VBox alignment="CENTER" spacing="20"
+              AnchorPane.topAnchor="0"
+              AnchorPane.bottomAnchor="0"
+              AnchorPane.leftAnchor="0"
+              AnchorPane.rightAnchor="0">
+
+            <VBox styleClass="card" spacing="15">
+
+                <Label text="✈ Ajouter un Vol" styleClass="title"/>
+
+                <GridPane hgap="15" vgap="12">
+
+                    <Label text="Nom :" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                    <TextField fx:id="tfNom" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                    <Label text="Description :" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                    <TextArea fx:id="taDescription" prefRowCount="3"
+                              GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                    <Label text="Prix :" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                    <TextField fx:id="tfPrix" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                    <Label text="Disponibilité :" GridPane.rowIndex="2" GridPane.columnIndex="2"/>
+                    <CheckBox fx:id="cbDisponibilite"
+                              GridPane.rowIndex="2" GridPane.columnIndex="3"/>
+
+                    <Label text="Capacité :" GridPane.rowIndex="3" GridPane.columnIndex="0" />
+                    <TextField fx:id="tfCapacite"  GridPane.rowIndex="3" GridPane.columnIndex="1" styleClass="input" />
+
+                    <Label text="Numéro Vol :" GridPane.rowIndex="3" GridPane.columnIndex="2"/>
+                    <TextField fx:id="tfNumeroVol" GridPane.rowIndex="3" GridPane.columnIndex="3" styleClass="input" />
+
+                    <Label text="Ville Départ :" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                    <TextField fx:id="tfVilleDepart" GridPane.rowIndex="4" GridPane.columnIndex="1" styleClass="input" />
+
+                    <Label text="Ville Arrivée :" GridPane.rowIndex="4" GridPane.columnIndex="2"/>
+                    <TextField fx:id="tfVilleArrivee" GridPane.rowIndex="4" GridPane.columnIndex="3" styleClass="input"/>
+
+                    <Label text="Date Départ :" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                    <DatePicker fx:id="dpDateDepart"
+                                GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+                    <Label text="Date Arrivée :" GridPane.rowIndex="5" GridPane.columnIndex="2"/>
+                    <DatePicker fx:id="dpDateArrivee"
+                                GridPane.rowIndex="5" GridPane.columnIndex="3"/>
+
+                </GridPane>
+
+                <Button text="Ajouter" onAction="#handleUpdate" styleClass="btn" />
+
+            </VBox>
+        </VBox>
+    </children>
+</AnchorPane>

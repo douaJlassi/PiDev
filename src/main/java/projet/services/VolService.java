@@ -8,25 +8,30 @@ import java.util.ArrayList;
 
 import java.util.List;
 
-public class VolService implements CRUD<vol>{
+public class VolService implements CRUD<String,vol> {
     private Connection connection;
     private int NbVol;
-    public VolService() {connection= MyDBConnexion.getInstance().getConnection();}
+
+    public VolService() {
+        connection = MyDBConnexion.getInstance().getConnection();
+    }
+
     @Override
     public void insertOne(vol vol) throws SQLException {
         String req = "INSERT INTO `services`(`nom`,`description`,`prix`,`disponibilite`,`capacite`,`numeroVol`,`villeDepart`,`villeArrivee`,`dateDepart`,`dateArrive`,`type`) VALUES " +
-                "('"+vol.getNom()+"','"+vol.getDescription()+"','"+vol.getPrix()+"','"+vol.getDisponibilite()+"','"+vol.getCapacite()+"' ,  '"+vol.getNumeroVol()+"' , '"+vol.getVilleDepart()+"' , '"+vol.getVilleArrivee() +"' , '"+vol.getDateDepart()+"' , '"+vol.getDateArrivee()+"','vol')";
-        NbVol= Integer.parseInt(vol.getNumeroVol());
+                "('" + vol.getNom() + "','" + vol.getDescription() + "','" + vol.getPrix() + "','" + vol.getDisponibilite() + "','" + vol.getCapacite() + "' ,  '" + vol.getNumeroVol() + "' , '" + vol.getVilleDepart() + "' , '" + vol.getVilleArrivee() + "' , '" + vol.getDateDepart() + "' , '" + vol.getDateArrivee() + "','vol')";
+        NbVol = Integer.parseInt(vol.getNumeroVol());
         Statement stmt = connection.createStatement();
         stmt.executeUpdate(req);
 
     }
+
     @Override
-    public void updateOne(vol vol) throws SQLException {
-        String req="UPDATE services SET nom='"+vol.getNom()+"',description='"+vol.getDescription()+"'" +
-                ",prix='"+vol.getPrix()+"',disponibilite='"+vol.getDisponibilite()+"',capacite='"+vol.getCapacite()+"'" +
-                ",numeroVol='"+vol.getNumeroVol()+"',villeDepart='"+vol.getVilleDepart()+"',villeArrivee='"+vol.getVilleDepart()+"'" +
-                ",dateDepart='"+vol.getDateDepart()+"',dateArrive='"+vol.getDateArrivee()+"' WHERE numeroVol='"+NbVol+"'";
+    public void updateOne(String numvol, vol vol) throws SQLException {
+        String req = "UPDATE services SET nom='" + vol.getNom() + "',description='" + vol.getDescription() + "'" +
+                ",prix='" + vol.getPrix() + "',disponibilite='" + vol.getDisponibilite() + "',capacite='" + vol.getCapacite() + "'" +
+                ",numeroVol='" + vol.getNumeroVol() + "',villeDepart='" + vol.getVilleDepart() + "',villeArrivee='" + vol.getVilleDepart() + "'" +
+                ",dateDepart='" + vol.getDateDepart() + "',dateArrive='" + vol.getDateArrivee() + "' WHERE numeroVol='" + numvol + "'";
 
         Statement stmt = connection.createStatement();
         stmt.executeUpdate(req);
@@ -60,12 +65,40 @@ public class VolService implements CRUD<vol>{
                     rs.getString(11),
                     rs.getString(12),
                     rs.getDate(13),
-                    rs.getDate(14)
-                    );
+                    rs.getDate(14),
+                    rs.getString(15)
+            );
 
             volList.add(sr);
         }
 
         return volList;
+    }
+
+    public vol selectByNom(String nom) throws SQLException {
+        String req = "SELECT * FROM `services` WHERE `nom` = '" + nom + "'";
+        Statement st = connection.createStatement();
+
+        ResultSet rs = st.executeQuery(req);
+
+        vol sr = null;
+        while (rs.next()) {
+
+            sr = new vol(
+                    rs.getString(2),
+                    rs.getString(3),
+                    rs.getDouble(4),
+                    rs.getBoolean(5),
+                    rs.getInt(6),
+                    rs.getString(10),
+                    rs.getString(11),
+                    rs.getString(12),
+                    rs.getDate(13),
+                    rs.getDate(14),
+                    rs.getString(15)
+            );
+
+        }
+        return sr;
     }
 }

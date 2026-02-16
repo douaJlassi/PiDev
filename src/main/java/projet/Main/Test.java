@@ -15,8 +15,8 @@ public class Test {
         java.util.Date utilDate = new java.util.Date();
         java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
         System.out.println(sqlDate);
-        vol v1=new vol("vol444","description",105.2,false,120,"52","tunisie","japan",sqlDate,sqlDate);
-        Hotel h1=new Hotel("hotel2","description",105.2,false,500,5,"sousse","SINGLE");
+        vol v1=new vol("vol444","description",105.2,false,120,"52","tunisie","japan",sqlDate,sqlDate,"vol");
+        Hotel h1=new Hotel("hotel2","description",105.2,false,500,"hotel",5,"sousse","SINGLE");
         VolService vs = new VolService();
         HotelService hs = new HotelService();
          //vs.insertOne(v1);

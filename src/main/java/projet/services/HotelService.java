@@ -8,7 +8,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HotelService implements CRUD<Hotel> {
+public class HotelService implements CRUD<String,Hotel> {
     private Connection connection;
     private String nom;
     public HotelService() {connection= MyDBConnexion.getInstance().getConnection();}
@@ -21,10 +21,10 @@ public class HotelService implements CRUD<Hotel> {
         nom=hotel.getNom();
     }
     @Override
-    public void updateOne(Hotel hotel) throws SQLException {
+    public void updateOne(String hotelName,Hotel hotel) throws SQLException {
         String req="UPDATE services SET nom='"+hotel.getNom()+"',description='"+hotel.getDescription()+"'" +
                 ",prix='"+hotel.getPrix()+"',disponibilite='"+hotel.getDisponibilite()+"',capacite='"+hotel.getCapacite()+"'" +
-                ",nombreEtoiles='"+hotel.getNbEtoiles()+"',localisation='"+hotel.getLocalisation()+"',typeChambre='"+hotel.getChambre()+"' WHERE nom='"+nom+"'";
+                ",nombreEtoiles='"+hotel.getNbEtoiles()+"',localisation='"+hotel.getLocalisation()+"',typeChambre='"+hotel.getChambre()+"' WHERE nom='"+hotelName+"'";
 
         Statement stmt = connection.createStatement();
         stmt.executeUpdate(req);
@@ -54,6 +54,7 @@ public class HotelService implements CRUD<Hotel> {
                     rs.getDouble(4),
                     rs.getBoolean(5),
                     rs.getInt(6),
+                    rs.getString(15),
                     rs.getInt(7),
                     rs.getString(8),
                     rs.getString(9)
@@ -64,4 +65,29 @@ public class HotelService implements CRUD<Hotel> {
 
         return hotelList;
     }
-}
+
+    public Hotel selectOne(String hotelName) throws SQLException {
+        String req = "SELECT * FROM `services` WHERE `nom` = " + "'" + hotelName + "'";
+        Statement st = connection.createStatement();
+
+        ResultSet rs = st.executeQuery(req);
+
+        Hotel sr = null;
+        while (rs.next()) {
+
+            sr = new Hotel(
+                    rs.getString(2),
+                    rs.getString(3),
+                    rs.getDouble(4),
+                    rs.getBoolean(5),
+                    rs.getInt(6),
+                    rs.getString(15),
+                    rs.getInt(7),
+                    rs.getString(8),
+                    rs.getString(9)
+            );
+
+        }
+        return sr;
+    }}
+
