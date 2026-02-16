@@ -21,7 +21,7 @@
             <!-- Logo -->
             <ImageView fx:id="logoImage" fitHeight="45" preserveRatio="true">
                 <image>
-                    <Image url="@../images/rehletna-logo.png"/>
+                    <Image url="@../images/logo.png"/>
                 </image>
             </ImageView>
 
@@ -43,23 +43,41 @@
 
     <!-- Main Content Area -->
     <center>
-        <ScrollPane fx:id="postsScrollPane" styleClass="posts-scroll-pane" fitToWidth="true" VBox.vgrow="ALWAYS">
-            <!-- Container that will hold either grid or list -->
-            <StackPane fx:id="contentContainer">
-                <!-- Grid View -->
-                <FlowPane fx:id="postsGrid" styleClass="posts-grid" hgap="24" vgap="24" alignment="TOP_CENTER" visible="true" managed="true">
-                    <padding>
-                        <Insets top="30" right="30" bottom="30" left="30"/>
-                    </padding>
-                </FlowPane>
+        <StackPane fx:id="contentContainer">
+            <VBox fx:id="feedView">
+                <ScrollPane fx:id="postsScrollPane" styleClass="posts-scroll-pane" fitToWidth="true" VBox.vgrow="ALWAYS">
+                    <StackPane>
+                        <FlowPane fx:id="postsGrid" styleClass="posts-grid" hgap="24" vgap="24" alignment="TOP_CENTER" />
+                        <VBox fx:id="postsList" styleClass="posts-list" spacing="20" alignment="TOP_CENTER" visible="false" managed="false" />
+                    </StackPane>
+                </ScrollPane>
+            </VBox>
 
-                <!-- List View -->
-                <VBox fx:id="postsList" styleClass="posts-list" spacing="20" alignment="TOP_CENTER" visible="false" managed="false">
-                    <padding>
-                        <Insets top="30" right="30" bottom="30" left="30"/>
-                    </padding>
-                </VBox>
-            </StackPane>
-        </ScrollPane>
+            <VBox fx:id="detailView" visible="false" managed="false" styleClass="detail-view-container">
+                <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 15; -fx-background-color: white; -fx-border-color: #e4e6eb; -fx-border-width: 0 0 1 0;">
+                    <Button text="← Back to Feed" onAction="#handleBackToFeed" styleClass="secondary-btn" />
+                    <Label text="Post Discussion" styleClass="post-author-name" style="-fx-font-size: 18px;" />
+                </HBox>
+
+                <HBox VBox.vgrow="ALWAYS">
+                    <ScrollPane fitToWidth="true" HBox.hgrow="ALWAYS" styleClass="posts-scroll-pane">
+                        <VBox fx:id="detailPostContainer" alignment="TOP_CENTER" spacing="20" style="-fx-padding: 30;" />
+                    </ScrollPane>
+
+                    <VBox prefWidth="400" minWidth="400" styleClass="comments-sidebar">
+                        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="posts-scroll-pane">
+                            <VBox fx:id="detailCommentsList" spacing="12" style="-fx-padding: 15;" />
+                        </ScrollPane>
+
+                        <VBox spacing="10" styleClass="comment-input-area">
+                            <TextArea fx:id="detailCommentInput" promptText="Write a comment..." prefHeight="80" wrapText="true" styleClass="dialog-text-area" />
+                            <Button fx:id="submitCommentBtn" text="Post Comment" onAction="#handleDetailCommentSubmit" styleClass="primary-btn" maxWidth="Infinity" />
+                        </VBox>
+                    </VBox>
+                </HBox>
+            </VBox>
+        </StackPane>
     </center>
+
+
 </BorderPane>

@@ -3,6 +3,8 @@ package controllers;
 import entities.Client;
 import entities.Comment;
 import entities.Publication;
+import javafx.animation.FadeTransition;
+import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -12,8 +14,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
+import javafx.util.Duration;
 import services.CommentService;
 import services.PublicationService;
 
@@ -62,6 +64,11 @@ public class DashboardController {
     @FXML
     private ImageView logoImage;
 
+    @FXML private VBox feedView, detailView, detailPostContainer, detailCommentsList;
+    @FXML private TextArea detailCommentInput;
+    @FXML private Button submitCommentBtn;
+    private Publication currentViewingPost;
+
     private PublicationService publicationService;
     private CommentService commentService;
     private Client currentUser;
@@ -69,13 +76,17 @@ public class DashboardController {
     private List<Publication> allPosts;
     private boolean isGridView = true;
 
+    // Post detail view
+    private BorderPane postDetailView;
+    private Publication currentDetailPublication;
+
     @FXML
     public void initialize() {
         publicationService = new PublicationService();
         commentService = new CommentService();
 
         currentUser = new Client();
-        currentUser.setClientID(1); // Replace with actual logged-in user ID
+        currentUser.setClientID(2);
 
         try {
             Files.createDirectories(Paths.get(UPLOAD_DIR));
@@ -155,41 +166,99 @@ public class DashboardController {
     @FXML
     private void showCreatePostDialog() {
         Dialog<Publication> dialog = new Dialog<>();
-        dialog.setTitle("Create New Post");
-        dialog.setHeaderText("Share your adventure with the community 🌍");
+        dialog.setTitle("Create Post");
+        dialog.setHeaderText(null);
 
-        ButtonType createButtonType = new ButtonType("Post", ButtonBar.ButtonData.OK_DONE);
+        ButtonType createButtonType = new ButtonType("Share", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(createButtonType, ButtonType.CANCEL);
 
         dialog.getDialogPane().getStylesheets().add(
                 getClass().getResource("/styles/dashboard.css").toExternalForm()
         );
-        dialog.getDialogPane().getStyleClass().add("dialog-pane");
+        dialog.getDialogPane().getStyleClass().add("create-post-dialog");
+        dialog.getDialogPane().setPrefWidth(550);
 
-        GridPane grid = new GridPane();
-        grid.setHgap(15);
-        grid.setVgap(15);
-        grid.setPadding(new Insets(20));
+        VBox mainBox = new VBox(20);
+        mainBox.setPadding(new Insets(24));
 
+        // Header with avatar
+        HBox header = new HBox(12);
+        header.setAlignment(Pos.CENTER_LEFT);
+
+        Region avatar = new Region();
+        avatar.getStyleClass().add("avatar");
+        avatar.setPrefSize(48, 48);
+        avatar.setMinSize(48, 48);
+        avatar.setMaxSize(48, 48);
+
+        VBox userInfo = new VBox(2);
+        Label userName = new Label("Traveler #" + currentUser.getClientID());
+        userName.setStyle("-fx-font-weight: bold; -fx-font-size: 15px;");
+        Label visibility = new Label("🌍 Public");
+        visibility.setStyle("-fx-font-size: 12px; -fx-text-fill: #65676b;");
+        userInfo.getChildren().addAll(userName, visibility);
+
+        header.getChildren().addAll(avatar, userInfo);
+
+        // Content area
         TextArea contentArea = new TextArea();
         contentArea.setPromptText("What's on your mind?");
         contentArea.setPrefRowCount(6);
         contentArea.setWrapText(true);
-        contentArea.getStyleClass().add("dialog-text-area");
+        contentArea.setStyle("-fx-background-color: transparent; -fx-border-color: transparent; " +
+                "-fx-font-size: 15px; -fx-text-fill: #050505;");
+        contentArea.requestFocus();
 
-        TextField placeField = new TextField();
-        placeField.setPromptText("Add location (e.g., Tunis, Carthage...)");
-        placeField.getStyleClass().add("dialog-text-field");
+        // Image preview area
+        VBox imagePreviewBox = new VBox(8);
+        imagePreviewBox.setVisible(false);
+        imagePreviewBox.setManaged(false);
+        imagePreviewBox.setStyle("-fx-background-color: #f0f2f5; -fx-background-radius: 8; -fx-padding: 12;");
 
-        Label imageLabel = new Label("No image selected");
-        imageLabel.getStyleClass().add("file-label");
+        ImageView imagePreview = new ImageView();
+        imagePreview.setFitWidth(500);
+        imagePreview.setPreserveRatio(true);
+        imagePreview.setSmooth(true);
 
-        Button selectImageBtn = new Button("📷 Add Photo");
-        selectImageBtn.getStyleClass().add("file-btn");
+        Button removeImageBtn = new Button("✕ Remove");
+        removeImageBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; " +
+                "-fx-font-size: 12px; -fx-padding: 6 12; -fx-background-radius: 6;");
+
+        imagePreviewBox.getChildren().addAll(imagePreview, removeImageBtn);
 
         final File[] selectedImageFile = {null};
 
-        selectImageBtn.setOnAction(e -> {
+        removeImageBtn.setOnAction(e -> {
+            selectedImageFile[0] = null;
+            imagePreviewBox.setVisible(false);
+            imagePreviewBox.setManaged(false);
+        });
+
+        // Location input
+        TextField placeField = new TextField();
+        placeField.setPromptText("📍 Add location");
+        placeField.setStyle("-fx-background-color: #f0f2f5; -fx-border-color: transparent; " +
+                "-fx-background-radius: 8; -fx-padding: 10 12; -fx-font-size: 14px;");
+
+        // Add to post section
+        HBox addToPost = new HBox(8);
+        addToPost.setAlignment(Pos.CENTER_LEFT);
+        addToPost.setStyle("-fx-border-color: #e4e6eb; -fx-border-width: 1; -fx-border-radius: 8; " +
+                "-fx-padding: 12; -fx-background-color: white; -fx-background-radius: 8;");
+
+        Label addLabel = new Label("Add to your post");
+        addLabel.setStyle("-fx-font-weight: 600; -fx-font-size: 14px;");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        Button photoBtn = new Button("📷");
+        photoBtn.setStyle("-fx-background-color: transparent; -fx-font-size: 24px; " +
+                "-fx-cursor: hand; -fx-padding: 4 8;");
+        photoBtn.setOnMouseEntered(e -> photoBtn.setStyle(photoBtn.getStyle() + "-fx-background-color: #f0f2f5; -fx-background-radius: 50%;"));
+        photoBtn.setOnMouseExited(e -> photoBtn.setStyle(photoBtn.getStyle().replace("-fx-background-color: #f0f2f5;", "-fx-background-color: transparent;")));
+
+        photoBtn.setOnAction(e -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Select Image");
             fileChooser.getExtensionFilters().addAll(
@@ -199,34 +268,26 @@ public class DashboardController {
             File file = fileChooser.showOpenDialog(dialog.getOwner());
             if (file != null) {
                 selectedImageFile[0] = file;
-                imageLabel.setText("✓ " + file.getName());
-                imageLabel.setStyle("-fx-text-fill: #17B3A6; -fx-font-weight: bold;");
+                try {
+                    Image img = new Image(file.toURI().toString());
+                    imagePreview.setImage(img);
+                    imagePreviewBox.setVisible(true);
+                    imagePreviewBox.setManaged(true);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
             }
         });
 
-        HBox imageBox = new HBox(12, selectImageBtn, imageLabel);
-        imageBox.setAlignment(Pos.CENTER_LEFT);
+        addToPost.getChildren().addAll(addLabel, spacer, photoBtn);
 
-        Label contentLabel = new Label("Content");
-        contentLabel.getStyleClass().add("dialog-label");
+        mainBox.getChildren().addAll(header, contentArea, imagePreviewBox, placeField, addToPost);
 
-        Label placeLabel = new Label("Location");
-        placeLabel.getStyleClass().add("dialog-label");
-
-        Label imageSelectLabel = new Label("Photo");
-        imageSelectLabel.getStyleClass().add("dialog-label");
-
-        grid.add(contentLabel, 0, 0);
-        grid.add(contentArea, 0, 1, 2, 1);
-        grid.add(placeLabel, 0, 2);
-        grid.add(placeField, 0, 3, 2, 1);
-        grid.add(imageSelectLabel, 0, 4);
-        grid.add(imageBox, 0, 5, 2, 1);
-
-        dialog.getDialogPane().setContent(grid);
+        dialog.getDialogPane().setContent(mainBox);
 
         Button createButton = (Button) dialog.getDialogPane().lookupButton(createButtonType);
         createButton.getStyleClass().add("primary-btn");
+        createButton.setStyle("-fx-pref-width: 100%; -fx-font-size: 15px; -fx-font-weight: bold;");
         createButton.setDisable(true);
 
         contentArea.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -351,17 +412,18 @@ public class DashboardController {
         VBox card = new VBox();
         card.getStyleClass().add("post-card-grid");
 
-        // Clip to bounds to prevent overflow
         javafx.scene.shape.Rectangle clipRect = new javafx.scene.shape.Rectangle(420, 0);
         clipRect.setArcWidth(12);
         clipRect.setArcHeight(12);
         clipRect.heightProperty().bind(card.heightProperty());
         card.setClip(clipRect);
 
-        // Header
+        // Make card clickable
+        card.setOnMouseClicked(e -> showPostDetail(publication));
+        card.setStyle(card.getStyle() + "-fx-cursor: hand;");
+
         card.getChildren().add(createPostHeader(publication));
 
-        // Content
         VBox contentArea = new VBox(12);
         contentArea.getStyleClass().add("post-content-area");
 
@@ -377,15 +439,11 @@ public class DashboardController {
         contentArea.getChildren().add(contentText);
         card.getChildren().add(contentArea);
 
-        // Image
         if (publication.getImagePath() != null && !publication.getImagePath().isEmpty()) {
             card.getChildren().add(createImageContainer(publication, true));
         }
 
-        // Stats
         card.getChildren().add(createStatsBar(publication));
-
-        // Actions
         card.getChildren().add(createActionsBar(publication, true));
 
         return card;
@@ -395,17 +453,18 @@ public class DashboardController {
         VBox card = new VBox();
         card.getStyleClass().add("post-card-list");
 
-        // Clip to bounds to prevent overflow
         javafx.scene.shape.Rectangle clipRect = new javafx.scene.shape.Rectangle(680, 0);
         clipRect.setArcWidth(12);
         clipRect.setArcHeight(12);
         clipRect.heightProperty().bind(card.heightProperty());
         card.setClip(clipRect);
 
-        // Header
+        // Make card clickable
+        card.setOnMouseClicked(e -> showPostDetail(publication));
+        card.setStyle(card.getStyle() + "-fx-cursor: hand;");
+
         card.getChildren().add(createPostHeader(publication));
 
-        // Content
         VBox contentArea = new VBox(12);
         contentArea.getStyleClass().add("post-content-area");
 
@@ -416,18 +475,420 @@ public class DashboardController {
         contentArea.getChildren().add(contentText);
         card.getChildren().add(contentArea);
 
-        // Image
         if (publication.getImagePath() != null && !publication.getImagePath().isEmpty()) {
             card.getChildren().add(createImageContainer(publication, false));
         }
 
-        // Stats
         card.getChildren().add(createStatsBar(publication));
-
-        // Actions
         card.getChildren().add(createActionsBar(publication, false));
 
         return card;
+    }
+
+    private void showPostDetail(Publication publication) {
+        this.currentViewingPost = publication;
+
+        // 1. Toggle the visibility of the views
+        feedView.setVisible(false);
+        feedView.setManaged(false);
+        detailView.setVisible(true);
+        detailView.setManaged(true);
+
+        // 2. Clear the old content and inject the current post on the left
+        detailPostContainer.getChildren().clear();
+        VBox bigCard = createListPostCard(publication);
+
+        // Disable the hand cursor and click event for the card inside the detail view
+        bigCard.setCursor(javafx.scene.Cursor.DEFAULT);
+        bigCard.setOnMouseClicked(null);
+
+        detailPostContainer.getChildren().add(bigCard);
+
+        // 3. Load the comments into the sidebar on the right
+        refreshDetailComments();
+    }
+
+    // Helper to reload comments specifically for the sidebar
+    private void refreshDetailComments() {
+        detailCommentsList.getChildren().clear();
+        try {
+            List<Comment> comments = commentService.getCommentsByPublication(currentViewingPost.getPublicationID());
+            if (comments.isEmpty()) {
+                Label noComments = new Label("No comments yet. Start the conversation!");
+                noComments.getStyleClass().add("post-meta");
+                detailCommentsList.getChildren().add(noComments);
+            } else {
+                for (Comment comment : comments) {
+                    // We reuse your existing method to keep Edit/Delete working
+                    detailCommentsList.getChildren().add(createCommentItem(comment, currentViewingPost, detailCommentsList));
+                }
+            }
+        } catch (SQLException e) {
+            showError("Failed to load comments: " + e.getMessage());
+        }
+    }
+
+    // Logic for the Submit button in the sidebar
+    @FXML
+    private void handleDetailCommentSubmit() {
+        String content = detailCommentInput.getText().trim();
+        if (content.isEmpty()) return;
+
+        try {
+            Comment newComment = new Comment(currentUser, currentViewingPost, content, new Date());
+            commentService.insertOne(newComment);
+            detailCommentInput.clear();
+            refreshDetailComments(); // Refresh the sidebar
+            // No need to reload the whole feed, but we can if you want comment counts to update
+        } catch (SQLException e) {
+            showError("Could not post comment: " + e.getMessage());
+        }
+    }
+
+    private void closePostDetail() {
+        if (postDetailView != null) {
+            FadeTransition fade = new FadeTransition(Duration.millis(200), postDetailView);
+            fade.setFromValue(1);
+            fade.setToValue(0);
+            fade.setOnFinished(e -> {
+                contentContainer.getChildren().remove(postDetailView);
+                postDetailView = null;
+                currentDetailPublication = null;
+            });
+            fade.play();
+        }
+    }
+
+    private VBox createPostContentPanel(Publication publication) {
+        VBox panel = new VBox();
+        panel.getStyleClass().add("post-content-panel");
+
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setFitToWidth(true);
+        scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+
+        VBox content = new VBox(20);
+        content.setPadding(new Insets(24));
+
+        // Author header
+        HBox authorBox = new HBox(12);
+        authorBox.setAlignment(Pos.CENTER_LEFT);
+
+        Region avatar = new Region();
+        avatar.getStyleClass().add("avatar");
+        avatar.setPrefSize(48, 48);
+        avatar.setMinSize(48, 48);
+        avatar.setMaxSize(48, 48);
+
+        VBox authorInfo = new VBox(4);
+        Label authorName = new Label("Traveler #" + publication.getClient().getClientID());
+        authorName.setStyle("-fx-font-weight: bold; -fx-font-size: 16px;");
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy 'at' hh:mm a");
+        Label dateLabel = new Label(dateFormat.format(publication.getDatePublication()));
+        dateLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #65676b;");
+
+        authorInfo.getChildren().addAll(authorName, dateLabel);
+        authorBox.getChildren().addAll(avatar, authorInfo);
+
+        // Location if exists
+        if (publication.getPlace() != null && !publication.getPlace().isEmpty()) {
+            Label placeLabel = new Label("📍 " + publication.getPlace());
+            placeLabel.getStyleClass().add("post-place-tag");
+            placeLabel.setStyle(placeLabel.getStyle() + "-fx-font-size: 14px; -fx-padding: 6 12;");
+            content.getChildren().add(placeLabel);
+        }
+
+        // Content text
+        Text contentText = new Text(publication.getContent());
+        contentText.setStyle("-fx-font-size: 16px; -fx-fill: #050505; -fx-line-spacing: 4;");
+        contentText.setWrappingWidth(580);
+
+        content.getChildren().addAll(authorBox, contentText);
+
+        // Image
+        if (publication.getImagePath() != null && !publication.getImagePath().isEmpty()) {
+            try {
+                File imageFile = new File(publication.getImagePath());
+                if (imageFile.exists()) {
+                    ImageView imageView = new ImageView(new Image(imageFile.toURI().toString()));
+                    imageView.setFitWidth(600);
+                    imageView.setPreserveRatio(true);
+                    imageView.setSmooth(true);
+                    imageView.setStyle("-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2);");
+                    content.getChildren().add(imageView);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Stats and actions
+        content.getChildren().add(createStatsBar(publication));
+        content.getChildren().add(createActionsBar(publication, false));
+
+        scrollPane.setContent(content);
+        panel.getChildren().add(scrollPane);
+        VBox.setVgrow(scrollPane, Priority.ALWAYS);
+
+        return panel;
+    }
+
+    @FXML
+    private void handleBackToFeed() {
+        detailView.setVisible(false);
+        detailView.setManaged(false);
+        feedView.setVisible(true);
+        feedView.setManaged(true);
+        currentViewingPost = null;
+
+        // Refresh the feed to update comment counts on the cards
+        loadPosts();
+    }
+
+    private VBox createCommentsPanel(Publication publication) {
+        VBox panel = new VBox();
+        panel.getStyleClass().add("comments-panel");
+
+        // Comments header
+        HBox header = new HBox();
+        header.setAlignment(Pos.CENTER_LEFT);
+        header.setPadding(new Insets(20, 20, 16, 20));
+        header.setStyle("-fx-border-color: #e4e6eb; -fx-border-width: 0 0 1 0;");
+
+        Label commentsTitle = new Label("Comments");
+        commentsTitle.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+
+        try {
+            int count = commentService.getCommentCount(publication.getPublicationID());
+            Label countLabel = new Label("(" + count + ")");
+            countLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #65676b; -fx-padding: 0 0 0 8;");
+            header.getChildren().addAll(commentsTitle, countLabel);
+        } catch (SQLException e) {
+            header.getChildren().add(commentsTitle);
+        }
+
+        // Comment input
+        HBox commentInput = createCommentInput(publication, panel);
+
+        // Comments list
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setFitToWidth(true);
+        scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+        VBox.setVgrow(scrollPane, Priority.ALWAYS);
+
+        VBox commentsList = new VBox(12);
+        commentsList.setPadding(new Insets(16, 20, 16, 20));
+        commentsList.setId("commentsList");
+
+        scrollPane.setContent(commentsList);
+
+        panel.getChildren().addAll(header, commentInput, scrollPane);
+
+        // Load comments
+        loadComments(publication, commentsList);
+
+        return panel;
+    }
+
+    private HBox createCommentInput(Publication publication, VBox parentPanel) {
+        HBox inputBox = new HBox(12);
+        inputBox.setPadding(new Insets(16, 20, 16, 20));
+        inputBox.setAlignment(Pos.CENTER_LEFT);
+        inputBox.setStyle("-fx-border-color: #e4e6eb; -fx-border-width: 0 0 1 0; -fx-background-color: #f0f2f5;");
+
+        Region avatar = new Region();
+        avatar.getStyleClass().add("avatar");
+        avatar.setPrefSize(36, 36);
+        avatar.setMinSize(36, 36);
+        avatar.setMaxSize(36, 36);
+
+        TextField textField = new TextField();
+        textField.setPromptText("Write a comment...");
+        textField.setStyle("-fx-background-color: white; -fx-border-color: #e4e6eb; " +
+                "-fx-border-radius: 20; -fx-background-radius: 20; " +
+                "-fx-padding: 8 16; -fx-font-size: 14px;");
+        HBox.setHgrow(textField, Priority.ALWAYS);
+
+        Button postBtn = new Button("Post");
+        postBtn.getStyleClass().add("primary-btn");
+        postBtn.setDisable(true);
+
+        textField.textProperty().addListener((obs, old, newVal) -> {
+            postBtn.setDisable(newVal.trim().isEmpty());
+        });
+
+        postBtn.setOnAction(e -> {
+            String content = textField.getText().trim();
+            if (!content.isEmpty()) {
+                try {
+                    Comment comment = new Comment(currentUser, publication, content, new Date());
+                    commentService.insertOne(comment);
+                    textField.clear();
+
+                    // Reload comments
+                    VBox commentsList = (VBox) ((ScrollPane) parentPanel.getChildren().get(2)).getContent();
+                    loadComments(publication, commentsList);
+
+                    // Update header count
+                    HBox header = (HBox) parentPanel.getChildren().get(0);
+                    int count = commentService.getCommentCount(publication.getPublicationID());
+                    if (header.getChildren().size() > 1) {
+                        ((Label) header.getChildren().get(1)).setText("(" + count + ")");
+                    } else {
+                        Label countLabel = new Label("(" + count + ")");
+                        countLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #65676b; -fx-padding: 0 0 0 8;");
+                        header.getChildren().add(countLabel);
+                    }
+
+                    // Refresh main view
+                    loadPosts();
+
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                    showError("Failed to post comment");
+                }
+            }
+        });
+
+        textField.setOnAction(e -> postBtn.fire());
+
+        inputBox.getChildren().addAll(avatar, textField, postBtn);
+
+        return inputBox;
+    }
+
+    private void loadComments(Publication publication, VBox commentsList) {
+        commentsList.getChildren().clear();
+
+        try {
+            List<Comment> comments = commentService.getCommentsByPublication(publication.getPublicationID());
+
+            if (comments.isEmpty()) {
+                Label empty = new Label("No comments yet. Be the first to comment!");
+                empty.setStyle("-fx-text-fill: #65676b; -fx-font-size: 14px; -fx-padding: 20;");
+                commentsList.getChildren().add(empty);
+            } else {
+                for (Comment comment : comments) {
+                    commentsList.getChildren().add(createCommentItem(comment, publication, commentsList));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private VBox createCommentItem(Comment comment, Publication publication, VBox commentsList) {
+        VBox item = new VBox(8);
+        item.setPadding(new Insets(12));
+        item.setStyle("-fx-background-color: white; -fx-background-radius: 12; " +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 4, 0, 0, 1);");
+
+        HBox topBox = new HBox(12);
+        topBox.setAlignment(Pos.CENTER_LEFT);
+
+        Region avatar = new Region();
+        avatar.getStyleClass().add("avatar");
+        avatar.setPrefSize(32, 32);
+        avatar.setMinSize(32, 32);
+        avatar.setMaxSize(32, 32);
+
+        VBox contentBox = new VBox(4);
+        HBox.setHgrow(contentBox, Priority.ALWAYS);
+
+        HBox nameTimeBox = new HBox(8);
+        nameTimeBox.setAlignment(Pos.CENTER_LEFT);
+
+        Label nameLabel = new Label("Traveler #" + comment.getClient().getClientID());
+        nameLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+
+        Label timeLabel = new Label("• " + comment.getTimeAgo());
+        timeLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #65676b;");
+
+        nameTimeBox.getChildren().addAll(nameLabel, timeLabel);
+
+        Label contentLabel = new Label(comment.getContent());
+        contentLabel.setWrapText(true);
+        contentLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #050505;");
+
+        contentBox.getChildren().addAll(nameTimeBox, contentLabel);
+
+        topBox.getChildren().addAll(avatar, contentBox);
+
+        // Actions if user owns comment
+        if (comment.isOwnedBy(currentUser)) {
+            HBox actions = new HBox(12);
+            actions.setAlignment(Pos.CENTER_LEFT);
+            actions.setPadding(new Insets(4, 0, 0, 44));
+
+            Button editBtn = new Button("Edit");
+            editBtn.setStyle("-fx-background-color: transparent; -fx-text-fill: #65676b; " +
+                    "-fx-font-size: 12px; -fx-font-weight: 600; -fx-cursor: hand; -fx-padding: 0;");
+            editBtn.setOnAction(e -> handleEditComment(comment, publication, commentsList));
+
+            Label dot = new Label("•");
+            dot.setStyle("-fx-text-fill: #e4e6eb;");
+
+            Button deleteBtn = new Button("Delete");
+            deleteBtn.setStyle("-fx-background-color: transparent; -fx-text-fill: #e74c3c; " +
+                    "-fx-font-size: 12px; -fx-font-weight: 600; -fx-cursor: hand; -fx-padding: 0;");
+            deleteBtn.setOnAction(e -> handleDeleteComment(comment, publication, commentsList));
+
+            actions.getChildren().addAll(editBtn, dot, deleteBtn);
+            item.getChildren().addAll(topBox, actions);
+        } else {
+            item.getChildren().add(topBox);
+        }
+
+        return item;
+    }
+
+    private void handleEditComment(Comment comment, Publication publication, VBox commentsList) {
+        TextInputDialog dialog = new TextInputDialog(comment.getContent());
+        dialog.setTitle("Edit Comment");
+        dialog.setHeaderText("Edit your comment");
+        dialog.setContentText(null);
+
+        dialog.getDialogPane().getStylesheets().add(
+                getClass().getResource("/styles/dashboard.css").toExternalForm()
+        );
+
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(newContent -> {
+            if (!newContent.trim().isEmpty()) {
+                try {
+                    comment.setContent(newContent.trim());
+                    commentService.updateOne(comment);
+                    loadComments(publication, commentsList);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    showError("Failed to update comment");
+                }
+            }
+        });
+    }
+
+    private void handleDeleteComment(Comment comment, Publication publication, VBox commentsList) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Delete Comment");
+        alert.setHeaderText("Are you sure?");
+        alert.setContentText("This comment will be permanently deleted.");
+
+        alert.getDialogPane().getStylesheets().add(
+                getClass().getResource("/styles/dashboard.css").toExternalForm()
+        );
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                commentService.deleteOne(comment);
+                loadComments(publication, commentsList);
+                loadPosts();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                showError("Failed to delete comment");
+            }
+        }
     }
 
     private HBox createPostHeader(Publication publication) {
@@ -435,14 +896,12 @@ public class DashboardController {
         header.getStyleClass().add("post-header");
         header.setAlignment(Pos.CENTER_LEFT);
 
-        // Avatar
         Region avatar = new Region();
         avatar.getStyleClass().add("avatar");
         avatar.setPrefSize(40, 40);
         avatar.setMinSize(40, 40);
         avatar.setMaxSize(40, 40);
 
-        // Author info
         VBox authorInfo = new VBox(2);
 
         Label authorName = new Label("Traveler #" + publication.getClient().getClientID());
@@ -470,11 +929,13 @@ public class DashboardController {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        // Menu button
         Button menuBtn = new Button("⋯");
         menuBtn.getStyleClass().add("post-menu-btn");
         if (currentUser.getClientID() == publication.getClient().getClientID()) {
-            menuBtn.setOnAction(e -> showPostMenu(publication, menuBtn));
+            menuBtn.setOnAction(e -> {
+                e.consume(); // Prevent card click
+                showPostMenu(publication, menuBtn);
+            });
         } else {
             menuBtn.setVisible(false);
         }
@@ -512,7 +973,6 @@ public class DashboardController {
         stats.getStyleClass().add("post-stats");
         stats.setAlignment(Pos.CENTER_LEFT);
 
-        // Load actual comment count from database
         int commentCount = 0;
         try {
             commentCount = commentService.getCommentCount(publication.getPublicationID());
@@ -550,20 +1010,17 @@ public class DashboardController {
         likeBtn.getStyleClass().add("action-btn");
         likeBtn.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(likeBtn, Priority.ALWAYS);
-        likeBtn.setOnAction(e -> handleLike(publication));
-
-        Button commentBtn = new Button("💬 Comment");
-        commentBtn.getStyleClass().add("action-btn");
-        commentBtn.setMaxWidth(Double.MAX_VALUE);
-        HBox.setHgrow(commentBtn, Priority.ALWAYS);
-        commentBtn.setOnAction(e -> handleComment(publication));
+        likeBtn.setOnAction(e -> {
+            e.consume();
+            handleLike(publication);
+        });
 
         Button shareBtn = new Button("↗️ Share");
         shareBtn.getStyleClass().add("action-btn");
         shareBtn.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(shareBtn, Priority.ALWAYS);
 
-        actions.getChildren().addAll(likeBtn, commentBtn, shareBtn);
+        actions.getChildren().addAll(likeBtn, shareBtn);
         return actions;
     }
 
@@ -584,248 +1041,15 @@ public class DashboardController {
         showInfo("Like functionality - to be implemented");
     }
 
-    private void handleComment(Publication publication) {
-        Dialog<Void> dialog = new Dialog<>();
-        dialog.setTitle("Comments");
-        dialog.setHeaderText(publication.getComments().size() + " Comments");
-
-        ButtonType closeButtonType = new ButtonType("Close", ButtonBar.ButtonData.CANCEL_CLOSE);
-        dialog.getDialogPane().getButtonTypes().add(closeButtonType);
-
-        dialog.getDialogPane().getStylesheets().add(
-                getClass().getResource("/styles/dashboard.css").toExternalForm()
-        );
-        dialog.getDialogPane().getStyleClass().add("dialog-pane");
-        dialog.getDialogPane().setPrefWidth(600);
-        dialog.getDialogPane().setPrefHeight(500);
-
-        VBox mainContainer = new VBox(16);
-        mainContainer.setPadding(new Insets(0));
-
-        // Comment input area
-        HBox commentInputArea = new HBox(12);
-        commentInputArea.setPadding(new Insets(0, 0, 16, 0));
-        commentInputArea.setAlignment(Pos.CENTER_LEFT);
-        commentInputArea.setStyle("-fx-border-color: #e4e6eb; -fx-border-width: 0 0 1 0;");
-
-        // User avatar
-        Region userAvatar = new Region();
-        userAvatar.getStyleClass().add("avatar");
-        userAvatar.setPrefSize(32, 32);
-        userAvatar.setMinSize(32, 32);
-        userAvatar.setMaxSize(32, 32);
-
-        // Comment input
-        TextField commentInput = new TextField();
-        commentInput.setPromptText("Write a comment...");
-        commentInput.getStyleClass().add("dialog-text-field");
-        HBox.setHgrow(commentInput, Priority.ALWAYS);
-
-        // Post button
-        Button postButton = new Button("Post");
-        postButton.getStyleClass().add("primary-btn");
-        postButton.setDisable(true);
-
-        commentInput.textProperty().addListener((obs, old, newVal) -> {
-            postButton.setDisable(newVal.trim().isEmpty());
-        });
-
-        postButton.setOnAction(e -> {
-            String commentText = commentInput.getText().trim();
-            if (!commentText.isEmpty()) {
-                try {
-                    Comment newComment = new Comment(
-                            currentUser,
-                            publication,
-                            commentText,
-                            new Date()
-                    );
-                    commentService.insertOne(newComment);
-                    publication.addComment(newComment);
-
-                    commentInput.clear();
-                    dialog.setHeaderText(publication.getComments().size() + " Comments");
-
-                    // Reload comments
-                    loadCommentsInDialog(mainContainer, publication);
-
-                    // Refresh the post card to update comment count
-                    loadPosts();
-
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                    showError("Failed to post comment: " + ex.getMessage());
-                }
-            }
-        });
-
-        commentInput.setOnAction(e -> postButton.fire());
-
-        commentInputArea.getChildren().addAll(userAvatar, commentInput, postButton);
-
-        // Comments list container
-        ScrollPane commentsScrollPane = new ScrollPane();
-        commentsScrollPane.setFitToWidth(true);
-        commentsScrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
-        VBox.setVgrow(commentsScrollPane, Priority.ALWAYS);
-
-        VBox commentsList = new VBox(12);
-        commentsList.setPadding(new Insets(16, 0, 0, 0));
-        commentsScrollPane.setContent(commentsList);
-
-        mainContainer.getChildren().addAll(commentInputArea, commentsScrollPane);
-
-        // Load existing comments
-        loadCommentsInDialog(mainContainer, publication);
-
-        dialog.getDialogPane().setContent(mainContainer);
-        dialog.showAndWait();
-    }
-
-    private void loadCommentsInDialog(VBox mainContainer, Publication publication) {
-        // Get the comments scroll pane
-        ScrollPane scrollPane = (ScrollPane) mainContainer.getChildren().get(1);
-        VBox commentsList = (VBox) scrollPane.getContent();
-        commentsList.getChildren().clear();
-
-        try {
-            List<Comment> comments = commentService.getCommentsByPublication(publication.getPublicationID());
-
-            if (comments.isEmpty()) {
-                Label noComments = new Label("No comments yet. Be the first to comment!");
-                noComments.setStyle("-fx-text-fill: #65676b; -fx-font-size: 14px; -fx-padding: 20;");
-                commentsList.getChildren().add(noComments);
-            } else {
-                for (Comment comment : comments) {
-                    commentsList.getChildren().add(createCommentItem(comment, publication));
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            Label errorLabel = new Label("Failed to load comments");
-            errorLabel.setStyle("-fx-text-fill: #e74c3c; -fx-font-size: 14px;");
-            commentsList.getChildren().add(errorLabel);
-        }
-    }
-
-    private HBox createCommentItem(Comment comment, Publication publication) {
-        HBox commentItem = new HBox(12);
-        commentItem.setPadding(new Insets(12));
-        commentItem.setStyle("-fx-background-color: #f0f2f5; -fx-background-radius: 8;");
-
-        // Avatar
-        Region avatar = new Region();
-        avatar.getStyleClass().add("avatar");
-        avatar.setPrefSize(32, 32);
-        avatar.setMinSize(32, 32);
-        avatar.setMaxSize(32, 32);
-
-        // Comment content
-        VBox contentBox = new VBox(4);
-        HBox.setHgrow(contentBox, Priority.ALWAYS);
-
-        // Author and content
-        VBox textBox = new VBox(4);
-        textBox.setStyle("-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 8 12;");
-
-        Label authorLabel = new Label("Traveler #" + comment.getClient().getClientID());
-        authorLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #050505;");
-
-        Label contentLabel = new Label(comment.getContent());
-        contentLabel.setWrapText(true);
-        contentLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #050505;");
-
-        textBox.getChildren().addAll(authorLabel, contentLabel);
-
-        // Meta info (time, actions)
-        HBox metaBox = new HBox(12);
-        metaBox.setAlignment(Pos.CENTER_LEFT);
-        metaBox.setPadding(new Insets(4, 0, 0, 12));
-
-        Label timeLabel = new Label(comment.getTimeAgo());
-        timeLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #65676b; -fx-font-weight: 600;");
-
-        metaBox.getChildren().add(timeLabel);
-
-        // Add edit/delete buttons if user owns the comment
-        if (comment.isOwnedBy(currentUser)) {
-            Button editBtn = new Button("Edit");
-            editBtn.setStyle("-fx-background-color: transparent; -fx-text-fill: #65676b; -fx-font-size: 12px; -fx-font-weight: 600; -fx-cursor: hand; -fx-padding: 0;");
-            editBtn.setOnAction(e -> handleEditComment(comment, publication));
-
-            Button deleteBtn = new Button("Delete");
-            deleteBtn.setStyle("-fx-background-color: transparent; -fx-text-fill: #e74c3c; -fx-font-size: 12px; -fx-font-weight: 600; -fx-cursor: hand; -fx-padding: 0;");
-            deleteBtn.setOnAction(e -> handleDeleteComment(comment, publication));
-
-            Label dot1 = new Label("•");
-            dot1.setStyle("-fx-text-fill: #65676b;");
-            Label dot2 = new Label("•");
-            dot2.setStyle("-fx-text-fill: #65676b;");
-
-            metaBox.getChildren().addAll(dot1, editBtn, dot2, deleteBtn);
-        }
-
-        contentBox.getChildren().addAll(textBox, metaBox);
-
-        commentItem.getChildren().addAll(avatar, contentBox);
-
-        return commentItem;
-    }
-
-    private void handleEditComment(Comment comment, Publication publication) {
-        TextInputDialog editDialog = new TextInputDialog(comment.getContent());
-        editDialog.setTitle("Edit Comment");
-        editDialog.setHeaderText("Edit your comment");
-        editDialog.setContentText("Comment:");
-
-        editDialog.getDialogPane().getStylesheets().add(
-                getClass().getResource("/styles/dashboard.css").toExternalForm()
-        );
-
-        Optional<String> result = editDialog.showAndWait();
-        result.ifPresent(newContent -> {
-            if (!newContent.trim().isEmpty()) {
-                try {
-                    comment.setContent(newContent.trim());
-                    commentService.updateOne(comment);
-                    showSuccess("Comment updated successfully!");
-                    // Reload would happen when dialog refreshes
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    showError("Failed to update comment: " + e.getMessage());
-                }
-            }
-        });
-    }
-
-    private void handleDeleteComment(Comment comment, Publication publication) {
-        Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmDialog.setTitle("Delete Comment");
-        confirmDialog.setHeaderText("Are you sure?");
-        confirmDialog.setContentText("This comment will be permanently deleted.");
-
-        confirmDialog.getDialogPane().getStylesheets().add(
-                getClass().getResource("/styles/dashboard.css").toExternalForm()
-        );
-
-        Optional<ButtonType> result = confirmDialog.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            try {
-                commentService.deleteOne(comment);
-                publication.removeComment(comment);
-                showSuccess("Comment deleted successfully!");
-                loadPosts(); // Refresh to update comment count
-            } catch (SQLException e) {
-                e.printStackTrace();
-                showError("Failed to delete comment: " + e.getMessage());
-            }
-        }
-    }
-
     private void handleEdit(Publication publication) {
+        // Close detail view if open
+        if (postDetailView != null) {
+            closePostDetail();
+        }
+
         Dialog<Publication> dialog = new Dialog<>();
         dialog.setTitle("Edit Post");
-        dialog.setHeaderText("Update your post");
+        dialog.setHeaderText(null);
 
         ButtonType updateButtonType = new ButtonType("Update", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(updateButtonType, ButtonType.CANCEL);
@@ -833,36 +1057,29 @@ public class DashboardController {
         dialog.getDialogPane().getStylesheets().add(
                 getClass().getResource("/styles/dashboard.css").toExternalForm()
         );
-        dialog.getDialogPane().getStyleClass().add("dialog-pane");
+        dialog.getDialogPane().getStyleClass().add("create-post-dialog");
+        dialog.getDialogPane().setPrefWidth(550);
 
-        GridPane grid = new GridPane();
-        grid.setHgap(15);
-        grid.setVgap(15);
-        grid.setPadding(new Insets(20));
+        VBox mainBox = new VBox(20);
+        mainBox.setPadding(new Insets(24));
 
         TextArea contentArea = new TextArea(publication.getContent());
         contentArea.setPrefRowCount(6);
         contentArea.setWrapText(true);
-        contentArea.getStyleClass().add("dialog-text-area");
+        contentArea.setStyle("-fx-background-color: transparent; -fx-border-color: transparent; " +
+                "-fx-font-size: 15px; -fx-text-fill: #050505;");
 
         TextField placeField = new TextField(publication.getPlace() != null ? publication.getPlace() : "");
-        placeField.getStyleClass().add("dialog-text-field");
+        placeField.setPromptText("📍 Add location");
+        placeField.setStyle("-fx-background-color: #f0f2f5; -fx-border-color: transparent; " +
+                "-fx-background-radius: 8; -fx-padding: 10 12; -fx-font-size: 14px;");
 
-        Label contentLabel = new Label("Content");
-        contentLabel.getStyleClass().add("dialog-label");
-
-        Label placeLabel = new Label("Location");
-        placeLabel.getStyleClass().add("dialog-label");
-
-        grid.add(contentLabel, 0, 0);
-        grid.add(contentArea, 0, 1, 2, 1);
-        grid.add(placeLabel, 0, 2);
-        grid.add(placeField, 0, 3, 2, 1);
-
-        dialog.getDialogPane().setContent(grid);
+        mainBox.getChildren().addAll(contentArea, placeField);
+        dialog.getDialogPane().setContent(mainBox);
 
         Button updateButton = (Button) dialog.getDialogPane().lookupButton(updateButtonType);
         updateButton.getStyleClass().add("primary-btn");
+        updateButton.setStyle("-fx-pref-width: 100%; -fx-font-size: 15px; -fx-font-weight: bold;");
 
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == updateButtonType) {
@@ -881,12 +1098,17 @@ public class DashboardController {
                 showSuccess("Post updated successfully!");
             } catch (SQLException e) {
                 e.printStackTrace();
-                showError("Failed to update post: " + e.getMessage());
+                showError("Failed to update post");
             }
         });
     }
 
     private void handleDelete(Publication publication) {
+        // Close detail view if open
+        if (postDetailView != null) {
+            closePostDetail();
+        }
+
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Delete Post");
         alert.setHeaderText("Are you sure?");
@@ -904,7 +1126,7 @@ public class DashboardController {
                 showSuccess("Post deleted successfully!");
             } catch (SQLException e) {
                 e.printStackTrace();
-                showError("Failed to delete post: " + e.getMessage());
+                showError("Failed to delete post");
             }
         }
     }
@@ -920,7 +1142,7 @@ public class DashboardController {
         Label emptyText = new Label("No posts yet");
         emptyText.getStyleClass().add("empty-state-text");
 
-        Label emptySubtext = new Label("Be the first to share something with the community!");
+        Label emptySubtext = new Label("Be the first to share something!");
         emptySubtext.getStyleClass().add("empty-state-subtext");
 
         Button createFirstPost = new Button("Create First Post");

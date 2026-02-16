@@ -464,3 +464,81 @@ Light BG: #f0f2f5
     -fx-border-color: #17B3A6;
     -fx-border-width: 0 0 0 3;
 }
+
+/* ===== POST DETAIL VIEW ===== */
+.post-detail-view {
+    -fx-background-color: rgba(0, 0, 0, 0.7);
+}
+
+.detail-top-bar {
+    -fx-background-color: white;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 4, 0, 0, 1);
+}
+
+.close-detail-btn {
+    -fx-background-color: #f0f2f5;
+    -fx-text-fill: #050505;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-padding: 8 14 8 14;
+    -fx-background-radius: 50%;
+    -fx-cursor: hand;
+}
+
+.close-detail-btn:hover {
+    -fx-background-color: #e4e6eb;
+}
+
+.split-view {
+    -fx-background-color: white;
+}
+
+.post-content-panel {
+    -fx-background-color: white;
+    -fx-pref-width: 650;
+    -fx-min-width: 650;
+    -fx-max-width: 650;
+    -fx-border-color: #e4e6eb;
+    -fx-border-width: 0 1 0 0;
+}
+
+.comments-panel {
+    -fx-background-color: white;
+    -fx-pref-width: 450;
+    -fx-min-width: 450;
+}
+
+/* ===== IMPROVED CREATE POST DIALOG ===== */
+.create-post-dialog {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+}
+
+.create-post-dialog > .header-panel {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.create-post-dialog > .content {
+    -fx-padding: 0;
+}
+
+.create-post-dialog .button-bar {
+    -fx-padding: 0 24 24 24;
+}
+
+.create-post-dialog .button-bar .button {
+    -fx-min-width: 100%;
+}
+
+.detail-view-container { -fx-background-color: white; }
+.comments-sidebar {
+    -fx-background-color: #fcfcfc;
+    -fx-border-color: #e4e6eb;
+    -fx-border-width: 0 0 0 1;
+}
+.comment-input-area {
+    -fx-padding: 15;
+    -fx-border-color: #e4e6eb;
+    -fx-border-width: 1 0 0 0;
+}
