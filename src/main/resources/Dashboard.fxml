@@ -39,7 +39,7 @@
                 <VBox prefHeight="400.0" prefWidth="250.0" spacing="10.0" VBox.vgrow="ALWAYS">
                     <children>
                         <Button onAction="#handleShowDashboard" alignment="BASELINE_LEFT" graphicTextGap="15.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="nav-btn, active-nav-btn" text="📉 Dashboard" />
-                        <Button alignment="BASELINE_LEFT" graphicTextGap="15.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="nav-btn" text="👨🏻‍💻 Services" />
+                        <Button onAction="#handleShowServices" alignment="BASELINE_LEFT" graphicTextGap="15.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="nav-btn" text="👨🏻‍💻 Services" />
                         <Button alignment="BASELINE_LEFT" graphicTextGap="15.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="nav-btn" text="📦 Packages" />
                         <Button alignment="BASELINE_LEFT" graphicTextGap="15.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="nav-btn" text="⚙ Settings" />
                     </children>

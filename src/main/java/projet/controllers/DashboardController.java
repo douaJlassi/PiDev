@@ -87,7 +87,7 @@ public class DashboardController implements Initializable {
         else {
             Label statusLbl = new Label("Non Disponible");
             statusLbl.setMinWidth(90);
-            statusLbl.getStyleClass().add("status-inactive");
+            statusLbl.getStyleClass().add("status-pending");
             row.getChildren().addAll(nameLbl, typeLbl, priceLbl, capLbl, statusLbl);
 
         }
@@ -144,5 +144,25 @@ public class DashboardController implements Initializable {
 
         // Show the stats again
         pnlOverview.setVisible(true);
+
+    }
+    @FXML
+    private void handleShowServices(ActionEvent event) {
+        try {
+            // Load the addVol.fxml
+            Parent HotelForm = FXMLLoader.load(getClass().getResource("/Services.fxml"));
+
+            // Clear current view and add the form
+            contentArea.getChildren().removeAll(); // Clears everything? No, we want to keep logic simple.
+
+            // Better approach: Make pnlOverview invisible and add form on top
+            pnlOverview.setVisible(false);
+
+            // Check if form is already added to avoid duplicates (Optional optimization)
+            contentArea.getChildren().add(HotelForm);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -192,3 +192,66 @@
 .btn-add:hover {
     -fx-background-color: #3a8a88; /* Darker Teal */
 }
+/* ================= SERVICE CARDS ================= */
+
+/* The Card Container */
+.service-card {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+    -fx-border-width: 1;
+}
+
+.service-card:hover {
+    -fx-effect: dropshadow(three-pass-box, rgba(75, 163, 161, 0.4), 10, 0, 0, 2); /* Teal Glow */
+    -fx-translate-y: -2; /* Slight lift effect */
+}
+
+/* Image Area */
+.card-img-container {
+    -fx-background-color: #eeeeee;
+    -fx-background-radius: 10 10 0 0; /* Round only top corners */
+    -fx-min-height: 120;
+    -fx-alignment: center;
+}
+
+/* Text Styling */
+.card-type {
+    -fx-text-fill: #999;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-transform: uppercase;
+}
+
+.card-title-text {
+    -fx-text-fill: #183c75; /* Dark Blue */
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+.card-price {
+    -fx-text-fill: #4ba3a1; /* Brand Teal */
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+/* Card Buttons (Edit/Delete) */
+.btn-card-action {
+    -fx-background-color: #f4f6f8;
+    -fx-text-fill: #555;
+    -fx-background-radius: 5;
+    -fx-font-size: 12px;
+    -fx-padding: 5 10;
+}
+
+.btn-card-action:hover {
+    -fx-background-color: #f6c750; /* Yellow on hover */
+    -fx-text-fill: #183c75;
+}
+
+.btn-card-delete:hover {
+    -fx-background-color: #ff6b6b; /* Red for delete */
+    -fx-text-fill: white;
+}
