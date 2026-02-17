@@ -134,58 +134,59 @@ public class CommentController {
      * Create a single comment UI item
      */
     public VBox createCommentItem(Comment comment, Publication publication, VBox commentsList) {
-        VBox item = new VBox(8);
-        item.setPadding(new Insets(12));
-        item.setStyle("-fx-background-color: white; -fx-background-radius: 12; " +
-                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 4, 0, 0, 1);");
+        VBox item = new VBox(6);
+        item.setPadding(new Insets(10, 12, 10, 12));
+        item.setStyle("-fx-background-color: white; -fx-background-radius: 10; " +
+                "-fx-border-color: #e4e6eb; -fx-border-radius: 10; -fx-border-width: 1;");
 
-        HBox topBox = new HBox(12);
+        HBox topBox = new HBox(10);
         topBox.setAlignment(Pos.CENTER_LEFT);
 
         Region avatar = new Region();
         avatar.getStyleClass().add("avatar");
-        avatar.setPrefSize(32, 32);
-        avatar.setMinSize(32, 32);
-        avatar.setMaxSize(32, 32);
+        avatar.setPrefSize(30, 30);
+        avatar.setMinSize(30, 30);
+        avatar.setMaxSize(30, 30);
 
-        VBox contentBox = new VBox(4);
+        VBox contentBox = new VBox(3);
         HBox.setHgrow(contentBox, Priority.ALWAYS);
 
-        HBox nameTimeBox = new HBox(8);
-        nameTimeBox.setAlignment(Pos.CENTER_LEFT);
+        String username = (comment.getClient().getUsername() != null && !comment.getClient().getUsername().isEmpty())
+                ? comment.getClient().getUsername()
+                : "Traveler #" + comment.getClient().getClientID();
 
-        Label nameLabel = new Label(comment.getClient().getUsername() != null ?
-                comment.getClient().getUsername() : "Traveler #" + comment.getClient().getClientID());
-        nameLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+        HBox nameRow = new HBox(8);
+        nameRow.setAlignment(Pos.CENTER_LEFT);
 
-        Label timeLabel = new Label("• " + comment.getTimeAgo());
-        timeLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #65676b;");
+        Label nameLabel = new Label(username);
+        nameLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #050505;");
 
-        nameTimeBox.getChildren().addAll(nameLabel, timeLabel);
+        Label timeLabel = new Label(comment.getTimeAgo());
+        timeLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #8a8d91;");
+
+        nameRow.getChildren().addAll(nameLabel, timeLabel);
 
         Label contentLabel = new Label(comment.getContent());
         contentLabel.setWrapText(true);
-        contentLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #050505;");
+        contentLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333333;");
 
-        contentBox.getChildren().addAll(nameTimeBox, contentLabel);
-
+        contentBox.getChildren().addAll(nameRow, contentLabel);
         topBox.getChildren().addAll(avatar, contentBox);
-
         item.getChildren().add(topBox);
 
         // Actions if user owns comment
         if (comment.isOwnedBy(currentUser)) {
             HBox actions = new HBox(12);
             actions.setAlignment(Pos.CENTER_LEFT);
-            actions.setPadding(new Insets(4, 0, 0, 44));
+            actions.setPadding(new Insets(4, 0, 0, 40));
 
             Button editBtn = new Button("Edit");
-            editBtn.setStyle("-fx-background-color: transparent; -fx-text-fill: #65676b; " +
+            editBtn.setStyle("-fx-background-color: transparent; -fx-text-fill: #17B3A6; " +
                     "-fx-font-size: 12px; -fx-font-weight: 600; -fx-cursor: hand; -fx-padding: 0;");
             editBtn.setOnAction(e -> editComment(comment, publication, commentsList));
 
-            Label dot = new Label("•");
-            dot.setStyle("-fx-text-fill: #e4e6eb;");
+            Label dot = new Label("·");
+            dot.setStyle("-fx-text-fill: #bcc0c4; -fx-font-size: 14px;");
 
             Button deleteBtn = new Button("Delete");
             deleteBtn.setStyle("-fx-background-color: transparent; -fx-text-fill: #e74c3c; " +

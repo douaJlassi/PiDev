@@ -52,6 +52,13 @@ public class DashboardController {
     @FXML
     private ImageView logoImage;
 
+    // Sidebar labels (optional — populated in initialize)
+    @FXML
+    private Label sidebarUsername;
+
+    @FXML
+    private Label sidebarRole;
+
     // Services
     private PublicationService publicationService;
     private CommentService commentService;
@@ -78,6 +85,14 @@ public class DashboardController {
         currentUser = new Client();
         currentUser.setClientID(1);
         currentUser.setUsername("Traveler");
+
+        // Populate sidebar
+        if (sidebarUsername != null) {
+            sidebarUsername.setText(currentUser.getUsername() != null ? currentUser.getUsername() : "User");
+        }
+        if (sidebarRole != null) {
+            sidebarRole.setText("USER");
+        }
 
         // Initialize sub-controllers
         postController = new PostController(publicationService, currentUser, this);

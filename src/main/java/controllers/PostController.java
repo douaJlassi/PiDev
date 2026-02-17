@@ -488,7 +488,7 @@ public class PostController {
         Button likeBtn = dashboardController.getLikeController().createLikeButton(publication);
         HBox.setHgrow(likeBtn, Priority.ALWAYS);
 
-        Button shareBtn = new Button("↗️ Share");
+        Button shareBtn = new Button("Share");
         shareBtn.getStyleClass().add("action-btn");
         shareBtn.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(shareBtn, Priority.ALWAYS);

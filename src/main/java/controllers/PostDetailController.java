@@ -39,25 +39,31 @@ public class PostDetailController {
     public void show() {
         detailView = new BorderPane();
         detailView.getStyleClass().add("post-detail-view");
+        StackPane.setAlignment(detailView, javafx.geometry.Pos.TOP_LEFT);
 
         // Top bar with close button
         HBox topBar = createTopBar();
         detailView.setTop(topBar);
 
-        // Split view - post content left, comments right
+        // Split view
         HBox splitView = new HBox();
         splitView.getStyleClass().add("split-view");
 
         VBox leftPanel = createPostContentPanel();
         VBox rightPanel = createCommentsPanel();
 
+        HBox.setHgrow(leftPanel, Priority.ALWAYS);
+        HBox.setHgrow(rightPanel, Priority.NEVER);
+        rightPanel.setPrefWidth(380);
+        rightPanel.setMinWidth(320);
+        rightPanel.setMaxWidth(420);
+
         splitView.getChildren().addAll(leftPanel, rightPanel);
         detailView.setCenter(splitView);
 
-        // Add to container with fade animation
         dashboardController.getContentContainer().getChildren().add(detailView);
 
-        FadeTransition fade = new FadeTransition(Duration.millis(250), detailView);
+        FadeTransition fade = new FadeTransition(Duration.millis(220), detailView);
         fade.setFromValue(0);
         fade.setToValue(1);
         fade.play();
@@ -199,16 +205,16 @@ public class PostDetailController {
         panel.getStyleClass().add("comments-panel");
 
         // Comments header
-        HBox header = new HBox();
+        HBox header = new HBox(8);
         header.setAlignment(Pos.CENTER_LEFT);
-        header.setPadding(new Insets(20, 20, 16, 20));
-        header.setStyle("-fx-border-color: #e4e6eb; -fx-border-width: 0 0 1 0;");
+        header.setPadding(new Insets(16, 20, 14, 20));
+        header.setStyle("-fx-background-color: white; -fx-border-color: #e4e6eb; -fx-border-width: 0 0 1 0;");
 
         Label commentsTitle = new Label("Comments");
-        commentsTitle.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+        commentsTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #050505;");
 
-        Label countLabel = new Label();
-        countLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #65676b; -fx-padding: 0 0 0 8;");
+        Label countLabel = new Label("(0)");
+        countLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #65676b;");
 
         try {
             int count = dashboardController.getCommentService().getCommentCount(publication.getPublicationID());
@@ -219,25 +225,25 @@ public class PostDetailController {
 
         header.getChildren().addAll(commentsTitle, countLabel);
 
-        // Comments list
-        ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setFitToWidth(true);
-        scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
-        VBox.setVgrow(scrollPane, Priority.ALWAYS);
+        // Comment input — sits at TOP, below header
+        VBox commentsList = new VBox(10);
+        commentsList.setPadding(new Insets(14, 16, 14, 16));
 
-        VBox commentsList = new VBox(12);
-        commentsList.setPadding(new Insets(16, 20, 16, 20));
-
-        scrollPane.setContent(commentsList);
-
-        // Comment input at top
         HBox commentInput = dashboardController.getCommentController()
                 .createCommentInput(publication, commentsList, countLabel);
+
+        // Scrollable comments list fills remaining height
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setFitToWidth(true);
+        scrollPane.setStyle("-fx-background-color: #f7f8fa; -fx-background: #f7f8fa;");
+        VBox.setVgrow(scrollPane, Priority.ALWAYS);
+        scrollPane.setContent(commentsList);
 
         // Load comments
         dashboardController.getCommentController().loadComments(publication, commentsList);
 
         panel.getChildren().addAll(header, commentInput, scrollPane);
+        VBox.setVgrow(scrollPane, Priority.ALWAYS);
 
         return panel;
     }
@@ -285,7 +291,7 @@ public class PostDetailController {
         Button likeBtn = dashboardController.getLikeController().createLikeButton(publication);
         HBox.setHgrow(likeBtn, Priority.ALWAYS);
 
-        Button shareBtn = new Button("↗️ Share");
+        Button shareBtn = new Button("Share");
         shareBtn.getStyleClass().add("action-btn");
         shareBtn.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(shareBtn, Priority.ALWAYS);

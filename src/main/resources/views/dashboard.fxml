@@ -5,62 +5,109 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
+<?import javafx.scene.shape.Circle?>
 
 <BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="controllers.DashboardController"
             styleClass="dashboard-root"
             stylesheets="@../styles/dashboard.css">
 
-    <!-- Top Navigation Bar -->
+    <!-- ===== LEFT SIDEBAR ===== -->
+    <left>
+        <VBox styleClass="sidebar" prefWidth="220" minWidth="220" maxWidth="220" spacing="0">
+
+            <!-- Logo area -->
+            <VBox styleClass="sidebar-logo-area" alignment="CENTER">
+                <padding><Insets top="20" right="16" bottom="20" left="16"/></padding>
+                <ImageView fx:id="logoImage" fitHeight="50" preserveRatio="true">
+                    <image><Image url="@../images/rehletna-logo.png"/></image>
+                </ImageView>
+            </VBox>
+
+            <!-- User info -->
+            <VBox styleClass="sidebar-user-area" alignment="CENTER" spacing="6">
+                <padding><Insets top="16" right="16" bottom="20" left="16"/></padding>
+                <StackPane>
+                    <Circle styleClass="sidebar-avatar" radius="32"/>
+                    <Label text="W" styleClass="sidebar-avatar-letter"/>
+                </StackPane>
+                <Label fx:id="sidebarUsername" text="Username" styleClass="sidebar-username"/>
+                <Label fx:id="sidebarRole" text="USER" styleClass="sidebar-role"/>
+            </VBox>
+
+            <Separator styleClass="sidebar-separator"/>
+
+            <!-- Navigation items -->
+            <VBox styleClass="sidebar-nav" spacing="4">
+                <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
+
+                <Button text="Dashboard" styleClass="sidebar-nav-btn, sidebar-nav-active" maxWidth="Infinity"/>
+                <Button text="Posts" styleClass="sidebar-nav-btn" maxWidth="Infinity" onAction="#showCreatePostDialog"/>
+                <Button text="My Profile" styleClass="sidebar-nav-btn" maxWidth="Infinity"/>
+                <Button text="Favourites" styleClass="sidebar-nav-btn" maxWidth="Infinity"/>
+                <Button text="Bookings" styleClass="sidebar-nav-btn" maxWidth="Infinity"/>
+                <Button text="Messages" styleClass="sidebar-nav-btn" maxWidth="Infinity"/>
+                <Button text="Settings" styleClass="sidebar-nav-btn" maxWidth="Infinity"/>
+            </VBox>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <!-- Logout -->
+            <VBox>
+                <padding><Insets top="0" right="12" bottom="20" left="12"/></padding>
+                <Button text="Logout" styleClass="sidebar-logout-btn" maxWidth="Infinity"/>
+            </VBox>
+
+        </VBox>
+    </left>
+
+    <!-- ===== TOP NAV BAR ===== -->
     <top>
-        <HBox styleClass="nav-bar" alignment="CENTER_LEFT" spacing="20">
-            <padding>
-                <Insets top="12" right="30" bottom="12" left="30"/>
-            </padding>
-
-            <!-- Logo (optional - will load if image exists) -->
-            <ImageView fx:id="logoImage" fitHeight="45" preserveRatio="true">
-                <image>
-                    <Image url="@../images/logo.png"/>
-                </image>
-            </ImageView>
-
-            <Region HBox.hgrow="ALWAYS"/>
+        <HBox styleClass="nav-bar" alignment="CENTER_LEFT" spacing="16">
+            <padding><Insets top="12" right="24" bottom="12" left="24"/></padding>
 
             <!-- View Toggle -->
-            <HBox spacing="8" alignment="CENTER" styleClass="view-toggle-container">
-                <Button fx:id="gridViewBtn" text="⊞ Grid" styleClass="view-toggle-btn, active-view" onAction="#switchToGridView"/>
-                <Button fx:id="listViewBtn" text="☰ Feed" styleClass="view-toggle-btn" onAction="#switchToListView"/>
+            <HBox spacing="6" alignment="CENTER" styleClass="view-toggle-container">
+                <Button fx:id="gridViewBtn" text="Grid" styleClass="view-toggle-btn, active-view" onAction="#switchToGridView"/>
+                <Button fx:id="listViewBtn" text="Feed" styleClass="view-toggle-btn" onAction="#switchToListView"/>
             </HBox>
 
             <!-- Search Bar -->
-            <TextField fx:id="searchField" promptText="🔍 Search posts..." styleClass="search-field" prefWidth="250"/>
+            <TextField fx:id="searchField" promptText="Search posts..." styleClass="search-field" prefWidth="260"/>
 
-            <!-- Action Buttons -->
+            <Region HBox.hgrow="ALWAYS"/>
+
             <Button fx:id="createPostBtn" text="+ Create Post" styleClass="primary-btn" onAction="#showCreatePostDialog"/>
             <Button fx:id="refreshBtn" text="⟳" styleClass="icon-btn" onAction="#refreshPosts"/>
         </HBox>
     </top>
 
-    <!-- Main Content Area -->
+    <!-- ===== MAIN CONTENT ===== -->
     <center>
-        <ScrollPane fx:id="postsScrollPane" styleClass="posts-scroll-pane" fitToWidth="true">
-            <!-- StackPane holds both grid and list views + post detail overlay -->
-            <StackPane fx:id="contentContainer">
-                <!-- Grid View (FlowPane) -->
-                <FlowPane fx:id="postsGrid" styleClass="posts-grid" hgap="24" vgap="24" alignment="TOP_CENTER" visible="true" managed="true">
-                    <padding>
-                        <Insets top="30" right="30" bottom="30" left="30"/>
-                    </padding>
-                </FlowPane>
+        <!-- StackPane lets PostDetailController overlay on top -->
+        <StackPane fx:id="contentContainer" styleClass="dashboard-root">
 
-                <!-- List View (VBox) -->
-                <VBox fx:id="postsList" styleClass="posts-list" spacing="20" alignment="TOP_CENTER" visible="false" managed="false">
-                    <padding>
-                        <Insets top="30" right="30" bottom="30" left="30"/>
-                    </padding>
+            <ScrollPane fx:id="postsScrollPane" styleClass="posts-scroll-pane" fitToWidth="true" fitToHeight="false">
+                <VBox alignment="TOP_CENTER">
+
+                    <!-- Grid View -->
+                    <FlowPane fx:id="postsGrid" styleClass="posts-grid"
+                              hgap="24" vgap="24" alignment="TOP_CENTER"
+                              visible="true" managed="true">
+                        <padding><Insets top="30" right="30" bottom="30" left="30"/></padding>
+                    </FlowPane>
+
+                    <!-- List View — collapsed when not active -->
+                    <VBox fx:id="postsList" styleClass="posts-list"
+                          spacing="20" alignment="TOP_CENTER"
+                          visible="false" managed="false">
+                        <padding><Insets top="30" right="60" bottom="30" left="60"/></padding>
+                    </VBox>
+
                 </VBox>
-            </StackPane>
-        </ScrollPane>
+            </ScrollPane>
+
+        </StackPane>
     </center>
+
 </BorderPane>

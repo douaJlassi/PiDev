@@ -105,7 +105,10 @@ public class PublicationService implements CRUD<Publication> {
     public List<Publication> selectALL() throws SQLException {
         List<Publication> list = new ArrayList<>();
 
-        String sql = "SELECT * FROM publication ORDER BY datePublication DESC";
+        String sql = "SELECT p.*, c.username, c.avatarPath " +
+                "FROM publication p " +
+                "LEFT JOIN client c ON p.client_id = c.clientID " +
+                "ORDER BY p.datePublication DESC";
 
         try (Statement st = cnx.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
@@ -113,6 +116,8 @@ public class PublicationService implements CRUD<Publication> {
             while (rs.next()) {
                 Client c = new Client();
                 c.setClientID(rs.getInt("client_id"));
+                c.setUsername(rs.getString("username"));
+                c.setAvatarPath(rs.getString("avatarPath"));
 
                 Publication p = new Publication(
                         c,

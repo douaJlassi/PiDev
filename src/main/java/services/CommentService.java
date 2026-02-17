@@ -137,7 +137,10 @@ public class CommentService implements CRUD<Comment> {
     public List<Comment> getCommentsByPublication(int publicationID) throws SQLException {
         List<Comment> list = new ArrayList<>();
 
-        String sql = "SELECT * FROM comment WHERE publicationID=? ORDER BY commentDate ASC";
+        String sql = "SELECT cm.*, c.username, c.avatarPath " +
+                "FROM comment cm " +
+                "LEFT JOIN client c ON cm.client_id = c.clientID " +
+                "WHERE cm.publicationID=? ORDER BY cm.commentDate ASC";
 
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, publicationID);
@@ -146,6 +149,8 @@ public class CommentService implements CRUD<Comment> {
                 while (rs.next()) {
                     Client client = new Client();
                     client.setClientID(rs.getInt("client_id"));
+                    client.setUsername(rs.getString("username"));
+                    client.setAvatarPath(rs.getString("avatarPath"));
 
                     Publication publication = new Publication();
                     publication.setPublicationID(rs.getInt("publicationID"));

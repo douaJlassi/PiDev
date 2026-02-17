@@ -96,7 +96,7 @@ Light BG: #f0f2f5
 .action-btn {
     -fx-background-color: #f0f2f5;
     -fx-text-fill: #65676b;
-    -fx-font-size: 13px;
+    -fx-font-size: 14px;
     -fx-font-weight: 600;
     -fx-padding: 8 12 8 12;
     -fx-background-radius: 6;
@@ -109,10 +109,7 @@ Light BG: #f0f2f5
 
 .action-btn.liked {
     -fx-text-fill: #e74c3c;
-}
-
-.action-btn.commented {
-    -fx-text-fill: #17B3A6;
+    -fx-background-color: rgba(231, 76, 60, 0.08);
 }
 
 .secondary-btn {
@@ -182,9 +179,112 @@ Light BG: #f0f2f5
     -fx-background-color: transparent;
 }
 
+/* List view cards are centered via padding in FXML, max-width keeps them readable */
 .posts-list {
     -fx-background-color: transparent;
+}
+
+.post-card-list {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.08), 4, 0, 0, 1);
+    -fx-padding: 0;
     -fx-max-width: 680;
+    -fx-pref-width: 680;
+}
+
+.post-card-list:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.12), 8, 0, 0, 2);
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+    -fx-background-color: #1a2a3a;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 8, 0, 2, 0);
+}
+
+.sidebar-logo-area {
+    -fx-background-color: #17B3A6;
+    -fx-padding: 16;
+}
+
+.sidebar-user-area {
+    -fx-background-color: #1a2a3a;
+}
+
+.sidebar-avatar {
+    -fx-fill: #17B3A6;
+}
+
+.sidebar-avatar-letter {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.sidebar-username {
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+}
+
+.sidebar-role {
+    -fx-text-fill: #17B3A6;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+}
+
+.sidebar-separator {
+    -fx-background-color: rgba(255,255,255,0.1);
+    -fx-padding: 0;
+}
+
+.sidebar-nav {
+    -fx-background-color: transparent;
+}
+
+.sidebar-nav-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: rgba(255,255,255,0.75);
+    -fx-font-size: 14px;
+    -fx-font-weight: 500;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 11 16 11 16;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+
+.sidebar-nav-btn:hover {
+    -fx-background-color: rgba(255,255,255,0.1);
+    -fx-text-fill: white;
+}
+
+.sidebar-nav-active {
+    -fx-background-color: #17B3A6;
+    -fx-text-fill: white;
+    -fx-font-weight: 700;
+}
+
+.sidebar-nav-active:hover {
+    -fx-background-color: #0D8F85;
+}
+
+.sidebar-logout-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #e74c3c;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 11 16 11 16;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-border-color: rgba(231,76,60,0.3);
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+}
+
+.sidebar-logout-btn:hover {
+    -fx-background-color: rgba(231,76,60,0.1);
 }
 
 /* ===== POST CARD - GRID VIEW (wider, more spacious) ===== */
@@ -199,19 +299,6 @@ Light BG: #f0f2f5
 }
 
 .post-card-grid:hover {
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.12), 8, 0, 0, 2);
-}
-
-/* ===== POST CARD - LIST VIEW (Facebook-style feed) ===== */
-.post-card-list {
-    -fx-background-color: white;
-    -fx-background-radius: 12;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.08), 4, 0, 0, 1);
-    -fx-padding: 0;
-    -fx-max-width: 680;
-}
-
-.post-card-list:hover {
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.12), 8, 0, 0, 2);
 }
 
@@ -467,7 +554,12 @@ Light BG: #f0f2f5
 
 /* ===== POST DETAIL VIEW ===== */
 .post-detail-view {
-    -fx-background-color: rgba(0, 0, 0, 0.7);
+    -fx-background-color: white;
+}
+
+.split-view {
+    -fx-background-color: white;
+    -fx-pref-height: infinity;
 }
 
 .detail-top-bar {
@@ -495,17 +587,12 @@ Light BG: #f0f2f5
 
 .post-content-panel {
     -fx-background-color: white;
-    -fx-pref-width: 650;
-    -fx-min-width: 650;
-    -fx-max-width: 650;
     -fx-border-color: #e4e6eb;
     -fx-border-width: 0 1 0 0;
 }
 
 .comments-panel {
-    -fx-background-color: white;
-    -fx-pref-width: 450;
-    -fx-min-width: 450;
+    -fx-background-color: #f7f8fa;
 }
 
 /* ===== IMPROVED CREATE POST DIALOG ===== */
@@ -529,16 +616,4 @@ Light BG: #f0f2f5
 
 .create-post-dialog .button-bar .button {
     -fx-min-width: 100%;
-}
-
-.detail-view-container { -fx-background-color: white; }
-.comments-sidebar {
-    -fx-background-color: #fcfcfc;
-    -fx-border-color: #e4e6eb;
-    -fx-border-width: 0 0 0 1;
-}
-.comment-input-area {
-    -fx-padding: 15;
-    -fx-border-color: #e4e6eb;
-    -fx-border-width: 1 0 0 0;
 }

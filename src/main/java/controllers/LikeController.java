@@ -80,21 +80,18 @@ public class LikeController {
             boolean userHasLiked = likeService.hasUserLiked(publication.getPublicationID(), currentUser.getClientID());
             int likeCount = likeService.getLikeCount(publication.getPublicationID());
 
+            likeBtn.getStyleClass().remove("liked");
+
             if (userHasLiked) {
-                likeBtn.setText("❤️ " + likeCount);
-                likeBtn.getStyleClass().remove("action-btn");
-                likeBtn.getStyleClass().add("action-btn");
+                likeBtn.setText("♥  " + likeCount);
                 likeBtn.getStyleClass().add("liked");
-                likeBtn.setStyle(likeBtn.getStyle() + "-fx-text-fill: #e74c3c;");
             } else {
-                likeBtn.setText("👍 " + likeCount);
-                likeBtn.getStyleClass().removeAll("liked");
-                likeBtn.setStyle(likeBtn.getStyle().replace("-fx-text-fill: #e74c3c;", ""));
+                likeBtn.setText("♡  " + (likeCount > 0 ? likeCount : "Like"));
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
-            likeBtn.setText("👍 Like");
+            likeBtn.setText("♡  Like");
         }
     }
 
