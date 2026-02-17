@@ -4,138 +4,78 @@ import entities.Client;
 import entities.Publication;
 import javafx.animation.ScaleTransition;
 import javafx.scene.control.Button;
-import javafx.scene.layout.Priority;
 import javafx.util.Duration;
 import services.LikeService;
 
 import java.sql.SQLException;
 
 /**
- * LikeController - Handles all like-related operations
- * - Create animated like buttons
- * - Toggle like/unlike
- * - Update UI in real-time
- * - Manage like state
+ * LikeController — handles like/unlike toggle and button state.
+ * No UI construction here; operates on Button nodes created by FXML.
  */
 public class LikeController {
 
-    private final LikeService likeService;
-    private final Client currentUser;
-    private final DashboardController dashboardController;
+    private final LikeService         likeService;
+    private final Client              currentUser;
+    private final DashboardController dashboard;
 
-    public LikeController(LikeService likeService, Client currentUser, DashboardController dashboardController) {
-        this.likeService = likeService;
-        this.currentUser = currentUser;
-        this.dashboardController = dashboardController;
+    public LikeController(LikeService svc, Client user, DashboardController dash) {
+        this.likeService = svc;
+        this.currentUser = user;
+        this.dashboard   = dash;
     }
 
-    /**
-     * Create an animated like button for a publication
-     * Updates UI and database on click
-     */
-    public Button createLikeButton(Publication publication) {
-        Button likeBtn = new Button();
-        likeBtn.getStyleClass().add("action-btn");
-        likeBtn.setMaxWidth(Double.MAX_VALUE);
-
-        // Check initial like state and get count
-        updateLikeButton(likeBtn, publication);
-
-        // Handle like toggle
-        likeBtn.setOnAction(e -> {
-            e.consume(); // Prevent card click event
-            toggleLike(likeBtn, publication);
-        });
-
-        return likeBtn;
+    // ── Called by PostCardController and PostDetailController ─────────────────
+    /** Initialise button appearance for a publication. */
+    public void initButton(Button btn, Publication pub) {
+        refreshButton(btn, pub);
     }
 
-    /**
-     * Toggle like state with animation
-     */
-    private void toggleLike(Button likeBtn, Publication publication) {
+    /** Toggle like/unlike on click — called from FXML handler via init'd button. */
+    public void handleToggle(Publication pub, Button btn) {
         try {
-            boolean nowLiked = likeService.toggleLike(publication.getPublicationID(), currentUser.getClientID());
-
-            // Animate the button
-            animateLikeButton(likeBtn);
-
-            // Update button appearance
-            updateLikeButton(likeBtn, publication);
-
-            // Refresh the posts to update counts
-            dashboardController.loadPosts();
-
+            likeService.toggleLike(pub.getPublicationID(), currentUser.getClientID());
+            pulseAnimation(btn);
+            refreshButton(btn, pub);
+            dashboard.loadPosts();
         } catch (SQLException e) {
-            e.printStackTrace();
-            dashboardController.showError("Failed to update like: " + e.getMessage());
+            dashboard.showError("Failed to update like.");
         }
     }
 
-    /**
-     * Update like button text and style based on current state
-     */
-    private void updateLikeButton(Button likeBtn, Publication publication) {
-        try {
-            boolean userHasLiked = likeService.hasUserLiked(publication.getPublicationID(), currentUser.getClientID());
-            int likeCount = likeService.getLikeCount(publication.getPublicationID());
-
-            likeBtn.getStyleClass().remove("liked");
-
-            if (userHasLiked) {
-                likeBtn.setText("♥  " + likeCount);
-                likeBtn.getStyleClass().add("liked");
-            } else {
-                likeBtn.setText("♡  " + (likeCount > 0 ? likeCount : "Like"));
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            likeBtn.setText("♡  Like");
-        }
-    }
-
-    /**
-     * Animate like button with scale effect
-     */
-    private void animateLikeButton(Button button) {
-        ScaleTransition scaleUp = new ScaleTransition(Duration.millis(100), button);
-        scaleUp.setFromX(1.0);
-        scaleUp.setFromY(1.0);
-        scaleUp.setToX(1.3);
-        scaleUp.setToY(1.3);
-
-        ScaleTransition scaleDown = new ScaleTransition(Duration.millis(100), button);
-        scaleDown.setFromX(1.3);
-        scaleDown.setFromY(1.3);
-        scaleDown.setToX(1.0);
-        scaleDown.setToY(1.0);
-
-        scaleUp.setOnFinished(e -> scaleDown.play());
-        scaleUp.play();
-    }
-
-    /**
-     * Get like count for a publication
-     */
+    // ── State helpers ─────────────────────────────────────────────────────────
     public int getLikeCount(int publicationID) {
+        try { return likeService.getLikeCount(publicationID); }
+        catch (SQLException e) { return 0; }
+    }
+
+    public boolean hasUserLiked(int publicationID) {
+        try { return likeService.hasUserLiked(publicationID, currentUser.getClientID()); }
+        catch (SQLException e) { return false; }
+    }
+
+    // ── Private helpers ───────────────────────────────────────────────────────
+    private void refreshButton(Button btn, Publication pub) {
         try {
-            return likeService.getLikeCount(publicationID);
+            int     count = likeService.getLikeCount(pub.getPublicationID());
+            boolean liked = likeService.hasUserLiked(pub.getPublicationID(),
+                    currentUser.getClientID());
+
+            btn.setText(liked ? "♥  " + count : "♡  " + (count > 0 ? count : "Like"));
+            btn.getStyleClass().remove("liked");
+            if (liked) btn.getStyleClass().add("liked");
+
         } catch (SQLException e) {
-            e.printStackTrace();
-            return 0;
+            btn.setText("♡  Like");
         }
     }
 
-    /**
-     * Check if current user has liked a publication
-     */
-    public boolean hasUserLiked(int publicationID) {
-        try {
-            return likeService.hasUserLiked(publicationID, currentUser.getClientID());
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
+    private void pulseAnimation(Button btn) {
+        ScaleTransition up = new ScaleTransition(Duration.millis(90), btn);
+        up.setToX(1.3); up.setToY(1.3);
+        ScaleTransition down = new ScaleTransition(Duration.millis(90), btn);
+        down.setToX(1.0); down.setToY(1.0);
+        up.setOnFinished(e -> down.play());
+        up.play();
     }
 }

@@ -2,302 +2,194 @@ package controllers;
 
 import entities.Publication;
 import javafx.animation.FadeTransition;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.control.*;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
-import javafx.scene.text.Text;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 
 /**
- * PostDetailController - Handles the full post detail view
- * - Split-screen layout (post left, comments right)
- * - Full post content display
- * - Integrated comments
- * - Animated transitions
+ * PostDetailController — two roles:
+ *  1. fx:controller for post_detail.fxml (FXML fields + handlers)
+ *  2. Loaded programmatically by PostController via show()
+ *
+ * The FXML carries all layout; this class only binds data and wires events.
  */
 public class PostDetailController {
 
-    private final Publication publication;
-    private final DashboardController dashboardController;
-    private BorderPane detailView;
+    // ── FXML fields ───────────────────────────────────────────────────────────
+    @FXML private Button    closeBtn;
 
-    public PostDetailController(Publication publication, DashboardController dashboardController) {
-        this.publication = publication;
-        this.dashboardController = dashboardController;
+    // Left panel
+    @FXML private Circle    authorAvatar;
+    @FXML private Label     authorNameLabel;
+    @FXML private Label     dateLabel;
+    @FXML private Label     placeLabel;
+    @FXML private Label     postContentLabel;
+    @FXML private VBox      imageContainer;
+    @FXML private ImageView postImage;
+    @FXML private Label     likesStatLabel;
+    @FXML private Label     commentsStatLabel;
+    @FXML private Button    likeBtn;
+    @FXML private Button    shareBtn;
+
+    // Right panel
+    @FXML private Label     commentCountLabel;
+    @FXML private TextField commentTextField;
+    @FXML private Button    commentPostBtn;
+    @FXML private VBox      commentsList;
+
+    // ── Injected state ────────────────────────────────────────────────────────
+    private Publication         publication;
+    private DashboardController dashboard;
+    private BorderPane          detailView; // root node of the loaded FXML
+
+    private static final SimpleDateFormat DATE_FMT =
+            new SimpleDateFormat("MMMM dd, yyyy 'at' hh:mm a");
+
+    // ── Constructor ── used by PostController (programmatic entry) ────────────
+    public PostDetailController() {}
+
+    public PostDetailController(Publication pub, DashboardController dash) {
+        this.publication = pub;
+        this.dashboard   = dash;
     }
 
-    /**
-     * Show the post detail view with animation
-     */
+    // ── show() — loads FXML, injects data, adds overlay ──────────────────────
     public void show() {
-        detailView = new BorderPane();
-        detailView.getStyleClass().add("post-detail-view");
-        StackPane.setAlignment(detailView, javafx.geometry.Pos.TOP_LEFT);
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/views/post_detail.fxml"));
+            // Set THIS as controller so @FXML fields are injected here
+            loader.setController(this);
+            detailView = loader.load();
 
-        // Top bar with close button
-        HBox topBar = createTopBar();
-        detailView.setTop(topBar);
+            bindData();
 
-        // Split view
-        HBox splitView = new HBox();
-        splitView.getStyleClass().add("split-view");
+            dashboard.getContentContainer().getChildren().add(detailView);
 
-        VBox leftPanel = createPostContentPanel();
-        VBox rightPanel = createCommentsPanel();
-
-        HBox.setHgrow(leftPanel, Priority.ALWAYS);
-        HBox.setHgrow(rightPanel, Priority.NEVER);
-        rightPanel.setPrefWidth(380);
-        rightPanel.setMinWidth(320);
-        rightPanel.setMaxWidth(420);
-
-        splitView.getChildren().addAll(leftPanel, rightPanel);
-        detailView.setCenter(splitView);
-
-        dashboardController.getContentContainer().getChildren().add(detailView);
-
-        FadeTransition fade = new FadeTransition(Duration.millis(220), detailView);
-        fade.setFromValue(0);
-        fade.setToValue(1);
-        fade.play();
-    }
-
-    /**
-     * Close the detail view with animation
-     */
-    private void close() {
-        if (detailView != null) {
-            FadeTransition fade = new FadeTransition(Duration.millis(200), detailView);
-            fade.setFromValue(1);
-            fade.setToValue(0);
-            fade.setOnFinished(e -> {
-                dashboardController.getContentContainer().getChildren().remove(detailView);
-                detailView = null;
-            });
+            FadeTransition fade = new FadeTransition(Duration.millis(220), detailView);
+            fade.setFromValue(0); fade.setToValue(1);
             fade.play();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            dashboard.showError("Could not open post detail.");
         }
     }
 
-    /**
-     * Create top bar with close button and title
-     */
-    private HBox createTopBar() {
-        HBox topBar = new HBox();
-        topBar.getStyleClass().add("detail-top-bar");
-        topBar.setAlignment(Pos.CENTER_LEFT);
-        topBar.setPadding(new Insets(16, 20, 16, 20));
+    // ── Data binding ──────────────────────────────────────────────────────────
+    private void bindData() {
+        // Author
+        String username = publication.getClient().getUsername();
+        authorNameLabel.setText(username != null ? username
+                : "Traveler #" + publication.getClient().getClientID());
+        dateLabel.setText(DATE_FMT.format(publication.getDatePublication()));
 
-        Button closeBtn = new Button("✕");
-        closeBtn.getStyleClass().add("close-detail-btn");
-        closeBtn.setOnAction(e -> close());
-
-        Label titleLabel = new Label("Post Details");
-        titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
-
-        Region spacer1 = new Region();
-        HBox.setHgrow(spacer1, Priority.ALWAYS);
-
-        Region spacer2 = new Region();
-        HBox.setHgrow(spacer2, Priority.ALWAYS);
-
-        topBar.getChildren().addAll(closeBtn, spacer1, titleLabel, spacer2, new Region());
-
-        return topBar;
-    }
-
-    /**
-     * Create left panel with post content
-     */
-    private VBox createPostContentPanel() {
-        VBox panel = new VBox();
-        panel.getStyleClass().add("post-content-panel");
-
-        ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setFitToWidth(true);
-        scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
-
-        VBox content = new VBox(20);
-        content.setPadding(new Insets(24));
-
-        // Author header
-        HBox authorBox = new HBox(12);
-        authorBox.setAlignment(Pos.CENTER_LEFT);
-
-        Region avatar = new Region();
-        avatar.getStyleClass().add("avatar");
-        avatar.setPrefSize(48, 48);
-        avatar.setMinSize(48, 48);
-        avatar.setMaxSize(48, 48);
-
-        VBox authorInfo = new VBox(4);
-        Label authorName = new Label(publication.getClient().getUsername() != null ?
-                publication.getClient().getUsername() : "Traveler #" + publication.getClient().getClientID());
-        authorName.setStyle("-fx-font-weight: bold; -fx-font-size: 16px;");
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy 'at' hh:mm a");
-        Label dateLabel = new Label(dateFormat.format(publication.getDatePublication()));
-        dateLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #65676b;");
-
-        authorInfo.getChildren().addAll(authorName, dateLabel);
-        authorBox.getChildren().addAll(avatar, authorInfo);
-
-        content.getChildren().add(authorBox);
-
-        // Location if exists
+        // Place
         if (publication.getPlace() != null && !publication.getPlace().isEmpty()) {
-            Label placeLabel = new Label("📍 " + publication.getPlace());
-            placeLabel.getStyleClass().add("post-place-tag");
-            placeLabel.setStyle(placeLabel.getStyle() + "-fx-font-size: 14px; -fx-padding: 6 12;");
-            content.getChildren().add(placeLabel);
+            placeLabel.setText("📍 " + publication.getPlace());
+            placeLabel.setVisible(true); placeLabel.setManaged(true);
         }
 
-        // Content text
-        Text contentText = new Text(publication.getContent());
-        contentText.setStyle("-fx-font-size: 16px; -fx-fill: #050505; -fx-line-spacing: 4;");
-        contentText.setWrappingWidth(580);
-
-        content.getChildren().add(contentText);
+        // Content
+        postContentLabel.setText(publication.getContent());
 
         // Image
         if (publication.getImagePath() != null && !publication.getImagePath().isEmpty()) {
-            try {
-                File imageFile = new File(publication.getImagePath());
-                if (imageFile.exists()) {
-                    ImageView imageView = new ImageView(new Image(imageFile.toURI().toString()));
-                    imageView.setFitWidth(600);
-                    imageView.setPreserveRatio(true);
-                    imageView.setSmooth(true);
-                    imageView.setStyle("-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2);");
-                    content.getChildren().add(imageView);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
+            File imgFile = new File(publication.getImagePath());
+            if (imgFile.exists()) {
+                postImage.setImage(new Image(imgFile.toURI().toString()));
+                imageContainer.setVisible(true);
+                imageContainer.setManaged(true);
             }
         }
 
         // Stats
-        HBox stats = createStatsBar();
-        content.getChildren().add(stats);
-
-        // Actions
-        HBox actions = createActionsBar();
-        content.getChildren().add(actions);
-
-        scrollPane.setContent(content);
-        panel.getChildren().add(scrollPane);
-        VBox.setVgrow(scrollPane, Priority.ALWAYS);
-
-        return panel;
-    }
-
-    /**
-     * Create right panel with comments
-     */
-    private VBox createCommentsPanel() {
-        VBox panel = new VBox();
-        panel.getStyleClass().add("comments-panel");
-
-        // Comments header
-        HBox header = new HBox(8);
-        header.setAlignment(Pos.CENTER_LEFT);
-        header.setPadding(new Insets(16, 20, 14, 20));
-        header.setStyle("-fx-background-color: white; -fx-border-color: #e4e6eb; -fx-border-width: 0 0 1 0;");
-
-        Label commentsTitle = new Label("Comments");
-        commentsTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #050505;");
-
-        Label countLabel = new Label("(0)");
-        countLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #65676b;");
-
         try {
-            int count = dashboardController.getCommentService().getCommentCount(publication.getPublicationID());
-            countLabel.setText("(" + count + ")");
-        } catch (SQLException e) {
-            countLabel.setText("(0)");
-        }
+            int likes    = dashboard.getLikeService().getLikeCount(publication.getPublicationID());
+            int comments = dashboard.getCommentService().getCommentCount(publication.getPublicationID());
+            if (likes > 0) {
+                likesStatLabel.setText("♥ " + likes);
+                likesStatLabel.setVisible(true); likesStatLabel.setManaged(true);
+            }
+            if (comments > 0) {
+                commentsStatLabel.setText(comments + " comment" + (comments != 1 ? "s" : ""));
+                commentsStatLabel.setVisible(true); commentsStatLabel.setManaged(true);
+            }
+        } catch (SQLException ignored) {}
 
-        header.getChildren().addAll(commentsTitle, countLabel);
+        // Like button
+        dashboard.getLikeController().initButton(likeBtn, publication);
 
-        // Comment input — sits at TOP, below header
-        VBox commentsList = new VBox(10);
-        commentsList.setPadding(new Insets(14, 16, 14, 16));
+        // Comment count
+        int count = dashboard.getCommentController().getCommentCount(publication.getPublicationID());
+        commentCountLabel.setText("(" + count + ")");
 
-        HBox commentInput = dashboardController.getCommentController()
-                .createCommentInput(publication, commentsList, countLabel);
-
-        // Scrollable comments list fills remaining height
-        ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setFitToWidth(true);
-        scrollPane.setStyle("-fx-background-color: #f7f8fa; -fx-background: #f7f8fa;");
-        VBox.setVgrow(scrollPane, Priority.ALWAYS);
-        scrollPane.setContent(commentsList);
+        // Comment input — enable Post button only when text present
+        commentPostBtn.setDisable(true);
+        commentTextField.textProperty().addListener(
+                (obs, o, n) -> commentPostBtn.setDisable(n.trim().isEmpty()));
 
         // Load comments
-        dashboardController.getCommentController().loadComments(publication, commentsList);
-
-        panel.getChildren().addAll(header, commentInput, scrollPane);
-        VBox.setVgrow(scrollPane, Priority.ALWAYS);
-
-        return panel;
+        dashboard.getCommentController().loadComments(publication, commentsList);
     }
 
-    /**
-     * Create stats bar for detail view
-     */
-    private HBox createStatsBar() {
-        HBox stats = new HBox(16);
-        stats.getStyleClass().add("post-stats");
-        stats.setAlignment(Pos.CENTER_LEFT);
+    // ── FXML handlers ─────────────────────────────────────────────────────────
+    @FXML
+    private void onClose() {
+        if (detailView == null) return;
+        FadeTransition fade = new FadeTransition(Duration.millis(180), detailView);
+        fade.setFromValue(1); fade.setToValue(0);
+        fade.setOnFinished(e -> {
+            dashboard.getContentContainer().getChildren().remove(detailView);
+            detailView = null;
+        });
+        fade.play();
+    }
 
-        int likeCount = dashboardController.getLikeController().getLikeCount(publication.getPublicationID());
-        int commentCount = dashboardController.getCommentController().getCommentCount(publication.getPublicationID());
-
-        if (likeCount > 0 || commentCount > 0) {
-            if (likeCount > 0) {
-                Label likesLabel = new Label("❤️ " + likeCount);
-                likesLabel.getStyleClass().add("post-stats-text");
-                stats.getChildren().add(likesLabel);
-            }
-
-            Region spacer = new Region();
-            HBox.setHgrow(spacer, Priority.ALWAYS);
-            stats.getChildren().add(spacer);
-
-            if (commentCount > 0) {
-                Label commentsLabel = new Label(commentCount + " comment" + (commentCount != 1 ? "s" : ""));
-                commentsLabel.getStyleClass().add("post-stats-text");
-                stats.getChildren().add(commentsLabel);
-            }
+    @FXML
+    private void onLikeClicked() {
+        dashboard.getLikeController().handleToggle(publication, likeBtn);
+        // Refresh stat label
+        int likes = dashboard.getLikeController().getLikeCount(publication.getPublicationID());
+        if (likes > 0) {
+            likesStatLabel.setText("♥ " + likes);
+            likesStatLabel.setVisible(true); likesStatLabel.setManaged(true);
+        } else {
+            likesStatLabel.setVisible(false); likesStatLabel.setManaged(false);
         }
-
-        return stats;
     }
 
-    /**
-     * Create actions bar for detail view
-     */
-    private HBox createActionsBar() {
-        HBox actions = new HBox(8);
-        actions.getStyleClass().add("post-actions");
-        actions.setAlignment(Pos.CENTER);
+    @FXML
+    private void onShareClicked() {
+        dashboard.showInfo("Share feature coming soon!");
+    }
 
-        Button likeBtn = dashboardController.getLikeController().createLikeButton(publication);
-        HBox.setHgrow(likeBtn, Priority.ALWAYS);
+    @FXML
+    private void onCommentSubmit() {
+        String text = commentTextField.getText().trim();
+        if (text.isEmpty()) return;
 
-        Button shareBtn = new Button("Share");
-        shareBtn.getStyleClass().add("action-btn");
-        shareBtn.setMaxWidth(Double.MAX_VALUE);
-        HBox.setHgrow(shareBtn, Priority.ALWAYS);
-        shareBtn.setOnAction(e -> dashboardController.showInfo("Share feature coming soon!"));
+        dashboard.getCommentController()
+                .addComment(publication, text, commentsList, commentCountLabel);
 
-        actions.getChildren().addAll(likeBtn, shareBtn);
-        return actions;
+        commentTextField.clear();
+
+        // Scroll to bottom
+        javafx.application.Platform.runLater(() -> {
+            commentsList.getParent().getParent().requestLayout();
+        });
     }
 }

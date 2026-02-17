@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.shape.Circle?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.PostCardController"
+      styleClass="post-card-grid"
+      stylesheets="@../styles/dashboard.css">
+
+    <!-- ===== HEADER ===== -->
+    <HBox fx:id="cardHeader" styleClass="post-header" alignment="CENTER_LEFT" spacing="12">
+
+        <Circle fx:id="avatarCircle" styleClass="avatar" radius="20"/>
+
+        <VBox spacing="2" HBox.hgrow="ALWAYS">
+            <Label fx:id="authorNameLabel" styleClass="post-author-name" text="Author"/>
+            <HBox fx:id="metaBox" spacing="8" alignment="CENTER_LEFT">
+                <Label fx:id="dateLabel" styleClass="post-meta" text="Date"/>
+                <Label fx:id="placeDot" styleClass="post-meta" text="•" visible="false" managed="false"/>
+                <Label fx:id="placeLabel" styleClass="post-place-tag" text="" visible="false" managed="false"/>
+            </HBox>
+        </VBox>
+
+        <Button fx:id="menuBtn" styleClass="post-menu-btn" text="..." onAction="#onMenuClicked"/>
+    </HBox>
+
+    <!-- ===== CONTENT ===== -->
+    <VBox fx:id="contentArea" styleClass="post-content-area" spacing="0">
+        <Label fx:id="contentLabel" styleClass="post-text-preview" wrapText="true" text="Post content"/>
+    </VBox>
+
+    <!-- ===== IMAGE (hidden when no image) ===== -->
+    <VBox fx:id="imageContainer" styleClass="post-image-container"
+          visible="false" managed="false">
+        <ImageView fx:id="postImage" styleClass="post-image-grid"
+                   preserveRatio="true" smooth="true" fitWidth="420"/>
+    </VBox>
+
+    <!-- ===== STATS BAR ===== -->
+    <HBox fx:id="statsBar" styleClass="post-stats" alignment="CENTER_LEFT" spacing="16">
+        <Label fx:id="likesStatLabel" styleClass="post-stats-text" text="" visible="false" managed="false"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label fx:id="commentsStatLabel" styleClass="post-stats-text" text="" visible="false" managed="false"/>
+    </HBox>
+
+    <!-- ===== ACTIONS BAR ===== -->
+    <HBox fx:id="actionsBar" styleClass="post-actions" alignment="CENTER" spacing="8">
+        <Button fx:id="likeBtn" styleClass="action-btn" text="Like"
+                maxWidth="Infinity" HBox.hgrow="ALWAYS" onAction="#onLikeClicked"/>
+        <Button fx:id="shareBtn" styleClass="action-btn" text="Share"
+                maxWidth="Infinity" HBox.hgrow="ALWAYS" onAction="#onShareClicked"/>
+    </HBox>
+
+</VBox>

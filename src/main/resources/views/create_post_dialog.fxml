@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.shape.Circle?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.CreatePostController"
+      spacing="16" styleClass="create-post-content"
+      stylesheets="@../styles/dashboard.css">
+
+    <padding><Insets top="20" right="24" bottom="8" left="24"/></padding>
+
+    <!-- ===== USER HEADER ===== -->
+    <HBox spacing="12" alignment="CENTER_LEFT">
+        <Circle fx:id="userAvatar" styleClass="avatar" radius="24"/>
+        <VBox spacing="2">
+            <Label fx:id="usernameLabel" styleClass="post-author-name" text="User"/>
+            <Label text="Public" styleClass="post-meta"/>
+        </VBox>
+    </HBox>
+
+    <!-- ===== CONTENT AREA ===== -->
+    <TextArea fx:id="contentArea"
+              promptText="What's on your mind?"
+              prefRowCount="5" wrapText="true"
+              styleClass="create-post-textarea"/>
+
+    <!-- ===== IMAGE PREVIEW (hidden until image selected) ===== -->
+    <VBox fx:id="imagePreviewBox" styleClass="create-post-image-preview"
+          spacing="8" visible="false" managed="false">
+        <ImageView fx:id="imagePreview" fitWidth="480" preserveRatio="true" smooth="true"/>
+        <Button fx:id="removeImageBtn" styleClass="remove-image-btn"
+                text="Remove Image" onAction="#onRemoveImage"/>
+    </VBox>
+
+    <!-- ===== LOCATION FIELD ===== -->
+    <TextField fx:id="placeField"
+               promptText="Add location"
+               styleClass="create-post-location"/>
+
+    <!-- ===== ADD TO POST ROW ===== -->
+    <HBox styleClass="add-to-post-bar" alignment="CENTER_LEFT" spacing="8">
+        <Label text="Add to your post" styleClass="add-to-post-label" HBox.hgrow="ALWAYS"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button fx:id="photoBtn" styleClass="add-photo-btn"
+                text="Photo" onAction="#onSelectPhoto"/>
+    </HBox>
+
+</VBox>
