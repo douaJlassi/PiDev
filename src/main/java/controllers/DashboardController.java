@@ -106,11 +106,17 @@ public class DashboardController {
         loadPosts();
         postsScrollPane.setVvalue(0);
 
-        // Register this scene with ThemeManager so toggleTheme() applies to it
-        // Scene is not available during initialize(), so we defer to next pulse
+        // Register scene with ThemeManager. Handle both cases: scene already
+        // attached (some loaders) and scene attached later (normal lifecycle).
         javafx.application.Platform.runLater(() -> {
-            if (contentContainer.getScene() != null) {
-                ThemeManager.get().register(contentContainer.getScene());
+            javafx.scene.Scene s = contentContainer.getScene();
+            if (s != null) {
+                ThemeManager.get().register(s);
+            } else {
+                contentContainer.sceneProperty().addListener((obs, oldS, newS) -> {
+                    if (newS != null) ThemeManager.get().register(newS);
+                    if (oldS != null) ThemeManager.get().unregister(oldS);
+                });
             }
         });
     }
@@ -329,7 +335,7 @@ public class DashboardController {
         alert.setTitle("Success");
         alert.setHeaderText(null);
         alert.setContentText(message);
-        ThemeManager.get().apply(alert.getDialogPane());
+        ThemeManager.get().applyToPane(alert.getDialogPane());
         alert.showAndWait();
     }
 
@@ -338,7 +344,7 @@ public class DashboardController {
         alert.setTitle("Error");
         alert.setHeaderText("An error occurred");
         alert.setContentText(message);
-        ThemeManager.get().apply(alert.getDialogPane());
+        ThemeManager.get().applyToPane(alert.getDialogPane());
         alert.showAndWait();
     }
 
@@ -347,7 +353,7 @@ public class DashboardController {
         alert.setTitle("Info");
         alert.setHeaderText(null);
         alert.setContentText(message);
-        ThemeManager.get().apply(alert.getDialogPane());
+        ThemeManager.get().applyToPane(alert.getDialogPane());
         alert.showAndWait();
     }
 

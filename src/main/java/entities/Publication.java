@@ -7,6 +7,9 @@ import java.util.Objects;
 
 public class Publication {
 
+    /** Moderation status — set by the tagged agency in the back office. */
+    public enum Status { PENDING, APPROVED, REJECTED }
+
     private int publicationID;
     private String content;
     private Date datePublication;
@@ -15,6 +18,12 @@ public class Publication {
     private List<Like> likes;
     private String imagePath;
     private String place;
+
+    // ── Agency moderation fields ──────────────────────────────────────────────
+    /** ID of the agency this post was submitted to (0 = no agency tagged). */
+    private int agencyId;
+    /** Current moderation status. Defaults to PENDING when agencyId is set. */
+    private Status status = Status.APPROVED; // standalone posts auto-approved
 
     public Publication() {
         this.comments = new ArrayList<>();
@@ -30,6 +39,16 @@ public class Publication {
         this.place = place;
         this.comments = new ArrayList<>();
         this.likes = new ArrayList<>();
+        this.status = Status.APPROVED;
+        this.agencyId = 0;
+    }
+
+    /** Constructor used when user tags an agency — starts PENDING. */
+    public Publication(Client client, int publicationID, String content, Date datePublication,
+                       String imagePath, String place, int agencyId) {
+        this(client, publicationID, content, datePublication, imagePath, place);
+        this.agencyId = agencyId;
+        this.status = agencyId > 0 ? Status.PENDING : Status.APPROVED;
     }
 
     // Getters
@@ -100,6 +119,20 @@ public class Publication {
     public void setPlace(String place) {
         this.place = place;
     }
+
+    public int getAgencyId() { return agencyId; }
+    public void setAgencyId(int agencyId) {
+        this.agencyId = agencyId;
+        if (agencyId > 0 && this.status == Status.APPROVED) this.status = Status.PENDING;
+    }
+
+    public Status getStatus() { return status; }
+    public void setStatus(Status status) { this.status = status; }
+
+    public boolean isPending()  { return status == Status.PENDING;  }
+    public boolean isApproved() { return status == Status.APPROVED; }
+    public boolean isRejected() { return status == Status.REJECTED; }
+    public boolean hasAgency()  { return agencyId > 0; }
 
     // Utility methods
     public void addComment(Comment comment) {

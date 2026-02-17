@@ -27,7 +27,8 @@ public class PublicationService implements CRUD<Publication> {
             throw new IllegalArgumentException("Publication content cannot be empty");
         }
 
-        String sql = "INSERT INTO publication(content, datePublication, client_id, image_path, place) VALUES(?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO publication(content, datePublication, client_id, image_path, place, agency_id, status) " +
+                "VALUES(?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = cnx.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, p.getContent());
@@ -35,6 +36,8 @@ public class PublicationService implements CRUD<Publication> {
             ps.setInt(3, p.getClient().getClientID());
             ps.setString(4, p.getImagePath());
             ps.setString(5, p.getPlace());
+            ps.setInt(6, p.getAgencyId());
+            ps.setString(7, p.getStatus().name());
 
             int affectedRows = ps.executeUpdate();
 
@@ -105,34 +108,69 @@ public class PublicationService implements CRUD<Publication> {
     public List<Publication> selectALL() throws SQLException {
         List<Publication> list = new ArrayList<>();
 
+        // Front office only shows APPROVED posts
         String sql = "SELECT p.*, c.username, c.avatarPath " +
                 "FROM publication p " +
                 "LEFT JOIN client c ON p.client_id = c.clientID " +
+                "WHERE p.status = 'APPROVED' " +
                 "ORDER BY p.datePublication DESC";
 
         try (Statement st = cnx.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
 
             while (rs.next()) {
-                Client c = new Client();
-                c.setClientID(rs.getInt("client_id"));
-                c.setUsername(rs.getString("username"));
-                c.setAvatarPath(rs.getString("avatarPath"));
-
-                Publication p = new Publication(
-                        c,
-                        rs.getInt("publicationID"),
-                        rs.getString("content"),
-                        new Date(rs.getTimestamp("datePublication").getTime()),
-                        rs.getString("image_path"),
-                        rs.getString("place")
-                );
-
-                list.add(p);
+                list.add(mapRow(rs));
             }
         }
 
         return list;
+    }
+
+    /** Back-office: all posts for a given agency, regardless of status. */
+    public List<Publication> selectByAgency(int agencyId) throws SQLException {
+        List<Publication> list = new ArrayList<>();
+        String sql = "SELECT p.*, c.username, c.avatarPath " +
+                "FROM publication p " +
+                "LEFT JOIN client c ON p.client_id = c.clientID " +
+                "WHERE p.agency_id = ? " +
+                "ORDER BY p.status ASC, p.datePublication DESC";
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setInt(1, agencyId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) list.add(mapRow(rs));
+            }
+        }
+        return list;
+    }
+
+    /** Update just the moderation status of a post. */
+    public void updateStatus(int publicationID, Publication.Status status) throws SQLException {
+        String sql = "UPDATE publication SET status = ? WHERE publicationID = ?";
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setString(1, status.name());
+            ps.setInt(2, publicationID);
+            ps.executeUpdate();
+        }
+    }
+
+    private Publication mapRow(ResultSet rs) throws SQLException {
+        Client c = new Client();
+        c.setClientID(rs.getInt("client_id"));
+        c.setUsername(rs.getString("username"));
+        c.setAvatarPath(rs.getString("avatarPath"));
+
+        Publication p = new Publication(
+                c,
+                rs.getInt("publicationID"),
+                rs.getString("content"),
+                new Date(rs.getTimestamp("datePublication").getTime()),
+                rs.getString("image_path"),
+                rs.getString("place")
+        );
+        p.setAgencyId(rs.getInt("agency_id"));
+        String statusStr = rs.getString("status");
+        if (statusStr != null) p.setStatus(Publication.Status.valueOf(statusStr));
+        return p;
     }
 
     /**

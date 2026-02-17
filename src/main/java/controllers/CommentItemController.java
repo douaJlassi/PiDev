@@ -69,7 +69,7 @@ public class CommentItemController {
         dlg.setTitle("Edit Comment");
         dlg.setHeaderText(null);
         dlg.setContentText("Edit your comment:");
-        ThemeManager.get().apply(dlg.getDialogPane());
+        ThemeManager.get().applyToPane(dlg.getDialogPane());
 
         Optional<String> result = dlg.showAndWait();
         result.filter(s -> !s.trim().isEmpty()).ifPresent(newText -> {
@@ -90,7 +90,7 @@ public class CommentItemController {
         confirm.setTitle("Delete Comment");
         confirm.setHeaderText(null);
         confirm.setContentText("Delete this comment permanently?");
-        ThemeManager.get().apply(confirm.getDialogPane());
+        ThemeManager.get().applyToPane(confirm.getDialogPane());
 
         confirm.showAndWait()
                 .filter(r -> r == javafx.scene.control.ButtonType.OK)

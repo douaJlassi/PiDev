@@ -386,3 +386,69 @@
 .theme-toggle-btn:hover {
     -fx-background-color: rgba(255,193,7,0.1);
 }
+
+/* ===== CREATE POST DIALOG — dark overrides ===== */
+
+/* ===== CREATE POST DIALOG — dark ===== */
+.cpd-root,
+.cpd-user-strip {
+    -fx-background-color: #1a1d27;
+}
+.cpd-username { -fx-text-fill: #e8eaf0; }
+.cpd-divider { -fx-background-color: #2e3250; }
+.cpd-inner-divider { -fx-background-color: #22263a; }
+
+.cpd-textarea {
+    -fx-text-fill: #e8eaf0;
+    -fx-prompt-text-fill: #555a72;
+}
+.cpd-image-zone { -fx-background-color: #22263a; }
+.cpd-details-section {
+    -fx-background-color: #1a1d27;
+    -fx-border-color: #2e3250;
+}
+.cpd-field-row:hover { -fx-background-color: #22263a; }
+.cpd-field-input {
+    -fx-text-fill: #e8eaf0;
+    -fx-prompt-text-fill: #555a72;
+}
+.cpd-agency-combo { -fx-text-fill: #e8eaf0; }
+.cpd-agency-combo .arrow { -fx-background-color: #555a72; }
+.cpd-agency-combo .list-cell {
+    -fx-text-fill: #e8eaf0;
+    -fx-background-color: #22263a;
+}
+.cpd-agency-combo .list-cell:hover { -fx-background-color: #2e3250; }
+.cpd-toolbar {
+    -fx-background-color: #13161f;
+    -fx-border-color: #2e3250;
+}
+.cpd-toolbar-label { -fx-text-fill: #8b90a7; }
+.cpd-tool-btn {
+    -fx-background-color: #22263a;
+    -fx-border-color: rgba(23,179,166,0.3);
+}
+.cpd-tool-btn:hover {
+    -fx-background-color: rgba(23,179,166,0.12);
+    -fx-border-color: #17B3A6;
+}
+
+/* ===== AGENCY DASHBOARD — dark ===== */
+.agency-title-label { -fx-text-fill: #e8eaf0; }
+
+/* ===== AGENCY LOGIN — dark overrides ===== */
+.login-root { -fx-background-color: #0f1117; }
+.login-form-panel { -fx-background-color: #1a1d27; }
+.login-form-title { -fx-text-fill: #e8eaf0; }
+.login-form-subtitle { -fx-text-fill: #8b90a7; }
+.login-field-label { -fx-text-fill: #e8eaf0; }
+.login-field {
+    -fx-background-color: #22263a;
+    -fx-text-fill: #e8eaf0;
+    -fx-prompt-text-fill: #555a72;
+}
+.login-field:focused {
+    -fx-background-color: #2e3250;
+    -fx-border-color: #17B3A6;
+}
+.login-footer-note { -fx-text-fill: #555a72; }
