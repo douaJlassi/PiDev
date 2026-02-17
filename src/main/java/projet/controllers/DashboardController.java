@@ -6,15 +6,17 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import projet.entites.Hotel;
 import projet.entites.service;
+import projet.entites.vol;
+import projet.services.HotelService;
 import projet.services.ServiceService;
+import projet.services.VolService;
 
 
 import java.io.IOException;
@@ -27,7 +29,7 @@ import java.util.ResourceBundle;
 public class DashboardController implements Initializable {
 
     @FXML
-    private VBox pnItems; // The container in FXML
+    private VBox pnItems;
     @FXML
     private StackPane contentArea;
     @FXML
@@ -38,9 +40,17 @@ public class DashboardController implements Initializable {
     private Button Dashboard;
     @FXML
     private Button Services;
+    @FXML
+    private ComboBox<String> cbFilter;
+    @FXML
+    private Button searchServiceBtn;
+    @FXML
+    private TextField searchBar;
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        cbFilter.getItems().addAll("Price", "Capacity", "Availability");
         // Fetch data from your service
+        searchServiceBtn.setOnMouseClicked(event -> {handleSearchAction();});
         List<service> recentServices = getAllServices();
         // Populate the table
         for (service s : recentServices) {
@@ -115,7 +125,8 @@ public class DashboardController implements Initializable {
             row.getChildren().addAll(nameLbl, typeLbl, priceLbl, capLbl, statusLbl);
 
         }
-
+       row.setOnMouseClicked(e -> {showDetails(service);});
+        searchServiceBtn.setOnMouseClicked(e -> {});
 
 
         // Add all to row
@@ -145,16 +156,15 @@ public class DashboardController implements Initializable {
     @FXML
     private void handleShowHotelForm(ActionEvent event) {
         try {
-            // Load the addVol.fxml
+
             Parent HotelForm = FXMLLoader.load(getClass().getResource("/AddHotel.fxml"));
 
-            // Clear current view and add the form
-            contentArea.getChildren().removeAll(); // Clears everything? No, we want to keep logic simple.
+            contentArea.getChildren().removeAll();
 
-            // Better approach: Make pnlOverview invisible and add form on top
+
             pnlOverview.setVisible(false);
 
-            // Check if form is already added to avoid duplicates (Optional optimization)
+
             contentArea.getChildren().add(HotelForm);
 
         } catch (IOException e) {
@@ -215,6 +225,82 @@ public class DashboardController implements Initializable {
             e.printStackTrace();
         }
     }
+    @FXML
+    private void handleFilterAction() {
+        String selected = cbFilter.getValue();
 
+    }
+    @FXML
+    private void handleSearchAction() {
+        ServiceService service = new ServiceService();
+        pnItems.getChildren().clear();
+        String searchText = searchBar.getText().toLowerCase().trim();
+        List<service> allServices = getAllServices();
+        boolean found = false;
+        for (service s : allServices) {
+            if (s.getNom().equals(searchText)) {
+                HBox row = createServiceRow(s);
+                pnItems.getChildren().add(row);
+                found = true;
+            }
+        }
+
+        // Optional: Show a "No Results" label if nothing found
+        if (!found) {
+            Label noResult = new Label("No services found for: " + searchText);
+            noResult.setStyle("-fx-text-fill: #555; -fx-padding: 20;");
+            pnItems.getChildren().add(noResult);
+        }
+
+    }
+
+    private void showDetails(service s) {
+        FXMLLoader loader ;
+        Parent root;
+        vol v;
+        Hotel h;
+        if (s.getType().equals("hotel")) {
+            loader = new FXMLLoader(getClass().getResource("/hotelDetails.fxml"));
+            try {
+                HotelService hotelService = new HotelService();
+                try {
+                    h=hotelService.selectOne(s.getNom());
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+                root = loader.load();
+                HotelDetailsController controller = loader.getController();
+                controller.setHotelData(h);
+                controller.setHotelData(h);
+                contentArea.getScene().setRoot(root);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+
+            }
+        }
+        else if (s.getType().equals("vol")) {
+            loader = new FXMLLoader(getClass().getResource("/volsDetails.fxml"));
+            try {
+                VolService volService = new VolService();
+                try {
+                    v = volService.selectByNom(s.getNom());
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+                root = loader.load();
+                VolDetailsController controller = loader.getController();
+                controller.setVolData(v);
+                contentArea.getScene().setRoot(root);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+
+            }
+        }
+        else {
+            return;
+        }
+
+
+    }
 
 }

@@ -15,6 +15,7 @@
 <?import javafx.scene.layout.VBox?>
 
 <?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.control.ComboBox?>
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="750.0" prefWidth="1050.0" styleClass="root-pane" stylesheets="@styleDash.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="projet.controllers.DashboardController">
 
     <!-- ================= LEFT SIDEBAR ================= -->
@@ -67,8 +68,8 @@
                     <children>
                         <Label styleClass="page-title" text="Dashboard Overview" />
                         <Pane HBox.hgrow="ALWAYS" />
-                        <TextField promptText="Search bookings..." styleClass="search-box" />
-                        <Button mnemonicParsing="false" styleClass="action-btn" text="Search" />
+                        <TextField fx:id="searchBar" promptText="Search service..." styleClass="search-box" />
+                        <Button fx:id="searchServiceBtn" onAction="#handleSearchAction" mnemonicParsing="false" styleClass="action-btn" text="Search" />
                     </children>
                     <padding>
                         <Insets left="30.0" right="30.0" />
@@ -113,7 +114,11 @@
                                                         <Button onAction="#handleShowVolForm" mnemonicParsing="false" styleClass="btn-add" text="+ Add Vol" />
                                                         <Button onAction="#handleShowHotelForm" mnemonicParsing="false" styleClass="btn-add" text="+ Add Hotel" />
 
-                                                        <Button mnemonicParsing="false" styleClass="filter-btn" text="🌪 Filter By" />
+                                                        <ComboBox fx:id="cbFilter"
+                                                                  promptText="ᯤ Filter By"
+                                                                  styleClass="filter-combo"
+
+                                                                  prefWidth="150.0" />
                                                     </children>
                                                 </HBox>
 

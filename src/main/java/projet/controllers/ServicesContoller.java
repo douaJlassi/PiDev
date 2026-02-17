@@ -140,7 +140,7 @@ public class ServicesContoller implements Initializable {
             }
         });
         btnDelete.getStyleClass().addAll("btn-card-action", "btn-card-delete");
-
+        card.setOnMouseClicked(event -> {showDetails(s);});
         Pane spacer = new Pane();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
@@ -215,5 +215,53 @@ public class ServicesContoller implements Initializable {
             throw new RuntimeException(e);
         }
         return list;
+    }
+    private void showDetails(service s) {
+        FXMLLoader loader ;
+        Parent root;
+        vol v;
+        Hotel h;
+        if (s.getType().equals("hotel")) {
+           loader = new FXMLLoader(getClass().getResource("/hotelDetails.fxml"));
+            try {
+                HotelService hotelService = new HotelService();
+                try {
+                    h=hotelService.selectOne(s.getNom());
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+                root = loader.load();
+                HotelDetailsController controller = loader.getController();
+                controller.setHotelData(h);
+                controller.setHotelData(h);
+                cardsContainer.getScene().setRoot(root);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+
+            }
+        }
+        else if (s.getType().equals("vol")) {
+            loader = new FXMLLoader(getClass().getResource("/volsDetails.fxml"));
+            try {
+                VolService volService = new VolService();
+                try {
+                    v = volService.selectByNom(s.getNom());
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+                root = loader.load();
+                VolDetailsController controller = loader.getController();
+                controller.setVolData(v);
+                cardsContainer.getScene().setRoot(root);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+
+            }
+        }
+        else {
+            return;
+        }
+
+
     }
 }

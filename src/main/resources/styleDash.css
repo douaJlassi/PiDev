@@ -9,7 +9,9 @@
 
 /* ================= SIDEBAR ================= */
 .sidebar {
-    -fx-background-color: #183c75; /* Rehletna Dark Blue */
+    -fx-background-color: #1e293b;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 0);
+
 }
 
 .version-text {
