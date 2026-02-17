@@ -1,67 +1,61 @@
-.root {
-    -fx-background-color: linear-gradient(to bottom right, #fdf6ee, #eef2ff);
-    -fx-font-family: "Segoe UI", "Arial";
-}
+/* ================= FORM STYLING ================= */
 
-/* Card */
-.card {
+/* The White Card containing the form */
+.form-card {
     -fx-background-color: white;
-    -fx-padding: 35;
-    -fx-spacing: 15;
-    -fx-border-radius: 25;
-    -fx-background-radius: 25;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 30,0,0,8);
+    -fx-background-radius: 15;
+    -fx-padding: 30;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 10, 0, 0, 0);
+    -fx-min-width: 650;
 }
 
-/* Title */
-.title {
-    -fx-font-size: 26px;
-    -fx-text-fill: #1b3a6f;
+/* Form Title */
+.form-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #183c75; /* Rehletna Dark Blue */
+    -fx-padding: 0 0 20 0;
+}
+
+/* Labels next to inputs */
+.form-label {
+    -fx-text-fill: #555555;
+    -fx-font-size: 13px;
     -fx-font-weight: bold;
 }
 
-/* Inputs */
-.input {
-    -fx-background-radius: 12;
-    -fx-border-radius: 12;
-    -fx-border-color: #d1d5db;
-    -fx-padding: 10;
-    -fx-background-color: #f9fafb;
+/* Text Fields & DatePickers */
+.form-input {
+    -fx-background-color: #f9fbfc;
+    -fx-border-color: #e0e0e0;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-padding: 8 10;
     -fx-font-size: 13px;
+    -fx-text-fill: #333;
 }
 
-.input:focused {
-    -fx-border-color: #6366f1;
-    -fx-effect: dropshadow(gaussian, rgba(99,102,241,0.4), 10,0,0,0);
+.form-input:focused {
     -fx-background-color: white;
+    -fx-border-color: #4ba3a1; /* Rehletna Teal Focus */
+    -fx-effect: dropshadow(three-pass-box, rgba(75, 163, 161, 0.1), 5, 0, 0, 0);
 }
 
-
-
-/* Checkbox */
-.check-box {
-    -fx-text-fill: #374151;
-}
-
-/* Button */
-.btn {
-    -fx-background-color: linear-gradient(#6366f1, #4f46e5);
+/* Submit Button */
+.btn-submit {
+    -fx-background-color: #4ba3a1; /* Rehletna Teal */
     -fx-text-fill: white;
     -fx-font-weight: bold;
-    -fx-background-radius: 25;
-    -fx-padding: 12 30;
-}
-
-.btn:hover {
-    -fx-background-color: linear-gradient(#4f46e5, #4338ca);
+    -fx-font-size: 14px;
+    -fx-background-radius: 5;
+    -fx-padding: 10 30;
     -fx-cursor: hand;
-    -fx-effect: dropshadow(gaussian, rgba(79,70,229,0.4), 15,0,0,0);
 }
 
-.btn:pressed {
-    -fx-scale-x: 0.96;
-    -fx-scale-y: 0.96;
+.btn-submit:hover {
+    -fx-background-color: #3a8a88; /* Darker Teal */
 }
+
 .error-label {
     -fx-text-fill: #D32F2F; /* Rouge foncé */
     -fx-font-size: 13px;

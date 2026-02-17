@@ -1,72 +1,99 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
 
-<AnchorPane stylesheets="@style.css"
-            xmlns="http://javafx.com/javafx/25"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="projet.controllers.addVol">
+<AnchorPane style="-fx-background-color: transparent;" stylesheets="@style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="projet.controllers.addVol">
 
     <children>
-        <VBox alignment="CENTER" spacing="20"
-              AnchorPane.topAnchor="0"
-              AnchorPane.bottomAnchor="0"
-              AnchorPane.leftAnchor="0"
-              AnchorPane.rightAnchor="0">
+        <VBox alignment="CENTER" fillWidth="false" spacing="20" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
 
-            <VBox styleClass="card" spacing="15">
+            <!-- White Card Container -->
+            <VBox alignment="CENTER" spacing="15" styleClass="form-card">
 
-                <Label text="✈ Ajouter un Vol" styleClass="title"/>
+                <Label styleClass="form-title" text="✈ Ajouter un Vol" />
 
-                <GridPane hgap="15" vgap="12">
+                <GridPane hgap="20.0" vgap="15.0">
+                    <columnConstraints>
+                        <!-- Column Widths for alignment -->
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="80.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="200.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="80.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="200.0" />
+                    </columnConstraints>
 
-                    <Label text="Nom :" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                    <TextField fx:id="tfNom" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                    <!-- ROW 0: Nom -->
+                    <Label styleClass="form-label" text="Nom :" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <TextField fx:id="tfNom" promptText="Ex: Tunisair 711" styleClass="form-input" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                    <Label text="Description :" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                    <TextArea fx:id="taDescription" prefRowCount="3"
-                              GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                    <!-- ROW 1: Description -->
+                    <Label styleClass="form-label" text="Description :" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                    <TextArea fx:id="taDescription" prefRowCount="3" promptText="Détails du vol..." styleClass="form-input" wrapText="true" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="1" />
 
-                    <Label text="Prix :" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-                    <TextField fx:id="tfPrix" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                    <!-- ROW 2: Prix & Disponibilité -->
+                    <Label styleClass="form-label" text="Prix :" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                    <TextField fx:id="tfPrix" promptText="0.00" styleClass="form-input" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
-                    <Label text="Disponibilité :" GridPane.rowIndex="2" GridPane.columnIndex="2"/>
-                    <CheckBox fx:id="cbDisponibilite"
-                              GridPane.rowIndex="2" GridPane.columnIndex="3"/>
+                    <Label styleClass="form-label" text="Disponibilité :" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                    <CheckBox fx:id="cbDisponibilite" text="Disponible" GridPane.columnIndex="3" GridPane.rowIndex="2" />
 
-                    <Label text="Capacité :" GridPane.rowIndex="3" GridPane.columnIndex="0" />
-                    <TextField fx:id="tfCapacite"  GridPane.rowIndex="3" GridPane.columnIndex="1" styleClass="input" />
+                    <!-- ROW 3: Capacité & Numéro -->
+                    <Label styleClass="form-label" text="Capacité :" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                    <TextField fx:id="tfCapacite" promptText="Nb Sièges" styleClass="form-input" GridPane.columnIndex="1" GridPane.rowIndex="3" />
 
-                    <Label text="Numéro Vol :" GridPane.rowIndex="3" GridPane.columnIndex="2"/>
-                    <TextField fx:id="tfNumeroVol" GridPane.rowIndex="3" GridPane.columnIndex="3" styleClass="input" />
+                    <Label styleClass="form-label" text="Numéro Vol :" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                    <TextField fx:id="tfNumeroVol" promptText="Code Vol" styleClass="form-input" GridPane.columnIndex="3" GridPane.rowIndex="3" />
 
-                    <Label text="Ville Départ :" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-                    <TextField fx:id="tfVilleDepart" GridPane.rowIndex="4" GridPane.columnIndex="1" styleClass="input" />
+                    <!-- ROW 4: Villes -->
+                    <Label styleClass="form-label" text="Ville Départ :" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                    <TextField fx:id="tfVilleDepart" styleClass="form-input" GridPane.columnIndex="1" GridPane.rowIndex="4" />
 
-                    <Label text="Ville Arrivée :" GridPane.rowIndex="4" GridPane.columnIndex="2"/>
-                    <TextField fx:id="tfVilleArrivee" GridPane.rowIndex="4" GridPane.columnIndex="3" styleClass="input"/>
+                    <Label styleClass="form-label" text="Ville Arrivée :" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+                    <TextField fx:id="tfVilleArrivee" styleClass="form-input" GridPane.columnIndex="3" GridPane.rowIndex="4" />
 
-                    <Label text="Date Départ :" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
-                    <DatePicker fx:id="dpDateDepart"
-                                GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+                    <!-- ROW 5: Dates -->
+                    <Label styleClass="form-label" text="Date Départ :" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                    <DatePicker fx:id="dpDateDepart" maxWidth="1.7976931348623157E308" styleClass="form-input" GridPane.columnIndex="1" GridPane.rowIndex="5" />
 
-                    <Label text="Date Arrivée :" GridPane.rowIndex="5" GridPane.columnIndex="2"/>
-                    <DatePicker fx:id="dpDateArrivee"
-                                GridPane.rowIndex="5" GridPane.columnIndex="3"/>
+                    <Label styleClass="form-label" text="Date Arrivée :" GridPane.columnIndex="2" GridPane.rowIndex="5" />
+                    <DatePicker fx:id="dpDateArrivee" maxWidth="1.7976931348623157E308" styleClass="form-input" GridPane.columnIndex="3" GridPane.rowIndex="5" />
+                    <rowConstraints>
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                    </rowConstraints>
 
                 </GridPane>
 
-                <Button text="Ajouter" styleClass="btn" onAction="#ajouterVol"/>
-                <Label fx:id="lblErrorNom" managed="false" visible="false" styleClass="error-label" wrapText="true"/>
-                <Label fx:id="lblErrorDescription" managed="false" visible="false" styleClass="error-label" wrapText="true"/>
-                <Label fx:id="lblErrorPrix" managed="false" visible="false" styleClass="error-label" wrapText="true"/>
-                <Label fx:id="lblErrorCapacite" managed="false" visible="false" styleClass="error-label" wrapText="true"/>
-                <Label fx:id="lblErrorNumeroVol" managed="false" visible="false" styleClass="error-label" wrapText="true"/>
-                <Label fx:id="lblErrorVilleDepart" managed="false" visible="false" styleClass="error-label" wrapText="true"/>
-                <Label fx:id="lblErrorVilleArrive" managed="false" visible="false" styleClass="error-label" wrapText="true"/>
-                <Label fx:id="lblErrorDateDepart" managed="false" visible="false" styleClass="error-label" wrapText="true"/>
-                <Label fx:id="lblErrorDateArrive" managed="false" visible="false" styleClass="error-label" wrapText="true"/>
+                <!-- Error Messages Container -->
+                <VBox alignment="CENTER_LEFT" spacing="2">
+                    <Label fx:id="lblErrorNom" managed="false" styleClass="error-label" visible="false" wrapText="true" />
+                    <Label fx:id="lblErrorDescription" managed="false" styleClass="error-label" visible="false" wrapText="true" />
+                    <Label fx:id="lblErrorPrix" managed="false" styleClass="error-label" visible="false" wrapText="true" />
+                    <Label fx:id="lblErrorCapacite" managed="false" styleClass="error-label" visible="false" wrapText="true" />
+                    <Label fx:id="lblErrorNumeroVol" managed="false" styleClass="error-label" visible="false" wrapText="true" />
+                    <Label fx:id="lblErrorVilleDepart" managed="false" styleClass="error-label" visible="false" wrapText="true" />
+                    <Label fx:id="lblErrorVilleArrive" managed="false" styleClass="error-label" visible="false" wrapText="true" />
+                    <Label fx:id="lblErrorDateDepart" managed="false" styleClass="error-label" visible="false" wrapText="true" />
+                    <Label fx:id="lblErrorDateArrive" managed="false" styleClass="error-label" visible="false" wrapText="true" />
+                </VBox>
+
+                <!-- Action Button -->
+                <Button onAction="#ajouterVol" styleClass="btn-submit" text="✔ Ajouter le Vol" />
 
             </VBox>
         </VBox>
