@@ -58,6 +58,15 @@
                 </GridPane>
 
                 <Button text="Ajouter" styleClass="btn" onAction="#ajouterVol"/>
+                <Label fx:id="lblErrorNom" managed="false" visible="false" styleClass="error-label" wrapText="true"/>
+                <Label fx:id="lblErrorDescription" managed="false" visible="false" styleClass="error-label" wrapText="true"/>
+                <Label fx:id="lblErrorPrix" managed="false" visible="false" styleClass="error-label" wrapText="true"/>
+                <Label fx:id="lblErrorCapacite" managed="false" visible="false" styleClass="error-label" wrapText="true"/>
+                <Label fx:id="lblErrorNumeroVol" managed="false" visible="false" styleClass="error-label" wrapText="true"/>
+                <Label fx:id="lblErrorVilleDepart" managed="false" visible="false" styleClass="error-label" wrapText="true"/>
+                <Label fx:id="lblErrorVilleArrive" managed="false" visible="false" styleClass="error-label" wrapText="true"/>
+                <Label fx:id="lblErrorDateDepart" managed="false" visible="false" styleClass="error-label" wrapText="true"/>
+                <Label fx:id="lblErrorDateArrive" managed="false" visible="false" styleClass="error-label" wrapText="true"/>
 
             </VBox>
         </VBox>
