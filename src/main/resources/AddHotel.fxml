@@ -19,7 +19,7 @@
 
                 <Label text="🏨 Ajouter un Hôtel" styleClass="title"/>
 
-                <GridPane hgap="15" vgap="12">
+                <GridPane hgap="18" vgap="12">
 
                     <TextField fx:id="tfNom" promptText="Nom"
                                GridPane.rowIndex="0" GridPane.columnIndex="0"/>
@@ -48,8 +48,16 @@
                 <CheckBox fx:id="cbDisponibilite" text="Disponible" styleClass="checkbox"/>
 
                 <Button text="Ajouter Hôtel" onAction="#addHotel" styleClass="btn"/>
+                <Label fx:id="lblErrorNom" managed="false" visible="false" styleClass="error-label" wrapText="true"/>
+                <Label fx:id="lblErrorDescription" managed="false" visible="false" styleClass="error-label" wrapText="true"/>
+                <Label fx:id="lblErrorPrix" managed="false" visible="false" styleClass="error-label" wrapText="true"/>
+                <Label fx:id="lblErrorCapacite" managed="false" visible="false" styleClass="error-label" wrapText="true"/>
+                <Label fx:id="lblErrorNbEtoiles" managed="false" visible="false" styleClass="error-label" wrapText="true"/>
+                <Label fx:id="lblErrorLocalisation" managed="false" visible="false" styleClass="error-label" wrapText="true"/>
+                <Label fx:id="lblErrorChambre" managed="false" visible="false" styleClass="error-label" wrapText="true"/>
 
             </VBox>
         </VBox>
+
     </children>
 </AnchorPane>
