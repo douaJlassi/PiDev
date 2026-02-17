@@ -52,9 +52,12 @@
 
             <Region VBox.vgrow="ALWAYS"/>
 
-            <!-- Logout -->
-            <VBox>
+            <!-- Theme toggle + Logout -->
+            <VBox spacing="8">
                 <padding><Insets top="0" right="12" bottom="20" left="12"/></padding>
+                <Button fx:id="themeToggleBtn" text="Dark Mode"
+                        styleClass="theme-toggle-btn" maxWidth="Infinity"
+                        onAction="#toggleTheme"/>
                 <Button text="Logout" styleClass="sidebar-logout-btn" maxWidth="Infinity"/>
             </VBox>
 

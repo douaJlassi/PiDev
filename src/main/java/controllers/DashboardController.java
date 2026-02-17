@@ -59,6 +59,9 @@ public class DashboardController {
     @FXML
     private Label sidebarRole;
 
+    @FXML
+    private Button themeToggleBtn;
+
     // Services
     private PublicationService publicationService;
     private CommentService commentService;
@@ -102,6 +105,14 @@ public class DashboardController {
         setupSearchFilter();
         loadPosts();
         postsScrollPane.setVvalue(0);
+
+        // Register this scene with ThemeManager so toggleTheme() applies to it
+        // Scene is not available during initialize(), so we defer to next pulse
+        javafx.application.Platform.runLater(() -> {
+            if (contentContainer.getScene() != null) {
+                ThemeManager.get().register(contentContainer.getScene());
+            }
+        });
     }
 
     private void setupSearchFilter() {
@@ -176,6 +187,14 @@ public class DashboardController {
     @FXML
     private void refreshPosts() {
         loadPosts();
+    }
+
+    @FXML
+    private void toggleTheme() {
+        ThemeManager.get().toggle();
+        if (themeToggleBtn != null) {
+            themeToggleBtn.setText(ThemeManager.get().isDark() ? "Light Mode" : "Dark Mode");
+        }
     }
 
     public void loadPosts() {
@@ -310,9 +329,7 @@ public class DashboardController {
         alert.setTitle("Success");
         alert.setHeaderText(null);
         alert.setContentText(message);
-        alert.getDialogPane().getStylesheets().add(
-                getClass().getResource("/styles/dashboard.css").toExternalForm()
-        );
+        ThemeManager.get().apply(alert.getDialogPane());
         alert.showAndWait();
     }
 
@@ -321,9 +338,7 @@ public class DashboardController {
         alert.setTitle("Error");
         alert.setHeaderText("An error occurred");
         alert.setContentText(message);
-        alert.getDialogPane().getStylesheets().add(
-                getClass().getResource("/styles/dashboard.css").toExternalForm()
-        );
+        ThemeManager.get().apply(alert.getDialogPane());
         alert.showAndWait();
     }
 
@@ -332,9 +347,7 @@ public class DashboardController {
         alert.setTitle("Info");
         alert.setHeaderText(null);
         alert.setContentText(message);
-        alert.getDialogPane().getStylesheets().add(
-                getClass().getResource("/styles/dashboard.css").toExternalForm()
-        );
+        ThemeManager.get().apply(alert.getDialogPane());
         alert.showAndWait();
     }
 

@@ -144,8 +144,7 @@ public class PostController {
         d.getDialogPane().getButtonTypes().addAll(ok, ButtonType.CANCEL);
         d.getDialogPane().setContent(content);
         d.getDialogPane().setPrefWidth(540);
-        d.getDialogPane().getStylesheets().add(
-                getClass().getResource("/styles/dashboard.css").toExternalForm());
+        ThemeManager.get().apply(d.getDialogPane());
         d.getDialogPane().getStyleClass().add("create-post-dialog");
         okButton(d).getStyleClass().add("primary-btn");
         return d;
@@ -157,7 +156,6 @@ public class PostController {
     }
 
     private void stylize(Alert a) {
-        a.getDialogPane().getStylesheets().add(
-                getClass().getResource("/styles/dashboard.css").toExternalForm());
+        ThemeManager.get().apply(a.getDialogPane());
     }
 }

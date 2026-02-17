@@ -10,7 +10,6 @@ import javafx.scene.shape.Circle;
 
 import java.sql.SQLException;
 import java.util.Optional;
-
 /**
  * CommentItemController — bound to comment_item.fxml.
  * Receives a Comment and wires it; edit/delete handled here.
@@ -70,8 +69,7 @@ public class CommentItemController {
         dlg.setTitle("Edit Comment");
         dlg.setHeaderText(null);
         dlg.setContentText("Edit your comment:");
-        dlg.getDialogPane().getStylesheets().add(
-                getClass().getResource("/styles/dashboard.css").toExternalForm());
+        ThemeManager.get().apply(dlg.getDialogPane());
 
         Optional<String> result = dlg.showAndWait();
         result.filter(s -> !s.trim().isEmpty()).ifPresent(newText -> {
@@ -92,8 +90,7 @@ public class CommentItemController {
         confirm.setTitle("Delete Comment");
         confirm.setHeaderText(null);
         confirm.setContentText("Delete this comment permanently?");
-        confirm.getDialogPane().getStylesheets().add(
-                getClass().getResource("/styles/dashboard.css").toExternalForm());
+        ThemeManager.get().apply(confirm.getDialogPane());
 
         confirm.showAndWait()
                 .filter(r -> r == javafx.scene.control.ButtonType.OK)
