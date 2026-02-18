@@ -14,96 +14,102 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 
-<HBox prefHeight="800.0" prefWidth="1200.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/17"
-      xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.DashboardController">
-    <!-- SIDEBAR (gauche) sans profil -->
-    <VBox prefWidth="280.0" spacing="20" styleClass="sidebar">
+<HBox prefHeight="800.0" prefWidth="1200.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.DashboardController">
+
+    <!-- 1. SIDEBAR (Full Height) - refined with softer gradient -->
+    <VBox prefWidth="280.0" spacing="20" styleClass="sidebar-modern">
         <padding>
             <Insets top="30" right="20" bottom="30" left="20" />
         </padding>
-        <ImageView fitHeight="250" fitWidth="150" preserveRatio="true" styleClass="bottom-image">
+        <ImageView fitHeight="130" fitWidth="130" preserveRatio="true" styleClass="sidebar-logo">
             <image>
                 <Image url="@/images/image2.png" />
             </image>
         </ImageView>
-        <!-- Navigation uniquement -->
+
         <VBox spacing="5">
-            <Label styleClass="section-label" text="NAVIGATION" />
-            <Button maxWidth="1.7976931348623157E308" styleClass="nav-button, nav-button-active" text="🏠 Dashboard" />
-            <Button maxWidth="1.7976931348623157E308" styleClass="nav-button" text="📊 Gestion des Activités" />
-            <Button maxWidth="1.7976931348623157E308" styleClass="nav-button" text="🎫 Mes Réservations" />
-            <Button maxWidth="1.7976931348623157E308" styleClass="nav-button" text="💬 Messagerie" />
+            <Label styleClass="nav-section-label" text="NAVIGATION" />
+            <Button maxWidth="1.7976931348623157E308" styleClass="nav-button-modern, nav-button-active-modern" text="🏠 Dashboard" />
+            <Button maxWidth="1.7976931348623157E308" styleClass="nav-button-modern" text="📊 Gestion des Activités" />
+            <Button maxWidth="1.7976931348623157E308" styleClass="nav-button-modern" text="🎫 Mes Réservations" />
+            <Button maxWidth="1.7976931348623157E308" styleClass="nav-button-modern" text="💬 Messagerie" />
         </VBox>
 
-        <!-- Espace flexible pour pousser le bas -->
         <Region VBox.vgrow="ALWAYS" />
 
-        <!-- Section bas : bouton déconnexion + image -->
         <VBox spacing="10" alignment="CENTER">
-            <Button maxWidth="1.7976931348623157E308" styleClass="logout-button" text="🔒 Déconnexion" />
+            <Button maxWidth="1.7976931348623157E308" styleClass="logout-button-modern" text="🔒 Déconnexion" />
         </VBox>
     </VBox>
 
-    <!-- CONTENU PRINCIPAL (défilable) -->
-    <ScrollPane fitToWidth="true" styleClass="content-scroll" HBox.hgrow="ALWAYS">
-        <VBox spacing="30" style="-fx-padding: 40;">
-            <!-- Header avec message de bienvenue à gauche, bouton, et profil à droite -->
-            <HBox alignment="CENTER_LEFT" spacing="20">
-                <!-- Message de bienvenue (prend l'espace disponible) -->
-                <VBox spacing="5" HBox.hgrow="ALWAYS">
-                    <Text styleClass="welcome-title" text="Bonjour, Alexandre !" />
-                    <Label styleClass="welcome-subtitle" text="Prêt pour votre prochaine aventure ?" />
-                </VBox>
+    <!-- 2. RIGHT COLUMN (Navbar + Content) -->
+    <VBox HBox.hgrow="ALWAYS" styleClass="right-panel">
 
-                <HBox spacing="15" alignment="CENTER_RIGHT">
-                    <VBox spacing="2" alignment="CENTER_RIGHT">
-                        <Text styleClass="user-name-main" text="Alexandre Voyageur" />
-                        <Label styleClass="user-badge-main" text="Client Premium" />
-                    </VBox>
-                    <Circle fill="DODGERBLUE" radius="40.0" stroke="WHITE" strokeType="INSIDE" strokeWidth="2" />
+        <!-- TOP NAVIGATION BAR - lighter, more elegant -->
+        <HBox alignment="CENTER_LEFT" spacing="20" styleClass="top-nav-modern">
+            <padding>
+                <Insets top="15" right="40" bottom="15" left="40" />
+            </padding>
+
+            <!-- Welcome Message -->
+            <VBox spacing="2" HBox.hgrow="ALWAYS">
+                <Text styleClass="welcome-title-modern" text="Bonjour, Alexandre !" />
+                <Label styleClass="welcome-subtitle-modern" text="Prêt pour votre prochaine aventure ?" />
+            </VBox>
+
+            <!-- Profile Section -->
+            <HBox spacing="15" alignment="CENTER_RIGHT">
+                <VBox spacing="2" alignment="CENTER_RIGHT">
+                    <Text styleClass="user-name-modern" text="Alexandre Voyageur" />
+                    <Label styleClass="user-badge-modern" text="Client Premium" />
+                </VBox>
+                <Circle fill="linear-gradient(to bottom, #4a90e2, #2c6fb0)" radius="25.0" stroke="WHITE" strokeType="INSIDE" strokeWidth="2" styleClass="profile-avatar" />
+            </HBox>
+        </HBox>
+
+        <!-- CONTENT AREA -->
+        <ScrollPane fitToWidth="true" styleClass="content-scroll-modern" VBox.vgrow="ALWAYS">
+            <VBox spacing="30" style="-fx-padding: 40;">
+
+                <!-- Filters Section - redesigned as pill buttons -->
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <Label styleClass="filter-label-modern" text="🔍 Filtrer :" />
+                    <Button styleClass="filter-chip-modern, filter-chip-active" text="Tous" />
+                    <Button styleClass="filter-chip-modern" text="Aventure" />
+                    <Button styleClass="filter-chip-modern" text="Sport" />
+                    <Button styleClass="filter-chip-modern" text="Gastronomie" />
                 </HBox>
-            </HBox>
 
-            <!-- Séparateur avec option Filtrer -->
-            <HBox alignment="CENTER_LEFT" spacing="20">
-                <Label styleClass="filter-label" text="🔍 Filtrer :" />
-                <Button styleClass="filter-chip" text="À la Une ✔️" />
-                <Button styleClass="filter-chip" text="Aventure" />
-                <Button styleClass="filter-chip" text="Sport" />
-                <Button styleClass="filter-chip" text="Gastronomie" />
-            </HBox>
+                <!-- Section : Activités & Offres Recommandées -->
+                <Text styleClass="section-title-modern" text="✨ Activités et Offres Recommandées" />
 
-            <!-- Section : Activités & Offres Recommandées -->
-            <Text styleClass="section-title" text="✨ Activités et Offres Recommandées" />
+                <!-- Grille de cartes DYNAMIQUE (same fx:id) -->
+                <FlowPane fx:id="activitiesFlowPane" hgap="25" vgap="25" prefWrapLength="950" styleClass="cards-grid" />
 
-            <!-- Grille de cartes DYNAMIQUE (remplie par le contrôleur) -->
-            <FlowPane fx:id="activitiesFlowPane" hgap="25" vgap="25" prefWrapLength="950" />
-
-            <!-- Deuxième ligne de cartes (statique) -->
-            <FlowPane hgap="25" vgap="25" prefWrapLength="950">
-                <!-- Carte Statistiques -->
-                <VBox prefWidth="300.0" styleClass="card">
-                    <StackPane prefHeight="160.0" styleClass="card-image">
-                        <Label styleClass="badge-category" text="Stats" StackPane.alignment="TOP_LEFT">
-                            <StackPane.margin><Insets left="10" top="10" /></StackPane.margin>
-                        </Label>
-                    </StackPane>
-                    <VBox spacing="8" styleClass="card-content">
-                        <Text styleClass="card-title" text="Statistiques du mois" />
-                        <Label styleClass="card-location" text="📊 5 Réservations" />
-                        <Label styleClass="card-location" text="💰 723 DT de Gains" />
-                        <HBox alignment="CENTER_LEFT">
-                            <Label styleClass="card-rating" text="★ 4.8 (121)">
-                                <padding><Insets left="5" /></padding>
+                <!-- Deuxième ligne de cartes (statique) - improved card design -->
+                <FlowPane hgap="25" vgap="25" prefWrapLength="950">
+                    <VBox prefWidth="300.0" styleClass="card-modern">
+                        <StackPane prefHeight="160.0" styleClass="card-image-modern">
+                            <Label styleClass="badge-category-modern" text="Statistiques" StackPane.alignment="TOP_LEFT">
+                                <StackPane.margin><Insets left="10" top="10" /></StackPane.margin>
                             </Label>
-                            <Region HBox.hgrow="ALWAYS" />
-                            <Button styleClass="btn-details" text="Voir Plus" />
-                        </HBox>
+                        </StackPane>
+                        <VBox spacing="8" styleClass="card-content-modern">
+                            <Text styleClass="card-title-modern" text="Statistiques du mois" />
+                            <Label styleClass="card-meta-modern" text="📊 5 Réservations" />
+                            <Label styleClass="card-meta-modern" text="💰 723 DT de Gains" />
+                            <HBox alignment="CENTER_LEFT">
+                                <Label styleClass="card-rating-modern" text="★ 4.8 (121)">
+                                    <padding><Insets left="5" /></padding>
+                                </Label>
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Button styleClass="btn-details-modern" text="Voir Plus" />
+                            </HBox>
+                        </VBox>
                     </VBox>
-                </VBox>
-            </FlowPane>
-
-            <Region prefHeight="20" />
-        </VBox>
-    </ScrollPane>
+                </FlowPane>
+                <Region prefHeight="20" />
+            </VBox>
+        </ScrollPane>
+    </VBox>
 </HBox>

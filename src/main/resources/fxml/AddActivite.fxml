@@ -9,35 +9,7 @@
 
 <BorderPane prefHeight="720.0" prefWidth="1080.0" styleClass="main-container" stylesheets="@AddStyle.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.AddActiviteController">
 
-    <!-- BARRE LATERALE (SIDEBAR) -->
-    <left>
-        <VBox prefWidth="220.0" styleClass="sidebar" spacing="20">
-            <padding>
-                <Insets bottom="20.0" left="15.0" right="15.0" top="30.0" />
-            </padding>
 
-            <!-- Profil Utilisateur -->
-            <VBox alignment="CENTER" spacing="10">
-                <StackPane>
-                    <Circle fx:id="profileCircle" fill="#2d75e8" radius="40.0" />
-                    <Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="JL" style="-fx-font-size: 24; -fx-font-weight: bold;" />
-                </StackPane>
-                <Label text="Julien Le Guide" styleClass="user-name" />
-                <Label text="Guide Certifié" styleClass="user-role" />
-            </VBox>
-
-            <!-- Menu de Navigation -->
-            <VBox spacing="10" VBox.vgrow="ALWAYS">
-                <padding><Insets top="20"/></padding>
-                <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="nav-button" text="🏠 Dashboard" />
-                <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="nav-button-active" text="📊 ajouter une activitée" />
-                <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="nav-button" text="📅 Réservations" />
-                <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="nav-button" text="💬 Messagerie" />
-            </VBox>
-
-            <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="logout-button" text="🔓 Déconnexion" />
-        </VBox>
-    </left>
 
     <!-- CONTENU PRINCIPAL -->
     <center>
@@ -47,6 +19,7 @@
                     <Insets bottom="30.0" left="40.0" right="40.0" top="30.0" />
                 </padding>
 
+                <Button text="← Retour" onAction="#handleReturn" styleClass="return-button" />
                 <!-- Header -->
                 <HBox alignment="CENTER_LEFT">
                     <VBox HBox.hgrow="ALWAYS">

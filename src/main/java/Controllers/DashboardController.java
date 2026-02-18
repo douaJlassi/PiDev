@@ -109,7 +109,15 @@ public class DashboardController {
             // Add the image FIRST, then the badge so it stays on top
             imageStack.getChildren().addAll(imageView);
 
-            Label badge = new Label("Activité");
+            String status = a.getStatut();
+            Label badge = new Label(status != null ? status : "Activité");
+
+            if (status != null && status.equalsIgnoreCase("Annulé")) {
+                badge.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white;");
+            }
+
+
+
             badge.getStyleClass().add("badge-category");
             StackPane.setAlignment(badge, javafx.geometry.Pos.TOP_LEFT);
             StackPane.setMargin(badge, new Insets(10, 0, 0, 10));

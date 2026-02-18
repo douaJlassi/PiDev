@@ -3,17 +3,22 @@ package Controllers;
 import gestion_activite.Activite;
 import Services.ActiviteService;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
+import java.time.format.DateTimeFormatter;
 
 public class AddActiviteController {
 
@@ -31,6 +36,20 @@ public class AddActiviteController {
     @FXML private CheckBox publicToggle;
     @FXML private ImageView imagePreview;
 
+    private BorderPane mainBorderPane;
+    private Node previousView;
+
+
+    public void setMainBorderPane(BorderPane mainBorderPane) {
+        this.mainBorderPane = mainBorderPane;
+    }
+
+    public void setPreviousView(Node previousView) {
+        this.previousView = previousView;
+    }
+
+
+    private Activite currentActivite = null;
     private String selectedImageName = "default.jpg";
     private ActiviteService service = new ActiviteService();
 
@@ -48,7 +67,92 @@ public class AddActiviteController {
         }
     }
 
-    // Méthode pour choisir une image
+
+
+    @FXML
+    private void handleReturn() {
+        if (mainBorderPane != null && previousView != null) {
+            // Restaure la vue précédente (la liste des activités)
+            mainBorderPane.setCenter(previousView);
+        } else {
+            System.err.println("Impossible de revenir en arrière : références manquantes.");
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Erreur de navigation", ButtonType.OK);
+            alert.show();
+        }
+    }
+
+    // Helper to show alerts (add this method if not already present)
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR, message, ButtonType.OK);
+        alert.setTitle(title);
+        alert.show();
+    }
+
+
+
+    public void setActivite(Activite activite) {
+        this.currentActivite = activite; // store for later use
+
+        // Text fields
+        titreField.setText(activite.getTitre());
+        prixField.setText(String.valueOf(activite.getPrix()));
+        dureeField.setText(String.valueOf(activite.getDureParJour()));
+        placesField.setText(String.valueOf(activite.getPlacesDisponibles())); // uncommented
+
+        // Descriptions
+        String description = activite.getDescription();
+        longDescField.setText(description != null ? description : "");
+        // If you have a short description field in Activite, use it here
+        shortDescField.setText(""); // adjust if needed
+
+        // Location
+        if (activite.getLieu() != null) {
+            lieuCombo.setValue(activite.getLieu());
+        }
+
+        // Category – if your Activite has a category field
+        // categoryCombo.setValue(activite.getCategorie());
+
+        // Date and time
+        if (activite.getDateActivite() != null) {
+            datePicker.setValue(activite.getDateActivite().toLocalDateTime().toLocalDate());
+
+            String heure = activite.getDateActivite().toLocalDateTime()
+                    .format(DateTimeFormatter.ofPattern("HH:mm"));
+            if (heureCombo.getItems().contains(heure)) {
+                heureCombo.setValue(heure);
+            }
+        }
+
+        // Image
+        selectedImageName = activite.getImage();
+        loadImage(selectedImageName);
+    }
+
+    private void loadImage(String imageName) {
+        if (imageName != null && !imageName.isEmpty()) {
+            InputStream is = getClass().getResourceAsStream("/images/" + imageName);
+            if (is != null) {
+                imagePreview.setImage(new Image(is));
+            } else {
+                loadDefaultImage();  // fallback if file not found
+            }
+        } else {
+            loadDefaultImage();
+        }
+    }
+
+
+    private void loadDefaultImage() {
+        InputStream defaultIs = getClass().getResourceAsStream("/images/default.jpg");
+        if (defaultIs != null) {
+            imagePreview.setImage(new Image(defaultIs));
+        } else {
+            imagePreview.setImage(null);  // no image at all
+            System.err.println("Default image not found at /images/default.jpg");
+        }
+    }
+
     @FXML
     private void handleSelectImage() {
         FileChooser fileChooser = new FileChooser();
@@ -61,13 +165,10 @@ public class AddActiviteController {
 
         if (selectedFile != null) {
             try {
-                // Dossier de destination dans vos ressources
                 File destDir = new File("src/main/resources/images/");
                 if (!destDir.exists()) destDir.mkdirs();
 
                 File destFile = new File(destDir, selectedFile.getName());
-
-                // Copie physique du fichier
                 Files.copy(selectedFile.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
                 selectedImageName = selectedFile.getName();
@@ -80,39 +181,73 @@ public class AddActiviteController {
         }
     }
 
-    // Méthode appelée par le bouton "Ajouter Activité"
     @FXML
     private void handleAddActivite() {
         try {
-            // 1. Vérification basique
+            // Validation
             if (titreField.getText().isEmpty() || prixField.getText().isEmpty() || datePicker.getValue() == null) {
-                System.out.println("Veuillez remplir les champs obligatoires !");
+                showAlert("Veuillez remplir les champs obligatoires !");
                 return;
             }
 
-            // 2. Création de l'objet Activite
-            // On convertit le LocalDate du DatePicker en Timestamp pour la DB
+            // Gather data from form
+            String titre = titreField.getText();
+            String description = longDescField.getText();
+            String lieu = (lieuCombo.getValue() != null) ? lieuCombo.getValue() : "Inconnu";
+
             Timestamp timestamp = Timestamp.valueOf(datePicker.getValue().atStartOfDay());
 
+            int duree = Integer.parseInt(dureeField.getText());
+            double prix = Double.parseDouble(prixField.getText());
+
+            int places = 0;
+            if (placesField.getText() != null && !placesField.getText().isEmpty()) {
+                places = Integer.parseInt(placesField.getText());
+            }
+
+            // Default values (idGuide, statut)
+            int idGuide = 1; // replace with logged-in guide ID
+            String statut = "Actif";
+            String image = (selectedImageName != null) ? selectedImageName : "default.jpg";
+
+            // Create activity object
             Activite a = new Activite(
-                    titreField.getText(),
-                    longDescField.getText(),
-                    lieuCombo.getValue() != null ? lieuCombo.getValue() : "Inconnu",
+                    titre,
+                    description,
+                    lieu,
                     timestamp,
-                    Integer.parseInt(dureeField.getText()),
-                    Double.parseDouble(prixField.getText()),
-                    1, // ID du Guide (à dynamiser plus tard avec l'utilisateur connecté)
-                    selectedImageName
+                    duree,
+                    prix,
+                    idGuide,
+                    image,
+                    statut,
+                    places
             );
 
-            // 3. Insertion en base de données
-            service.insertOne(a);
-            System.out.println("✅ Activité '" + a.getTitre() + "' ajoutée avec succès !");
+            if (currentActivite != null) {
+                // --- EDIT MODE: update existing activity ---
+                a.setIdActivite(currentActivite.getIdActivite()); // preserve the ID
+                service.updateOne(a); // assume updateOne exists
+                System.out.println("✅ Activité '" + a.getTitre() + "' mise à jour avec succès !");
+            } else {
+                // --- ADD MODE: insert new activity ---
+                service.insertOne(a);
+                System.out.println("✅ Activité '" + a.getTitre() + "' ajoutée avec succès !");
+                handleReturn();
+            }
+
+            // Optionally close the form or navigate back
+            // (you may want to return to the dashboard)
 
         } catch (NumberFormatException e) {
-            System.err.println("Erreur de format : vérifiez le prix et la durée.");
+            showAlert("Erreur de format : vérifiez que le prix, la durée et le nombre de places sont des nombres.");
         } catch (SQLException e) {
-            System.err.println("Erreur SQL : " + e.getMessage());
+            showAlert("Erreur SQL : " + e.getMessage());
         }
+    }
+
+    private void showAlert(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR, message, ButtonType.OK);
+        alert.show();
     }
 }

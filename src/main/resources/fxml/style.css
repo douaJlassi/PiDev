@@ -1,10 +1,10 @@
-/* ========== GLOBAL ========== */
+/* ==================== GLOBAL STYLES ==================== */
 .root {
     -fx-font-family: "Segoe UI", "Arial", sans-serif;
     -fx-background-color: #f8fafc;
 }
 
-/* ========== SIDEBAR ========== */
+/* ==================== SIDEBAR (Guide Version) ==================== */
 .sidebar {
     -fx-background-color: #1e293b;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 0);
@@ -47,7 +47,7 @@
 }
 
 .nav-button-active {
-    -fx-background-color: #2d68ff;
+    -fx-background-color: #2d68ff; /* Primary blue */
     -fx-text-fill: white;
 }
 
@@ -71,10 +71,143 @@
     -fx-text-fill: white;
 }
 
-/* ========== CONTENU PRINCIPAL ========== */
-.content-scroll {
+/* ==================== SIDEBAR (Client Modern Version) ==================== */
+.sidebar-modern {
+    -fx-background-color: linear-gradient(to bottom, #1e2b3a, #14222e);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 20, 0, 0, 4);
+}
+
+.sidebar-logo {
+    -fx-effect: dropshadow(gaussian, rgba(255,255,255,0.2), 10, 0, 0, 2);
+}
+
+.nav-section-label {
+    -fx-text-fill: #8fa3b8;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-padding: 20 0 5 0;
+    -fx-letter-spacing: 0.5px;
+}
+
+.nav-button-modern {
+    -fx-background-color: transparent;
+    -fx-text-fill: #cbd5e0;
+    -fx-padding: 12 15;
+    -fx-alignment: CENTER_LEFT;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+    -fx-background-radius: 12;
+    -fx-graphic-text-gap: 12;
+}
+
+.nav-button-modern:hover {
+    -fx-background-color: rgba(255,255,255,0.1);
+    -fx-text-fill: white;
+}
+
+.nav-button-active-modern {
+    -fx-background-color: rgba(74,144,226,0.3);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-border-width: 0 0 0 3;
+    -fx-border-color: #4a90e2;
+    -fx-background-insets: 0;
+}
+
+.logout-button-modern {
+    -fx-background-color: transparent;
+    -fx-border-color: #c0392b;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 12;
+    -fx-text-fill: #ff6b6b;
+    -fx-padding: 12 15;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-background-radius: 12;
+}
+
+.logout-button-modern:hover {
+    -fx-background-color: #c0392b;
+    -fx-text-fill: white;
+    -fx-border-color: #c0392b;
+}
+
+/* ==================== TOP NAVIGATION (Guide Dark) ==================== */
+.top-nav-bar-dark {
+    -fx-background-color: #1E293B;
+    -fx-border-color: #334155;
+    -fx-border-width: 0 0 1 0;
+}
+
+.welcome-title-light {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-fill: white;
+}
+
+.welcome-subtitle-light {
+    -fx-font-size: 13px;
+    -fx-text-fill: #94A3B8;
+}
+
+.user-name-main-light {
+    -fx-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+}
+
+/* ==================== TOP NAVIGATION (Client Modern Light) ==================== */
+.top-nav-modern {
+    -fx-background-color: white;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 2);
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: #e9ecf0;
+}
+
+.welcome-title-modern {
+    -fx-fill: #1e2b3a;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+.welcome-subtitle-modern {
+    -fx-text-fill: #6b7a8d;
+    -fx-font-size: 14px;
+}
+
+.user-name-modern {
+    -fx-fill: #1e2b3a;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.user-badge-modern {
+    -fx-text-fill: #4a90e2;
+    -fx-background-color: #e9f0fa;
+    -fx-padding: 4 12;
+    -fx-border-radius: 30;
+    -fx-background-radius: 30;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.profile-avatar {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 8, 0, 0, 2);
+}
+
+/* ==================== CONTENT AREA & SCROLL ==================== */
+.content-area, .right-panel {
     -fx-background-color: #f8fafc;
+}
+
+.content-scroll, .content-scroll-modern {
+    -fx-background-color: transparent;
     -fx-border-width: 0;
+}
+
+.content-scroll-modern > .viewport {
+    -fx-background-color: transparent;
 }
 
 .welcome-title {
@@ -86,6 +219,32 @@
 .welcome-subtitle {
     -fx-text-fill: #64748b;
     -fx-font-size: 16px;
+}
+
+.section-title {
+    -fx-fill: #0f172a;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+.section-title-modern {
+    -fx-fill: #1e2b3a;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-padding: 10 0 0 0;
+}
+
+.add-button {
+    -fx-background-color: #10B981; /* Emerald */
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 10 20;
+    -fx-background-radius: 8;
+    -fx-effect: dropshadow(gaussian, rgba(16,185,129,0.3), 10, 0, 0, 4);
+}
+
+.add-button:hover {
+    -fx-background-color: #0e9f6e;
 }
 
 .btn-primary {
@@ -103,13 +262,85 @@
     -fx-background-color: #1a4fcc;
 }
 
-.section-title {
-    -fx-fill: #0f172a;
-    -fx-font-size: 22px;
+/* ==================== FILTERS ==================== */
+.filter-label {
+    -fx-text-fill: #334155;
+    -fx-font-size: 14px;
     -fx-font-weight: bold;
 }
 
-/* ========== CARTES ========== */
+.filter-chip {
+    -fx-background-color: #e2e8f0;
+    -fx-text-fill: #1e293b;
+    -fx-font-size: 13px;
+    -fx-padding: 8 16;
+    -fx-background-radius: 30;
+    -fx-cursor: hand;
+}
+
+.filter-chip:hover {
+    -fx-background-color: #cbd5e1;
+}
+
+.filter-label-modern {
+    -fx-text-fill: #4a5b6e;
+    -fx-font-size: 15px;
+    -fx-font-weight: 600;
+}
+
+.filter-chip-modern {
+    -fx-background-color: white;
+    -fx-border-color: #d9e2ec;
+    -fx-border-radius: 30;
+    -fx-background-radius: 30;
+    -fx-text-fill: #3a4a5c;
+    -fx-padding: 8 20;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.02), 4, 0, 0, 1);
+}
+
+.filter-chip-modern:hover {
+    -fx-background-color: #f0f4fa;
+    -fx-border-color: #b0c4de;
+}
+
+.filter-chip-active {
+    -fx-background-color: #4a90e2;
+    -fx-text-fill: white;
+    -fx-border-color: #4a90e2;
+}
+
+.filter-chip-active:hover {
+    -fx-background-color: #3a7bc8;
+}
+
+.search-field {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-padding: 10;
+    -fx-border-color: #E2E8F0;
+    -fx-border-radius: 10;
+}
+
+.search-field:focused {
+    -fx-border-color: #2d68ff;
+}
+
+.filter-button {
+    -fx-background-color: white;
+    -fx-text-fill: #475569;
+    -fx-border-color: #E2E8F0;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 8 15;
+}
+
+.filter-button:hover {
+    -fx-background-color: #f1f5f9;
+}
+
+/* ==================== CARDS (General) ==================== */
 .card {
     -fx-background-color: white;
     -fx-background-radius: 20;
@@ -120,8 +351,10 @@
 }
 
 .card-image {
-    -fx-background-color: #1e293b; /* Placeholder, remplacer par une image */
+    -fx-background-color: #1e293b; /* fallback color */
     -fx-background-radius: 20 20 0 0;
+    -fx-background-size: cover;
+    -fx-background-position: center;
 }
 
 .badge-category {
@@ -173,7 +406,6 @@
     -fx-padding: 10;
     -fx-background-radius: 10;
     -fx-cursor: hand;
-    -fx-margin: 10 0 0 0;
 }
 
 .btn-reserve:hover {
@@ -197,27 +429,140 @@
     -fx-text-fill: white;
 }
 
-/* ========== FILTRES ========== */
-.filter-label {
-    -fx-text-fill: #334155;
+/* ==================== CARDS (Client Modern) ==================== */
+.card-modern {
+    -fx-background-color: white;
+    -fx-background-radius: 24;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 15, 0, 0, 5);
+    -fx-padding: 0 0 20 0;
+    -fx-border-width: 0;
+    -fx-cursor: hand;
+}
+
+.card-modern:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 25, 0, 0, 8);
+    -fx-translate-y: -3;
+}
+
+.card-image-modern {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #667eea 0%, #764ba2 100%);
+    -fx-background-radius: 24 24 0 0;
+    -fx-padding: 10;
+    -fx-alignment: TOP_LEFT;
+    -fx-background-size: cover;
+    -fx-background-position: center;
+}
+
+.badge-category-modern {
+    -fx-background-color: rgba(255,255,255,0.9);
+    -fx-background-radius: 30;
+    -fx-padding: 5 15;
+    -fx-text-fill: #4a90e2;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 1);
+}
+
+.card-content-modern {
+    -fx-padding: 20 20 10 20;
+    -fx-spacing: 8;
+}
+
+.card-title-modern {
+    -fx-fill: #1e2b3a;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.card-meta-modern {
+    -fx-text-fill: #6b7a8d;
+    -fx-font-size: 14px;
+    -fx-graphic-text-gap: 5;
+}
+
+.card-rating-modern {
+    -fx-text-fill: #f39c12;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
 }
 
-.filter-chip {
-    -fx-background-color: #e2e8f0;
-    -fx-text-fill: #1e293b;
+.btn-details-modern {
+    -fx-background-color: transparent;
+    -fx-border-color: #4a90e2;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 30;
+    -fx-text-fill: #4a90e2;
+    -fx-padding: 6 18;
     -fx-font-size: 13px;
-    -fx-padding: 8 16;
-    -fx-background-radius: 30;
+    -fx-font-weight: bold;
     -fx-cursor: hand;
 }
 
-.filter-chip:hover {
-    -fx-background-color: #cbd5e1;
+.btn-details-modern:hover {
+    -fx-background-color: #4a90e2;
+    -fx-text-fill: white;
 }
 
-/* ========== SCROLLBAR ========== */
+/* ==================== GUIDE ACTIVITIES (ListView as Cards) ==================== */
+.activity-card-list {
+    -fx-background-color: transparent;
+    -fx-padding: 5;
+}
+
+.activity-card-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 10 0;
+}
+
+.activity-card-list .list-cell:filled {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 5);
+    -fx-border-color: #F1F5F9;
+    -fx-border-width: 1;
+    -fx-border-radius: 12;
+}
+
+.activity-card-list .list-cell:filled:hover {
+    -fx-effect: dropshadow(gaussian, rgba(59,130,246,0.15), 15, 0, 0, 8);
+    -fx-border-color: #CBD5E1;
+}
+
+.activity-card-list .list-cell:filled:selected {
+    -fx-background-color: #F0F7FF;
+    -fx-border-color: #3B82F6;
+    -fx-border-width: 1.5;
+}
+
+/* Override default selection text color */
+.activity-card-list .list-cell:selected .label,
+.activity-card-list .list-cell:selected .text {
+    -fx-text-fill: black;
+}
+
+/* ==================== PAGINATION ==================== */
+.pager-btn, .pagination-button {
+    -fx-background-color: white;
+    -fx-text-fill: #475569;
+    -fx-border-color: #E2E8F0;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 5 15;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.pager-btn:hover, .pagination-button:hover {
+    -fx-background-color: #f1f5f9;
+}
+
+.pagination-info, .pagination-label {
+    -fx-text-fill: #94A3B8;
+    -fx-font-size: 13px;
+    -fx-padding: 6 0;
+}
+
+/* ==================== SCROLLBAR ==================== */
 .scroll-bar:vertical {
     -fx-background-color: transparent;
 }
@@ -229,4 +574,494 @@
 
 .scroll-bar:vertical .track {
     -fx-background-color: #e2e8f0;
+}
+
+/* ==================== ACTIVITY STATUS (Guide) ==================== */
+.status-actif {
+    -fx-background-color: #22c55e;
+    -fx-text-fill: white;
+    -fx-padding: 4 12;
+    -fx-background-radius: 20;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.status-annulée {
+    -fx-background-color: #ef4444;
+    -fx-text-fill: white;
+    -fx-padding: 4 12;
+    -fx-background-radius: 20;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.btn-modifier {
+    -fx-background-color: #3b82f6;
+    -fx-text-fill: white;
+    -fx-padding: 8 16;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-font-size: 13px;
+}
+
+.btn-voir-resa {
+    -fx-background-color: #8b5cf6;
+    -fx-text-fill: white;
+    -fx-padding: 8 16;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-font-size: 13px;
+}
+
+.btn-supprimer {
+    -fx-background-color: #ef4444;
+    -fx-text-fill: white;
+    -fx-padding: 8 16;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-font-size: 13px;
+}
+
+/* ==================== UTILITIES ==================== */
+.cards-grid {
+    -fx-background-color: transparent;
+}
+
+.badge-category {
+    -fx-background-color: #667eea;
+    -fx-text-fill: white;
+    -fx-padding: 5 12;
+    -fx-background-radius: 15;
+    -fx-font-weight: bold;
+}
+
+.badge-annule {
+    -fx-background-color: #e74c3c; /* rouge */
+}
+/* ==================== MISSING STYLES ==================== */
+
+/* Main container – optional, already covered by .root */
+.main-container {
+    -fx-background-color: #f8fafc;
+}
+
+/* Profile section container – aligns the avatar and text */
+.profile-section {
+    -fx-spacing: 10;
+    -fx-alignment: CENTER;
+}
+
+/* Sidebar menu section labels */
+.menu-label {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-padding: 20 0 5 0;
+}
+
+/* Main content area background */
+.content-area {
+    -fx-background-color: #f8fafc;
+}
+
+/* Search bar container – adds a little spacing */
+.search-bar-container {
+    -fx-padding: 5 0 10 0;
+}
+
+/* Pagination container – optional top border for separation */
+.pagination-container {
+    -fx-padding: 20 0 0 0;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1 0 0 0;
+}
+
+/* Make each ListView cell look like a modern card */
+.activity-card-list .list-cell:filled {
+    -fx-background-color: white;
+    -fx-background-radius: 24;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 15, 0, 0, 5);
+    -fx-border-width: 0;
+    -fx-padding: 0 0 20 0;          /* matches .card-modern padding */
+    -fx-cursor: hand;
+}
+
+.activity-card-list .list-cell:filled:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 25, 0, 0, 8);
+    -fx-translate-y: -3;             /* subtle lift on hover */
+}
+
+/* Remove default selection highlighting or adapt it */
+.activity-card-list .list-cell:filled:selected {
+    -fx-background-color: #F0F7FF;   /* light blue background */
+    -fx-border-color: #4a90e2;
+    -fx-border-width: 2;
+    -fx-border-radius: 24;
+}
+
+/* Keep text black even when selected (override JavaFX default) */
+.activity-card-list .list-cell:selected .label,
+.activity-card-list .list-cell:selected .text {
+    -fx-text-fill: black;
+}
+
+/* ========== CARTES MODERNES (pour les activités du guide) ========== */
+.card-modern {
+    -fx-background-color: white;
+    -fx-background-radius: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 5);
+    -fx-border-color: #f0f0f0;
+    -fx-border-radius: 20;
+    -fx-border-width: 1;
+    -fx-transition: all 0.2s ease;
+}
+
+.card-modern:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 20, 0, 0, 8);
+    -fx-translate-y: -2;
+}
+
+.card-image-modern {
+    -fx-background-color: #f5f5f5;
+    -fx-background-radius: 20 20 0 0;
+    -fx-border-radius: 20 20 0 0;
+}
+
+.card-image-modern ImageView {
+    -fx-background-radius: 20 20 0 0;
+    -fx-border-radius: 20 20 0 0;
+}
+
+.badge-category-modern {
+    -fx-background-color: #4a90e2;
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-padding: 5 12 5 12;
+    -fx-background-radius: 20;
+}
+
+.card-content-modern {
+    -fx-spacing: 8;
+}
+
+.card-title-modern {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-fill: #2c3e50;
+}
+
+.card-meta-modern {
+    -fx-text-fill: #7f8c8d;
+    -fx-font-size: 13px;
+}
+
+.card-price-modern {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-fill: #2c6fb0;
+}
+
+.card-rating-modern {
+    -fx-background-color: #f1c40f20;
+    -fx-text-fill: #e67e22;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 3 8 3 8;
+    -fx-background-radius: 12;
+}
+
+.card-duration-modern {
+    -fx-text-fill: #95a5a6;
+    -fx-font-size: 13px;
+}
+
+/* Boutons d'action */
+.btn-modifier-modern, .btn-reservations-modern, .btn-supprimer-modern {
+    -fx-background-radius: 8;
+    -fx-padding: 8 16 8 16;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 5, 0, 0, 2);
+}
+
+.btn-modifier-modern {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+}
+.btn-modifier-modern:hover {
+    -fx-background-color: #2980b9;
+}
+
+.btn-reservations-modern {
+    -fx-background-color: #2ecc71;
+    -fx-text-fill: white;
+}
+.btn-reservations-modern:hover {
+    -fx-background-color: #27ae60;
+}
+
+.btn-supprimer-modern {
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: white;
+}
+.btn-supprimer-modern:hover {
+    -fx-background-color: #c0392b;
+}
+
+/* Ajustement pour la ListView (cellules transparentes) */
+.activity-card-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 10 5 10 5;
+}
+
+.activity-card-list .list-cell:filled {
+    -fx-background-color: transparent;
+}
+
+.activity-card {
+    -fx-background-color: white;
+    -fx-background-radius: 15;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 4);
+    -fx-border-color: #f0f0f0;
+    -fx-border-radius: 15;
+}
+
+.activity-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 15, 0, 0, 6);
+    -fx-border-color: #d0d0d0;
+}
+
+.card-image-rectangle {
+    -fx-fill: #e0e0e0;
+}
+
+.activity-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-fill: #2c3e50;
+}
+
+.activity-guide {
+    -fx-font-size: 13px;
+    -fx-text-fill: #7f8c8d;
+}
+
+.activity-badge {
+    -fx-background-color: #f39c12;
+    -fx-background-radius: 12;
+    -fx-padding: 2 10 2 10;
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.activity-meta {
+    -fx-font-size: 12px;
+    -fx-text-fill: #95a5a6;
+}
+
+.activity-price {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-fill: #27ae60;
+}
+
+.activity-price-unit {
+    -fx-font-size: 12px;
+    -fx-fill: #7f8c8d;
+}
+
+.card-button {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 20;
+    -fx-padding: 8 20 8 20;
+    -fx-cursor: hand;
+}
+
+/* ===== Design alternatif pour les cartes d'activités ===== */
+
+.card-modern {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.08), 12, 0, 0, 4);
+    -fx-border-color: #f0f2f5;
+    -fx-border-width: 1;
+    -fx-border-radius: 20;
+    -fx-padding: 0 0 15 0;
+    -fx-transition: all 0.2s;
+}
+
+.card-modern:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0, 100, 200, 0.2), 20, 0, 0, 8);
+    -fx-border-color: #c0d0e0;
+    -fx-translate-y: -2;
+}
+
+.card-image-modern {
+    -fx-background-radius: 20 20 0 0;
+    -fx-background-color: #eef2f6; /* Couleur de fond si l'image ne charge pas */
+}
+
+/* Badge de catégorie (statut) */
+.badge-category-modern {
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-background-radius: 30;
+    -fx-padding: 6 16;
+    -fx-text-fill: #2c3e50;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 1);
+    -fx-border-color: rgba(255,255,255,0.5);
+    -fx-border-width: 1;
+    -fx-border-radius: 30;
+}
+
+/* Badges de statut spécifiques */
+.status-actif {
+    -fx-background-color: #d4edda;
+    -fx-text-fill: #155724;
+    -fx-border-color: #c3e6cb;
+}
+
+.status-annulée {
+    -fx-background-color: #f8d7da;
+    -fx-text-fill: #721c24;
+    -fx-border-color: #f5c6cb;
+}
+
+/* Contenu de la carte */
+.card-content-modern {
+    -fx-padding: 18 18 12 18;
+    -fx-spacing: 8;
+}
+
+.card-title-modern {
+    -fx-fill: #1e293b;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.card-meta-modern {
+    -fx-text-fill: #5f6b7a;
+    -fx-font-size: 13px;
+    -fx-graphic-text-gap: 5;
+}
+
+.card-price {
+    -fx-fill: #0d6efd;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+.card-duration {
+    -fx-text-fill: #6c757d;
+    -fx-font-size: 13px;
+}
+
+/* Boutons d'action (gardés similaires mais avec des couleurs cohérentes) */
+.btn-modifier {
+    -fx-background-color: #0d6efd;
+    -fx-text-fill: white;
+    -fx-padding: 6 14;
+    -fx-background-radius: 30;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.btn-modifier:hover {
+    -fx-background-color: #0b5ed7;
+}
+
+.btn-voir-resa {
+    -fx-background-color: #6f42c1;
+    -fx-text-fill: white;
+    -fx-padding: 6 14;
+    -fx-background-radius: 30;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.btn-voir-resa:hover {
+    -fx-background-color: #5e3aa3;
+}
+
+.btn-supprimer {
+    -fx-background-color: #dc3545;
+    -fx-text-fill: white;
+    -fx-padding: 6 14;
+    -fx-background-radius: 30;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.btn-supprimer:hover {
+    -fx-background-color: #c82333;
+}
+.card-button:hover {
+    -fx-background-color: #2980b9;
+}
+/* alert.css */
+.dialog-pane {
+    -fx-background-color: white;
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 1;
+}
+
+.dialog-pane .header-panel {
+    -fx-background-color: #f8f9fa;
+    -fx-background-radius: 15 15 0 0;
+    -fx-padding: 15 20;
+}
+
+.dialog-pane .header-panel .label {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+}
+
+.dialog-pane .content {
+    -fx-padding: 20;
+    -fx-font-size: 14px;
+    -fx-text-fill: #34495e;
+}
+
+.dialog-pane .button-bar {
+    -fx-padding: 10 20 20 20;
+    -fx-alignment: CENTER_RIGHT;
+}
+
+.dialog-pane .button {
+    -fx-background-radius: 20;
+    -fx-padding: 8 25;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.dialog-pane .button:default {
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: white;
+}
+
+.dialog-pane .button:default:hover {
+    -fx-background-color: #c0392b;
+}
+
+.dialog-pane .button:cancel {
+    -fx-background-color: #ecf0f1;
+    -fx-text-fill: #2c3e50;
+}
+
+.dialog-pane .button:cancel:hover {
+    -fx-background-color: #bdc3c7;
 }

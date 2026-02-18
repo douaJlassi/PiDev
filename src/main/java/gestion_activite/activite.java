@@ -7,18 +7,23 @@ public class Activite {
     private String titre;
     private String description;
     private String lieu;
-    private Timestamp dateActivite; // Note: Ensure you use java.sql.Timestamp or java.util.Date
+    private Timestamp dateActivite;
     private int dureParJour;
     private double prix;
     private int idGuide;
-    private String image; // The new field
+    private String image;
+
+    private String statut; // "Actif" ou "Annulée"
+    private int placesDisponibles;
 
     // ===================== CONSTRUCTORS =====================
 
     public Activite() {}
 
-    // 1. COMPLETE CONSTRUCTOR (Matches the Service Mapper)
-    public Activite(int idActivite, String titre, String description, String lieu, Timestamp dateActivite, int dureParJour, double prix, int idGuide, String image) {
+    // ✅ Constructeur complet
+    public Activite(int idActivite, String titre, String description, String lieu,
+                    Timestamp dateActivite, int dureParJour, double prix,
+                    int idGuide, String image, String statut, int placesDisponibles) {
         this.idActivite = idActivite;
         this.titre = titre;
         this.description = description;
@@ -28,10 +33,14 @@ public class Activite {
         this.prix = prix;
         this.idGuide = idGuide;
         this.image = image;
+        this.statut = statut;
+        this.placesDisponibles = placesDisponibles;
     }
 
-    // 2. CONSTRUCTOR WITHOUT ID (Useful for Insertions)
-    public Activite(String titre, String description, String lieu, Timestamp dateActivite, int dureParJour, double prix, int idGuide, String image) {
+    // ✅ Constructeur sans ID (insert)
+    public Activite(String titre, String description, String lieu,
+                    Timestamp dateActivite, int dureParJour, double prix,
+                    int idGuide, String image, String statut, int placesDisponibles) {
         this.titre = titre;
         this.description = description;
         this.lieu = lieu;
@@ -40,6 +49,8 @@ public class Activite {
         this.prix = prix;
         this.idGuide = idGuide;
         this.image = image;
+        this.statut = statut;
+        this.placesDisponibles = placesDisponibles;
     }
 
     // ===================== GETTERS & SETTERS =====================
@@ -71,6 +82,13 @@ public class Activite {
     public String getImage() { return image; }
     public void setImage(String image) { this.image = image; }
 
+    public String getStatut() { return statut; }
+    public void setStatut(String statut) { this.statut = statut; }
+
+    public int getPlacesDisponibles() { return placesDisponibles; }
+    public void setPlacesDisponibles(int placesDisponibles) { this.placesDisponibles = placesDisponibles; }
+
+
     // ===================== TOSTRING =====================
     @Override
     public String toString() {
@@ -78,7 +96,8 @@ public class Activite {
                 "idActivite=" + idActivite +
                 ", titre='" + titre + '\'' +
                 ", prix=" + prix +
-                ", image='" + image + '\'' +
+                ", statut='" + statut + '\'' +
+                ", placesDisponibles=" + placesDisponibles +
                 '}';
     }
 }

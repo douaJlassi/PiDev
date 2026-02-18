@@ -150,4 +150,10 @@ public class GuideService implements CRUD<Guide> {
             throw new SQLException("Guide avec l'ID " + idUser + " non trouvé");
         }
     }
+
+
+
+
+
+
 }

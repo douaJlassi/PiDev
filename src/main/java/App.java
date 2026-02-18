@@ -9,7 +9,7 @@ public class App extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         // 1. Load the FXML
-        Parent root = FXMLLoader.load(getClass().getResource("/fxml/AddActivite.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/fxml/Dashboard.fxml"));
 
         // 2. Create the Scene ONCE
         Scene scene = new Scene(root);

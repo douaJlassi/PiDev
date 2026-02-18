@@ -45,6 +45,8 @@
                     <mainClass>App</mainClass>
                 </configuration>
             </plugin>
+
+
         </plugins>
     </build>
 </project>

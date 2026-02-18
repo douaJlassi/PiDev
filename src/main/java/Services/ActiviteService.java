@@ -17,29 +17,21 @@ public class ActiviteService implements CRUD<Activite> {
 
     // ===================== INSERT =====================
     @Override
-    public void insertOne(Activite activite) throws SQLException {
-        if (activite.getTitre() == null || activite.getTitre().isEmpty()) {
-            throw new IllegalArgumentException("Le titre de l'activité est obligatoire");
-        }
-        if (activite.getPrix() < 0) {
-            throw new IllegalArgumentException("Le prix ne peut pas être négatif");
-        }
-        if (activite.getDureParJour() <= 0) {
-            throw new IllegalArgumentException("La durée par jour doit être positive");
-        }
-
-        String req = "INSERT INTO `activite`(`titre`, `description`, `lieu`, `dateActivite`, `dureParJour`, `prix`, `idGuide`, `image`) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    public void insertOne(Activite a) throws SQLException {
+        String req = "INSERT INTO `activite` (`titre`, `description`, `lieu`, `dateActivite`, `dureParJour`, `prix`, `idGuide`, `image`, `statut`, `placesDisponibles`) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = cnx.prepareStatement(req)) {
-            ps.setString(1, activite.getTitre());
-            ps.setString(2, activite.getDescription());
-            ps.setString(3, activite.getLieu());
-            ps.setTimestamp(4, new Timestamp(activite.getDateActivite().getTime()));
-            ps.setInt(5, activite.getDureParJour());
-            ps.setDouble(6, activite.getPrix());
-            ps.setInt(7, activite.getIdGuide());
-            ps.setString(8, activite.getImage());
+            ps.setString(1, a.getTitre());
+            ps.setString(2, a.getDescription());
+            ps.setString(3, a.getLieu());
+            ps.setTimestamp(4, a.getDateActivite());
+            ps.setInt(5, a.getDureParJour());
+            ps.setDouble(6, a.getPrix());
+            ps.setInt(7, a.getIdGuide());
+            ps.setString(8, a.getImage());
+            ps.setString(9, a.getStatut());
+            ps.setInt(10, a.getPlacesDisponibles());
 
             ps.executeUpdate();
         }
@@ -48,7 +40,7 @@ public class ActiviteService implements CRUD<Activite> {
     // ===================== UPDATE =====================
     @Override
     public void updateOne(Activite activite) throws SQLException {
-        String req = "UPDATE `activite` SET `titre`=?, `description`=?, `lieu`=?, `dateActivite`=?, `dureParJour`=?, `prix`=?, `idGuide`=?, `image`=? " +
+        String req = "UPDATE `activite` SET `titre`=?, `description`=?, `lieu`=?, `dateActivite`=?, `dureParJour`=?, `prix`=?, `idGuide`=?, `image`=?, `statut`=?, `placesDisponibles`=? " +
                 "WHERE `idActivite`=?";
 
         try (PreparedStatement ps = cnx.prepareStatement(req)) {
@@ -60,7 +52,9 @@ public class ActiviteService implements CRUD<Activite> {
             ps.setDouble(6, activite.getPrix());
             ps.setInt(7, activite.getIdGuide());
             ps.setString(8, activite.getImage());
-            ps.setInt(9, activite.getIdActivite());
+            ps.setString(9, activite.getStatut());
+            ps.setInt(10, activite.getPlacesDisponibles());
+            ps.setInt(11, activite.getIdActivite());
 
             ps.executeUpdate();
         }
@@ -163,7 +157,9 @@ public class ActiviteService implements CRUD<Activite> {
                 rs.getInt("dureParJour"),
                 rs.getDouble("prix"),
                 rs.getInt("idGuide"),
-                rs.getString("image") // Mapping the new image column
+                rs.getString("image"),
+                rs.getString("statut"),           // Nouveau champ
+                rs.getInt("placesDisponibles")    // Nouveau champ
         );
     }
 }
