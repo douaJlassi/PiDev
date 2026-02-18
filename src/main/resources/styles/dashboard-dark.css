@@ -389,6 +389,12 @@
 
 /* ===== CREATE POST DIALOG — dark overrides ===== */
 
+/* ===== CREATE/EDIT PANEL — dark ===== */
+.create-edit-panel {
+    -fx-background-color: #1a1d27;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 12, 0, -4, 0);
+}
+
 /* ===== CREATE POST DIALOG — dark ===== */
 .cpd-root,
 .cpd-user-strip {

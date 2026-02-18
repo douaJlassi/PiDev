@@ -12,21 +12,13 @@
             styleClass="dashboard-root"
             stylesheets="@../styles/dashboard.css">
 
-    <!-- ===== LEFT SIDEBAR ===== -->
+    <!-- ═══ LEFT SIDEBAR ═══ -->
     <left>
         <VBox styleClass="sidebar" prefWidth="220" minWidth="220" maxWidth="220" spacing="0">
 
-            <!-- Logo area -->
-            <VBox styleClass="sidebar-logo-area" alignment="CENTER">
-                <padding><Insets top="20" right="16" bottom="20" left="16"/></padding>
-                <ImageView fx:id="logoImage" fitHeight="50" preserveRatio="true">
-                    <image><Image url="@../images/rehletna-logo.png"/></image>
-                </ImageView>
-            </VBox>
-
-            <!-- User info -->
-            <VBox styleClass="sidebar-user-area" alignment="CENTER" spacing="6">
-                <padding><Insets top="16" right="16" bottom="20" left="16"/></padding>
+            <!-- User info (logo removed, user moved to top) -->
+            <VBox styleClass="sidebar-user-area" alignment="CENTER" spacing="8">
+                <padding><Insets top="24" right="16" bottom="20" left="16"/></padding>
                 <StackPane>
                     <Circle styleClass="sidebar-avatar" radius="32"/>
                     <Label text="W" styleClass="sidebar-avatar-letter"/>
@@ -37,12 +29,14 @@
 
             <Separator styleClass="sidebar-separator"/>
 
-            <!-- Navigation items -->
+            <!-- Navigation items — Posts is now active by default -->
             <VBox styleClass="sidebar-nav" spacing="4">
                 <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
 
-                <Button text="Dashboard" styleClass="sidebar-nav-btn, sidebar-nav-active" maxWidth="Infinity"/>
-                <Button text="Posts" styleClass="sidebar-nav-btn" maxWidth="Infinity" onAction="#showCreatePostDialog"/>
+                <Button text="Dashboard" styleClass="sidebar-nav-btn" maxWidth="Infinity"/>
+                <Button fx:id="postsNavBtn" text="Posts"
+                        styleClass="sidebar-nav-btn, sidebar-nav-active"
+                        maxWidth="Infinity"/>
                 <Button text="My Profile" styleClass="sidebar-nav-btn" maxWidth="Infinity"/>
                 <Button text="Favourites" styleClass="sidebar-nav-btn" maxWidth="Infinity"/>
                 <Button text="Bookings" styleClass="sidebar-nav-btn" maxWidth="Infinity"/>
@@ -64,33 +58,49 @@
         </VBox>
     </left>
 
-    <!-- ===== TOP NAV BAR ===== -->
+    <!-- ═══ TOP NAV BAR ═══ -->
     <top>
         <HBox styleClass="nav-bar" alignment="CENTER_LEFT" spacing="16">
             <padding><Insets top="12" right="24" bottom="12" left="24"/></padding>
 
-            <!-- View Toggle -->
-            <HBox spacing="6" alignment="CENTER" styleClass="view-toggle-container">
-                <Button fx:id="gridViewBtn" text="Grid" styleClass="view-toggle-btn, active-view" onAction="#switchToGridView"/>
-                <Button fx:id="listViewBtn" text="Feed" styleClass="view-toggle-btn" onAction="#switchToListView"/>
-            </HBox>
-
-            <!-- Search Bar -->
-            <TextField fx:id="searchField" promptText="Search posts..." styleClass="search-field" prefWidth="260"/>
+            <ImageView fx:id="topLogoImage" fitHeight="32" preserveRatio="true">
+                <image><Image url="@../images/logo.png"/></image>
+            </ImageView>
 
             <Region HBox.hgrow="ALWAYS"/>
 
-            <Button fx:id="createPostBtn" text="+ Create Post" styleClass="primary-btn" onAction="#showCreatePostDialog"/>
-            <Button fx:id="refreshBtn" text="⟳" styleClass="icon-btn" onAction="#refreshPosts"/>
+            <HBox spacing="12" alignment="CENTER">
+                <HBox spacing="6" alignment="CENTER" styleClass="view-toggle-container">
+                    <Button fx:id="gridViewBtn" text="Grid"
+                            styleClass="view-toggle-btn, active-view"
+                            onAction="#switchToGridView"/>
+                    <Button fx:id="listViewBtn" text="Feed"
+                            styleClass="view-toggle-btn"
+                            onAction="#switchToListView"/>
+                </HBox>
+
+                <TextField fx:id="searchField" promptText="Search posts..."
+                           styleClass="search-field" prefWidth="280"/>
+            </HBox>
+
+            <Button fx:id="createPostBtn" text="+ New Post"
+                    styleClass="primary-btn" onAction="#showCreatePostPanel"/>
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <Button fx:id="refreshBtn" text="⟳" styleClass="icon-btn"
+                    onAction="#refreshPosts"/>
         </HBox>
     </top>
 
-    <!-- ===== MAIN CONTENT ===== -->
+    <!-- ═══ MAIN CONTENT AREA ═══ -->
     <center>
-        <!-- StackPane lets PostDetailController overlay on top -->
+        <!-- StackPane lets detail view + create/edit panel overlay -->
         <StackPane fx:id="contentContainer" styleClass="dashboard-root">
 
-            <ScrollPane fx:id="postsScrollPane" styleClass="posts-scroll-pane" fitToWidth="true" fitToHeight="false">
+            <!-- Feed scroll pane (bottom layer) -->
+            <ScrollPane fx:id="postsScrollPane" styleClass="posts-scroll-pane"
+                        fitToWidth="true" fitToHeight="false">
                 <VBox alignment="TOP_CENTER">
 
                     <!-- Grid View -->
@@ -100,7 +110,7 @@
                         <padding><Insets top="30" right="30" bottom="30" left="30"/></padding>
                     </FlowPane>
 
-                    <!-- List View — collapsed when not active -->
+                    <!-- List View -->
                     <VBox fx:id="postsList" styleClass="posts-list"
                           spacing="20" alignment="TOP_CENTER"
                           visible="false" managed="false">
@@ -109,6 +119,13 @@
 
                 </VBox>
             </ScrollPane>
+
+            <!-- Create/Edit panel (slide-in from right, top layer) -->
+            <HBox fx:id="createEditPanel" styleClass="create-edit-panel"
+                  visible="false" managed="false"
+                  StackPane.alignment="TOP_RIGHT">
+                <!-- Content loaded dynamically by controller -->
+            </HBox>
 
         </StackPane>
     </center>

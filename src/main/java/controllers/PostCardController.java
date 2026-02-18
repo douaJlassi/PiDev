@@ -42,7 +42,7 @@ public class PostCardController {
 
     // ── Actions ──────────────────────────────────────────────────────────────
     @FXML private Button   likeBtn;
-    @FXML private Button   shareBtn;
+    @FXML private Button   commentBtn;
 
     // ── Injected by PostController after load ────────────────────────────────
     private Publication         publication;
@@ -144,8 +144,9 @@ public class PostCardController {
     }
 
     @FXML
-    private void onShareClicked() {
-        dashboard.showInfo("Share feature coming soon!");
+    private void onCommentClicked() {
+        // Open detail view so user can see and write comments
+        new PostDetailController(publication, dashboard).show();
     }
 
     @FXML

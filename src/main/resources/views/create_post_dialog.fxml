@@ -36,9 +36,9 @@
     <StackPane fx:id="imagePreviewBox" styleClass="cpd-image-zone"
                visible="false" managed="false">
         <ImageView fx:id="imagePreview"
-                   fitWidth="488" preserveRatio="true" smooth="true"
+                   fitWidth="488" fitHeight="250" preserveRatio="true" smooth="true"
                    StackPane.alignment="CENTER"/>
-        <Button fx:id="removeImageBtn" text="X"
+        <Button fx:id="removeImageBtn" text="✕"
                 styleClass="cpd-remove-img-btn"
                 onAction="#onRemoveImage"
                 StackPane.alignment="TOP_RIGHT"/>

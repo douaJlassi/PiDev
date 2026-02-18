@@ -64,23 +64,37 @@ public class CommentItemController {
     // ────────────────────────────────────────────────────────────────────────
     @FXML
     private void onEditClicked() {
-        javafx.scene.control.TextInputDialog dlg =
-                new javafx.scene.control.TextInputDialog(comment.getContent());
-        dlg.setTitle("Edit Comment");
-        dlg.setHeaderText(null);
-        dlg.setContentText("Edit your comment:");
-        ThemeManager.get().applyToPane(dlg.getDialogPane());
+        // Replace content label with inline TextField
+        javafx.scene.control.TextField editField = new javafx.scene.control.TextField(comment.getContent());
+        editField.setStyle("-fx-background-color: #f0f2f5; -fx-border-color: #17B3A6; -fx-border-width: 2; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 8 10; -fx-font-size: 13px;");
+        editField.setOnAction(e -> saveEdit(editField.getText()));
 
-        Optional<String> result = dlg.showAndWait();
-        result.filter(s -> !s.trim().isEmpty()).ifPresent(newText -> {
-            try {
-                comment.setContent(newText.trim());
-                dashboard.getCommentService().updateOne(comment);
-                if (onChanged != null) onChanged.run();
-            } catch (SQLException e) {
-                dashboard.showError("Failed to update comment.");
+        // Replace the contentLabel node with the TextField temporarily
+        javafx.scene.layout.VBox parent = (javafx.scene.layout.VBox) contentLabel.getParent();
+        int idx = parent.getChildren().indexOf(contentLabel);
+        parent.getChildren().set(idx, editField);
+        editField.requestFocus();
+        editField.selectAll();
+
+        // On focus loss or Enter, save
+        editField.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
+            if (!isNowFocused && parent.getChildren().contains(editField)) {
+                saveEdit(editField.getText());
+                parent.getChildren().set(parent.getChildren().indexOf(editField), contentLabel);
             }
         });
+    }
+
+    private void saveEdit(String newText) {
+        if (newText == null || newText.trim().isEmpty()) return;
+        try {
+            comment.setContent(newText.trim());
+            dashboard.getCommentService().updateOne(comment);
+            contentLabel.setText(newText.trim());
+            if (onChanged != null) onChanged.run();
+        } catch (SQLException e) {
+            dashboard.showError("Failed to update comment.");
+        }
     }
 
     @FXML

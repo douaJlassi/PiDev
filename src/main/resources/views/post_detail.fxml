@@ -15,7 +15,7 @@
         <HBox styleClass="detail-top-bar" alignment="CENTER_LEFT" spacing="12">
             <padding><Insets top="14" right="20" bottom="14" left="20"/></padding>
 
-            <Button fx:id="closeBtn" styleClass="close-detail-btn" text="X" onAction="#onClose"/>
+            <Button fx:id="closeBtn" styleClass="close-detail-btn" text="✕" onAction="#onClose"/>
 
             <Region HBox.hgrow="ALWAYS"/>
             <Label text="Post Details" styleClass="detail-title"/>
@@ -70,8 +70,8 @@
                         <HBox styleClass="post-actions" alignment="CENTER" spacing="8">
                             <Button fx:id="likeBtn"  styleClass="action-btn" text="Like"
                                     maxWidth="Infinity" HBox.hgrow="ALWAYS" onAction="#onLikeClicked"/>
-                            <Button fx:id="shareBtn" styleClass="action-btn" text="Share"
-                                    maxWidth="Infinity" HBox.hgrow="ALWAYS" onAction="#onShareClicked"/>
+                            <Button fx:id="commentBtn2" styleClass="action-btn" text="Comment"
+                                    maxWidth="Infinity" HBox.hgrow="ALWAYS" onAction="#onCommentFocusClicked"/>
                         </HBox>
 
                     </VBox>

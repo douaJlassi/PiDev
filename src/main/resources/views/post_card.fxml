@@ -51,8 +51,8 @@
     <HBox fx:id="actionsBar" styleClass="post-actions" alignment="CENTER" spacing="8">
         <Button fx:id="likeBtn" styleClass="action-btn" text="Like"
                 maxWidth="Infinity" HBox.hgrow="ALWAYS" onAction="#onLikeClicked"/>
-        <Button fx:id="shareBtn" styleClass="action-btn" text="Share"
-                maxWidth="Infinity" HBox.hgrow="ALWAYS" onAction="#onShareClicked"/>
+        <Button fx:id="commentBtn" styleClass="action-btn" text="Comment"
+                maxWidth="Infinity" HBox.hgrow="ALWAYS" onAction="#onCommentClicked"/>
     </HBox>
 
 </VBox>

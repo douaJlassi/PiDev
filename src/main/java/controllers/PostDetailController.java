@@ -173,8 +173,9 @@ public class PostDetailController {
     }
 
     @FXML
-    private void onShareClicked() {
-        dashboard.showInfo("Share feature coming soon!");
+    private void onCommentFocusClicked() {
+        // Focus the comment input field
+        commentTextField.requestFocus();
     }
 
     @FXML

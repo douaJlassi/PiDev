@@ -203,11 +203,6 @@ Light BG: #f0f2f5
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 8, 0, 2, 0);
 }
 
-.sidebar-logo-area {
-    -fx-background-color: #17B3A6;
-    -fx-padding: 16;
-}
-
 .sidebar-user-area {
     -fx-background-color: #1a2a3a;
 }
@@ -810,6 +805,17 @@ Light BG: #f0f2f5
     -fx-background-color: #f7f8fa;
 }
 
+
+/* =====================================================================
+   CREATE/EDIT POST PANEL — slide-in from right
+   ===================================================================== */
+.create-edit-panel {
+    -fx-background-color: white;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 12, 0, -4, 0);
+    -fx-pref-width: 480;
+    -fx-min-width: 480;
+    -fx-max-width: 480;
+}
 
 /* =====================================================================
    CREATE POST DIALOG — modern immersive form  (cpd-*)

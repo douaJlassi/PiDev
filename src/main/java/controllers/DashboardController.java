@@ -8,6 +8,10 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.animation.TranslateTransition;
+import javafx.util.Duration;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import services.CommentService;
 import services.LikeService;
 import services.PublicationService;
@@ -50,7 +54,13 @@ public class DashboardController {
     private TextField searchField;
 
     @FXML
-    private ImageView logoImage;
+    private ImageView topLogoImage;
+
+    @FXML
+    private HBox createEditPanel;
+
+    @FXML
+    private Button postsNavBtn;
 
     // Sidebar labels (optional — populated in initialize)
     @FXML
@@ -186,8 +196,124 @@ public class DashboardController {
     }
 
     @FXML
-    private void showCreatePostDialog() {
-        postController.showCreateDialog();
+    private void showCreatePostPanel() {
+        showPostFormPanel(null);  // null = create mode
+    }
+
+    /**
+     * Show the create/edit post panel as a slide-in from the right.
+     * @param existing — null for create, populated for edit
+     */
+    public void showPostFormPanel(Publication existing) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/views/create_post_dialog.fxml"));
+            Parent form = loader.load();
+            CreatePostController ctrl = loader.getController();
+            ctrl.init(this, existing);
+
+            // ── FIX 1: Wrap the form in a ScrollPane ─────────────────────────────
+            // This ensures if the image is big, the middle scrolls, but buttons stay fixed.
+            ScrollPane scrollWrapper = new ScrollPane(form);
+            scrollWrapper.setFitToWidth(true);
+            // Remove border and make background white
+            scrollWrapper.setStyle("-fx-background-color: white; -fx-background: white; -fx-border-color: transparent;");
+
+            // IMPORTANT: Allow the scroll pane to grow and fill empty space
+            VBox.setVgrow(scrollWrapper, javafx.scene.layout.Priority.ALWAYS);
+            // ─────────────────────────────────────────────────────────────────────
+
+            // Build panel container: Fixed Header + Scrollable Form + Fixed Footer
+            VBox wrapper = new VBox(0);
+            wrapper.setStyle("-fx-background-color: white;");
+            wrapper.setPrefWidth(480); wrapper.setMinWidth(480); wrapper.setMaxWidth(480);
+
+            // ── HEADER: Close button bar ──
+            HBox closeBar = new HBox();
+            closeBar.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+            closeBar.setPadding(new javafx.geometry.Insets(14, 16, 14, 16));
+            closeBar.setStyle("-fx-background-color: white; -fx-border-color: #e4e6eb; -fx-border-width: 0 0 1 0;");
+
+            // ── FIX 2: Professional "✕" Button ──
+            Button closeBtn = new Button("✕");
+            closeBtn.setStyle("-fx-background-color: transparent; -fx-text-fill: #65676b; -fx-font-size: 18px; -fx-font-weight: bold; -fx-padding: 6 12; -fx-background-radius: 50%; -fx-cursor: hand;");
+            closeBtn.setOnAction(e -> hidePostFormPanel());
+
+            javafx.scene.layout.Region spacer1 = new javafx.scene.layout.Region();
+            HBox.setHgrow(spacer1, javafx.scene.layout.Priority.ALWAYS);
+
+            Label title = new Label(existing == null ? "Create Post" : "Edit Post");
+            title.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #050505;");
+
+            javafx.scene.layout.Region spacer2 = new javafx.scene.layout.Region();
+            HBox.setHgrow(spacer2, javafx.scene.layout.Priority.ALWAYS);
+
+            javafx.scene.layout.Region placeholder = new javafx.scene.layout.Region();
+            placeholder.setPrefWidth(36); // Balances the width of the close button
+
+            closeBar.getChildren().addAll(closeBtn, spacer1, title, spacer2, placeholder);
+
+            // ── FOOTER: Action bar ──
+            HBox actionBar = new HBox(10);
+            actionBar.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
+            actionBar.setPadding(new javafx.geometry.Insets(14, 20, 14, 20));
+            actionBar.setStyle("-fx-background-color: #f7f8fa; -fx-border-color: #e4e6eb; -fx-border-width: 1 0 0 0;");
+
+            Button cancelBtn = new Button("Cancel");
+            cancelBtn.getStyleClass().add("secondary-btn");
+            cancelBtn.setOnAction(e -> hidePostFormPanel());
+
+            Button submitBtn = new Button(existing == null ? "Share" : "Update");
+            submitBtn.getStyleClass().add("primary-btn");
+            submitBtn.setDisable(true);
+
+            ctrl.getContentArea().textProperty().addListener((obs, o, n) ->
+                    submitBtn.setDisable(n == null || n.trim().isEmpty()));
+
+            submitBtn.setOnAction(e -> {
+                try {
+                    if (existing == null) {
+                        publicationService.insertOne(ctrl.buildPublication());
+                        showSuccess("Post shared!");
+                    } else {
+                        ctrl.populateExisting(existing);
+                        publicationService.updateOne(existing);
+                        showSuccess("Post updated!");
+                    }
+                    hidePostFormPanel();
+                    loadPosts();
+                } catch (SQLException ex) {
+                    showError("Failed: " + ex.getMessage());
+                }
+            });
+            actionBar.getChildren().addAll(cancelBtn, submitBtn);
+
+            // ── FIX 3: Add the SCROLLABLE wrapper instead of raw form ──
+            wrapper.getChildren().addAll(closeBar, scrollWrapper, actionBar);
+            createEditPanel.getChildren().setAll(wrapper);
+
+            // Slide in from right
+            createEditPanel.setVisible(true);
+            createEditPanel.setManaged(true);
+            createEditPanel.setTranslateX(480);
+            TranslateTransition slide = new TranslateTransition(Duration.millis(250), createEditPanel);
+            slide.setToX(0);
+            slide.play();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Could not open form: " + e.getMessage());
+        }
+    }
+
+    private void hidePostFormPanel() {
+        TranslateTransition slide = new TranslateTransition(Duration.millis(200), createEditPanel);
+        slide.setToX(480);
+        slide.setOnFinished(e -> {
+            createEditPanel.setVisible(false);
+            createEditPanel.setManaged(false);
+        });
+        slide.play();
     }
 
     @FXML
@@ -287,7 +413,7 @@ public class DashboardController {
 
         Button createFirstPost = new Button("Create First Post");
         createFirstPost.getStyleClass().add("primary-btn");
-        createFirstPost.setOnAction(e -> showCreatePostDialog());
+        createFirstPost.setOnAction(e -> showCreatePostPanel());
 
         emptyState.getChildren().addAll(icon, emptyText, emptySubtext, createFirstPost);
 
