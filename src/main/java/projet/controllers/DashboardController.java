@@ -13,6 +13,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import projet.entites.Hotel;
 import projet.entites.service;
+import projet.entites.user;
 import projet.entites.vol;
 import projet.services.HotelService;
 import projet.services.ServiceService;
@@ -27,7 +28,9 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class DashboardController implements Initializable {
-
+    user connectedUser=new user("achref","souli","user");
+    vol vol;
+    HotelService hotelService;
     @FXML
     private VBox pnItems;
     @FXML
@@ -48,6 +51,9 @@ public class DashboardController implements Initializable {
     private TextField searchBar;
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        if (connectedUser.getType().equals("user")) {
+            setupUserView();
+        }
         cbFilter.getItems().addAll("Price", "Capacity", "Availability");
         // Fetch data from your service
         searchServiceBtn.setOnMouseClicked(event -> {handleSearchAction();});
@@ -155,6 +161,7 @@ public class DashboardController implements Initializable {
     }
     @FXML
     private void handleShowHotelForm(ActionEvent event) {
+        searchBox.setVisible(false);
         try {
 
             Parent HotelForm = FXMLLoader.load(getClass().getResource("/AddHotel.fxml"));
@@ -185,6 +192,7 @@ public class DashboardController implements Initializable {
     }
     @FXML
     private void handleShowServices(ActionEvent event) {
+        searchBox.setVisible(false);
         try {
             Services.getStyleClass().add("active-nav-btn");
             Dashboard.getStyleClass().removeAll("active-nav-btn");
@@ -244,7 +252,6 @@ public class DashboardController implements Initializable {
                 found = true;
             }
         }
-
         // Optional: Show a "No Results" label if nothing found
         if (!found) {
             Label noResult = new Label("No services found for: " + searchText);
@@ -254,6 +261,26 @@ public class DashboardController implements Initializable {
 
     }
 
+    private void setupUserView() {
+        searchBox.setVisible(false);
+        // 1. Cacher les boutons et panneaux non autorisés
+        Dashboard.setVisible(false);
+        Dashboard.setManaged(false); // Très important: retire le bouton du layout
+
+       /* btnAddVol.setVisible(false);
+        btnAddVol.setManaged(false);
+
+        btnAddHotel.setVisible(false);
+        btnAddHotel.setManaged(false);*/
+
+        // 2. Afficher directement la page des services
+        try {
+            Parent servicesView = FXMLLoader.load(getClass().getResource("/Services.fxml"));
+            contentArea.getChildren().setAll(servicesView);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     private void showDetails(service s) {
         FXMLLoader loader ;
         Parent root;

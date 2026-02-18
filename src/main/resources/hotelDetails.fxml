@@ -69,6 +69,7 @@
                 <Separator opacity="0.1" />
 
                 <Button fx:id="retourBtn"   styleClass="btn-back" text="← Retour" />
+                <Button fx:id="btnReserver"  onAction="#handleReserver" styleClass="btn-submit" text="Réserver une chambre" />
 
             </VBox>
         </VBox>

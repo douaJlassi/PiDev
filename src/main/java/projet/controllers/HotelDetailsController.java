@@ -8,12 +8,15 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import projet.entites.Hotel;
+import projet.entites.user;
+import projet.services.ServiceService;
 // Ensure this matches your package structure
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 public class HotelDetailsController {
-
+    user connectedUser=new user("achref","souli","user");
     // Link to FXML IDs defined in hotelDetails.fxml
     @FXML private Label lblNom;
     @FXML private Label lblLocalisation;
@@ -23,8 +26,12 @@ public class HotelDetailsController {
     @FXML private Label lblCapacite;
     @FXML private Label lblStatus;
     @FXML private Label lblDescription;
+    @FXML private Button btnReserver;
     @FXML
     private Button retourBtn;
+    int id;
+    ServiceService HotelService = new ServiceService();
+
     /**
      * This method is called from ServicesController to populate the view
      */
@@ -65,8 +72,15 @@ public class HotelDetailsController {
             lblStatus.setStyle("-fx-text-fill: #f6c750; -fx-font-weight: bold;");
         }
         retourBtn.setOnAction(e -> {handleBack();});
-
-
+        if (connectedUser.getType().equals("admin")) {
+            btnReserver.setVisible(false);
+        }
+        btnReserver.setOnAction(e -> {handleReserver();});
+        try {
+            id=HotelService.getId(hotel.getNom());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 
@@ -80,4 +94,17 @@ public class HotelDetailsController {
             e.printStackTrace();
         }
     }
+    @FXML
+    private void handleReserver() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ReservationForm.fxml"));
+            Parent root = loader.load();
+            AddReservationController addReservationController = loader.getController();
+            addReservationController.setIdService(id);
+            retourBtn.getScene().setRoot(root);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

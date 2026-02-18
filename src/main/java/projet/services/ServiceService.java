@@ -80,4 +80,15 @@ public class ServiceService implements CRUD<String,service> {
         }
         return sr;
     }
+    public int getId(String nom) throws SQLException {
+        String req = "SELECT idService FROM `services` WHERE `nom` = '" + nom + "'";
+        Statement st = connection.createStatement();
+
+        ResultSet rs = st.executeQuery(req);
+        int id = 0;
+        while (rs.next()) {
+            id = rs.getInt(1);
+        }
+        return id;
+    }
 }

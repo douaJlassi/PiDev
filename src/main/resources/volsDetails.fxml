@@ -81,6 +81,7 @@
 
                 <!-- Action Button -->
                 <Button fx:id="retourBtn"  styleClass="btn-back" text="← Retour" />
+                <Button fx:id="btnReserver" onAction="#handleReserver" styleClass="btn-submit" text="Réserver ce Vol" />
 
             </VBox>
         </VBox>

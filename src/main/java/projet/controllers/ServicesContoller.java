@@ -15,6 +15,7 @@ import javafx.scene.layout.*;
 
 import projet.entites.Hotel;
 import projet.entites.service;
+import projet.entites.user;
 import projet.entites.vol;
 import projet.services.HotelService;
 import projet.services.ServiceService;
@@ -28,7 +29,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class ServicesContoller implements Initializable {
-
+    user connectedUser=new user("achref","souli","user");
     @FXML
     private FlowPane cardsContainer;
 
@@ -120,6 +121,7 @@ public class ServicesContoller implements Initializable {
         price.getStyleClass().add("card-price");
 
         // --- ACTION BUTTONS ---
+
         HBox actions = new HBox();
         actions.setAlignment(Pos.CENTER_RIGHT);
         actions.setSpacing(10);
@@ -139,6 +141,10 @@ public class ServicesContoller implements Initializable {
                 throw new RuntimeException(e);
             }
         });
+        if (connectedUser.getType().equals("user")) {
+            btnDelete.setVisible(false);
+            btnEdit.setVisible(false);
+        }
         btnDelete.getStyleClass().addAll("btn-card-action", "btn-card-delete");
         card.setOnMouseClicked(event -> {showDetails(s);});
         Pane spacer = new Pane();
