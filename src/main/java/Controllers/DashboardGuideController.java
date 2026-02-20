@@ -47,8 +47,8 @@ public class DashboardGuideController {
     private int itemsPerPage = 10;
     private int totalPages = 1;
 
-    // ID du guide connecté (à récupérer depuis la session)
-    private int guideId = 1; // Exemple
+
+    private int guideId = 1;
 
     @FXML
     private BorderPane borderPane;
@@ -128,7 +128,7 @@ public class DashboardGuideController {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            // Close ResultSet and PreparedStatement, but not Connection
+
             try { if (rs != null) rs.close(); } catch (SQLException e) { e.printStackTrace(); }
             try { if (stmt != null) stmt.close(); } catch (SQLException e) { e.printStackTrace(); }
         }
@@ -137,14 +137,14 @@ public class DashboardGuideController {
 
     private void chargerActivites() {
         try {
-            // Récupérer les activités du guide connecté
+
             toutesActivites = activiteService.selectByGuide(guideId);
             totalPages = (int) Math.ceil((double) toutesActivites.size() / itemsPerPage);
             if (totalPages == 0) totalPages = 1;
             mettreAJourPage();
         } catch (SQLException e) {
             e.printStackTrace();
-            // Afficher une alerte
+
         }
     }
 
@@ -173,28 +173,24 @@ public class DashboardGuideController {
     private VBox creerCarteActivite(Activite a) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy");
 
-        // Carte principale
         VBox card = new VBox();
         card.setPrefWidth(300);
         card.getStyleClass().add("card-modern");
 
-        // --- Image Stack (avec badge) ---
         StackPane imageStack = new StackPane();
         imageStack.setPrefHeight(160);
         imageStack.getStyleClass().add("card-image-modern");
 
-        // Chargement de l'image
         ImageView imageView = new ImageView();
         imageView.setFitWidth(300);
         imageView.setFitHeight(160);
         imageView.setPreserveRatio(false);
         imageView.setSmooth(true);
-        Image img = loadActivityImage(a); // Utilise la méthode que nous avons améliorée
+        Image img = loadActivityImage(a);
         if (img != null) {
             imageView.setImage(img);
         }
 
-        // Badge de statut
         String status = a.getStatut();
         Label badge = new Label(status != null ? status : "Activité");
         badge.getStyleClass().add("badge-category-modern");
@@ -206,7 +202,6 @@ public class DashboardGuideController {
         StackPane.setMargin(badge, new Insets(10, 0, 0, 10));
         imageStack.getChildren().addAll(imageView, badge);
 
-        // --- Contenu texte ---
         VBox content = new VBox(8);
         content.getStyleClass().add("card-content-modern");
         content.setPadding(new Insets(15));
@@ -220,7 +215,6 @@ public class DashboardGuideController {
         Label date = new Label("📅 " + dateFormat.format(a.getDateActivite()));
         date.getStyleClass().add("card-meta-modern");
 
-        // Ligne prix + durée + note
         HBox priceRow = new HBox();
         priceRow.setAlignment(Pos.CENTER_LEFT);
 
@@ -230,7 +224,6 @@ public class DashboardGuideController {
         Label duree = new Label(a.getDureParJour() + (a.getDureParJour() > 1 ? " jours" : " jour"));
         duree.getStyleClass().add("card-duration-modern");
 
-        // Note factice (vous pouvez la remplacer par une vraie donnée)
         Label note = new Label("★ 4.9");
         note.getStyleClass().add("card-rating-modern");
 
@@ -239,7 +232,6 @@ public class DashboardGuideController {
 
         priceRow.getChildren().addAll(prix, note, spacer, duree);
 
-        // --- Boutons d'action ---
         HBox actions = new HBox(10);
         actions.setAlignment(Pos.CENTER);
         actions.setPadding(new Insets(0, 15, 15, 15));
@@ -258,8 +250,6 @@ public class DashboardGuideController {
         btnSupprimer.setOnAction(e -> supprimerActivite(a));
 
         actions.getChildren().addAll(btnModifier, btnVoirResa, btnSupprimer);
-
-        // Assemblage
         content.getChildren().addAll(titre, lieu, date, priceRow);
         card.getChildren().addAll(imageStack, content, actions);
 
@@ -282,12 +272,11 @@ public class DashboardGuideController {
             borderPane.setCenter(addActiviteView);
         } catch (IOException e) {
             e.printStackTrace();
-            // Optional: show an alert
         }
     }
 
     private void supprimerActivite(Activite a) {
-        // Confirmation puis suppression
+
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Supprimer activité");
         alert.setHeaderText("Êtes-vous sûr de vouloir supprimer cette activité ?");
@@ -296,7 +285,7 @@ public class DashboardGuideController {
             if (response == ButtonType.OK) {
                 try {
                     activiteService.deleteOne(a);
-                    chargerActivites(); // Recharger la liste
+                    chargerActivites();
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -304,7 +293,6 @@ public class DashboardGuideController {
         });
     }
 
-    // Méthodes pour la pagination (à appeler depuis les boutons)
     @FXML
     private void pagePrecedente() {
         if (currentPage > 1) {
@@ -328,27 +316,22 @@ public class DashboardGuideController {
     @FXML
     private void handleNouvelleActivite() {
         try {
-            // Charger le fichier AddActivite.fxml (ajustez le chemin selon votre projet)
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/AddActivite.fxml"));
             Node addActiviteView = loader.load();
 
-            // Récupérer son contrôleur
+
             AddActiviteController controller = loader.getController();
 
-            // Sauvegarder la vue actuelle du centre (la liste des activités) pour pouvoir y revenir
+
             Node currentCenter = borderPane.getCenter();
             controller.setPreviousView(currentCenter);
             controller.setMainBorderPane(borderPane);
-
-            // (Optionnel) Si vous voulez réinitialiser tous les champs du formulaire,
-            // vous pouvez appeler une méthode comme controller.resetForm() que vous aurez créée
-
-            // Remplacer le centre par le formulaire d'ajout
             borderPane.setCenter(addActiviteView);
 
         } catch (IOException e) {
             e.printStackTrace();
-            // Afficher une alerte en cas d'erreur
+
             Alert alert = new Alert(Alert.AlertType.ERROR, "Impossible d'ouvrir le formulaire.", ButtonType.OK);
             alert.show();
         }

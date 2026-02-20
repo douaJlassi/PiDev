@@ -1,106 +1,57 @@
 package gestion_activite;
 
-import java.util.Date;
+import java.sql.Timestamp;
 
-public class Achat {
+public class Achat
+{
     private int idAchat;
-    private Date dateAchat;
-    private int idClient;
+    private Timestamp dateAchat;
     private double montantTotal;
-    private String statut; // EN_ATTENTE, CONFIRMÉ, ANNULÉ, COMPLÉTÉ
-    private String description;
-    private Date dateCreation;
+    private String statut;
+    private int idClient;
 
-    // ===================== CONSTRUCTEURS =====================
+
     public Achat() {}
 
-    public Achat(int idAchat, Date dateAchat, int idClient, double montantTotal,
-                 String statut, String description) {
+    public Achat(Timestamp dateAchat, double montantTotal, String statut, int idClient) {
+        this.dateAchat = dateAchat;
+        this.montantTotal = montantTotal;
+        this.statut = statut;
+        this.idClient = idClient;
+    }
+
+    public Achat(int idAchat, Timestamp dateAchat, double montantTotal, String statut, int idClient) {
         this.idAchat = idAchat;
         this.dateAchat = dateAchat;
-        this.idClient = idClient;
         this.montantTotal = montantTotal;
         this.statut = statut;
-        this.description = description;
-    }
-
-    public Achat(Date dateAchat, int idClient, double montantTotal,
-                 String statut, String description) {
-        this.dateAchat = dateAchat;
-        this.idClient = idClient;
-        this.montantTotal = montantTotal;
-        this.statut = statut;
-        this.description = description;
-    }
-
-    // ===================== GETTERS & SETTERS =====================
-    public int getIdAchat() {
-        return idAchat;
-    }
-
-    public void setIdAchat(int idAchat) {
-        this.idAchat = idAchat;
-    }
-
-    public Date getDateAchat() {
-        return dateAchat;
-    }
-
-    public void setDateAchat(Date dateAchat) {
-        this.dateAchat = dateAchat;
-    }
-
-    public int getIdClient() {
-        return idClient;
-    }
-
-    public void setIdClient(int idClient) {
         this.idClient = idClient;
     }
 
-    public double getMontantTotal() {
-        return montantTotal;
-    }
 
-    public void setMontantTotal(double montantTotal) {
-        this.montantTotal = montantTotal;
-    }
+    public int getIdAchat() { return idAchat; }
+    public void setIdAchat(int idAchat) { this.idAchat = idAchat; }
 
-    public String getStatut() {
-        return statut;
-    }
+    public Timestamp getDateAchat() { return dateAchat; }
+    public void setDateAchat(Timestamp dateAchat) { this.dateAchat = dateAchat; }
 
-    public void setStatut(String statut) {
-        this.statut = statut;
-    }
+    public double getMontantTotal() { return montantTotal; }
+    public void setMontantTotal(double montantTotal) { this.montantTotal = montantTotal; }
 
-    public String getDescription() {
-        return description;
-    }
+    public String getStatut() { return statut; }
+    public void setStatut(String statut) { this.statut = statut; }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+    public int getIdClient() { return idClient; }
+    public void setIdClient(int idClient) { this.idClient = idClient; }
 
-    public Date getDateCreation() {
-        return dateCreation;
-    }
-
-    public void setDateCreation(Date dateCreation) {
-        this.dateCreation = dateCreation;
-    }
-
-    // ===================== TOSTRING =====================
     @Override
     public String toString() {
         return "Achat{" +
                 "idAchat=" + idAchat +
                 ", dateAchat=" + dateAchat +
-                ", idClient=" + idClient +
                 ", montantTotal=" + montantTotal +
                 ", statut='" + statut + '\'' +
-                ", description='" + description + '\'' +
-                ", dateCreation=" + dateCreation +
+                ", idClient=" + idClient +
                 '}';
     }
 }

@@ -1,104 +1,64 @@
 package Services;
 
-import utils.MyDBConnexion;
 
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ActiviteAchatService
 {
 
-    private Connection cnx;
+        private int idAchat;
+        private int idActivite;
+        private int quantite;
+        private double prixUnitaire;
 
-    public ActiviteAchatService() {
-        cnx = MyDBConnexion.getInstance().getConnection();
-    }
+        // Constructeurs
+        public ActiviteAchatService() {}
 
-    // ===================== AJOUTER ASSOCIATION =====================
-    public void ajouterActiviteAchat(int idActivite, int idAchat) throws SQLException {
-        String req = "INSERT INTO `activite_achat` (`idActivite`, `idAchat`) VALUES (?, ?)";
-
-        try (PreparedStatement ps = cnx.prepareStatement(req)) {
-            ps.setInt(1, idActivite);
-            ps.setInt(2, idAchat);
-            ps.executeUpdate();
-        }
-    }
-
-    // ===================== SUPPRIMER ASSOCIATION =====================
-    public void supprimerActiviteAchat(int idActivite, int idAchat) throws SQLException {
-        String req = "DELETE FROM `activite_achat` WHERE `idActivite`=? AND `idAchat`=?";
-
-        try (PreparedStatement ps = cnx.prepareStatement(req)) {
-            ps.setInt(1, idActivite);
-            ps.setInt(2, idAchat);
-            ps.executeUpdate();
-        }
-    }
-
-    // ===================== LISTER ACTIVITES PAR ACHAT =====================
-    public List<Integer> getActivitesByAchat(int idAchat) throws SQLException {
-        List<Integer> activites = new ArrayList<>();
-
-        String req = "SELECT `idActivite` FROM `activite_achat` WHERE `idAchat`=?";
-
-        try (PreparedStatement ps = cnx.prepareStatement(req)) {
-            ps.setInt(1, idAchat);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    activites.add(rs.getInt("idActivite"));
-                }
-            }
+        public ActiviteAchatService(int idAchat, int idActivite, int quantite, double prixUnitaire) {
+            this.idAchat = idAchat;
+            this.idActivite = idActivite;
+            this.quantite = quantite;
+            this.prixUnitaire = prixUnitaire;
         }
 
-        return activites;
-    }
-
-    // ===================== LISTER ACHATS PAR ACTIVITE =====================
-    public List<Integer> getAchatsByActivite(int idActivite) throws SQLException {
-        List<Integer> achats = new ArrayList<>();
-
-        String req = "SELECT `idAchat` FROM `activite_achat` WHERE `idActivite`=?";
-
-        try (PreparedStatement ps = cnx.prepareStatement(req)) {
-            ps.setInt(1, idActivite);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    achats.add(rs.getInt("idAchat"));
-                }
-            }
+        public int getIdAchat() {
+            return idAchat;
         }
 
-        return achats;
-    }
-
-    // ===================== COMPTER ACTIVITES PAR ACHAT =====================
-    public int countActivitesByAchat(int idAchat) throws SQLException {
-        String req = "SELECT COUNT(*) as count FROM `activite_achat` WHERE `idAchat`=?";
-
-        try (PreparedStatement ps = cnx.prepareStatement(req)) {
-            ps.setInt(1, idAchat);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt("count");
-                }
-            }
+        public void setIdAchat(int idAchat) {
+            this.idAchat = idAchat;
         }
 
-        return 0;
-    }
+        public int getIdActivite() {
+            return idActivite;
+        }
 
-    // ===================== SUPPRIMER TOUTES LES ASSOCIATIONS D'UN ACHAT =====================
-    public void supprimerAllActivitesAchat(int idAchat) throws SQLException {
-        String req = "DELETE FROM `activite_achat` WHERE `idAchat`=?";
+        public void setIdActivite(int idActivite) {
+            this.idActivite = idActivite;
+        }
 
-        try (PreparedStatement ps = cnx.prepareStatement(req)) {
-            ps.setInt(1, idAchat);
-            ps.executeUpdate();
+        public int getQuantite() {
+            return quantite;
+        }
+
+        public void setQuantite(int quantite) {
+            this.quantite = quantite;
+        }
+
+        public double getPrixUnitaire() {
+            return prixUnitaire;
+        }
+
+        public void setPrixUnitaire(double prixUnitaire) {
+            this.prixUnitaire = prixUnitaire;
+        }
+
+        @Override
+        public String toString() {
+            return "AchatActivite{" +
+                    "idAchat=" + idAchat +
+                    ", idActivite=" + idActivite +
+                    ", quantite=" + quantite +
+                    ", prixUnitaire=" + prixUnitaire +
+                    '}';
         }
     }
-}

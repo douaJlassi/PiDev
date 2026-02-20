@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.text.Text?>
+
+<VBox spacing="0" styleClass="cart-root" prefWidth="550" prefHeight="620" xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.ReservationController">
+
+    <!-- Header avec titre -->
+    <StackPane styleClass="cart-header" prefHeight="80">
+        <Text styleClass="cart-title" text="🛒 Récapitulatif de votre réservation" />
+    </StackPane>
+
+    <!-- Contenu principal -->
+    <VBox spacing="20" styleClass="cart-content" VBox.vgrow="ALWAYS">
+        <padding>
+            <Insets top="20" right="25" bottom="25" left="25" />
+        </padding>
+
+        <!-- Carte produit (image + infos) -->
+        <HBox styleClass="product-card" spacing="15" alignment="CENTER_LEFT">
+            <!-- Image avec coins arrondis -->
+            <StackPane prefWidth="120" prefHeight="120" styleClass="product-image-container">
+                <ImageView fx:id="activityImageView" fitWidth="120" fitHeight="120" preserveRatio="true">
+                    <clip>
+                        <Rectangle width="120" height="120" arcWidth="20" arcHeight="20" />
+                    </clip>
+                </ImageView>
+            </StackPane>
+
+            <!-- Détails produit -->
+            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                <Label fx:id="activityTitleLabel" styleClass="product-title" text="Safari dans le désert" wrapText="true" />
+                <Label fx:id="activityDescriptionLabel" styleClass="product-description" text="Description de l'activité..." wrapText="true" />
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label fx:id="priceLabel" styleClass="product-price" text="200 DT" />
+                    <Label fx:id="availablePlacesLabel" styleClass="product-stock" text="10 places disponibles" />
+                </HBox>
+            </VBox>
+        </HBox>
+
+        <Separator styleClass="cart-separator" />
+
+        <!-- Section réservation (formulaire) -->
+        <VBox spacing="15">
+            <Text styleClass="section-subtitle" text="Détails de la réservation" />
+
+            <GridPane hgap="15" vgap="12" styleClass="form-grid">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="35" />
+                    <ColumnConstraints percentWidth="65" />
+                </columnConstraints>
+
+                <!-- Nombre de places -->
+                <Label text="Nombre de places :" styleClass="form-label" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+                <TextField fx:id="participantsField" promptText="ex: 2" styleClass="form-field" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+
+
+                <!-- Prix total -->
+                <Label text="Total :" styleClass="form-label, total-label" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+                <Label fx:id="totalPriceLabel" styleClass="total-price" text="0 DT" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+            </GridPane>
+        </VBox>
+
+        <!-- Espace flexible -->
+        <Region VBox.vgrow="ALWAYS" />
+
+        <!-- Boutons d'action -->
+        <HBox spacing="12" alignment="CENTER_RIGHT">
+            <Button fx:id="cancelButton" text="Annuler" styleClass="btn-secondary" onAction="#handleCancel" />
+            <Button fx:id="confirmButton" text="Confirmer la réservation" styleClass="btn-primary" onAction="#handleConfirm" />
+        </HBox>
+    </VBox>
+</VBox>

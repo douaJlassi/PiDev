@@ -1,247 +1,143 @@
 package Services;
 
 import gestion_activite.Achat;
+import gestion_activite.AchatActivite;
 import utils.MyDBConnexion;
-import java.sql.ResultSet;
-import java.sql.Statement;
+
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import java.sql.Connection;           // Required for the 'cnx' variable
-import java.sql.PreparedStatement;    // Required for prepared statements
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.Date;
 
 
-public class AchatService implements CRUD<Achat> {
+public class AchatService
+{
 
     private Connection cnx;
 
     public AchatService() {
         cnx = MyDBConnexion.getInstance().getConnection();
     }
+    public void insertAchat(Achat achat, List<AchatActivite> lignes) throws SQLException {
+        String insertAchat = "INSERT INTO achat (dateAchat, montantTotal, statut, idClient) VALUES (?, ?, ?, ?)";
+        PreparedStatement pstmt = cnx.prepareStatement(insertAchat, Statement.RETURN_GENERATED_KEYS);
+        pstmt.setTimestamp(1, achat.getDateAchat());
+        pstmt.setDouble(2, achat.getMontantTotal());
+        pstmt.setString(3, achat.getStatut());
+        pstmt.setInt(4, achat.getIdClient());
+        pstmt.executeUpdate();
 
-    // ===================== INSERT =====================
-    @Override
-    public void insertOne(Achat achat) throws SQLException {
-        // Validations
-        if (achat.getIdClient() <= 0) {
-            throw new IllegalArgumentException("L'ID client est obligatoire");
-        }
-        if (achat.getMontantTotal() < 0) {
-            throw new IllegalArgumentException("Le montant ne peut pas être négatif");
-        }
-        if (achat.getStatut() == null || achat.getStatut().isEmpty()) {
-            throw new IllegalArgumentException("Le statut est obligatoire");
+        ResultSet rs = pstmt.getGeneratedKeys();
+        int idAchat = 0;
+        if (rs.next()) {
+            idAchat = rs.getInt(1);
         }
 
-        String req = "INSERT INTO `achat`(`dateAchat`, `idClient`, `montantTotal`, `statut`, `description`) " +
-                "VALUES (?, ?, ?, ?, ?)";
 
-        try (PreparedStatement ps = cnx.prepareStatement(req)) {
-            ps.setTimestamp(1, new Timestamp(achat.getDateAchat().getTime()));
-            ps.setInt(2, achat.getIdClient());
-            ps.setDouble(3, achat.getMontantTotal());
-            ps.setString(4, achat.getStatut());
-            ps.setString(5, achat.getDescription());
-
-            ps.executeUpdate();
+        String insertLigne = "INSERT INTO achat_activite (idAchat, idActivite, quantite, prixUnitaire) VALUES (?, ?, ?, ?)";
+        pstmt = cnx.prepareStatement(insertLigne);
+        for (AchatActivite ligne : lignes) {
+            pstmt.setInt(1, idAchat);
+            pstmt.setInt(2, ligne.getIdActivite());
+            pstmt.setInt(3, ligne.getQuantite());
+            pstmt.setDouble(4, ligne.getPrixUnitaire());
+            pstmt.addBatch();
         }
+        pstmt.executeBatch();
     }
 
-    // ===================== UPDATE =====================
-    @Override
-    public void updateOne(Achat achat) throws SQLException {
-        String req = "UPDATE `achat` SET `dateAchat`=?, `idClient`=?, `montantTotal`=?, `statut`=?, `description`=? " +
-                "WHERE `idAchat`=?";
 
-        try (PreparedStatement ps = cnx.prepareStatement(req)) {
-            ps.setTimestamp(1, new Timestamp(achat.getDateAchat().getTime()));
-            ps.setInt(2, achat.getIdClient());
-            ps.setDouble(3, achat.getMontantTotal());
-            ps.setString(4, achat.getStatut());
-            ps.setString(5, achat.getDescription());
-            ps.setInt(6, achat.getIdAchat());
-
-            ps.executeUpdate();
+    public List<Achat> selectAll() throws SQLException {
+        List<Achat> achats = new ArrayList<>();
+        String req = "SELECT * FROM achat";
+        Statement stmt = cnx.createStatement();
+        ResultSet rs = stmt.executeQuery(req);
+        while (rs.next()) {
+            Achat a = new Achat(
+                    rs.getInt("idAchat"),
+                    rs.getTimestamp("dateAchat"),
+                    rs.getDouble("montantTotal"),
+                    rs.getString("statut"),
+                    rs.getInt("idClient")
+            );
+            achats.add(a);
         }
+        return achats;
     }
 
-    // ===================== DELETE =====================
-    @Override
-    public void deleteOne(Achat achat) throws SQLException {
-        String req = "DELETE FROM `achat` WHERE `idAchat`=?";
 
-        try (PreparedStatement ps = cnx.prepareStatement(req)) {
-            ps.setInt(1, achat.getIdAchat());
-            ps.executeUpdate();
-        }
-    }
+    public Achat selectById(int id) throws SQLException {
+        String reqAchat = "SELECT * FROM achat WHERE idAchat = ?";
+        PreparedStatement pstmt = cnx.prepareStatement(reqAchat);
+        pstmt.setInt(1, id);
+        ResultSet rs = pstmt.executeQuery();
+        Achat achat = null;
+        if (rs.next()) {
+            achat = new Achat(
+                    rs.getInt("idAchat"),
+                    rs.getTimestamp("dateAchat"),
+                    rs.getDouble("montantTotal"),
+                    rs.getString("statut"),
+                    rs.getInt("idClient")
+            );
 
-    // ===================== SELECT ALL =====================
-    @Override
-    public List<Achat> selectALL() throws SQLException {
-        List<Achat> achatList = new ArrayList<>();
 
-        String req = "SELECT * FROM `achat`";
-
-        try (Statement st = cnx.createStatement();
-             ResultSet rs = st.executeQuery(req)) {
-
-            while (rs.next()) {
-                Achat a = mapResultSetToAchat(rs);
-                achatList.add(a);
+            String reqLignes = "SELECT * FROM achat_activite WHERE idAchat = ?";
+            pstmt = cnx.prepareStatement(reqLignes);
+            pstmt.setInt(1, id);
+            ResultSet rsLignes = pstmt.executeQuery();
+            List<AchatActivite> lignes = new ArrayList<>();
+            while (rsLignes.next()) {
+                AchatActivite ligne = new AchatActivite(
+                        rsLignes.getInt("idAchat"),
+                        rsLignes.getInt("idActivite"),
+                        rsLignes.getInt("quantite"),
+                        rsLignes.getDouble("prixUnitaire")
+                );
+                lignes.add(ligne);
             }
-        }
 
-        return achatList;
+        }
+        return achat;
     }
 
-    // ===================== SELECT BY ID =====================
-    public Achat selectById(int idAchat) throws SQLException {
-        String req = "SELECT * FROM `achat` WHERE `idAchat`=?";
 
-        try (PreparedStatement ps = cnx.prepareStatement(req)) {
-            ps.setInt(1, idAchat);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return mapResultSetToAchat(rs);
-                }
-            }
-        }
-
-        return null;
+    public void updateAchat(Achat achat) throws SQLException {
+        String req = "UPDATE achat SET dateAchat=?, montantTotal=?, statut=?, idClient=? WHERE idAchat=?";
+        PreparedStatement pstmt = cnx.prepareStatement(req);
+        pstmt.setTimestamp(1, achat.getDateAchat());
+        pstmt.setDouble(2, achat.getMontantTotal());
+        pstmt.setString(3, achat.getStatut());
+        pstmt.setInt(4, achat.getIdClient());
+        pstmt.setInt(5, achat.getIdAchat());
+        pstmt.executeUpdate();
     }
 
-    // ===================== SELECT BY CLIENT =====================
+
+    public void deleteAchat(int id) throws SQLException {
+        String req = "DELETE FROM achat WHERE idAchat = ?";
+        PreparedStatement pstmt = cnx.prepareStatement(req);
+        pstmt.setInt(1, id);
+        pstmt.executeUpdate();
+    }
+
+
     public List<Achat> selectByClient(int idClient) throws SQLException {
-        List<Achat> achatList = new ArrayList<>();
-
-        String req = "SELECT * FROM `achat` WHERE `idClient`=? ORDER BY `dateAchat` DESC";
-
-        try (PreparedStatement ps = cnx.prepareStatement(req)) {
-            ps.setInt(1, idClient);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    Achat a = mapResultSetToAchat(rs);
-                    achatList.add(a);
-                }
-            }
+        List<Achat> achats = new ArrayList<>();
+        String req = "SELECT * FROM achat WHERE idClient = ?";
+        PreparedStatement pstmt = cnx.prepareStatement(req);
+        pstmt.setInt(1, idClient);
+        ResultSet rs = pstmt.executeQuery();
+        while (rs.next()) {
+            Achat a = new Achat(
+                    rs.getInt("idAchat"),
+                    rs.getTimestamp("dateAchat"),
+                    rs.getDouble("montantTotal"),
+                    rs.getString("statut"),
+                    rs.getInt("idClient")
+            );
+            achats.add(a);
         }
-
-        return achatList;
-    }
-
-    // ===================== SELECT BY STATUT =====================
-    public List<Achat> selectByStatut(String statut) throws SQLException {
-        List<Achat> achatList = new ArrayList<>();
-
-        String req = "SELECT * FROM `achat` WHERE `statut`=? ORDER BY `dateAchat` DESC";
-
-        try (PreparedStatement ps = cnx.prepareStatement(req)) {
-            ps.setString(1, statut);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    Achat a = mapResultSetToAchat(rs);
-                    achatList.add(a);
-                }
-            }
-        }
-
-        return achatList;
-    }
-
-    // ===================== SELECT BY DATE RANGE =====================
-    public List<Achat> selectByDateRange(Date dateDebut, Date dateFin) throws SQLException {
-        List<Achat> achatList = new ArrayList<>();
-
-        String req = "SELECT * FROM `achat` WHERE `dateAchat` BETWEEN ? AND ? ORDER BY `dateAchat` DESC";
-
-        try (PreparedStatement ps = cnx.prepareStatement(req)) {
-            ps.setTimestamp(1, new Timestamp(dateDebut.getTime()));
-            ps.setTimestamp(2, new Timestamp(dateFin.getTime()));
-
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    Achat a = mapResultSetToAchat(rs);
-                    achatList.add(a);
-                }
-            }
-        }
-
-        return achatList;
-    }
-
-    // ===================== SELECT BY MONTANT RANGE =====================
-    public List<Achat> selectByMontantRange(double minMontant, double maxMontant) throws SQLException {
-        List<Achat> achatList = new ArrayList<>();
-
-        String req = "SELECT * FROM `achat` WHERE `montantTotal` BETWEEN ? AND ? ORDER BY `montantTotal` DESC";
-
-        try (PreparedStatement ps = cnx.prepareStatement(req)) {
-            ps.setDouble(1, minMontant);
-            ps.setDouble(2, maxMontant);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    Achat a = mapResultSetToAchat(rs);
-                    achatList.add(a);
-                }
-            }
-        }
-
-        return achatList;
-    }
-
-    // ===================== CHANGE STATUT =====================
-    public void changeStatut(int idAchat, String newStatut) throws SQLException {
-        String req = "UPDATE `achat` SET `statut`=? WHERE `idAchat`=?";
-
-        try (PreparedStatement ps = cnx.prepareStatement(req)) {
-            ps.setString(1, newStatut);
-            ps.setInt(2, idAchat);
-            ps.executeUpdate();
-        }
-    }
-
-    // ===================== UPDATE MONTANT =====================
-    public void updateMontant(int idAchat, double newMontant) throws SQLException {
-        String req = "UPDATE `achat` SET `montantTotal`=? WHERE `idAchat`=?";
-
-        try (PreparedStatement ps = cnx.prepareStatement(req)) {
-            ps.setDouble(1, newMontant);
-            ps.setInt(2, idAchat);
-            ps.executeUpdate();
-        }
-    }
-
-    // ===================== COUNT ACHATS =====================
-    public int countAchats() throws SQLException {
-        String req = "SELECT COUNT(*) as count FROM `achat`";
-
-        try (Statement st = cnx.createStatement();
-             ResultSet rs = st.executeQuery(req)) {
-            if (rs.next()) {
-                return rs.getInt("count");
-            }
-        }
-
-        return 0;
-    }
-
-    // ===================== HELPER MAPPER =====================
-    private Achat mapResultSetToAchat(ResultSet rs) throws SQLException {
-        return new Achat(
-                rs.getInt("idAchat"),
-                rs.getTimestamp("dateAchat"),
-                rs.getInt("idClient"),
-                rs.getDouble("montantTotal"),
-                rs.getString("statut"),
-                rs.getString("description")
-        );
+        return achats;
     }
 }

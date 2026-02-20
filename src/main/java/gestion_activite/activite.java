@@ -13,14 +13,14 @@ public class Activite {
     private int idGuide;
     private String image;
 
-    private String statut; // "Actif" ou "Annulée"
+    private String statut;
     private int placesDisponibles;
 
-    // ===================== CONSTRUCTORS =====================
+
 
     public Activite() {}
 
-    // ✅ Constructeur complet
+
     public Activite(int idActivite, String titre, String description, String lieu,
                     Timestamp dateActivite, int dureParJour, double prix,
                     int idGuide, String image, String statut, int placesDisponibles) {
@@ -37,7 +37,6 @@ public class Activite {
         this.placesDisponibles = placesDisponibles;
     }
 
-    // ✅ Constructeur sans ID (insert)
     public Activite(String titre, String description, String lieu,
                     Timestamp dateActivite, int dureParJour, double prix,
                     int idGuide, String image, String statut, int placesDisponibles) {
@@ -53,7 +52,6 @@ public class Activite {
         this.placesDisponibles = placesDisponibles;
     }
 
-    // ===================== GETTERS & SETTERS =====================
 
     public int getIdActivite() { return idActivite; }
     public void setIdActivite(int idActivite) { this.idActivite = idActivite; }
@@ -89,7 +87,7 @@ public class Activite {
     public void setPlacesDisponibles(int placesDisponibles) { this.placesDisponibles = placesDisponibles; }
 
 
-    // ===================== TOSTRING =====================
+
     @Override
     public String toString() {
         return "Activite{" +

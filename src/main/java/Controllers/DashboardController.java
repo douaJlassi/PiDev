@@ -1,11 +1,20 @@
 package Controllers;
 
 
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.shape.Rectangle;
 
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+
+import javafx.scene.control.ButtonType;
+import java.io.IOException;
 import gestion_activite.Activite; // à créer si pas encore fait
 import Services.ActiviteService; // adaptez le package selon votre structure
 import javafx.fxml.FXML;
@@ -22,6 +31,8 @@ import javafx.scene.text.Text;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.List;
+
+
 
 public class DashboardController {
 
@@ -41,9 +52,52 @@ public class DashboardController {
             afficherActivites(activites);
         } catch (SQLException e) {
             e.printStackTrace();
-            // Afficher un message d'erreur à l'utilisateur
         }
     }
+
+
+
+
+
+
+
+
+    private void openReservationWindow(Activite activite) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ReservationView.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            ReservationController controller = loader.getController();
+            controller.setActivite(activite);
+            controller.setStage(stage);
+
+
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/fxml/style.css").toExternalForm());
+
+
+            stage.setTitle("Réserver - " + activite.getTitre());
+            stage.setScene(scene);
+            stage.initModality(Modality.APPLICATION_MODAL);
+
+            controller.setStage(stage);
+
+            stage.showAndWait();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+
+
+
+
+
+
 
     private void afficherActivites(List<Activite> activites) {
         activitiesFlowPane.getChildren().clear();
@@ -55,21 +109,20 @@ public class DashboardController {
             card.setPrefWidth(300);
             card.getStyleClass().add("card");
 
-            // 1. Create the ImageView
+
             ImageView imageView = new ImageView();
             imageView.setFitWidth(300);
             imageView.setFitHeight(160);
 
-            // Load image from your folder
+
             try {
                 String imageName = a.getImage();
 
-                // 1. If null or empty, use the string "default.jpg"
                 if (imageName == null || imageName.trim().isEmpty()) {
                     imageName = "default.jpg";
                 }
 
-                // 2. Automatically add .jpg if the extension is missing (e.g., "safari" -> "safari.jpg")
+
                 if (!imageName.contains(".")) {
                     imageName += ".jpg";
                 }
@@ -78,35 +131,34 @@ public class DashboardController {
                 java.net.URL resource = getClass().getResource(path);
 
                 if (resource != null) {
-                    // Specific image found
+
                     imageView.setImage(new Image(resource.toExternalForm(), true));
                 } else {
-                    // Specific image NOT found, try to load the default.jpg
+
                     System.out.println("⚠️ Image not found: " + path + ". Trying default.jpg...");
                     java.net.URL defaultUrl = getClass().getResource("/images/default.jpg");
 
                     if (defaultUrl != null) {
                         imageView.setImage(new Image(defaultUrl.toExternalForm()));
                     } else {
-                        // This means the file "default.jpg" is physically missing from src/main/resources/images/
+
                         System.err.println("❌ ERROR: default.jpg is missing from resources/images folder!");
                     }
                 }
             } catch (Exception e) {
                 System.err.println("Failed to load image for: " + a.getTitre());
             }
-            // 2. Add rounded corners to the image (Clip)
+
             Rectangle clip = new Rectangle(300, 160);
-            clip.setArcWidth(30);  // Adjust to match your CSS card corners
+            clip.setArcWidth(30);
             clip.setArcHeight(30);
             imageView.setClip(clip);
 
-            // StackPane with image and badge
             StackPane imageStack = new StackPane();
             imageStack.setPrefHeight(160);
             imageStack.getStyleClass().add("card-image");
 
-            // Add the image FIRST, then the badge so it stays on top
+
             imageStack.getChildren().addAll(imageView);
 
             String status = a.getStatut();
@@ -149,6 +201,7 @@ public class DashboardController {
             Button reserver = new Button("Réserver");
             reserver.getStyleClass().add("btn-reserve");
             reserver.setMaxWidth(Double.MAX_VALUE);
+            reserver.setOnAction(event -> openReservationWindow(a));
 
             content.getChildren().addAll(titre, lieu, date, priceRow, reserver);
             card.getChildren().addAll(imageStack, content);

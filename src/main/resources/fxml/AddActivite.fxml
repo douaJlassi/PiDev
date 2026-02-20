@@ -11,7 +11,7 @@
 
 
 
-    <!-- CONTENU PRINCIPAL -->
+
     <center>
         <ScrollPane fitToWidth="true" styleClass="content-scroll">
             <VBox spacing="25.0">
@@ -20,7 +20,6 @@
                 </padding>
 
                 <Button text="← Retour" onAction="#handleReturn" styleClass="return-button" />
-                <!-- Header -->
                 <HBox alignment="CENTER_LEFT">
                     <VBox HBox.hgrow="ALWAYS">
                         <Label styleClass="header-title" text="Ajouter une Nouvelle Activité" />
@@ -30,10 +29,9 @@
                 </HBox>
 
                 <HBox spacing="30.0">
-                    <!-- COLONNE GAUCHE (Image + Desc courte + Destination) -->
                     <VBox spacing="20.0" prefWidth="400.0">
 
-                        <!-- Zone Upload Image -->
+
                         <VBox alignment="CENTER" onMouseClicked="#handleSelectImage" prefHeight="200.0" styleClass="image-upload-area">
                             <StackPane>
                                 <ImageView fx:id="imagePreview" fitHeight="200.0" fitWidth="380.0" pickOnBounds="true" preserveRatio="true" />
@@ -60,7 +58,7 @@
                         </VBox>
                     </VBox>
 
-                    <!-- COLONNE DROITE (Détails techniques) -->
+
                     <VBox spacing="20.0" HBox.hgrow="ALWAYS">
 
                         <VBox spacing="8">

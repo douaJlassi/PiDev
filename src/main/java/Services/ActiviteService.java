@@ -15,7 +15,6 @@ public class ActiviteService implements CRUD<Activite> {
         cnx = MyDBConnexion.getInstance().getConnection();
     }
 
-    // ===================== INSERT =====================
     @Override
     public void insertOne(Activite a) throws SQLException {
         String req = "INSERT INTO `activite` (`titre`, `description`, `lieu`, `dateActivite`, `dureParJour`, `prix`, `idGuide`, `image`, `statut`, `placesDisponibles`) " +
@@ -37,7 +36,7 @@ public class ActiviteService implements CRUD<Activite> {
         }
     }
 
-    // ===================== UPDATE =====================
+
     @Override
     public void updateOne(Activite activite) throws SQLException {
         String req = "UPDATE `activite` SET `titre`=?, `description`=?, `lieu`=?, `dateActivite`=?, `dureParJour`=?, `prix`=?, `idGuide`=?, `image`=?, `statut`=?, `placesDisponibles`=? " +
@@ -60,7 +59,7 @@ public class ActiviteService implements CRUD<Activite> {
         }
     }
 
-    // ===================== DELETE =====================
+
     @Override
     public void deleteOne(Activite activite) throws SQLException {
         String req = "DELETE FROM `activite` WHERE `idActivite`=?";
@@ -71,7 +70,7 @@ public class ActiviteService implements CRUD<Activite> {
         }
     }
 
-    // ===================== SELECT ALL =====================
+
     @Override
     public List<Activite> selectALL() throws SQLException {
         List<Activite> activiteList = new ArrayList<>();
@@ -86,7 +85,7 @@ public class ActiviteService implements CRUD<Activite> {
         return activiteList;
     }
 
-    // ===================== SELECT BY ID =====================
+
     public Activite selectById(int idActivite) throws SQLException {
         String req = "SELECT * FROM `activite` WHERE `idActivite`=?";
         try (PreparedStatement ps = cnx.prepareStatement(req)) {
@@ -100,7 +99,7 @@ public class ActiviteService implements CRUD<Activite> {
         return null;
     }
 
-    // ===================== SEARCH BY LIEU =====================
+
     public List<Activite> selectByLieu(String lieu) throws SQLException {
         List<Activite> activiteList = new ArrayList<>();
         String req = "SELECT * FROM `activite` WHERE `lieu` LIKE ?";
@@ -115,7 +114,7 @@ public class ActiviteService implements CRUD<Activite> {
         return activiteList;
     }
 
-    // ===================== SEARCH BY GUIDE =====================
+
     public List<Activite> selectByGuide(int idGuide) throws SQLException {
         List<Activite> activiteList = new ArrayList<>();
         String req = "SELECT * FROM `activite` WHERE `idGuide`=?";
@@ -130,7 +129,7 @@ public class ActiviteService implements CRUD<Activite> {
         return activiteList;
     }
 
-    // ===================== SEARCH BY PRIX RANGE =====================
+
     public List<Activite> selectByPrixRange(double minPrix, double maxPrix) throws SQLException {
         List<Activite> activiteList = new ArrayList<>();
         String req = "SELECT * FROM `activite` WHERE `prix` BETWEEN ? AND ?";
@@ -146,7 +145,7 @@ public class ActiviteService implements CRUD<Activite> {
         return activiteList;
     }
 
-    // ===================== HELPER MAPPER =====================
+
     private Activite mapResultSetToActivite(ResultSet rs) throws SQLException {
         return new Activite(
                 rs.getInt("idActivite"),

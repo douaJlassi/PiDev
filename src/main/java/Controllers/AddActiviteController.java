@@ -55,7 +55,7 @@ public class AddActiviteController {
 
     @FXML
     public void initialize() {
-        // Optionnel : Remplir les ComboBox au démarrage
+
         if (lieuCombo != null) {
             lieuCombo.getItems().addAll("Douz", "Djerba", "Tunis", "Sousse", "Tozeur");
         }
@@ -124,7 +124,7 @@ public class AddActiviteController {
             }
         }
 
-        // Image
+
         selectedImageName = activite.getImage();
         loadImage(selectedImageName);
     }
@@ -135,7 +135,7 @@ public class AddActiviteController {
             if (is != null) {
                 imagePreview.setImage(new Image(is));
             } else {
-                loadDefaultImage();  // fallback if file not found
+                loadDefaultImage();
             }
         } else {
             loadDefaultImage();
@@ -148,7 +148,7 @@ public class AddActiviteController {
         if (defaultIs != null) {
             imagePreview.setImage(new Image(defaultIs));
         } else {
-            imagePreview.setImage(null);  // no image at all
+            imagePreview.setImage(null);
             System.err.println("Default image not found at /images/default.jpg");
         }
     }
@@ -184,13 +184,13 @@ public class AddActiviteController {
     @FXML
     private void handleAddActivite() {
         try {
-            // Validation
+
             if (titreField.getText().isEmpty() || prixField.getText().isEmpty() || datePicker.getValue() == null) {
                 showAlert("Veuillez remplir les champs obligatoires !");
                 return;
             }
 
-            // Gather data from form
+
             String titre = titreField.getText();
             String description = longDescField.getText();
             String lieu = (lieuCombo.getValue() != null) ? lieuCombo.getValue() : "Inconnu";
@@ -205,12 +205,12 @@ public class AddActiviteController {
                 places = Integer.parseInt(placesField.getText());
             }
 
-            // Default values (idGuide, statut)
-            int idGuide = 1; // replace with logged-in guide ID
+
+            int idGuide = 1;
             String statut = "Actif";
             String image = (selectedImageName != null) ? selectedImageName : "default.jpg";
 
-            // Create activity object
+
             Activite a = new Activite(
                     titre,
                     description,
@@ -225,19 +225,18 @@ public class AddActiviteController {
             );
 
             if (currentActivite != null) {
-                // --- EDIT MODE: update existing activity ---
-                a.setIdActivite(currentActivite.getIdActivite()); // preserve the ID
-                service.updateOne(a); // assume updateOne exists
+
+                a.setIdActivite(currentActivite.getIdActivite());
+                service.updateOne(a);
                 System.out.println("✅ Activité '" + a.getTitre() + "' mise à jour avec succès !");
             } else {
-                // --- ADD MODE: insert new activity ---
+
                 service.insertOne(a);
                 System.out.println("✅ Activité '" + a.getTitre() + "' ajoutée avec succès !");
                 handleReturn();
             }
 
-            // Optionally close the form or navigate back
-            // (you may want to return to the dashboard)
+
 
         } catch (NumberFormatException e) {
             showAlert("Erreur de format : vérifiez que le prix, la durée et le nombre de places sont des nombres.");

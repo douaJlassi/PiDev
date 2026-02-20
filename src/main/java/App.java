@@ -5,16 +5,14 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import java.net.URL;
 
+
 public class App extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
-        // 1. Load the FXML
-        Parent root = FXMLLoader.load(getClass().getResource("/fxml/Dashboard.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/fxml/GuideActivities.fxml"));
 
-        // 2. Create the Scene ONCE
         Scene scene = new Scene(root);
 
-        // 3. Find the CSS (Looking in the root, not in /fxml/)
         URL cssResource = getClass().getResource("/fxml/style.css");
         if (cssResource != null) {
             scene.getStylesheets().add(cssResource.toExternalForm());
@@ -22,9 +20,8 @@ public class App extends Application {
             System.err.println("Could not find style.css in src/main/resources/");
         }
 
-        // 4. Set the stage
         primaryStage.setTitle("Travel Dashboard");
-        primaryStage.setScene(scene); // Use the variable 'scene' here
+        primaryStage.setScene(scene);
         primaryStage.show();
     }
 
