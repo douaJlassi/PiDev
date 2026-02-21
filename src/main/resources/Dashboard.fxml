@@ -41,6 +41,8 @@
                     <children>
                         <Button fx:id="Dashboard" onAction="#handleShowDashboard" alignment="BASELINE_LEFT" graphicTextGap="15.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="nav-btn" text="📉 Dashboard" />
                         <Button fx:id="Services" onAction="#handleShowServices" alignment="BASELINE_LEFT" graphicTextGap="15.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="nav-btn" text="👨🏻‍💻 Services" />
+                        <Button fx:id="Reservations" onAction="#handleShowReservations" alignment="BASELINE_LEFT" graphicTextGap="15.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="nav-btn" text="🎫 Reservations"/>
+
                     </children>
                     <padding>
                         <Insets left="15.0" right="15.0" top="30.0" />
@@ -93,11 +95,24 @@
                                             <!-- ... Your Card Code ... -->
                                             <VBox prefHeight="140.0" prefWidth="240.0" styleClass="stat-card, card-teal">
                                                 <children>
-                                                    <Label styleClass="card-title" text="Total Packages" />
-                                                    <Label styleClass="card-value" text="124" />
+                                                    <Label styleClass="card-title" text="Hotels" />
+                                                    <Label fx:id="Hotels" styleClass="card-value"  />
                                                 </children>
                                             </VBox>
                                             <!-- Add other cards here -->
+                                            <VBox prefHeight="140.0" prefWidth="240.0" styleClass="stat-card, card-yellow">
+
+                                            <children>
+                                                <Label styleClass="card-title" text="Vols" />
+                                                <Label fx:id="Vols" styleClass="card-value"  />
+                                            </children>
+                                        </VBox>
+                                            <VBox prefHeight="140.0" prefWidth="240.0" styleClass="stat-card, card-teal">
+                                                <children>
+                                                    <Label styleClass="card-title" text="Reservations" />
+                                                    <Label fx:id="ReservationNb" styleClass="card-value"  />
+                                                </children>
+                                            </VBox>
                                         </HBox>
 
                                         <!-- RECENT ACTIVITY SECTION -->
@@ -107,7 +122,7 @@
                                                 <!-- *** HEADER WITH NEW BUTTONS *** -->
                                                 <HBox alignment="CENTER_LEFT" spacing="10.0">
                                                     <children>
-                                                        <Label styleClass="section-header" text="Recent Services" />
+                                                        <Label styleClass="section-header" text="Services" />
                                                         <Pane HBox.hgrow="ALWAYS" />
 
                                                         <!-- NEW BUTTONS -->
@@ -129,12 +144,24 @@
                                                         <Label minWidth="150.0" text="Type" />
                                                         <Label minWidth="100.0" text="Price" />
                                                         <Label minWidth="100.0" text="Capacity" />
-                                                        <Label minWidth="150.0" text="Status" />
+                                                        <Label minWidth="100.0" text="Status" />
                                                     </children>
                                                 </HBox>
-
                                                 <!-- Items Container -->
                                                 <VBox fx:id="pnItems" spacing="5.0" style="-fx-background-color: white;" />
+                                                <Label styleClass="section-header" text="Reservations" />
+                                                <!-- Table Header -->
+                                                <HBox styleClass="table-header">
+                                                    <children>
+                                                        <Label minWidth="100.0" text="Nom" HBox.hgrow="ALWAYS" />
+                                                        <Label minWidth="200.0" text="Reservation Date" />
+                                                        <Label minWidth="150.0" text="Payment Method" />
+                                                        <Label minWidth="150.0" text="Service Name" />
+                                                        <Label minWidth="100.0" text="Status" />
+                                                    </children>
+                                                </HBox>
+                                                <!-- Items Container -->
+                                                <VBox fx:id="pnItemsReservation" spacing="5.0" style="-fx-background-color: white;" />
 
                                             </children>
                                         </VBox>

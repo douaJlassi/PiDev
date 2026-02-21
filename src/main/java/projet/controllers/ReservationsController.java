@@ -13,11 +13,9 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 
-import projet.entites.Hotel;
-import projet.entites.service;
-import projet.entites.user;
-import projet.entites.vol;
+import projet.entites.*;
 import projet.services.HotelService;
+import projet.services.ReservationService;
 import projet.services.ServiceService;
 import projet.services.VolService;
 
@@ -28,49 +26,46 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class ServicesContoller implements Initializable {
-   // user connectedUser=new user("achref","souli","admin");
-    user connectedUser=new user("achref","souli","user");
-
+public class ReservationsController implements Initializable {
+    // user connectedUser=new user("achref","souli","admin");
+    user connectedUser=new user("achref","souli","admin");
     @FXML
     private FlowPane cardsContainer;
-
     @FXML
     private TextField txtSearch;
-
-    private List<service> allServices;
+    private List<reservation> allReservations;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        allServices = getDummyData();
-        renderServices(allServices);
+        allReservations = getDummyData();
+        renderServices(allReservations);
     }
     public void refreshServices() {
-        allServices = getDummyData();
-        renderServices(allServices);
+        allReservations = getDummyData();
+        renderServices(allReservations);
     }
 
     @FXML
     private void handleSearch() {
         String query = txtSearch.getText().toLowerCase();
-        List<service> filtered = allServices.stream()
+        List<reservation> filtered = allReservations.stream()
                 .filter(s -> s.getNom().toLowerCase().contains(query)
-                        )
+                )
                 .toList();
         renderServices(filtered);
     }
 
-    private void renderServices(List<service> services) {
+    private void renderServices(List<reservation> reservations) {
         cardsContainer.getChildren().clear();
 
-        for (service s : services) {
-            VBox card = createServiceCard(s);
+        for (reservation r : reservations) {
+            VBox card = createServiceCard(r);
             cardsContainer.getChildren().add(card);
         }
     }
 
-    private VBox createServiceCard(service s) {
-        ServiceService Service = new ServiceService();
+    private VBox createServiceCard(reservation r) {
+        ReservationService Service = new ReservationService();
 
         // --- CONTAINER ---
         VBox card = new VBox();
@@ -78,44 +73,24 @@ public class ServicesContoller implements Initializable {
         card.setPrefWidth(220);
         card.setMinWidth(220);
         card.setSpacing(10);
-
-        // --- IMAGE PLACEHOLDER ---
-        // Since you don't have DB images yet, we use a placeholder logic
-        StackPane imgContainer = new StackPane();
-        imgContainer.getStyleClass().add("card-img-container");
-
-        // Try to load image, otherwise standard icon
-        ImageView imageView = new ImageView();
-        imageView.setFitHeight(120);
-        imageView.setFitWidth(220);
-        imageView.setPreserveRatio(false); // Fill the box
-
-        // Use a default image from resources if available, else a colored rect
-        try {
-            // Put a "default_service.jpg" in your images folder
-            Image img = new Image(getClass().getResourceAsStream("/images/default_service.jpg"));
-            imageView.setImage(img);
-        } catch (Exception e) {
-            // If no image found, just leave empty or set style
-            imgContainer.setStyle("-fx-background-color: #e0e0e0;");
-        }
-
-        imgContainer.getChildren().add(imageView);
-
         // --- DETAILS ---
         VBox details = new VBox();
         details.setPadding(new Insets(10));
         details.setSpacing(5);
 
-        Label type = new Label(s.getType());
-        type.getStyleClass().add("card-type");
+        Label statut = new Label("Status: "+r.getStatut());
+        statut.getStyleClass().add("card-type");
 
-        Label name = new Label(s.getNom());
+        Label paiement = new Label("payment method: "+r.getModePaiement());
+        paiement.getStyleClass().add("card-type");
+
+        Label date = new Label("Reservation Date: "+r.getDateReservation().toString());
+        date.getStyleClass().add("card-type");
+
+        Label name = new Label(r.getNom());
         name.getStyleClass().add("card-title-text");
         name.setWrapText(true);
 
-        Label price = new Label(s.getPrix() + " TND");
-        price.getStyleClass().add("card-price");
 
         // --- ACTION BUTTONS ---
 
@@ -124,15 +99,13 @@ public class ServicesContoller implements Initializable {
         actions.setSpacing(10);
         Button btnEdit = new Button("✎");
         btnEdit.getStyleClass().add("btn-card-action");
-        btnEdit.setOnAction(e -> {
-         handleEditAction(s);
-        });
+
 
 
         Button btnDelete = new Button("🗑");
         btnDelete.setOnAction(event -> {
             try {
-                Service.deleteOne(s);
+                Service.deleteOne(r);
                 refreshServices();
             } catch (SQLException e) {
                 throw new RuntimeException(e);
@@ -143,14 +116,14 @@ public class ServicesContoller implements Initializable {
             btnEdit.setVisible(false);
         }
         btnDelete.getStyleClass().addAll("btn-card-action", "btn-card-delete");
-        card.setOnMouseClicked(event -> {showDetails(s);});
+        //card.setOnMouseClicked(event -> {showDetails(s);});
         Pane spacer = new Pane();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        actions.getChildren().addAll(price, spacer, btnEdit, btnDelete);
+        actions.getChildren().addAll( spacer, btnEdit, btnDelete);
 
-        details.getChildren().addAll(type, name, actions);
-        card.getChildren().addAll(imgContainer, details);
+        details.getChildren().addAll(name,statut,paiement,date,actions);
+        card.getChildren().addAll(details);
 
         return card;
     }
@@ -169,7 +142,7 @@ public class ServicesContoller implements Initializable {
             try {
                 VolService volService = new VolService();
                 try {
-                     v = volService.selectByNom(service.getNom());
+                    v = volService.selectByNom(service.getNom());
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }
@@ -180,7 +153,7 @@ public class ServicesContoller implements Initializable {
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
 
-        }}
+            }}
 
         // === CASE 2: IT IS A HOTEL ===
         else if (service.getType().equals("hotel")) {
@@ -209,9 +182,9 @@ public class ServicesContoller implements Initializable {
             return;
         }
     }
-    private List<service> getDummyData() {
-        ServiceService Service = new ServiceService();
-        List<service> list = new ArrayList<>();
+    private List<reservation> getDummyData() {
+        ReservationService Service = new ReservationService();
+        List<reservation> list = new ArrayList<>();
         try {
             list=Service.selectALL();
         } catch (SQLException e) {
@@ -225,7 +198,7 @@ public class ServicesContoller implements Initializable {
         vol v;
         Hotel h;
         if (s.getType().equals("hotel")) {
-           loader = new FXMLLoader(getClass().getResource("/hotelDetails.fxml"));
+            loader = new FXMLLoader(getClass().getResource("/hotelDetails.fxml"));
             try {
                 HotelService hotelService = new HotelService();
                 try {

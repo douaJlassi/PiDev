@@ -11,15 +11,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import projet.entites.Hotel;
-import projet.entites.service;
-import projet.entites.user;
-import projet.entites.vol;
+import projet.entites.*;
 import projet.services.HotelService;
+import projet.services.ReservationService;
 import projet.services.ServiceService;
 import projet.services.VolService;
-
-
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
@@ -28,11 +24,12 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class DashboardController implements Initializable {
-    user connectedUser=new user("achref","souli","user");
-    vol vol;
-    HotelService hotelService;
+  //  user connectedUser=new user("achref","souli","admin");
+    user connectedUser=new user("achref","souli","admin");
     @FXML
     private VBox pnItems;
+    @FXML
+    private VBox pnItemsReservation;
     @FXML
     private StackPane contentArea;
     @FXML
@@ -44,50 +41,67 @@ public class DashboardController implements Initializable {
     @FXML
     private Button Services;
     @FXML
+    private Button Reservations;
+    @FXML
     private ComboBox<String> cbFilter;
     @FXML
     private Button searchServiceBtn;
     @FXML
     private TextField searchBar;
+    @FXML
+    private Label Vols;
+    @FXML
+    private Label Hotels;
+    @FXML
+    private Label ReservationNb;
+
+
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         if (connectedUser.getType().equals("user")) {
             setupUserView();
         }
         cbFilter.getItems().addAll("Price", "Capacity", "Availability");
-        // Fetch data from your service
         searchServiceBtn.setOnMouseClicked(event -> {handleSearchAction();});
         List<service> recentServices = getAllServices();
-        // Populate the table
+        List<reservation> recentReservations = getAllReservations();
+        Vols.setText(String.valueOf(recentServices.stream().filter(s -> s.getType().equals("vol")).count()));
+        Hotels.setText(String.valueOf(recentServices.stream().filter(s -> s.getType().equals("hotel")).count()));
+        ReservationNb.setText(String.valueOf(recentReservations.size()));
         for (service s : recentServices) {
             HBox row = createServiceRow(s);
             pnItems.getChildren().add(row);
         }
+        for (reservation r : recentReservations) {
+            HBox row = createReservationRow(r);
+            pnItemsReservation.getChildren().add(row);
+        }
     }
     private void refreshData() {
         System.out.println("Refreshing Dashboard Data...");
-
-        // STEP 1: CLEAR THE OLD DATA (Very Important!)
         pnItems.getChildren().clear();
-
-        // STEP 2: Fetch fresh data from your Service/DB
-        // List<Service> recentServices = serviceService.getAll();
         List<service> recentServices = getAllServices();
-
-
-        // Populate the table
         for (service service : recentServices) {
             HBox row = createServiceRow(service);
             pnItems.getChildren().add(row);
         }
-
-
     }
     private List<service> getAllServices() {
         ServiceService Service = new ServiceService();
-        List<service> list = new ArrayList<>();
+        List<service> list;
         try {
             list=Service.selectALL();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return list;
+    }
+    private List<reservation> getAllReservations() {
+        ReservationService reservations = new ReservationService();
+        List<reservation> list;
+        try {
+            list=reservations.selectALL();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -115,23 +129,71 @@ public class DashboardController implements Initializable {
 
         // 4. Capacity Label
         Label capLbl = new Label(String.valueOf(service.getCapacite()));
-        capLbl.setMinWidth(150);
+        capLbl.setMinWidth(100);
 
         // 5. Status Label (Dynamic Styling)
         if (service.getDisponibilite()){
         Label statusLbl = new Label("Disponible");
-        statusLbl.setMinWidth(90);
+        statusLbl.setMinWidth(100);
         statusLbl.getStyleClass().add("status-active");
             row.getChildren().addAll(nameLbl, typeLbl, priceLbl, capLbl, statusLbl);
         }
         else {
             Label statusLbl = new Label("Non Disponible");
-            statusLbl.setMinWidth(90);
+            statusLbl.setMinWidth(100);
             statusLbl.getStyleClass().add("status-pending");
             row.getChildren().addAll(nameLbl, typeLbl, priceLbl, capLbl, statusLbl);
 
         }
        row.setOnMouseClicked(e -> {showDetails(service);});
+        searchServiceBtn.setOnMouseClicked(e -> {});
+
+
+        // Add all to row
+
+
+        return row;
+    }
+    private HBox createReservationRow(reservation reservation) {
+        ServiceService Service = new ServiceService();
+
+        HBox row = new HBox();
+        row.setAlignment(Pos.CENTER_LEFT);
+        row.getStyleClass().add("table-row");
+
+
+
+        Label nameLbl = new Label(reservation.getNom());
+        nameLbl.setMinWidth(100);
+        HBox.setHgrow(nameLbl, Priority.ALWAYS);
+
+
+        Label DateLbl = new Label(reservation.getDateReservation().toString());
+        DateLbl.setMinWidth(200);
+
+
+        Label PaymentLbl = new Label(reservation.getModePaiement());
+        PaymentLbl.setMinWidth(150);
+        PaymentLbl.setStyle("-fx-font-weight:bold; -fx-text-fill: #4ba3a1;");
+
+        Label ServiceLbl = new Label();
+        ServiceLbl.setMinWidth(150);
+
+
+        if (reservation.getStatut().equals("acceptee")){
+            Label statusLbl = new Label("Accepted");
+            statusLbl.setMinWidth(100);
+            statusLbl.getStyleClass().add("status-active");
+            row.getChildren().addAll(nameLbl, DateLbl, PaymentLbl, ServiceLbl, statusLbl);
+        }
+        else {
+            Label statusLbl = new Label("Not Accepted");
+            statusLbl.setMinWidth(100);
+            statusLbl.getStyleClass().add("status-pending");
+            row.getChildren().addAll(nameLbl, DateLbl, PaymentLbl, ServiceLbl, statusLbl);
+
+        }
+       // row.setOnMouseClicked(e -> {showDetailsReservation(reservation);});
         searchServiceBtn.setOnMouseClicked(e -> {});
 
 
@@ -182,6 +244,7 @@ public class DashboardController implements Initializable {
     private void handleShowDashboard(ActionEvent event) {
         searchBox.setVisible(true);
         Dashboard.getStyleClass().add("active-nav-btn");
+        Reservations.getStyleClass().removeAll("active-nav-btn");
         Services.getStyleClass().removeAll("active-nav-btn");
         // Remove any forms (anything that is NOT pnlOverview)
         contentArea.getChildren().removeIf(node -> node != pnlOverview);
@@ -196,39 +259,28 @@ public class DashboardController implements Initializable {
         try {
             Services.getStyleClass().add("active-nav-btn");
             Dashboard.getStyleClass().removeAll("active-nav-btn");
-           searchBox.setVisible(false);
-            // Load the addVol.fxml
+            Reservations.getStyleClass().removeAll("active-nav-btn");
             Parent HotelForm = FXMLLoader.load(getClass().getResource("/Services.fxml"));
-
-            // Clear current view and add the form
             contentArea.getChildren().removeAll(); // Clears everything? No, we want to keep logic simple.
-
-            // Better approach: Make pnlOverview invisible and add form on top
             pnlOverview.setVisible(false);
-
-            // Check if form is already added to avoid duplicates (Optional optimization)
             contentArea.getChildren().add(HotelForm);
             refreshData();
-
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
     @FXML
-    public void handleShowUpdateVolForm(ActionEvent event) {
+    private void handleShowReservations(ActionEvent event) {
+        searchBox.setVisible(false);
         try {
-            // Load the addVol.fxml
-            Parent volForm = FXMLLoader.load(getClass().getResource("/updateVol.fxml"));
-
-            // Clear current view and add the form
-            contentArea.getChildren().removeAll(); // Clears everything? No, we want to keep logic simple.
-
-            // Better approach: Make pnlOverview invisible and add form on top
+            Services.getStyleClass().removeAll("active-nav-btn");
+            Dashboard.getStyleClass().removeAll("active-nav-btn");
+            Reservations.getStyleClass().add("active-nav-btn");
+            Parent Reservations = FXMLLoader.load(getClass().getResource("/Reservations.fxml"));
+            contentArea.getChildren().removeAll();
             pnlOverview.setVisible(false);
-
-            // Check if form is already added to avoid duplicates (Optional optimization)
-            contentArea.getChildren().add(volForm);
-
+            contentArea.getChildren().add(Reservations);
+            refreshData();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -242,7 +294,7 @@ public class DashboardController implements Initializable {
     private void handleSearchAction() {
         ServiceService service = new ServiceService();
         pnItems.getChildren().clear();
-        String searchText = searchBar.getText().toLowerCase().trim();
+        String searchText = searchBar.getText().trim();
         List<service> allServices = getAllServices();
         boolean found = false;
         for (service s : allServices) {
@@ -260,7 +312,6 @@ public class DashboardController implements Initializable {
         }
 
     }
-
     private void setupUserView() {
         searchBox.setVisible(false);
         // 1. Cacher les boutons et panneaux non autorisés

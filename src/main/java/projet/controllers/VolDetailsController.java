@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 public class VolDetailsController {
+    //user connectedUser=new user("achref","souli","user");
+    //user connectedUser=new user("achref","souli","user");
 @FXML
 private Button retourBtn;
     @FXML private Button btnReserver;

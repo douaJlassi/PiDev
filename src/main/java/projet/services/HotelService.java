@@ -89,5 +89,18 @@ public class HotelService implements CRUD<String,Hotel> {
 
         }
         return sr;
-    }}
+    }
+
+    public int NbHotels() throws SQLException {
+        List<Hotel> hotelList = new ArrayList<>();
+
+        String req = "SELECT COUNT(*) FROM `services` WHERE `type`='hotel' ";
+        Statement st = connection.createStatement();
+
+        ResultSet rs = st.executeQuery(req);
+        return rs.getInt(1);
+    }
+
+
+}
 

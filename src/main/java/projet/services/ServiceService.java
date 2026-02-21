@@ -91,4 +91,25 @@ public class ServiceService implements CRUD<String,service> {
         }
         return id;
     }
+    public service selectById(int id) throws SQLException {
+        String req = "SELECT * FROM `services` WHERE `id` = '" + id + "'";
+        Statement st = connection.createStatement();
+
+        ResultSet rs = st.executeQuery(req);
+
+        service sr = null;
+        while (rs.next()) {
+
+            sr = new service(
+                    rs.getString(2),
+                    rs.getString(3),
+                    rs.getDouble(4),
+                    rs.getBoolean(5),
+                    rs.getInt(6),
+                    "none"
+            );
+
+        }
+        return sr;
+    }
 }

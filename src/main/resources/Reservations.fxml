@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane  prefHeight="700.0" prefWidth="800.0" style="-fx-background-color: #f4f6f8;" stylesheets="@styleDash.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="projet.controllers.ServicesContoller">
+<AnchorPane  prefHeight="700.0" prefWidth="800.0" style="-fx-background-color: #f4f6f8;" stylesheets="@styleDash.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="projet.controllers.ReservationsController">
     <children>
         <VBox spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <children>
@@ -18,12 +18,13 @@
                 <!-- HEADER: Title + Search + Filter -->
                 <HBox alignment="CENTER_LEFT" prefHeight="60.0" spacing="15.0" style="-fx-background-color: white; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);">
                     <children>
-                        <Label styleClass="page-title" text="Available Services" />
+                        <Label styleClass="page-title" text="Available Reservations" />
 
                         <Pane HBox.hgrow="ALWAYS" />
 
                         <TextField fx:id="txtSearch" promptText="Search services..." styleClass="search-box" prefWidth="250.0" />
                         <Button mnemonicParsing="false"  styleClass="action-btn" text="🔍 Search" />
+
                     </children>
                     <padding>
                         <Insets left="30.0" right="30.0" />
