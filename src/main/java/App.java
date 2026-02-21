@@ -9,7 +9,7 @@ import java.net.URL;
 public class App extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("/fxml/GuideActivities.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/fxml/Dashboard.fxml"));
 
         Scene scene = new Scene(root);
 

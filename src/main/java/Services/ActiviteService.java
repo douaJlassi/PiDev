@@ -17,8 +17,9 @@ public class ActiviteService implements CRUD<Activite> {
 
     @Override
     public void insertOne(Activite a) throws SQLException {
-        String req = "INSERT INTO `activite` (`titre`, `description`, `lieu`, `dateActivite`, `dureParJour`, `prix`, `idGuide`, `image`, `statut`, `placesDisponibles`) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        // ✅ Added 'categorie' column
+        String req = "INSERT INTO `activite` (`titre`, `description`, `lieu`, `dateActivite`, `dureParJour`, `prix`, `idGuide`, `image`, `statut`, `placesDisponibles`, `categorie`) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = cnx.prepareStatement(req)) {
             ps.setString(1, a.getTitre());
@@ -31,45 +32,44 @@ public class ActiviteService implements CRUD<Activite> {
             ps.setString(8, a.getImage());
             ps.setString(9, a.getStatut());
             ps.setInt(10, a.getPlacesDisponibles());
+            ps.setString(11, a.getCategorie());  // NEW
 
             ps.executeUpdate();
         }
     }
 
-
     @Override
     public void updateOne(Activite activite) throws SQLException {
-        String req = "UPDATE `activite` SET `titre`=?, `description`=?, `lieu`=?, `dateActivite`=?, `dureParJour`=?, `prix`=?, `idGuide`=?, `image`=?, `statut`=?, `placesDisponibles`=? " +
+        // ✅ Added 'categorie' column
+        String req = "UPDATE `activite` SET `titre`=?, `description`=?, `lieu`=?, `dateActivite`=?, `dureParJour`=?, `prix`=?, `idGuide`=?, `image`=?, `statut`=?, `placesDisponibles`=?, `categorie`=? " +
                 "WHERE `idActivite`=?";
 
         try (PreparedStatement ps = cnx.prepareStatement(req)) {
             ps.setString(1, activite.getTitre());
             ps.setString(2, activite.getDescription());
             ps.setString(3, activite.getLieu());
-            ps.setTimestamp(4, new Timestamp(activite.getDateActivite().getTime()));
+            ps.setTimestamp(4, activite.getDateActivite());
             ps.setInt(5, activite.getDureParJour());
             ps.setDouble(6, activite.getPrix());
             ps.setInt(7, activite.getIdGuide());
             ps.setString(8, activite.getImage());
             ps.setString(9, activite.getStatut());
             ps.setInt(10, activite.getPlacesDisponibles());
-            ps.setInt(11, activite.getIdActivite());
+            ps.setString(11, activite.getCategorie()); // NEW
+            ps.setInt(12, activite.getIdActivite());
 
             ps.executeUpdate();
         }
     }
 
-
     @Override
     public void deleteOne(Activite activite) throws SQLException {
         String req = "DELETE FROM `activite` WHERE `idActivite`=?";
-
         try (PreparedStatement ps = cnx.prepareStatement(req)) {
             ps.setInt(1, activite.getIdActivite());
             ps.executeUpdate();
         }
     }
-
 
     @Override
     public List<Activite> selectALL() throws SQLException {
@@ -85,7 +85,6 @@ public class ActiviteService implements CRUD<Activite> {
         return activiteList;
     }
 
-
     public Activite selectById(int idActivite) throws SQLException {
         String req = "SELECT * FROM `activite` WHERE `idActivite`=?";
         try (PreparedStatement ps = cnx.prepareStatement(req)) {
@@ -98,7 +97,6 @@ public class ActiviteService implements CRUD<Activite> {
         }
         return null;
     }
-
 
     public List<Activite> selectByLieu(String lieu) throws SQLException {
         List<Activite> activiteList = new ArrayList<>();
@@ -114,7 +112,6 @@ public class ActiviteService implements CRUD<Activite> {
         return activiteList;
     }
 
-
     public List<Activite> selectByGuide(int idGuide) throws SQLException {
         List<Activite> activiteList = new ArrayList<>();
         String req = "SELECT * FROM `activite` WHERE `idGuide`=?";
@@ -128,7 +125,6 @@ public class ActiviteService implements CRUD<Activite> {
         }
         return activiteList;
     }
-
 
     public List<Activite> selectByPrixRange(double minPrix, double maxPrix) throws SQLException {
         List<Activite> activiteList = new ArrayList<>();
@@ -145,7 +141,7 @@ public class ActiviteService implements CRUD<Activite> {
         return activiteList;
     }
 
-
+    // ✅ Updated mapping to include 'categorie'
     private Activite mapResultSetToActivite(ResultSet rs) throws SQLException {
         return new Activite(
                 rs.getInt("idActivite"),
@@ -157,8 +153,18 @@ public class ActiviteService implements CRUD<Activite> {
                 rs.getDouble("prix"),
                 rs.getInt("idGuide"),
                 rs.getString("image"),
-                rs.getString("statut"),           // Nouveau champ
-                rs.getInt("placesDisponibles")    // Nouveau champ
+                rs.getString("statut"),
+                rs.getInt("placesDisponibles"),
+                rs.getString("categorie")   // NEW: must be added to the Activite constructor
         );
+    }
+
+    public void updatePlaces(int idActivite, int newPlaces) throws SQLException {
+        String req = "UPDATE activite SET placesDisponibles = ? WHERE idActivite = ?";
+        try (PreparedStatement ps = cnx.prepareStatement(req)) {
+            ps.setInt(1, newPlaces);
+            ps.setInt(2, idActivite);
+            ps.executeUpdate();
+        }
     }
 }

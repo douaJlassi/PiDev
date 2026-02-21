@@ -39,7 +39,6 @@ public class AddActiviteController {
     private BorderPane mainBorderPane;
     private Node previousView;
 
-
     public void setMainBorderPane(BorderPane mainBorderPane) {
         this.mainBorderPane = mainBorderPane;
     }
@@ -48,14 +47,12 @@ public class AddActiviteController {
         this.previousView = previousView;
     }
 
-
     private Activite currentActivite = null;
     private String selectedImageName = "default.jpg";
     private ActiviteService service = new ActiviteService();
 
     @FXML
     public void initialize() {
-
         if (lieuCombo != null) {
             lieuCombo.getItems().addAll("Douz", "Djerba", "Tunis", "Sousse", "Tozeur");
         }
@@ -63,11 +60,9 @@ public class AddActiviteController {
             heureCombo.getItems().addAll("08:00", "09:00", "10:00", "14:00", "16:00");
         }
         if (categoryCombo != null) {
-            categoryCombo.getItems().addAll("Safari", "Plongée", "Randonnée", "Culture");
+            categoryCombo.getItems().addAll("Safari", "Culture", "Sports", "Aventure", "Monuments");
         }
     }
-
-
 
     @FXML
     private void handleReturn() {
@@ -81,14 +76,12 @@ public class AddActiviteController {
         }
     }
 
-    // Helper to show alerts (add this method if not already present)
+    // Helper to show alerts
     private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR, message, ButtonType.OK);
         alert.setTitle(title);
         alert.show();
     }
-
-
 
     public void setActivite(Activite activite) {
         this.currentActivite = activite; // store for later use
@@ -97,12 +90,11 @@ public class AddActiviteController {
         titreField.setText(activite.getTitre());
         prixField.setText(String.valueOf(activite.getPrix()));
         dureeField.setText(String.valueOf(activite.getDureParJour()));
-        placesField.setText(String.valueOf(activite.getPlacesDisponibles())); // uncommented
+        placesField.setText(String.valueOf(activite.getPlacesDisponibles()));
 
         // Descriptions
         String description = activite.getDescription();
         longDescField.setText(description != null ? description : "");
-        // If you have a short description field in Activite, use it here
         shortDescField.setText(""); // adjust if needed
 
         // Location
@@ -110,8 +102,10 @@ public class AddActiviteController {
             lieuCombo.setValue(activite.getLieu());
         }
 
-        // Category – if your Activite has a category field
-        // categoryCombo.setValue(activite.getCategorie());
+        // ✅ Category – set the combo box value from the activity's category
+        if (activite.getCategorie() != null) {
+            categoryCombo.setValue(activite.getCategorie());
+        }
 
         // Date and time
         if (activite.getDateActivite() != null) {
@@ -123,7 +117,6 @@ public class AddActiviteController {
                 heureCombo.setValue(heure);
             }
         }
-
 
         selectedImageName = activite.getImage();
         loadImage(selectedImageName);
@@ -141,7 +134,6 @@ public class AddActiviteController {
             loadDefaultImage();
         }
     }
-
 
     private void loadDefaultImage() {
         InputStream defaultIs = getClass().getResourceAsStream("/images/default.jpg");
@@ -184,12 +176,10 @@ public class AddActiviteController {
     @FXML
     private void handleAddActivite() {
         try {
-
             if (titreField.getText().isEmpty() || prixField.getText().isEmpty() || datePicker.getValue() == null) {
                 showAlert("Veuillez remplir les champs obligatoires !");
                 return;
             }
-
 
             String titre = titreField.getText();
             String description = longDescField.getText();
@@ -205,12 +195,16 @@ public class AddActiviteController {
                 places = Integer.parseInt(placesField.getText());
             }
 
-
-            int idGuide = 1;
+            int idGuide = 1; // TODO: replace with actual logged-in guide ID
             String statut = "Actif";
             String image = (selectedImageName != null) ? selectedImageName : "default.jpg";
 
+            // ✅ Get selected category
+            String categorie = categoryCombo.getValue(); // may be null if nothing selected
 
+            // Create Activite object with the new category field
+            // Ensure your Activite class has a constructor that accepts 11 parameters,
+            // with category as the last parameter. If not, use setters.
             Activite a = new Activite(
                     titre,
                     description,
@@ -221,22 +215,20 @@ public class AddActiviteController {
                     idGuide,
                     image,
                     statut,
-                    places
+                    places,
+                    categorie // new category parameter
             );
 
             if (currentActivite != null) {
-
                 a.setIdActivite(currentActivite.getIdActivite());
                 service.updateOne(a);
                 System.out.println("✅ Activité '" + a.getTitre() + "' mise à jour avec succès !");
+                handleReturn(); // optionally return after update
             } else {
-
                 service.insertOne(a);
                 System.out.println("✅ Activité '" + a.getTitre() + "' ajoutée avec succès !");
                 handleReturn();
             }
-
-
 
         } catch (NumberFormatException e) {
             showAlert("Erreur de format : vérifiez que le prix, la durée et le nombre de places sont des nombres.");

@@ -13,7 +13,10 @@
 <?import javafx.scene.text.Text?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.control.ComboBox?>
 
+
+<?import javafx.scene.control.TextField?>
 <HBox prefHeight="800.0" prefWidth="1200.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.DashboardController">
 
     <!-- 1. SIDEBAR (Full Height) - refined with softer gradient -->
@@ -29,9 +32,9 @@
 
         <VBox spacing="5">
             <Label styleClass="nav-section-label" text="NAVIGATION" />
-            <Button maxWidth="1.7976931348623157E308" styleClass="nav-button-modern, nav-button-active-modern" text="🏠 Dashboard" />
+            <Button maxWidth="1.7976931348623157E308" styleClass="nav-button-modern, nav-button-active-modern" text="Activités" />
             <Button maxWidth="1.7976931348623157E308" styleClass="nav-button-modern" text="📊 Gestion des Activités" />
-            <Button maxWidth="1.7976931348623157E308" styleClass="nav-button-modern" text="🎫 Mes Réservations" />
+            <Button maxWidth="1.7976931348623157E308" styleClass="nav-button-modern" text="others" />
             <Button maxWidth="1.7976931348623157E308" styleClass="nav-button-modern" text="💬 Messagerie" />
         </VBox>
 
@@ -67,26 +70,24 @@
             </HBox>
         </HBox>
 
-        <!-- CONTENT AREA -->
-        <ScrollPane fitToWidth="true" styleClass="content-scroll-modern" VBox.vgrow="ALWAYS">
+
+        <ScrollPane fx:id="contentScrollPane" fitToWidth="true" styleClass="content-scroll-modern" VBox.vgrow="ALWAYS">
             <VBox spacing="30" style="-fx-padding: 40;">
+                <Button fx:id="mesReservationsButton"  styleClass="nav-button-modern" text="🎫 Mes Réservations" />
 
-                <!-- Filters Section - redesigned as pill buttons -->
-                <HBox alignment="CENTER_LEFT" spacing="15">
-                    <Label styleClass="filter-label-modern" text="🔍 Filtrer :" />
-                    <Button styleClass="filter-chip-modern, filter-chip-active" text="Tous" />
-                    <Button styleClass="filter-chip-modern" text="Aventure" />
-                    <Button styleClass="filter-chip-modern" text="Sport" />
-                    <Button styleClass="filter-chip-modern" text="Gastronomie" />
-                </HBox>
+                    <HBox styleClass="filter-bar" alignment="CENTER_LEFT" spacing="15">
+                        <Label styleClass="filter-label-modern" text="🔍 Filtrer :" />
+                        <Button fx:id="btnTous" styleClass="filter-chip-modern" text="Tous" />
+                        <Button fx:id="btnAventure" styleClass="filter-chip-modern" text="Aventure" />
+                        <Button fx:id="btnSport" styleClass="filter-chip-modern" text="Sport" />
+                        <ComboBox fx:id="placesFilterCombo" styleClass="filter-combo" promptText="Filtrer par places" />
+                        <TextField fx:id="customCategoryField" promptText="Catégorie personnalisée" styleClass="filter-textfield" />
+                        <Button fx:id="searchCategoryButton" text="Rechercher" styleClass="filter-button" />
+                    </HBox>
 
-                <!-- Section : Activités & Offres Recommandées -->
                 <Text styleClass="section-title-modern" text="✨ Activités et Offres Recommandées" />
-
-                <!-- Grille de cartes DYNAMIQUE (same fx:id) -->
                 <FlowPane fx:id="activitiesFlowPane" hgap="25" vgap="25" prefWrapLength="950" styleClass="cards-grid" />
 
-                <!-- Deuxième ligne de cartes (statique) - improved card design -->
                 <FlowPane hgap="25" vgap="25" prefWrapLength="950">
                     <VBox prefWidth="300.0" styleClass="card-modern">
                         <StackPane prefHeight="160.0" styleClass="card-image-modern">

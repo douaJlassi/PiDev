@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>          <!-- ADD THIS -->
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+
+<VBox spacing="20" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.TicketController">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20" />
+    </padding>
+
+    <!-- Header with back and download buttons -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Button fx:id="backButton" text="← Retour" onAction="#handleBack" styleClass="btn-back" />
+        <Region HBox.hgrow="ALWAYS" />          <!-- This requires the import -->
+        <Button fx:id="downloadButton" text="📥 Télécharger PDF" onAction="#handleDownload" styleClass="btn-download" />
+    </HBox>
+
+    <Text styleClass="ticket-title" text="🎫 Confirmation de réservation" />
+
+    <HBox spacing="20">
+        <ImageView fx:id="activityImageView" fitWidth="200" fitHeight="150" preserveRatio="true" />
+        <VBox spacing="10">
+            <Label styleClass="ticket-label" text="Activité :" />
+            <Label fx:id="titreLabel" styleClass="ticket-value" />
+
+            <Label styleClass="ticket-label" text="Date de réservation :" />
+            <Label fx:id="dateAchatLabel" styleClass="ticket-value" />
+
+            <Label styleClass="ticket-label" text="Nombre de places :" />
+            <Label fx:id="nbPlacesLabel" styleClass="ticket-value" />
+
+            <Label styleClass="ticket-label" text="Prix unitaire :" />
+            <Label fx:id="prixUnitaireLabel" styleClass="ticket-value" />
+
+            <Label styleClass="ticket-label" text="Total :" />
+            <Label fx:id="totalLabel" styleClass="ticket-value" />
+
+            <Label styleClass="ticket-label" text="Statut :" />
+            <Label fx:id="statutLabel" styleClass="ticket-value" />
+
+            <Label styleClass="ticket-label" text="Guide :" />
+            <Label fx:id="guideNomLabel" styleClass="ticket-value" />
+
+            <Label styleClass="ticket-label" text="Contact guide :" />
+            <Label fx:id="guideContactLabel" styleClass="ticket-value" />
+        </VBox>
+    </HBox>
+</VBox>

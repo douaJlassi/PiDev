@@ -1,5 +1,8 @@
 package Controllers;
 
+import Services.ActiviteService;
+import Services.AchatService;
+import gestion_activite.Achat;
 import gestion_activite.Activite;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -7,7 +10,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 
-import java.text.SimpleDateFormat;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 
 public class ReservationController {
 
@@ -21,12 +25,18 @@ public class ReservationController {
     @FXML private Button cancelButton;
     @FXML private Button confirmButton;
 
-
     private Stage stage;
     private Activite activite;
+    private int clientId;
+    private ActiviteService activiteService = new ActiviteService();
+    private AchatService achatService = new AchatService();
 
     public void setStage(Stage stage) {
         this.stage = stage;
+    }
+
+    public void setClientId(int clientId) {
+        this.clientId = clientId;
     }
 
     public void setActivite(Activite activite) {
@@ -41,7 +51,6 @@ public class ReservationController {
             activityDescriptionLabel.setText(activite.getDescription());
             priceLabel.setText(String.format("%.0f DT", activite.getPrix()));
             availablePlacesLabel.setText(activite.getPlacesDisponibles() + " places disponibles");
-
 
             participantsField.textProperty().addListener((obs, oldVal, newVal) -> calculerPrixTotal());
         }
@@ -61,7 +70,6 @@ public class ReservationController {
             if (resource != null) {
                 activityImageView.setImage(new Image(resource.toExternalForm()));
             } else {
-
                 java.net.URL defaultUrl = getClass().getResource("/images/default.jpg");
                 if (defaultUrl != null) {
                     activityImageView.setImage(new Image(defaultUrl.toExternalForm()));
@@ -92,41 +100,59 @@ public class ReservationController {
     }
 
     @FXML
-    private void handleConfirm()
-    {
+    private void handleConfirm() {
+        // Check if field is empty
         if (participantsField.getText().isEmpty()) {
-            Alert alert = new Alert(Alert.AlertType.WARNING, "Veuillez indiquer le nombre de places.", ButtonType.OK);
-            alert.show();
+            showAlert(Alert.AlertType.WARNING, "Veuillez indiquer le nombre de places.");
             return;
         }
 
         try {
             int nbPlaces = Integer.parseInt(participantsField.getText().trim());
-            if (nbPlaces <= 0) {
-                throw new NumberFormatException();
-            }
+            if (nbPlaces <= 0) throw new NumberFormatException();
 
             if (nbPlaces > activite.getPlacesDisponibles()) {
-                Alert alert = new Alert(Alert.AlertType.ERROR,
-                        "Nombre de places insuffisant. Maximum : " + activite.getPlacesDisponibles(),
-                        ButtonType.OK);
-                alert.show();
+                showAlert(Alert.AlertType.ERROR,
+                        "Nombre de places insuffisant. Maximum : " + activite.getPlacesDisponibles());
                 return;
             }
 
+            // Calculate total
+            double montantTotal = nbPlaces * activite.getPrix();
 
-            Alert success = new Alert(Alert.AlertType.INFORMATION,
-                    "Réservation confirmée pour " + nbPlaces + " personne(s) !",
-                    ButtonType.OK);
-            success.showAndWait();
+            // Create Achat object
+            Achat achat = new Achat(
+                    new Timestamp(System.currentTimeMillis()),
+                    montantTotal,
+                    "Confirmé",
+                    clientId,
+                    nbPlaces,
+                    activite.getIdActivite()
+            );
+
+            // Save to database
+            achatService.insert(achat);
+
+            // Update available places in the activity
+            int remainingPlaces = activite.getPlacesDisponibles() - nbPlaces;
+            activiteService.updatePlaces(activite.getIdActivite(), remainingPlaces);
+
+            // Show success message
+            showAlert(Alert.AlertType.INFORMATION,
+                    "Réservation confirmée pour " + nbPlaces + " personne(s) !\nMontant total : " + montantTotal + " DT");
 
             stage.close();
 
         } catch (NumberFormatException e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR,
-                    "Le nombre de participants doit être un entier positif.",
-                    ButtonType.OK);
-            alert.show();
+            showAlert(Alert.AlertType.ERROR, "Le nombre de participants doit être un entier positif.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Erreur lors de l'enregistrement de la réservation.");
         }
+    }
+
+    private void showAlert(Alert.AlertType type, String message) {
+        Alert alert = new Alert(type, message, ButtonType.OK);
+        alert.show();
     }
 }

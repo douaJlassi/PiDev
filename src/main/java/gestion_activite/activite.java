@@ -16,6 +16,7 @@ public class Activite {
     private String statut;
     private int placesDisponibles;
 
+    private String categorie;
 
 
     public Activite() {}
@@ -23,7 +24,7 @@ public class Activite {
 
     public Activite(int idActivite, String titre, String description, String lieu,
                     Timestamp dateActivite, int dureParJour, double prix,
-                    int idGuide, String image, String statut, int placesDisponibles) {
+                    int idGuide, String image, String statut, int placesDisponibles, String categorie) {
         this.idActivite = idActivite;
         this.titre = titre;
         this.description = description;
@@ -35,11 +36,12 @@ public class Activite {
         this.image = image;
         this.statut = statut;
         this.placesDisponibles = placesDisponibles;
+        this.categorie = categorie;
     }
 
     public Activite(String titre, String description, String lieu,
                     Timestamp dateActivite, int dureParJour, double prix,
-                    int idGuide, String image, String statut, int placesDisponibles) {
+                    int idGuide, String image, String statut, int placesDisponibles, String categorie) {
         this.titre = titre;
         this.description = description;
         this.lieu = lieu;
@@ -50,6 +52,7 @@ public class Activite {
         this.image = image;
         this.statut = statut;
         this.placesDisponibles = placesDisponibles;
+        this.categorie = categorie;
     }
 
 
@@ -87,6 +90,8 @@ public class Activite {
     public void setPlacesDisponibles(int placesDisponibles) { this.placesDisponibles = placesDisponibles; }
 
 
+    public String getCategorie() { return categorie; }          // NEW
+    public void setCategorie(String categorie) { this.categorie = categorie; }
 
     @Override
     public String toString() {
@@ -96,6 +101,7 @@ public class Activite {
                 ", prix=" + prix +
                 ", statut='" + statut + '\'' +
                 ", placesDisponibles=" + placesDisponibles +
+                ", categorie='" + categorie + '\'' +
                 '}';
     }
 }
