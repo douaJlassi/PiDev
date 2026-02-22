@@ -2,15 +2,19 @@ package projet.controllers;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.StackPane;
 import projet.entites.Hotel;
 import projet.services.HotelService;
 
+import java.io.IOException;
 import java.sql.SQLException;
 
-public class addHotel {
+public class addHotelController {
     String messageErrorNom="";
     String messageErrorDescription="";
     String messageErrorLocalisation="";
@@ -79,11 +83,16 @@ public class addHotel {
         Hotel hotel = new Hotel(nom, description, prix, disponibilite, capacite, "hotel", nbEtoiles, localisation, chambre);
         try {
             hs.insertOne(hotel);
-        } catch (SQLException e) {
+
+            Parent dashboardView = FXMLLoader.load(getClass().getResource("/Dashboard.fxml"));
+            StackPane contentArea = (StackPane) tfNom.getScene().lookup("#contentArea");
+            tfNom.getScene().setRoot(dashboardView);
+        } catch (SQLException | IOException e) {
             System.out.println(e.getMessage());
         }
         }
     }
+
     private  boolean isNomValid() {
     if (tfNom.getText() == null || tfNom.getText().trim().isEmpty()) {
         tfNom.getStyleClass().add("error");

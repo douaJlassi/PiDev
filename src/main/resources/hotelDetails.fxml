@@ -9,6 +9,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.layout.HBox?>
 <AnchorPane style="-fx-background-color: transparent;" stylesheets="@style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="projet.controllers.HotelDetailsController">
 
     <children>
@@ -35,8 +36,10 @@
 
                     <!-- ROW 0 -->
                     <Label styleClass="form-label" text="Localisation :" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                    <Label fx:id="lblLocalisation" styleClass="detail-value" text="Hammamet" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-
+                    <HBox spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                    <Label fx:id="lblLocalisation" styleClass="detail-value" text="Hammamet"  />
+                    <Label fx:id="lblTemp" text="-- °C" style="-fx-font-weight: bold;" />
+                    </HBox>
                     <Label styleClass="form-label" text="Prix / Nuit :" GridPane.columnIndex="2" GridPane.rowIndex="0" />
                     <Label fx:id="lblPrix" styleClass="detail-value" text="120 TND" GridPane.columnIndex="3" GridPane.rowIndex="0" />
 

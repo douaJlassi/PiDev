@@ -11,6 +11,7 @@
 <?import javafx.scene.shape.Circle?>
 
 <!-- Linked to styleDash.css -->
+<?import javafx.scene.layout.HBox?>
 <AnchorPane style="-fx-background-color: transparent;" stylesheets="@style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="projet.controllers.VolDetailsController">
 
     <children>
@@ -44,12 +45,18 @@
                     <Label fx:id="lblPrix" styleClass="detail-value" text="350 TND" GridPane.columnIndex="3" GridPane.rowIndex="0" />
 
                     <!-- ROW 1 -->
+
                     <Label styleClass="form-label" text="Ville Départ :" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                    <Label fx:id="lblVilleDepart" styleClass="detail-value" text="Tunis" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                    <HBox spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                        <Label fx:id="lblVilleDepart" styleClass="detail-value" text="Tunis"/>
+                        <Label fx:id="lblTempDepart" text="-- °C" style="-fx-font-weight: bold;" />
+                    </HBox>
 
                     <Label styleClass="form-label" text="Ville Arrivée :" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                    <Label fx:id="lblVilleArrivee" styleClass="detail-value" text="Paris" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-
+                    <HBox spacing="10" GridPane.columnIndex="3" GridPane.rowIndex="1">
+                    <Label fx:id="lblVilleArrivee" styleClass="detail-value" text="Paris"/>
+                    <Label fx:id="lblTempArrive" text="-- °C" style="-fx-font-weight: bold;" />
+                    </HBox>
                     <!-- ROW 2 -->
                     <Label styleClass="form-label" text="Date Départ :" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                     <Label fx:id="lblDateDepart" styleClass="detail-value" text="2023-10-15" GridPane.columnIndex="1" GridPane.rowIndex="2" />

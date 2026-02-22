@@ -1,16 +1,29 @@
 package projet.controllers;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.layout.StackPane;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import projet.entites.vol;
 import projet.services.VolService;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.Properties;
 
 
-public class addVol {
+public class addVolController {
     String messageErrorNom="";
     String messageErrorDescription="";
     String messageErrorPrix="";
@@ -76,6 +89,20 @@ public class addVol {
 
     @FXML
     private Label lblErrorVilleDepart;
+    private String AviationStackapiKey;
+
+    public void loadConfig() {
+        try (InputStream input = getClass()
+                .getResourceAsStream("/config.properties")) {
+
+            Properties prop = new Properties();
+            prop.load(input);
+            AviationStackapiKey = prop.getProperty("aviation.api.key");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     @FXML
     void ajouterVol(ActionEvent event) {
         if (isInputValid()){
@@ -96,7 +123,11 @@ public class addVol {
         vol vol = new vol(nom,description,prix,disponibilite,capacite,numeroVol,VilleDepart,VilleArrivee,sqlDateDepart,sqlDateArrive,"vol");
         try {
             service.insertOne(vol);
-        }catch (SQLException e){
+            Parent dashboardView = FXMLLoader.load(getClass().getResource("/Dashboard.fxml"));
+            StackPane contentArea = (StackPane) tfNom.getScene().lookup("#contentArea");
+            tfNom.getScene().setRoot(dashboardView);
+
+        }catch (SQLException | IOException e){
             System.out.println(e.getMessage());
         }
 
@@ -292,4 +323,93 @@ public class addVol {
         tfVilleArrivee.getStyleClass().remove("error");
 
     }
+
+    @FXML
+    void chercherVolAPI(ActionEvent event) {
+
+        if (isNumeroVolValid()){
+        String numeroVol = tfNumeroVol.getText().trim();
+
+        if (numeroVol.isEmpty()) {
+            lblErrorNumeroVol.setText("Veuillez saisir un numéro de vol (ex: AF123)");
+            lblErrorNumeroVol.setVisible(true);
+            lblErrorNumeroVol.setManaged(true);
+            return;
+        }
+
+        // On utilise un Thread séparé pour ne pas bloquer (figer) l'interface graphique (JavaFX) pendant la requête
+        new Thread(() -> {
+            try {
+                // REMPLACEZ VOTRE CLÉ API ICI
+                loadConfig();
+                String urlString = "http://api.aviationstack.com/v1/flights?access_key=" + AviationStackapiKey + "&flight_iata=" + numeroVol;
+
+                // Création et envoi de la requête HTTP
+                HttpClient client = HttpClient.newHttpClient();
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(urlString))
+                        .GET()
+                        .build();
+
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+                // Analyse de la réponse JSON
+                JSONObject jsonResponse = new JSONObject(response.body());
+
+                if (jsonResponse.has("data") && jsonResponse.getJSONArray("data").length() > 0) {
+                    JSONArray dataArray = jsonResponse.getJSONArray("data");
+                    JSONObject flightData = dataArray.getJSONObject(0);
+
+                    // Extraction des données utiles
+                    String nomCompagnie = flightData.getJSONObject("airline").getString("name");
+                    String villeDepart = flightData.getJSONObject("departure").getString("airport"); // ou "timezone"
+                    String villeArrivee = flightData.getJSONObject("arrival").getString("airport");
+
+                    // L'heure de l'API est sous ce format : 2023-12-15T14:30:00+00:00
+                    String dateDepartStr = flightData.getJSONObject("departure").getString("scheduled");
+                    String dateArriveeStr = flightData.getJSONObject("arrival").getString("scheduled");
+
+                    // Convertir en LocalDate (on prend juste les 10 premiers caractères : YYYY-MM-DD)
+                    LocalDate dateDepart = LocalDate.parse(dateDepartStr.substring(0, 10));
+                    LocalDate dateArrivee = LocalDate.parse(dateArriveeStr.substring(0, 10));
+
+                    // Mettre à jour l'interface graphique (Toujours utiliser Platform.runLater dans un Thread)
+                    Platform.runLater(() -> {
+                        tfNom.setText(nomCompagnie + " " + numeroVol);
+                        tfVilleDepart.setText(villeDepart);
+                        tfVilleArrivee.setText(villeArrivee);
+                        dpDateDepart.setValue(dateDepart);
+                        dpDateArrivee.setValue(dateArrivee);
+                        taDescription.setText("Vol opéré par " + nomCompagnie + " depuis " + villeDepart + " vers " + villeArrivee + ".");
+
+                        // Nettoyer les erreurs potentielles
+                        lblErrorNumeroVol.setVisible(false);
+                        lblErrorNumeroVol.setManaged(false);
+                    });
+
+                } else {
+                    Platform.runLater(() -> {
+                        lblErrorNumeroVol.setText("Vol introuvable via l'API.");
+                        lblErrorNumeroVol.setVisible(true);
+                        lblErrorNumeroVol.setManaged(true);
+                    });
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                Platform.runLater(() -> {
+                    lblErrorNumeroVol.setText("Erreur de connexion à l'API. Vérifiez votre clé.");
+                    lblErrorNumeroVol.setVisible(true);
+                    lblErrorNumeroVol.setManaged(true);
+                });
+            }
+        }).start();
+    }
+        else{
+            lblErrorNumeroVol.setText(messageErrorNumeroVol);
+            lblErrorNumeroVol.setVisible(true);
+            lblErrorNumeroVol.setManaged(true);
+        }
+    }
+
 }

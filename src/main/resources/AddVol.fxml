@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane style="-fx-background-color: transparent;" stylesheets="@style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="projet.controllers.addVol">
+<AnchorPane style="-fx-background-color: transparent;" stylesheets="@style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="projet.controllers.addVolController">
 
     <children>
         <VBox alignment="CENTER" fillWidth="false" spacing="20" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
@@ -54,7 +54,6 @@
 
                     <Label styleClass="form-label" text="Numéro Vol :" GridPane.columnIndex="2" GridPane.rowIndex="3" />
                     <TextField fx:id="tfNumeroVol" promptText="Code Vol" styleClass="form-input" GridPane.columnIndex="3" GridPane.rowIndex="3" />
-
                     <!-- ROW 4: Villes -->
                     <Label styleClass="form-label" text="Ville Départ :" GridPane.columnIndex="0" GridPane.rowIndex="4" />
                     <TextField fx:id="tfVilleDepart" styleClass="form-input" GridPane.columnIndex="1" GridPane.rowIndex="4" />
@@ -92,9 +91,9 @@
                     <Label fx:id="lblErrorDateArrive" managed="false" styleClass="error-label" visible="false" wrapText="true" />
                 </VBox>
 
-                <!-- Action Button -->
-                <Button onAction="#ajouterVol" styleClass="btn-submit" text="✔ Ajouter le Vol" />
 
+                <Button onAction="#ajouterVol" styleClass="btn-submit" text="✔ Ajouter le Vol" />
+                <Button  onAction="#chercherVolAPI" styleClass="btn-submit" text="auto remplissage" />
             </VBox>
         </VBox>
     </children>

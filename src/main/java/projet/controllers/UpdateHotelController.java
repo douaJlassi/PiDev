@@ -180,9 +180,7 @@ public class UpdateHotelController {
             try {
                 vs.updateOne(currentService.getNom(), v);
                 Parent dashboardView = FXMLLoader.load(getClass().getResource("/Dashboard.fxml"));
-
                 StackPane contentArea = (StackPane) tfNom.getScene().lookup("#contentArea");
-
                 if (contentArea != null) {
                     // Replace the update form with the dashboard view
                     contentArea.getChildren().setAll(dashboardView);

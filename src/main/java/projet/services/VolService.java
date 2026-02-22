@@ -10,7 +10,7 @@ import java.util.List;
 
 public class VolService implements CRUD<String,vol> {
     private Connection connection;
-    private int NbVol;
+    private String NbVol;
 
     public VolService() {
         connection = MyDBConnexion.getInstance().getConnection();
@@ -20,7 +20,7 @@ public class VolService implements CRUD<String,vol> {
     public void insertOne(vol vol) throws SQLException {
         String req = "INSERT INTO `services`(`nom`,`description`,`prix`,`disponibilite`,`capacite`,`numeroVol`,`villeDepart`,`villeArrivee`,`dateDepart`,`dateArrive`,`type`) VALUES " +
                 "('" + vol.getNom() + "','" + vol.getDescription() + "','" + vol.getPrix() + "','" + vol.getDisponibilite() + "','" + vol.getCapacite() + "' ,  '" + vol.getNumeroVol() + "' , '" + vol.getVilleDepart() + "' , '" + vol.getVilleArrivee() + "' , '" + vol.getDateDepart() + "' , '" + vol.getDateArrivee() + "','vol')";
-        NbVol = Integer.parseInt(vol.getNumeroVol());
+        NbVol = vol.getNumeroVol();
         Statement stmt = connection.createStatement();
         stmt.executeUpdate(req);
 

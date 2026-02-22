@@ -1,5 +1,6 @@
 package projet.controllers;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -7,13 +8,20 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
+import org.json.JSONObject;
 import projet.entites.Hotel;
 import projet.entites.user;
 import projet.services.ServiceService;
 // Ensure this matches your package structure
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.sql.SQLException;
+import java.util.Properties;
 
 public class HotelDetailsController {
     user connectedUser=new user("achref","souli","user");
@@ -21,6 +29,7 @@ public class HotelDetailsController {
     // Link to FXML IDs defined in hotelDetails.fxml
     @FXML private Label lblNom;
     @FXML private Label lblLocalisation;
+    @FXML private Label lblTemp;
     @FXML private Label lblPrix;
     @FXML private Label lblEtoiles;
     @FXML private Label lblChambre;
@@ -32,22 +41,29 @@ public class HotelDetailsController {
     private Button retourBtn;
     int id;
     ServiceService HotelService = new ServiceService();
+    private String weatherapiKey;
 
-    /**
-     * This method is called from ServicesController to populate the view
-     */
+    public void loadConfig() {
+        try (InputStream input = getClass()
+                .getResourceAsStream("/config.properties")) {
+
+            Properties prop = new Properties();
+            prop.load(input);
+            weatherapiKey = prop.getProperty("weather.api.key");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     public void setHotelData(Hotel hotel) {
         // 1. Set Basic Text
         lblNom.setText(hotel.getNom());
         lblLocalisation.setText(hotel.getLocalisation());
+        loadConfig();
+        loadWeather(hotel.getLocalisation());
         lblPrix.setText(hotel.getPrix() + " TND");
         lblDescription.setText(hotel.getDescription());
-
-        // Handle Integer conversion
         lblCapacite.setText(String.valueOf(hotel.getCapacite()) + " Personnes");
-
-        // Handle Field Name variations (Adjust 'getTypeChambre' to your Model's getter)
-        // If your model uses 'getChambre()', change line below:
         lblChambre.setText(hotel.getChambre());
 
         // 2. Generate Star Visuals (e.g., 5 -> ★★★★★)
@@ -68,7 +84,7 @@ public class HotelDetailsController {
             lblStatus.setStyle("-fx-text-fill: #4ba3a1; -fx-font-weight: bold;"); // Brand Teal
         }
         else {
-            String status = "no disponible";
+            String status = "non disponible";
             lblStatus.setText(status);
             lblStatus.setStyle("-fx-text-fill: #f6c750; -fx-font-weight: bold;");
         }
@@ -84,7 +100,43 @@ public class HotelDetailsController {
         }
 
     }
+    public void loadWeather(String city) {
+        new Thread(() -> {
+            try {
+                String urlString =
+                        "https://api.openweathermap.org/data/2.5/weather?q="
+                                + city + "&appid=" + weatherapiKey + "&units=metric";
 
+                URL url = new URL(urlString);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();conn.setRequestMethod("GET");
+
+                BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(conn.getInputStream())
+                );
+
+                StringBuilder json = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    json.append(line);
+                }
+
+                reader.close();
+
+                JSONObject obj = new JSONObject(json.toString());
+                double temp = obj.getJSONObject("main").getDouble("temp");
+
+                Platform.runLater(() -> {
+                    lblTemp.setText(temp + " °C");
+                });
+
+            } catch (Exception e) {
+                Platform.runLater(() -> {
+                    lblTemp.setText("N/A");
+                });
+                e.printStackTrace();
+            }
+        }).start();
+    }
     @FXML
     private void handleBack() {
         try {
