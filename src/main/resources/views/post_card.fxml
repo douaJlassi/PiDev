@@ -22,6 +22,12 @@
                 <Label fx:id="dateLabel" styleClass="post-meta" text="Date"/>
                 <Label fx:id="placeDot" styleClass="post-meta" text="•" visible="false" managed="false"/>
                 <Label fx:id="placeLabel" styleClass="post-place-tag" text="" visible="false" managed="false"/>
+                <!-- PHASE 4B: Weather badge (populated programmatically) -->
+                <HBox fx:id="weatherBadge" styleClass="weather-badge" spacing="6" alignment="CENTER_LEFT"
+                      visible="false" managed="false">
+                    <ImageView fx:id="weatherIcon" styleClass="weather-icon" fitWidth="24" fitHeight="24" preserveRatio="true"/>
+                    <Label fx:id="weatherText" styleClass="weather-text" text=""/>
+                </HBox>
             </HBox>
         </VBox>
 

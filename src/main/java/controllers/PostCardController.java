@@ -1,23 +1,31 @@
 package controllers;
 
 import entities.Publication;
+import entities.WeatherData;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.Rectangle;
+import services.WeatherService;
 
 import java.io.File;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 
 /**
  * PostCardController — bound to post_card.fxml.
  * Only data-binding and event wiring; zero manual node construction.
+ *
+ * PHASE 4B UPDATE: Now fetches and displays weather badges
+ * - Fetches weather asynchronously if post has location
+ * - Uses WeatherCache for performance (30-min TTL)
+ * - Shows weather icon + temperature
+ * - Tooltip with detailed weather info
  */
 public class PostCardController {
 
@@ -28,6 +36,11 @@ public class PostCardController {
     @FXML private Label    placeDot;
     @FXML private Label    placeLabel;
     @FXML private Button   menuBtn;
+
+    // ── PHASE 4B: Weather badge ─────────────────────────────────────────────
+    @FXML private HBox     weatherBadge;
+    @FXML private ImageView weatherIcon;
+    @FXML private Label    weatherText;
 
     // ── Content ──────────────────────────────────────────────────────────────
     @FXML private Label    contentLabel;
@@ -49,6 +62,9 @@ public class PostCardController {
     private boolean             isGridView;
     private DashboardController dashboard;
 
+    // PHASE 4B: Weather service (shared instance for caching)
+    private static final WeatherService weatherService = new WeatherService();
+
     private static final SimpleDateFormat DATE_FMT =
             new SimpleDateFormat("MMM dd 'at' hh:mm a");
 
@@ -61,6 +77,9 @@ public class PostCardController {
         this.dashboard   = dash;
 
         bindData();
+
+        // PHASE 4B: Fetch weather if post has location
+        fetchWeatherIfAvailable();
     }
 
     // ────────────────────────────────────────────────────────────────────────
@@ -68,7 +87,7 @@ public class PostCardController {
     // ────────────────────────────────────────────────────────────────────────
     private void bindData() {
         // Author
-        String username = pub(publication).getClient().getUsername();
+        String username = publication.getClient().getUsername();
         authorNameLabel.setText(username != null ? username
                 : "Traveler #" + publication.getClient().getClientID());
 
@@ -78,66 +97,129 @@ public class PostCardController {
         // Place
         if (publication.getPlace() != null && !publication.getPlace().isEmpty()) {
             placeDot.setVisible(true);  placeDot.setManaged(true);
-            placeLabel.setText("📍 " + publication.getPlace());
             placeLabel.setVisible(true); placeLabel.setManaged(true);
+            placeLabel.setText("📍 " + publication.getPlace());
         }
 
-        // Content — truncate in grid view
-        String text = publication.getContent();
-        contentLabel.setText(isGridView && text.length() > 200
-                ? text.substring(0, 200) + "…" : text);
+        // Content
+        contentLabel.setText(publication.getContent());
 
         // Image
-        if (publication.getImagePath() != null && !publication.getImagePath().isEmpty()) {
-            File imgFile = new File(publication.getImagePath());
-            if (imgFile.exists()) {
-                postImage.setImage(new Image(imgFile.toURI().toString()));
-                postImage.setFitWidth(isGridView ? 420 : 680);
+        if (publication.hasImage()) {
+            File img = new File(publication.getImagePath());
+            if (img.exists()) {
+                postImage.setImage(new Image(img.toURI().toString()));
                 imageContainer.setVisible(true);
                 imageContainer.setManaged(true);
+                // Grid view clip
+                if (isGridView) {
+                    postImage.setFitWidth(420);
+                }
             }
         }
 
         // Stats
-        try {
-            int likes    = dashboard.getLikeService().getLikeCount(publication.getPublicationID());
-            int comments = dashboard.getCommentService().getCommentCount(publication.getPublicationID());
+        int likesCount = publication.getLikes() != null ? publication.getLikes().size() : 0;
+        int commentsCount = publication.getComments() != null ? publication.getComments().size() : 0;
 
-            if (likes > 0) {
-                likesStatLabel.setText("♥ " + likes);
-                likesStatLabel.setVisible(true); likesStatLabel.setManaged(true);
-            }
-            if (comments > 0) {
-                commentsStatLabel.setText(comments + " comment" + (comments != 1 ? "s" : ""));
-                commentsStatLabel.setVisible(true); commentsStatLabel.setManaged(true);
-            }
-        } catch (SQLException ignored) {}
+        if (likesCount > 0) {
+            likesStatLabel.setText("♥ " + likesCount);
+            likesStatLabel.setVisible(true);
+            likesStatLabel.setManaged(true);
+        }
+        if (commentsCount > 0) {
+            commentsStatLabel.setText("💬 " + commentsCount);
+            commentsStatLabel.setVisible(true);
+            commentsStatLabel.setManaged(true);
+        }
 
-        // Like button initial state
-        refreshLikeButton();
-
-        // Menu — only show for own posts
-        menuBtn.setVisible(
-                dashboard.getCurrentUser().getClientID() == publication.getClient().getClientID());
+        // Like button (delegated)
+        dashboard.getLikeController().initButton(likeBtn, publication);
     }
 
-    private void refreshLikeButton() {
-        try {
-            int     count   = dashboard.getLikeService().getLikeCount(publication.getPublicationID());
-            boolean liked   = dashboard.getLikeService()
-                    .hasUserLiked(publication.getPublicationID(),
-                            dashboard.getCurrentUser().getClientID());
-            likeBtn.setText(liked ? "♥  " + count : "♡  " + (count > 0 ? count : "Like"));
-            if (liked) { likeBtn.getStyleClass().add("liked"); }
-            else        { likeBtn.getStyleClass().remove("liked"); }
-        } catch (SQLException e) {
-            likeBtn.setText("♡  Like");
+    // ────────────────────────────────────────────────────────────────────────
+    // PHASE 4B: Weather fetching
+    // ────────────────────────────────────────────────────────────────────────
+
+    /**
+     * Fetch weather if post has location (async)
+     * - Only fetches if publication.getPlace() is not null
+     * - Uses WeatherCache (instant if cached)
+     * - Updates UI on Platform thread
+     * - Fails silently if error (no weather badge shown)
+     */
+    private void fetchWeatherIfAvailable() {
+        // Check if post has location
+        if (publication.getPlace() == null || publication.getPlace().trim().isEmpty()) {
+            return; // No location = no weather
         }
+
+        // Don't fetch weather for very old posts (>7 days)
+        // Weather from a week ago is not relevant/accurate
+        long postAgeHours = (System.currentTimeMillis() -
+                publication.getDatePublication().getTime()) / (1000 * 60 * 60);
+        if (postAgeHours > 168) { // 168 hours = 7 days
+            return; // Old post = skip weather
+        }
+
+        // Fetch weather asynchronously
+        String locationName = publication.getPlace();
+
+        weatherService.getWeatherByLocation(locationName)
+                .thenAccept(weather -> {
+                    // Update UI on JavaFX Application Thread
+                    Platform.runLater(() -> {
+                        if (weather != null && weather.isValid()) {
+                            displayWeatherBadge(weather);
+                        }
+                        // If weather is null (error/timeout), silently do nothing
+                        // Post displays normally without weather badge
+                    });
+                })
+                .exceptionally(error -> {
+                    // Log error but don't show to user (weather is optional)
+                    System.err.println("Weather fetch failed for '" + locationName + "': " + error.getMessage());
+                    return null;
+                });
+    }
+
+    /**
+     * Display weather badge with icon and temperature
+     * - Shows weather icon from OpenWeatherMap
+     * - Shows temperature in Celsius
+     * - Adds tooltip with detailed info (hover for full weather)
+     */
+    private void displayWeatherBadge(WeatherData weather) {
+        // Set temperature text
+        weatherText.setText(weather.getFormattedTemperature());
+
+        // Load weather icon (async to avoid blocking UI)
+        String iconUrl = weather.getIconUrl();
+        if (iconUrl != null) {
+            try {
+                // Background loading (true = load in background thread)
+                Image icon = new Image(iconUrl, true);
+                weatherIcon.setImage(icon);
+            } catch (Exception e) {
+                // If icon fails to load, weather badge still shows with text
+                System.err.println("Weather icon load failed: " + e.getMessage());
+            }
+        }
+
+        // Create tooltip with detailed weather info
+        Tooltip tooltip = new Tooltip(weather.getTooltipText());
+        tooltip.getStyleClass().add("weather-tooltip");
+        Tooltip.install(weatherBadge, tooltip);
+
+        // Show the weather badge
+        weatherBadge.setVisible(true);
+        weatherBadge.setManaged(true);
     }
 
     // ────────────────────────────────────────────────────────────────────────
     // FXML event handlers
     // ────────────────────────────────────────────────────────────────────────
+
     @FXML
     private void onLikeClicked() {
         dashboard.getLikeController().handleToggle(publication, likeBtn);
@@ -145,7 +227,7 @@ public class PostCardController {
 
     @FXML
     private void onCommentClicked() {
-        // Open detail view so user can see and write comments
+        // Open post detail view (overlay with comments panel)
         new PostDetailController(publication, dashboard).show();
     }
 
@@ -153,9 +235,4 @@ public class PostCardController {
     private void onMenuClicked() {
         dashboard.getPostController().showPostMenu(publication, menuBtn);
     }
-
-    // ────────────────────────────────────────────────────────────────────────
-    // Helper
-    // ────────────────────────────────────────────────────────────────────────
-    private Publication pub(Publication p) { return p; }
 }
