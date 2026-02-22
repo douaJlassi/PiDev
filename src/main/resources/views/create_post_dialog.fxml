@@ -36,9 +36,9 @@
     <StackPane fx:id="imagePreviewBox" styleClass="cpd-image-zone"
                visible="false" managed="false">
         <ImageView fx:id="imagePreview"
-                   fitWidth="488" fitHeight="250" preserveRatio="true" smooth="true"
+                   fitWidth="488" preserveRatio="true" smooth="true"
                    StackPane.alignment="CENTER"/>
-        <Button fx:id="removeImageBtn" text="✕"
+        <Button fx:id="removeImageBtn" text="X"
                 styleClass="cpd-remove-img-btn"
                 onAction="#onRemoveImage"
                 StackPane.alignment="TOP_RIGHT"/>
@@ -49,10 +49,10 @@
 
         <HBox styleClass="cpd-field-row" alignment="CENTER_LEFT" spacing="10">
             <Label text="Location" styleClass="cpd-field-icon"/>
-            <TextField fx:id="placeField"
-                       promptText="Tag a destination..."
-                       styleClass="cpd-field-input"
-                       HBox.hgrow="ALWAYS"/>
+            <!-- PHASE 3: VBox container for PlacesAutocompleteField (created programmatically in controller) -->
+            <VBox fx:id="placeFieldContainer" HBox.hgrow="ALWAYS">
+                <!-- PlacesAutocompleteField will be added here by CreatePostController.setupLocationField() -->
+            </VBox>
         </HBox>
 
         <Separator styleClass="cpd-inner-divider" prefHeight="1"/>

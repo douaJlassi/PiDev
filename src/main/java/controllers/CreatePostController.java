@@ -8,6 +8,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -29,6 +30,11 @@ import java.util.Map;
  * CreatePostController — bound to create_post_dialog.fxml.
  * Works for BOTH Create (existing=null) and Edit (existing!=null) modes.
  *
+ * PHASE 3 UPDATE: Now uses PlacesAutocompleteField for location input
+ * - Replaces plain TextField with autocomplete dropdown
+ * - Stores both place name AND place_id
+ * - Falls back to plain text if user doesn't select from dropdown
+ *
  * PostController calls:
  *   1. formCtrl.init(dashboard, existing)   — inject data
  *   2. formCtrl.getContentArea()            — wire the Share/Update enable guard
@@ -43,7 +49,7 @@ public class CreatePostController {
     @FXML private TextArea  contentArea;
     @FXML private StackPane imagePreviewBox;
     @FXML private ImageView imagePreview;
-    @FXML private TextField placeField;
+    @FXML private VBox      placeFieldContainer;  // Container for custom field (since FXML can't instantiate custom controls)
     @FXML private ComboBox<Map.Entry<Integer,String>> agencyCombo;
     @FXML private HBox      agencyInfoBanner;
     @FXML private Label     agencyBannerText;
@@ -57,11 +63,17 @@ public class CreatePostController {
     private DashboardController dashboard;
     private File selectedImageFile;
 
+    // PHASE 3: Custom autocomplete field (created programmatically)
+    private PlacesAutocompleteField placeField;
+
     // ─────────────────────────────────────────────────────────────────────────
     // Initialise — called by PostController after FXMLLoader.load()
     // ─────────────────────────────────────────────────────────────────────────
     public void init(DashboardController dash, Publication existing) {
         this.dashboard = dash;
+
+        // PHASE 3: Create and configure autocomplete field
+        setupLocationField();
 
         // User header
         String uname = dash.getCurrentUser().getUsername();
@@ -92,7 +104,18 @@ public class CreatePostController {
         // Pre-fill when editing
         if (existing != null) {
             contentArea.setText(existing.getContent());
-            if (existing.getPlace() != null) placeField.setText(existing.getPlace());
+
+            // PHASE 3: Set location with place_id if available
+            if (existing.getPlace() != null) {
+                if (existing.getPlaceId() != null) {
+                    // Has place_id: set it programmatically (from Nominatim selection)
+                    placeField.setSelectedPlace(existing.getPlaceId(), existing.getPlace());
+                } else {
+                    // No place_id: just set the text (user typed it manually)
+                    placeField.setText(existing.getPlace());
+                }
+            }
+
             if (existing.hasImage()) {
                 File img = new File(existing.getImagePath());
                 if (img.exists()) {
@@ -109,6 +132,20 @@ public class CreatePostController {
                 updateAgencyBanner(existing.getAgencyId());
             }
         }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // PHASE 3: Setup custom location autocomplete field
+    // ─────────────────────────────────────────────────────────────────────────
+    private void setupLocationField() {
+        // Create the custom autocomplete field
+        placeField = new PlacesAutocompleteField();
+        placeField.setPromptText("Enter location (e.g., Tunis, Sahara...)");
+        placeField.setPrefWidth(Double.MAX_VALUE); // Fill container width
+
+        // Add to container (replaces what would have been <TextField fx:id="placeField"/> in FXML)
+        placeFieldContainer.getChildren().clear();
+        placeFieldContainer.getChildren().add(placeField);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -150,7 +187,7 @@ public class CreatePostController {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // Called by PostController
+    // Called by DashboardController (slide-in panel)
     // ─────────────────────────────────────────────────────────────────────────
     public TextArea getContentArea() { return contentArea; }
 
@@ -158,21 +195,37 @@ public class CreatePostController {
 
     /** Build a brand-new Publication from the form (create mode). */
     public Publication buildPublication() {
-        return new Publication(
+        Publication pub = new Publication(
                 dashboard.getCurrentUser(),
                 0,
                 contentArea.getText().trim(),
                 new Date(),
                 uploadIfNeeded(),
-                blankToNull(placeField.getText()),
+                blankToNull(getLocationText()),  // PHASE 3: Use helper method
                 selectedAgencyId()
         );
+
+        // PHASE 3: Set place_id if user selected from autocomplete
+        if (placeField.hasSelectedPlace()) {
+            pub.setPlaceId(placeField.getSelectedPlaceId());
+        }
+
+        return pub;
     }
 
     /** Update an existing Publication's mutable fields (edit mode). */
     public void populateExisting(Publication p) {
         p.setContent(contentArea.getText().trim());
-        p.setPlace(blankToNull(placeField.getText()));
+
+        // PHASE 3: Update place and place_id
+        p.setPlace(blankToNull(getLocationText()));
+        if (placeField.hasSelectedPlace()) {
+            p.setPlaceId(placeField.getSelectedPlaceId());
+        } else {
+            // User typed manually (no selection from dropdown)
+            p.setPlaceId(null);
+        }
+
         int newAgency = selectedAgencyId();
         if (newAgency != p.getAgencyId()) p.setAgencyId(newAgency);
         if (selectedImageFile != null) {
@@ -184,6 +237,16 @@ public class CreatePostController {
     // ─────────────────────────────────────────────────────────────────────────
     // Helpers
     // ─────────────────────────────────────────────────────────────────────────
+
+    /**
+     * PHASE 3: Get location text (selected name or typed text)
+     * - If user selected from dropdown: returns selected name (e.g., "Tunis, Tunisia")
+     * - If user typed manually: returns typed text (e.g., "My Secret Beach")
+     */
+    private String getLocationText() {
+        return placeField.getLocationText();
+    }
+
     private void updateAgencyBanner(int agencyId) {
         boolean show = agencyId > 0;
         agencyInfoBanner.setVisible(show);

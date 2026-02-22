@@ -33,7 +33,7 @@
             <VBox styleClass="sidebar-nav" spacing="4">
                 <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
 
-                <Button text="Dashboard" styleClass="sidebar-nav-btn" maxWidth="Infinity"/>
+                <Button text="Home" styleClass="sidebar-nav-btn" maxWidth="Infinity"/>
                 <Button fx:id="postsNavBtn" text="Posts"
                         styleClass="sidebar-nav-btn, sidebar-nav-active"
                         maxWidth="Infinity"/>

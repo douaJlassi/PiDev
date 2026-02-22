@@ -458,3 +458,37 @@
     -fx-border-color: #17B3A6;
 }
 .login-footer-note { -fx-text-fill: #555a72; }
+
+/* ===== PLACES AUTOCOMPLETE FIELD — dark ===== */
+.places-autocomplete-field {
+    -fx-background-color: #22263a;
+    -fx-border-color: #2e3250;
+    -fx-text-fill: #e8eaf0;
+    -fx-prompt-text-fill: #555a72;
+}
+
+.places-autocomplete-field:focused {
+    -fx-background-color: #2e3250;
+    -fx-border-color: #17B3A6;
+}
+
+.places-autocomplete-field .context-menu {
+    -fx-background-color: #1a1d27;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 12, 0, 0, 4);
+}
+
+.suggestion-item {
+    -fx-background-color: #1a1d27;
+}
+
+.suggestion-item:hover {
+    -fx-background-color: #22263a;
+}
+
+.suggestion-main-text {
+    -fx-text-fill: #e8eaf0;
+}
+
+.suggestion-secondary-text {
+    -fx-text-fill: #8b90a7;
+}

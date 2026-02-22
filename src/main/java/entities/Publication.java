@@ -18,6 +18,7 @@ public class Publication {
     private List<Like> likes;
     private String imagePath;
     private String place;
+    private String placeId;  // Nominatim place_id for future API calls (weather, maps, etc.)
 
     // ── Agency moderation fields ──────────────────────────────────────────────
     /** ID of the agency this post was submitted to (0 = no agency tagged). */
@@ -119,6 +120,9 @@ public class Publication {
     public void setPlace(String place) {
         this.place = place;
     }
+
+    public String getPlaceId() { return placeId; }
+    public void setPlaceId(String placeId) { this.placeId = placeId; }
 
     public int getAgencyId() { return agencyId; }
     public void setAgencyId(int agencyId) {
