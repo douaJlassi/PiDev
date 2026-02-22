@@ -45,19 +45,20 @@
                             </VBox>
                         </HBox>
 
-                        <!-- Place tag (hidden when empty) -->
-                        <Label fx:id="placeLabel" styleClass="post-place-tag"
-                               text="" visible="false" managed="false"/>
-
-                        <!-- PHASE 4C: Weather badge (populated programmatically) -->
-                        <HBox fx:id="weatherBadge" styleClass="weather-badge" spacing="6"
-                              alignment="CENTER_LEFT" visible="false" managed="false" maxWidth="-Infinity">
-                            <ImageView fx:id="weatherIcon" styleClass="weather-icon"
-                                       fitWidth="32" fitHeight="32" preserveRatio="true"/>
-                            <VBox spacing="2">
-                                <Label fx:id="weatherText" styleClass="weather-text" text=""/>
-                                <Label fx:id="weatherDescription" styleClass="post-meta" text=""/>
-                            </VBox>
+                        <!-- Place tag + Weather badge on the SAME row (hidden when no place) -->
+                        <HBox fx:id="placeWeatherRow" spacing="10" alignment="CENTER_LEFT"
+                              visible="false" managed="false">
+                            <Label fx:id="placeLabel" styleClass="post-place-tag" text=""/>
+                            <!-- PHASE 4C: Weather badge sits right beside the place label -->
+                            <HBox fx:id="weatherBadge" styleClass="weather-badge" spacing="6"
+                                  alignment="CENTER_LEFT" visible="false" managed="false" maxWidth="-Infinity">
+                                <ImageView fx:id="weatherIcon" styleClass="weather-icon"
+                                           fitWidth="32" fitHeight="32" preserveRatio="true"/>
+                                <VBox spacing="2">
+                                    <Label fx:id="weatherText" styleClass="weather-text" text=""/>
+                                    <Label fx:id="weatherDescription" styleClass="post-meta" text=""/>
+                                </VBox>
+                            </HBox>
                         </HBox>
 
                         <!-- Full post text -->
@@ -70,8 +71,9 @@
                                        fitWidth="580" preserveRatio="true" smooth="true"/>
                         </VBox>
 
-                        <!-- Stats row -->
-                        <HBox fx:id="statsBar" styleClass="post-stats" alignment="CENTER_LEFT" spacing="16">
+                        <!-- Stats row — hidden by default, shown only when counts > 0 -->
+                        <HBox fx:id="statsBar" styleClass="post-stats" alignment="CENTER_LEFT" spacing="16"
+                              visible="false" managed="false">
                             <Label fx:id="likesStatLabel"    styleClass="post-stats-text" text="" visible="false" managed="false"/>
                             <Region HBox.hgrow="ALWAYS"/>
                             <Label fx:id="commentsStatLabel" styleClass="post-stats-text" text="" visible="false" managed="false"/>

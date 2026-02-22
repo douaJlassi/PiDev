@@ -44,16 +44,18 @@ public class PostDetailController {
     @FXML private Circle    authorAvatar;
     @FXML private Label     authorNameLabel;
     @FXML private Label     dateLabel;
+    @FXML private HBox      placeWeatherRow;   // wrapping HBox for place + weather badge
     @FXML private Label     placeLabel;
     @FXML private Label     postContentLabel;
     @FXML private VBox      imageContainer;
     @FXML private ImageView postImage;
+    @FXML private HBox      statsBar;
     @FXML private Label     likesStatLabel;
     @FXML private Label     commentsStatLabel;
     @FXML private Button    likeBtn;
     @FXML private Button    commentBtn2;
 
-    // PHASE 4C: Weather badge
+    // PHASE 4C: Weather badge (inside placeWeatherRow)
     @FXML private HBox      weatherBadge;
     @FXML private ImageView weatherIcon;
     @FXML private Label     weatherText;
@@ -118,10 +120,10 @@ public class PostDetailController {
                 : "Traveler #" + publication.getClient().getClientID());
         dateLabel.setText(DATE_FMT.format(publication.getDatePublication()));
 
-        // Place
+        // Place — show the whole row (place label + weather badge placeholder)
         if (publication.getPlace() != null && !publication.getPlace().isEmpty()) {
-            placeLabel.setVisible(true);
-            placeLabel.setManaged(true);
+            placeWeatherRow.setVisible(true);
+            placeWeatherRow.setManaged(true);
             placeLabel.setText("📍 " + publication.getPlace());
         }
 
@@ -138,10 +140,14 @@ public class PostDetailController {
             }
         }
 
-        // Stats
-        int likesCount = publication.getLikes() != null ? publication.getLikes().size() : 0;
-        int commentsCount = publication.getComments() != null ? publication.getComments().size() : 0;
+        // Stats — query real counts from services (Publication object lists are not populated from DB)
+        int likesCount    = dashboard.getLikeController().getLikeCount(publication.getPublicationID());
+        int commentsCount = dashboard.getCommentController().getCommentCount(publication.getPublicationID());
 
+        if (likesCount > 0 || commentsCount > 0) {
+            statsBar.setVisible(true);
+            statsBar.setManaged(true);
+        }
         if (likesCount > 0) {
             likesStatLabel.setText("♥ " + likesCount);
             likesStatLabel.setVisible(true);
@@ -151,14 +157,14 @@ public class PostDetailController {
             commentsStatLabel.setText("💬 " + commentsCount);
             commentsStatLabel.setVisible(true);
             commentsStatLabel.setManaged(true);
+            commentCountLabel.setText("(" + commentsCount + ")");
         }
 
         // Like button
         dashboard.getLikeController().initButton(likeBtn, publication);
 
-        // Load comments
-        dashboard.getCommentController().loadComments(
-                publication, commentsList);
+        // FIX: loadComments only takes 2 arguments
+        dashboard.getCommentController().loadComments(publication, commentsList);
 
         // Enable comment post button when text entered
         commentTextField.textProperty().addListener((obs, old, newVal) -> {
@@ -175,7 +181,6 @@ public class PostDetailController {
      * Same logic as PostCardController but larger display
      */
     private void fetchWeatherIfAvailable() {
-        // Check if post has location
         if (publication.getPlace() == null || publication.getPlace().trim().isEmpty()) {
             return;
         }
@@ -187,7 +192,6 @@ public class PostDetailController {
             return;
         }
 
-        // Fetch weather asynchronously
         String locationName = publication.getPlace();
 
         weatherService.getWeatherByLocation(locationName)
@@ -205,38 +209,32 @@ public class PostDetailController {
     }
 
     /**
-     * Display weather badge with icon, temperature, and description
-     * Enhanced version for detail view (larger, more info)
+     * Display weather badge — shown inline beside the place label.
      */
     private void displayWeatherBadge(WeatherData weather) {
-        // Set temperature text
         weatherText.setText(weather.getFormattedTemperature());
 
-        // Set weather description (e.g., "Clear sky")
         if (weather.getWeatherDescription() != null) {
             String description = weather.getWeatherDescription();
-            // Capitalize first letter
             description = description.substring(0, 1).toUpperCase() + description.substring(1);
             weatherDescription.setText(description);
         }
 
-        // Load weather icon (async)
         String iconUrl = weather.getIconUrl();
         if (iconUrl != null) {
             try {
-                Image icon = new Image(iconUrl, true); // background loading
+                Image icon = new Image(iconUrl, true);
                 weatherIcon.setImage(icon);
             } catch (Exception e) {
                 System.err.println("Weather icon load failed: " + e.getMessage());
             }
         }
 
-        // Create tooltip with detailed info
         Tooltip tooltip = new Tooltip(weather.getTooltipText());
         tooltip.getStyleClass().add("weather-tooltip");
         Tooltip.install(weatherBadge, tooltip);
 
-        // Show the weather badge
+        // Show the badge (it lives inside placeWeatherRow which is already visible)
         weatherBadge.setVisible(true);
         weatherBadge.setManaged(true);
     }

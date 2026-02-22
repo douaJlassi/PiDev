@@ -183,6 +183,8 @@ public class PostCardController {
                 });
     }
 
+
+
     /**
      * Display weather badge with icon and temperature
      * - Shows weather icon from OpenWeatherMap
