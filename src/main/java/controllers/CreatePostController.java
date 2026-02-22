@@ -141,7 +141,7 @@ public class CreatePostController {
         // Create the custom autocomplete field
         placeField = new PlacesAutocompleteField();
         placeField.setPromptText("Enter location (e.g., Tunis, Sahara...)");
-        placeField.setPrefWidth(Double.MAX_VALUE); // Fill container width
+        placeField.setPrefWidth(350); // Fill container width
 
         // Add to container (replaces what would have been <TextField fx:id="placeField"/> in FXML)
         placeFieldContainer.getChildren().clear();

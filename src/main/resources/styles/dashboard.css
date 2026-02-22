@@ -910,7 +910,7 @@ Light BG: #f0f2f5
 }
 .cpd-field-icon {
     -fx-font-size: 15px;
-    -fx-min-width: 22;
+    -fx-min-width: 62;
 }
 .cpd-field-input {
     -fx-background-color: transparent;

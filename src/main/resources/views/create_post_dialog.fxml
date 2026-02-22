@@ -50,7 +50,7 @@
         <HBox styleClass="cpd-field-row" alignment="CENTER_LEFT" spacing="10">
             <Label text="Location" styleClass="cpd-field-icon"/>
             <!-- PHASE 3: VBox container for PlacesAutocompleteField (created programmatically in controller) -->
-            <VBox fx:id="placeFieldContainer" HBox.hgrow="ALWAYS">
+            <VBox fx:id="placeFieldContainer" >
                 <!-- PlacesAutocompleteField will be added here by CreatePostController.setupLocationField() -->
             </VBox>
         </HBox>
@@ -62,7 +62,7 @@
             <ComboBox fx:id="agencyCombo"
                       promptText="Tag an agency (optional)..."
                       styleClass="cpd-agency-combo"
-                      maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                      maxWidth="350" HBox.hgrow="ALWAYS"
                       onAction="#onAgencySelected"/>
         </HBox>
 
