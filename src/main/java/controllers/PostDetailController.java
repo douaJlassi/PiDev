@@ -1,22 +1,26 @@
 package controllers;
 
 import entities.Publication;
+import entities.WeatherData;
 import javafx.animation.FadeTransition;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
+import services.WeatherService;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 
 /**
@@ -25,6 +29,11 @@ import java.text.SimpleDateFormat;
  *  2. Loaded programmatically by PostController via show()
  *
  * The FXML carries all layout; this class only binds data and wires events.
+ *
+ * PHASE 4C UPDATE: Now fetches and displays weather badges in detail view
+ * - Larger weather badge (32x32 icon vs 24x24 in card)
+ * - Two-line display (temperature + description)
+ * - Same caching and error handling as post cards
  */
 public class PostDetailController {
 
@@ -42,7 +51,13 @@ public class PostDetailController {
     @FXML private Label     likesStatLabel;
     @FXML private Label     commentsStatLabel;
     @FXML private Button    likeBtn;
-    @FXML private Button    shareBtn;
+    @FXML private Button    commentBtn2;
+
+    // PHASE 4C: Weather badge
+    @FXML private HBox      weatherBadge;
+    @FXML private ImageView weatherIcon;
+    @FXML private Label     weatherText;
+    @FXML private Label     weatherDescription;
 
     // Right panel
     @FXML private Label     commentCountLabel;
@@ -54,6 +69,9 @@ public class PostDetailController {
     private Publication         publication;
     private DashboardController dashboard;
     private BorderPane          detailView; // root node of the loaded FXML
+
+    // PHASE 4C: Weather service (shared instance for caching)
+    private static final WeatherService weatherService = new WeatherService();
 
     private static final SimpleDateFormat DATE_FMT =
             new SimpleDateFormat("MMMM dd, yyyy 'at' hh:mm a");
@@ -77,6 +95,9 @@ public class PostDetailController {
 
             bindData();
 
+            // PHASE 4C: Fetch weather if available
+            fetchWeatherIfAvailable();
+
             dashboard.getContentContainer().getChildren().add(detailView);
 
             FadeTransition fade = new FadeTransition(Duration.millis(220), detailView);
@@ -99,98 +120,162 @@ public class PostDetailController {
 
         // Place
         if (publication.getPlace() != null && !publication.getPlace().isEmpty()) {
+            placeLabel.setVisible(true);
+            placeLabel.setManaged(true);
             placeLabel.setText("📍 " + publication.getPlace());
-            placeLabel.setVisible(true); placeLabel.setManaged(true);
         }
 
         // Content
         postContentLabel.setText(publication.getContent());
 
         // Image
-        if (publication.getImagePath() != null && !publication.getImagePath().isEmpty()) {
-            File imgFile = new File(publication.getImagePath());
-            if (imgFile.exists()) {
-                postImage.setImage(new Image(imgFile.toURI().toString()));
+        if (publication.hasImage()) {
+            File img = new File(publication.getImagePath());
+            if (img.exists()) {
+                postImage.setImage(new Image(img.toURI().toString()));
                 imageContainer.setVisible(true);
                 imageContainer.setManaged(true);
             }
         }
 
         // Stats
-        try {
-            int likes    = dashboard.getLikeService().getLikeCount(publication.getPublicationID());
-            int comments = dashboard.getCommentService().getCommentCount(publication.getPublicationID());
-            if (likes > 0) {
-                likesStatLabel.setText("♥ " + likes);
-                likesStatLabel.setVisible(true); likesStatLabel.setManaged(true);
-            }
-            if (comments > 0) {
-                commentsStatLabel.setText(comments + " comment" + (comments != 1 ? "s" : ""));
-                commentsStatLabel.setVisible(true); commentsStatLabel.setManaged(true);
-            }
-        } catch (SQLException ignored) {}
+        int likesCount = publication.getLikes() != null ? publication.getLikes().size() : 0;
+        int commentsCount = publication.getComments() != null ? publication.getComments().size() : 0;
+
+        if (likesCount > 0) {
+            likesStatLabel.setText("♥ " + likesCount);
+            likesStatLabel.setVisible(true);
+            likesStatLabel.setManaged(true);
+        }
+        if (commentsCount > 0) {
+            commentsStatLabel.setText("💬 " + commentsCount);
+            commentsStatLabel.setVisible(true);
+            commentsStatLabel.setManaged(true);
+        }
 
         // Like button
         dashboard.getLikeController().initButton(likeBtn, publication);
 
-        // Comment count
-        int count = dashboard.getCommentController().getCommentCount(publication.getPublicationID());
-        commentCountLabel.setText("(" + count + ")");
-
-        // Comment input — enable Post button only when text present
-        commentPostBtn.setDisable(true);
-        commentTextField.textProperty().addListener(
-                (obs, o, n) -> commentPostBtn.setDisable(n.trim().isEmpty()));
-
         // Load comments
-        dashboard.getCommentController().loadComments(publication, commentsList);
+        dashboard.getCommentController().loadComments(
+                publication, commentsList);
+
+        // Enable comment post button when text entered
+        commentTextField.textProperty().addListener((obs, old, newVal) -> {
+            commentPostBtn.setDisable(newVal == null || newVal.trim().isEmpty());
+        });
     }
 
-    // ── FXML handlers ─────────────────────────────────────────────────────────
+    // ────────────────────────────────────────────────────────────────────────
+    // PHASE 4C: Weather fetching
+    // ────────────────────────────────────────────────────────────────────────
+
+    /**
+     * Fetch weather if post has location (async)
+     * Same logic as PostCardController but larger display
+     */
+    private void fetchWeatherIfAvailable() {
+        // Check if post has location
+        if (publication.getPlace() == null || publication.getPlace().trim().isEmpty()) {
+            return;
+        }
+
+        // Don't fetch weather for very old posts (>7 days)
+        long postAgeHours = (System.currentTimeMillis() -
+                publication.getDatePublication().getTime()) / (1000 * 60 * 60);
+        if (postAgeHours > 168) {
+            return;
+        }
+
+        // Fetch weather asynchronously
+        String locationName = publication.getPlace();
+
+        weatherService.getWeatherByLocation(locationName)
+                .thenAccept(weather -> {
+                    Platform.runLater(() -> {
+                        if (weather != null && weather.isValid()) {
+                            displayWeatherBadge(weather);
+                        }
+                    });
+                })
+                .exceptionally(error -> {
+                    System.err.println("Weather fetch failed for '" + locationName + "': " + error.getMessage());
+                    return null;
+                });
+    }
+
+    /**
+     * Display weather badge with icon, temperature, and description
+     * Enhanced version for detail view (larger, more info)
+     */
+    private void displayWeatherBadge(WeatherData weather) {
+        // Set temperature text
+        weatherText.setText(weather.getFormattedTemperature());
+
+        // Set weather description (e.g., "Clear sky")
+        if (weather.getWeatherDescription() != null) {
+            String description = weather.getWeatherDescription();
+            // Capitalize first letter
+            description = description.substring(0, 1).toUpperCase() + description.substring(1);
+            weatherDescription.setText(description);
+        }
+
+        // Load weather icon (async)
+        String iconUrl = weather.getIconUrl();
+        if (iconUrl != null) {
+            try {
+                Image icon = new Image(iconUrl, true); // background loading
+                weatherIcon.setImage(icon);
+            } catch (Exception e) {
+                System.err.println("Weather icon load failed: " + e.getMessage());
+            }
+        }
+
+        // Create tooltip with detailed info
+        Tooltip tooltip = new Tooltip(weather.getTooltipText());
+        tooltip.getStyleClass().add("weather-tooltip");
+        Tooltip.install(weatherBadge, tooltip);
+
+        // Show the weather badge
+        weatherBadge.setVisible(true);
+        weatherBadge.setManaged(true);
+    }
+
+    // ── FXML event handlers ───────────────────────────────────────────────────
     @FXML
     private void onClose() {
-        if (detailView == null) return;
         FadeTransition fade = new FadeTransition(Duration.millis(180), detailView);
         fade.setFromValue(1); fade.setToValue(0);
-        fade.setOnFinished(e -> {
-            dashboard.getContentContainer().getChildren().remove(detailView);
-            detailView = null;
-        });
+        fade.setOnFinished(e -> dashboard.getContentContainer().getChildren().remove(detailView));
         fade.play();
     }
 
     @FXML
     private void onLikeClicked() {
         dashboard.getLikeController().handleToggle(publication, likeBtn);
-        // Refresh stat label
-        int likes = dashboard.getLikeController().getLikeCount(publication.getPublicationID());
-        if (likes > 0) {
-            likesStatLabel.setText("♥ " + likes);
-            likesStatLabel.setVisible(true); likesStatLabel.setManaged(true);
-        } else {
-            likesStatLabel.setVisible(false); likesStatLabel.setManaged(false);
-        }
     }
 
     @FXML
     private void onCommentFocusClicked() {
-        // Focus the comment input field
         commentTextField.requestFocus();
     }
 
     @FXML
     private void onCommentSubmit() {
-        String text = commentTextField.getText().trim();
-        if (text.isEmpty()) return;
+        String text = commentTextField.getText();
+        if (text == null || text.trim().isEmpty()) return;
 
-        dashboard.getCommentController()
-                .addComment(publication, text, commentsList, commentCountLabel);
+        dashboard.getCommentController().addComment(
+                publication, text.trim(), commentsList, commentCountLabel);
 
         commentTextField.clear();
 
         // Scroll to bottom
-        javafx.application.Platform.runLater(() -> {
-            commentsList.getParent().getParent().requestLayout();
-        });
+        commentsList.layout();
+        if (commentsList.getParent() instanceof javafx.scene.control.ScrollPane) {
+            javafx.scene.control.ScrollPane sp =
+                    (javafx.scene.control.ScrollPane) commentsList.getParent();
+            sp.setVvalue(1.0);
+        }
     }
 }

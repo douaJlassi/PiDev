@@ -15,7 +15,7 @@
         <HBox styleClass="detail-top-bar" alignment="CENTER_LEFT" spacing="12">
             <padding><Insets top="14" right="20" bottom="14" left="20"/></padding>
 
-            <Button fx:id="closeBtn" styleClass="close-detail-btn" text="✕" onAction="#onClose"/>
+            <Button fx:id="closeBtn" styleClass="close-detail-btn" text="X" onAction="#onClose"/>
 
             <Region HBox.hgrow="ALWAYS"/>
             <Label text="Post Details" styleClass="detail-title"/>
@@ -48,6 +48,17 @@
                         <!-- Place tag (hidden when empty) -->
                         <Label fx:id="placeLabel" styleClass="post-place-tag"
                                text="" visible="false" managed="false"/>
+
+                        <!-- PHASE 4C: Weather badge (populated programmatically) -->
+                        <HBox fx:id="weatherBadge" styleClass="weather-badge" spacing="6"
+                              alignment="CENTER_LEFT" visible="false" managed="false" maxWidth="-Infinity">
+                            <ImageView fx:id="weatherIcon" styleClass="weather-icon"
+                                       fitWidth="32" fitHeight="32" preserveRatio="true"/>
+                            <VBox spacing="2">
+                                <Label fx:id="weatherText" styleClass="weather-text" text=""/>
+                                <Label fx:id="weatherDescription" styleClass="post-meta" text=""/>
+                            </VBox>
+                        </HBox>
 
                         <!-- Full post text -->
                         <Label fx:id="postContentLabel" styleClass="detail-post-text"
