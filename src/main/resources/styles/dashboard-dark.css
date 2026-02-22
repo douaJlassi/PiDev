@@ -492,3 +492,20 @@
 .suggestion-secondary-text {
     -fx-text-fill: #8b90a7;
 }
+
+/* ===== WEATHER BADGE — dark ===== */
+.weather-badge {
+    -fx-background-color: rgba(255, 193, 7, 0.15);
+}
+
+.weather-text {
+    -fx-text-fill: #FFB74D;
+}
+
+.weather-badge:hover {
+    -fx-background-color: rgba(255, 193, 7, 0.2);
+}
+
+.weather-tooltip {
+    -fx-background-color: rgba(26, 29, 39, 0.95);
+}
