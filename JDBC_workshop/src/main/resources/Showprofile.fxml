@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.geometry.*?>
+
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="tn.esprit.projet.controlles.ShowprofileController"
+            prefWidth="1300"
+            prefHeight="800"
+            style="-fx-background-color: #f0f2f5;">
+
+    <!-- Header with back button -->
+    <top>
+        <VBox spacing="0">
+            <!-- Top Bar with Back Button and Title -->
+            <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-background-color: white; -fx-padding: 15 25; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
+                <Button fx:id="backButton" text="← Back to Main Page"
+                        style="-fx-background-color: transparent; -fx-text-fill: #0FA5A2; -fx-font-size: 16px; -fx-font-weight: bold; -fx-cursor: hand;"
+                        onAction="#handleBack"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label text="My Profile" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C;"/>
+            </HBox>
+
+            <!-- Horizontal Navigation Bar -->
+            <HBox spacing="5" style="-fx-background-color: white; -fx-padding: 0 25 15 25; -fx-border-color: #f0f0f0; -fx-border-width: 1 0 0 0;" alignment="CENTER_LEFT">
+                <Button fx:id="profileInfoTab" text="Profile Information"
+                        style="-fx-background-color: #0FA5A2; -fx-text-fill: white; -fx-padding: 10 20; -fx-background-radius: 25; -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 14px;"
+                        onAction="#showProfileInfo"/>
+                <Button fx:id="settingsTab" text="Settings"
+                        style="-fx-background-color: transparent; -fx-text-fill: #666; -fx-padding: 10 20; -fx-background-radius: 25; -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 14px;"
+                        onAction="#showSettings"/>
+                <Button fx:id="securityTab" text="Security"
+                        style="-fx-background-color: transparent; -fx-text-fill: #666; -fx-padding: 10 20; -fx-background-radius: 25; -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 14px;"
+                        onAction="#showSecurity"/>
+                <Region HBox.hgrow="ALWAYS"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- Center Content -->
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-border-color: transparent;">
+            <VBox spacing="25" alignment="TOP_CENTER" style="-fx-padding: 30;">
+
+                <!-- Profile Header Section (Always Visible) -->
+                <VBox spacing="0" style="-fx-background-color: white; -fx-background-radius: 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 15, 0, 0, 0);" maxWidth="1000" prefWidth="1000">
+
+                    <!-- Cover Photo -->
+                    <StackPane prefHeight="150" style="-fx-background-color: linear-gradient(to right, #0FA5A2, #1D4D7C); -fx-background-radius: 20 20 0 0;">
+                        <Label text="✈" style="-fx-font-size: 60px; -fx-opacity: 0.2;" translateX="200" translateY="-20"/>
+                        <Label text="🌍" style="-fx-font-size: 80px; -fx-opacity: 0.2;" translateX="-200" translateY="20"/>
+                    </StackPane>
+
+                    <!-- Profile Header with Avatar -->
+                    <HBox alignment="BOTTOM_LEFT" spacing="20" style="-fx-padding: 0 30 20 30;" translateY="-40">
+                        <!-- Avatar with enhanced shadow -->
+                        <StackPane>
+                            <Circle radius="70" fill="white" style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 15, 0, 0, 0);"/>
+                            <Circle fx:id="profileAvatar" radius="65" fill="linear-gradient(to bottom right, #0FA5A2, #1D4D7C)" translateX="0" translateY="0">
+                                <effect>
+                                    <DropShadow color="#00000066" radius="15" spread="0.3" offsetX="3" offsetY="3"/>
+                                    <InnerShadow color="#FFFFFFCC" radius="8" choke="0.5"/>
+                                </effect>
+                            </Circle>
+                            <ImageView fx:id="profileImageView" fitWidth="130" fitHeight="130"
+                                       preserveRatio="false" pickOnBounds="true" smooth="true">
+                                <clip>
+                                    <Circle radius="65" centerX="65" centerY="65"/>
+                                </clip>
+                                <effect>
+                                    <DropShadow color="#00000066" radius="15" spread="0.3" offsetX="3" offsetY="3"/>
+                                </effect>
+                            </ImageView>
+                            <Button fx:id="changePhotoBtn" text="✎"
+                                    style="-fx-background-color: #0FA5A2; -fx-text-fill: white; -fx-font-size: 18px; -fx-background-radius: 20; -fx-min-width: 40; -fx-min-height: 40; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 8, 0, 0, 0);"
+                                    translateX="50" translateY="50"
+                                    onAction="#handleChangePhoto"/>
+                        </StackPane>
+
+                        <!-- User basic info with enhanced shadows -->
+                        <VBox spacing="5" HBox.hgrow="ALWAYS" translateY="20">
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Label fx:id="userNameLabel" text="User Name" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C;">
+                                    <effect>
+                                        <DropShadow color="#00000033" radius="8" offsetX="2" offsetY="2"/>
+                                    </effect>
+                                </Label>
+                                <Label fx:id="userRoleLabel" text="Role" style="-fx-font-size: 14px; -fx-background-color: #e0f0f0; -fx-padding: 5 15; -fx-background-radius: 20; -fx-text-fill: #0FA5A2; -fx-font-weight: bold;">
+                                    <effect>
+                                        <DropShadow color="#00000026" radius="4" offsetX="1" offsetY="1"/>
+                                    </effect>
+                                </Label>
+                            </HBox>
+                            <Label fx:id="userEmailLabel" text="email@example.com"
+                                   style="-fx-font-size: 16px; -fx-font-family: 'Segoe UI'; -fx-font-weight: 500; -fx-text-fill: #34495e; -fx-opacity: 0.9;">
+                                <effect>
+                                    <DropShadow color="#0000001A" radius="3" offsetX="1" offsetY="1"/>
+                                </effect>
+                            </Label>
+                        </VBox>
+                    </HBox>
+
+                    <!-- Stats Cards -->
+                    <HBox spacing="15" alignment="CENTER" style="-fx-padding: 0 30 20 30;">
+                        <!-- Coins Card -->
+                        <VBox spacing="10" alignment="CENTER" style="-fx-background-color: #f8f9fa; -fx-background-radius: 15; -fx-padding: 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 8, 0, 0, 0);" HBox.hgrow="ALWAYS">
+                            <Label text="💎" style="-fx-font-size: 30px;"/>
+                            <Label text="Coins" style="-fx-font-size: 12px; -fx-text-fill: #999;"/>
+                            <Label fx:id="coinsLabel" text="0" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #FEC74C;">
+                                <effect>
+                                    <DropShadow color="#FEC74C66" radius="5" spread="0.2"/>
+                                </effect>
+                            </Label>
+                        </VBox>
+
+                        <!-- Membership Card -->
+                        <VBox spacing="10" alignment="CENTER" style="-fx-background-color: #f8f9fa; -fx-background-radius: 15; -fx-padding: 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 8, 0, 0, 0);" HBox.hgrow="ALWAYS">
+                            <Label text="⭐" style="-fx-font-size: 30px;"/>
+                            <Label text="Membership" style="-fx-font-size: 12px; -fx-text-fill: #999;"/>
+                            <Label fx:id="membershipLabel" text="Standard" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #0FA5A2;">
+                                <effect>
+                                    <DropShadow color="#0FA5A266" radius="5" spread="0.2"/>
+                                </effect>
+                            </Label>
+                        </VBox>
+
+                        <!-- Language Card -->
+                        <VBox spacing="10" alignment="CENTER" style="-fx-background-color: #f8f9fa; -fx-background-radius: 15; -fx-padding: 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 8, 0, 0, 0);" HBox.hgrow="ALWAYS">
+                            <Label text="🌐" style="-fx-font-size: 30px;"/>
+                            <Label text="Language" style="-fx-font-size: 12px; -fx-text-fill: #999;"/>
+                            <Label fx:id="languageLabel" text="English" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C;">
+                                <effect>
+                                    <DropShadow color="#1D4D7C66" radius="5" spread="0.2"/>
+                                </effect>
+                            </Label>
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+                <!-- Profile Information Section -->
+                <VBox fx:id="profileInfoSection" spacing="20" style="-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 30; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 15, 0, 0, 0);" maxWidth="1000" prefWidth="1000">
+                    <Label text="Profile Information" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C; -fx-border-color: #f0f0f0; -fx-border-width: 0 0 1 0; -fx-padding: 0 0 10 0;"/>
+
+                    <!-- Two column layout -->
+                    <GridPane hgap="30" vgap="20">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="50"/>
+                            <ColumnConstraints percentWidth="50"/>
+                        </columnConstraints>
+
+                        <!-- Left Column -->
+                        <VBox spacing="15" GridPane.columnIndex="0">
+                            <!-- Username Field -->
+                            <VBox spacing="5">
+                                <Label text="Username" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #666;"/>
+                                <HBox spacing="10" alignment="CENTER_LEFT">
+                                    <TextField fx:id="usernameField" editable="false" style="-fx-background-color: #f8f9fa; -fx-padding: 12; -fx-background-radius: 10; -fx-border-color: #e0e0e0; -fx-border-radius: 10; -fx-font-size: 14px; -fx-font-weight: 500;" HBox.hgrow="ALWAYS"/>
+                                    <Label fx:id="usernameLockLabel" text="🔒" style="-fx-font-size: 18px; -fx-text-fill: #999;"/>
+                                </HBox>
+                            </VBox>
+
+                            <!-- First Name Field -->
+                            <VBox spacing="5">
+                                <Label text="First Name" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #666;"/>
+                                <TextField fx:id="firstNameField" editable="false" style="-fx-background-color: #f8f9fa; -fx-padding: 12; -fx-background-radius: 10; -fx-border-color: #e0e0e0; -fx-border-radius: 10; -fx-font-size: 14px; -fx-font-weight: 500;"/>
+                            </VBox>
+
+                            <!-- Last Name Field -->
+                            <VBox spacing="5">
+                                <Label text="Last Name" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #666;"/>
+                                <TextField fx:id="lastNameField" editable="false" style="-fx-background-color: #f8f9fa; -fx-padding: 12; -fx-background-radius: 10; -fx-border-color: #e0e0e0; -fx-border-radius: 10; -fx-font-size: 14px; -fx-font-weight: 500;"/>
+                            </VBox>
+                        </VBox>
+
+                        <!-- Right Column -->
+                        <VBox spacing="15" GridPane.columnIndex="1">
+                            <!-- Email Field -->
+                            <VBox spacing="5">
+                                <Label text="Email" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #666;"/>
+                                <TextField fx:id="emailField" editable="false"
+                                           style="-fx-background-color: #f8f9fa; -fx-padding: 12; -fx-background-radius: 10; -fx-border-color: #0FA5A2; -fx-border-radius: 10; -fx-font-size: 14px; -fx-font-weight: 500; -fx-font-family: 'Segoe UI';"
+                                           HBox.hgrow="ALWAYS"/>
+                            </VBox>
+
+                            <!-- Membership Field -->
+                            <VBox spacing="5">
+                                <Label text="Membership" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #666;"/>
+                                <HBox spacing="10" alignment="CENTER_LEFT">
+                                    <ComboBox fx:id="membershipCombo" prefWidth="200" visible="false" style="-fx-background-radius: 10; -fx-padding: 5; -fx-font-size: 14px;"/>
+                                    <Label fx:id="membershipDisplayLabel" text="Standard" style="-fx-padding: 12; -fx-background-color: #f8f9fa; -fx-background-radius: 10; -fx-border-color: #e0e0e0; -fx-border-radius: 10; -fx-min-width: 200; -fx-font-size: 14px; -fx-font-weight: 500;"/>
+                                    <Label fx:id="membershipLockLabel" text="🔒" style="-fx-font-size: 18px; -fx-text-fill: #999;"/>
+                                </HBox>
+                            </VBox>
+
+                            <!-- Language Field - MOVED FROM PROFILE INFO TO SETTINGS -->
+                            <!-- This section is now empty - language moved to settings -->
+                            <VBox spacing="5" visible="false" managed="false">
+                                <Label text="Language" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #666;"/>
+                                <HBox spacing="10" alignment="CENTER_LEFT">
+                                    <ComboBox fx:id="languageCombo" prefWidth="200" visible="false" style="-fx-background-radius: 10; -fx-padding: 5; -fx-font-size: 14px;">
+                                        <items>
+                                            <FXCollections fx:factory="observableArrayList">
+                                                <String fx:value="English"/>
+                                                <String fx:value="French"/>
+                                            </FXCollections>
+                                        </items>
+                                    </ComboBox>
+                                    <Label fx:id="languageDisplayLabel" text="English" style="-fx-padding: 12; -fx-background-color: #f8f9fa; -fx-background-radius: 10; -fx-border-color: #e0e0e0; -fx-border-radius: 10; -fx-min-width: 200; -fx-font-size: 14px; -fx-font-weight: 500;"/>
+                                </HBox>
+                            </VBox>
+                        </VBox>
+                    </GridPane>
+
+                    <!-- Action Buttons -->
+                    <HBox spacing="15" alignment="CENTER_RIGHT" style="-fx-padding: 20 0 0 0;">
+                        <Button fx:id="editProfileBtn"
+                                text="Edit Profile"
+                                onAction="#handleEditProfile"
+                                style="-fx-background-color: #0FA5A2; -fx-text-fill: white; -fx-padding: 12 30; -fx-background-radius: 25; -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 14px;">
+                            <effect>
+                                <DropShadow color="#00000066" radius="8" offsetX="2" offsetY="2"/>
+                            </effect>
+                        </Button>
+                        <Button fx:id="saveProfileBtn"
+                                text="Save Changes"
+                                visible="false"
+                                onAction="#handleSaveProfile"
+                                style="-fx-background-color: #FEC74C; -fx-text-fill: #1D4D7C; -fx-padding: 12 30; -fx-background-radius: 25; -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 14px;">
+                            <effect>
+                                <DropShadow color="#00000066" radius="8" offsetX="2" offsetY="2"/>
+                            </effect>
+                        </Button>
+                        <Button fx:id="cancelEditBtn"
+                                text="Cancel"
+                                visible="false"
+                                onAction="#handleCancelEdit"
+                                style="-fx-background-color: #ff5e62; -fx-text-fill: white; -fx-padding: 12 30; -fx-background-radius: 25; -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 14px;">
+                            <effect>
+                                <DropShadow color="#00000066" radius="8" offsetX="2" offsetY="2"/>
+                            </effect>
+                        </Button>
+                    </HBox>
+                </VBox>
+
+                <!-- Settings Section -->
+                <VBox fx:id="settingsSection" spacing="20" visible="false" managed="false" style="-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 30; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 15, 0, 0, 0);" maxWidth="1000" prefWidth="1000">
+                    <Label text="Settings" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C; -fx-border-color: #f0f0f0; -fx-border-width: 0 0 1 0; -fx-padding: 0 0 10 0;"/>
+
+                    <!-- Language Settings -->
+                    <VBox spacing="15">
+                        <Label text="Language" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C;"/>
+                        <HBox spacing="20" alignment="CENTER_LEFT">
+                            <Label text="Select your preferred language:" style="-fx-font-size: 14px; -fx-text-fill: #666;"/>
+                            <ComboBox fx:id="settingsLanguageCombo" prefWidth="200" style="-fx-background-radius: 10; -fx-padding: 8; -fx-font-size: 14px;">
+                                <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                        <String fx:value="English"/>
+                                        <String fx:value="French"/>
+                                        <String fx:value="Arabic"/>
+                                        <String fx:value="Spanish"/>
+                                        <String fx:value="German"/>
+                                    </FXCollections>
+                                </items>
+                            </ComboBox>
+                            <Button text="Save Language"
+                                    style="-fx-background-color: #0FA5A2; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 20; -fx-cursor: hand;"
+                                    onAction="#handleSaveLanguage"/>
+                        </HBox>
+                    </VBox>
+
+                    <!-- Region Settings -->
+                    <VBox spacing="15" style="-fx-padding: 20 0 0 0;">
+                        <Label text="Region" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C;"/>
+                        <HBox spacing="20" alignment="CENTER_LEFT">
+                            <Label text="Select your region:" style="-fx-font-size: 14px; -fx-text-fill: #666;"/>
+                            <ComboBox fx:id="regionCombo" prefWidth="200" style="-fx-background-radius: 10; -fx-padding: 8; -fx-font-size: 14px;">
+                                <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                        <String fx:value="North America"/>
+                                        <String fx:value="South America"/>
+                                        <String fx:value="Europe"/>
+                                        <String fx:value="Asia"/>
+                                        <String fx:value="Africa"/>
+                                        <String fx:value="Australia"/>
+                                        <String fx:value="Middle East"/>
+                                        <String fx:value="Tunisia"/>
+                                    </FXCollections>
+                                </items>
+                            </ComboBox>
+                            <Label fx:id="regionDisplayLabel" text="Not set" style="-fx-padding: 8 15; -fx-background-color: #f8f9fa; -fx-background-radius: 10; -fx-border-color: #e0e0e0; -fx-border-radius: 10; -fx-min-width: 150;"/>
+                            <Button text="Save Region"
+                                    style="-fx-background-color: #0FA5A2; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 20; -fx-cursor: hand;"
+                                    onAction="#handleSaveRegion"/>
+                        </HBox>
+                    </VBox>
+                </VBox>
+
+                <!-- Security Section -->
+                <VBox fx:id="securitySection" spacing="20" visible="false" managed="false" style="-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 30; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 15, 0, 0, 0);" maxWidth="1000" prefWidth="1000">
+                    <Label text="Security" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C; -fx-border-color: #f0f0f0; -fx-border-width: 0 0 1 0; -fx-padding: 0 0 10 0;"/>
+
+                    <!-- 2FA Verification -->
+                    <VBox spacing="15">
+                        <Label text="Two-Factor Authentication (2FA)" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C;"/>
+                        <HBox spacing="20" alignment="CENTER_LEFT">
+                            <Label text="Enable 2FA for additional security:" style="-fx-font-size: 14px; -fx-text-fill: #666;"/>
+                            <ToggleButton fx:id="twoFAButton" text="OFF"
+                                          style="-fx-background-color: #ff5e62; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: hand;"
+                                          onAction="#handleTwoFA"/>
+                            <Label text="Secure your account with Google Authenticator or SMS codes" style="-fx-font-size: 12px; -fx-text-fill: #999; -fx-font-style: italic;"/>
+                        </HBox>
+
+                        <!-- 2FA Setup -->
+                        <VBox fx:id="twoFASetup" visible="false" managed="false" style="-fx-padding: 20; -fx-background-color: #f8f9fa; -fx-background-radius: 10; -fx-border-color: #e0e0e0; -fx-border-radius: 10;">
+                            <Label text="Scan QR code with Google Authenticator" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C;"/>
+                            <HBox spacing="20" alignment="CENTER_LEFT" style="-fx-padding: 15 0;">
+                                <StackPane style="-fx-background-color: white; -fx-padding: 10; -fx-background-radius: 10;">
+                                    <Label text="[QR CODE]" style="-fx-font-size: 100px; -fx-text-fill: #ccc;"/>
+                                </StackPane>
+                                <VBox spacing="10">
+                                    <Label text="Secret Key: JBSWY3DPEHPK3PXP" style="-fx-font-size: 14px; -fx-font-family: monospace; -fx-background-color: #e9ecef; -fx-padding: 8; -fx-background-radius: 5;"/>
+                                    <Label text="Enter the 6-digit code from your authenticator app" style="-fx-font-size: 12px; -fx-text-fill: #666;"/>
+                                    <HBox spacing="10">
+                                        <TextField promptText="Enter code" prefWidth="150" style="-fx-padding: 8; -fx-background-radius: 10;"/>
+                                        <Button text="Verify" style="-fx-background-color: #0FA5A2; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 20; -fx-cursor: hand;"/>
+                                    </HBox>
+                                </VBox>
+                            </HBox>
+                        </VBox>
+                    </VBox>
+
+                    <!-- Face ID -->
+                    <VBox spacing="15" style="-fx-padding: 20 0 0 0;">
+                        <Label text="Face ID / Biometric" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C;"/>
+                        <HBox spacing="20" alignment="CENTER_LEFT">
+                            <Label text="Enable Face ID for quick login:" style="-fx-font-size: 14px; -fx-text-fill: #666;"/>
+                            <ToggleButton fx:id="faceIDButton" text="OFF"
+                                          style="-fx-background-color: #ff5e62; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: hand;"
+                                          onAction="#handleFaceID"/>
+                            <Label text="Use your device's biometric authentication" style="-fx-font-size: 12px; -fx-text-fill: #999; -fx-font-style: italic;"/>
+                        </HBox>
+
+                        <!-- Face ID Setup -->
+                        <VBox fx:id="faceIDSetup" visible="false" managed="false" style="-fx-padding: 20; -fx-background-color: #f8f9fa; -fx-background-radius: 10; -fx-border-color: #e0e0e0; -fx-border-radius: 10;" alignment="CENTER">
+                            <Label text="📱" style="-fx-font-size: 48px;"/>
+                            <Label text="Face ID Setup" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C; -fx-padding: 10;"/>
+                            <Label text="Look directly at your device to register your face" style="-fx-font-size: 14px; -fx-text-fill: #666;"/>
+                            <ProgressBar prefWidth="300" progress="0.0" style="-fx-padding: 10;"/>
+                            <Button text="Start Registration" style="-fx-background-color: #0FA5A2; -fx-text-fill: white; -fx-padding: 10 30; -fx-background-radius: 25; -fx-font-weight: bold; -fx-cursor: hand; -fx-margin: 10;"/>
+                        </VBox>
+                    </VBox>
+
+                    <!-- Change Password -->
+                    <VBox spacing="15" style="-fx-padding: 20 0 0 0;">
+                        <Label text="Change Password" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C;"/>
+                        <GridPane hgap="20" vgap="10" maxWidth="600">
+                            <Label text="Current Password:" style="-fx-font-size: 14px; -fx-text-fill: #666;" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                            <PasswordField fx:id="currentPasswordField" promptText="Enter current password" GridPane.rowIndex="0" GridPane.columnIndex="1" style="-fx-padding: 8; -fx-background-radius: 10;"/>
+
+                            <Label text="New Password:" style="-fx-font-size: 14px; -fx-text-fill: #666;" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                            <PasswordField fx:id="newPasswordField" promptText="Enter new password" GridPane.rowIndex="1" GridPane.columnIndex="1" style="-fx-padding: 8; -fx-background-radius: 10;"/>
+
+                            <Label text="Confirm Password:" style="-fx-font-size: 14px; -fx-text-fill: #666;" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                            <PasswordField fx:id="confirmPasswordField" promptText="Confirm new password" GridPane.rowIndex="2" GridPane.columnIndex="1" style="-fx-padding: 8; -fx-background-radius: 10;"/>
+
+                            <Button text="Update Password" GridPane.rowIndex="3" GridPane.columnIndex="1"
+                                    style="-fx-background-color: #0FA5A2; -fx-text-fill: white; -fx-padding: 10 20; -fx-background-radius: 25; -fx-font-weight: bold; -fx-cursor: hand;"
+                                    onAction="#handleChangePassword"/>
+                        </GridPane>
+                    </VBox>
+                </VBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>
