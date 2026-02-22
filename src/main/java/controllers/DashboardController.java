@@ -62,6 +62,9 @@ public class DashboardController {
     @FXML
     private Button postsNavBtn;
 
+    @FXML
+    private Button mapNavBtn;
+
     // Sidebar labels (optional — populated in initialize)
     @FXML
     private Label sidebarUsername;
@@ -319,6 +322,26 @@ public class DashboardController {
     @FXML
     private void refreshPosts() {
         loadPosts();
+    }
+
+    /**
+     * Opens the interactive Leaflet map view as an overlay on the feed.
+     *
+     * Called when the user clicks "🗺 Explore Map" in the sidebar.
+     *
+     * The MapController handles:
+     *  - Loading map_view.fxml + map.html (Leaflet)
+     *  - Geocoding all place-tagged posts via Nominatim
+     *  - Injecting pins into the map
+     *  - Routing popup "Open Post" clicks back to PostDetailController
+     */
+    @FXML
+    public void showMapView() {
+        // Update sidebar active state
+        if (postsNavBtn != null) postsNavBtn.getStyleClass().remove("sidebar-nav-active");
+        if (mapNavBtn   != null) mapNavBtn.getStyleClass().add("sidebar-nav-active");
+
+        new MapController().show(this);
     }
 
     @FXML

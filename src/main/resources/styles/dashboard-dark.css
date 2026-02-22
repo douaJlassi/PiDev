@@ -509,3 +509,38 @@
 .weather-tooltip {
     -fx-background-color: rgba(26, 29, 39, 0.95);
 }
+/* ===== MAP VIEW — dark ===== */
+.map-view-root {
+    -fx-background-color: #1a1d27;
+}
+
+.map-header {
+    -fx-background-color: #1a1d27;
+    -fx-border-color: #2e3250;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 4, 0, 0, 1);
+}
+
+.map-header-title {
+    -fx-text-fill: #e8eaf0;
+}
+
+.map-status-label {
+    -fx-text-fill: #8b90a7;
+}
+
+/* ── Map zoom buttons dark ── */
+.map-zoom-btn {
+    -fx-background-color: #22263a;
+    -fx-text-fill: #e8eaf0;
+    -fx-border-color: #2e3250;
+}
+.map-zoom-btn:hover { -fx-background-color: #2e3250; }
+
+/* ── Map canvas container dark ── */
+.map-canvas-container { -fx-background-color: #0f1117; }
+
+/* ── Pin count pill dark ── */
+.map-pin-count {
+    -fx-background-color: rgba(26,29,39,0.95);
+    -fx-text-fill: #17B3A6;
+}

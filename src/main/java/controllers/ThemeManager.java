@@ -4,44 +4,44 @@ import javafx.scene.Scene;
 import javafx.scene.control.DialogPane;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
- * ThemeManager — singleton, swaps light/dark CSS on every registered scene.
+ * ThemeManager — singleton that swaps light/dark CSS on every registered scene.
  *
- * HOW IT WORKS
- *  - dashboard.css  is always loaded first (via FXML stylesheets attribute).
- *  - Switching to dark adds dashboard-dark.css on top (cascade overrides colours).
- *  - Switching back removes dashboard-dark.css.
- *  - Dialogs / detail views don't have scenes of their own, so they expose
- *    a DialogPane overload that patches the pane's stylesheet list directly.
+ * WHY DARK MODE WASN'T WORKING — two separate root causes:
  *
- * USAGE
- *  ThemeManager.get().register(scene);   // once, after scene is attached
- *  ThemeManager.get().toggle();          // button handler
- *  ThemeManager.get().isDark();          // read state
- *  ThemeManager.get().applyToPane(pane); // for dialogs
+ * 1. post_card.fxml had stylesheets="@../styles/dashboard.css" on its root node.
+ *    This creates an isolated style scope — Scene-level dark CSS doesn't reach it.
+ *    FIX: removed the stylesheets attribute from post_card.fxml and post_detail.fxml.
+ *
+ * 2. DashboardController.showPostFormPanel() sets hardcoded inline styles like
+ *    setStyle("-fx-background-color: white"). Inline styles always beat CSS rules.
+ *    FIX: addChangeListener() lets controllers update their inline-styled nodes
+ *    whenever the theme toggles.
  */
 public class ThemeManager {
 
-    // ── Singleton ─────────────────────────────────────────────────────────────
     private static final ThemeManager INSTANCE = new ThemeManager();
     public static ThemeManager get() { return INSTANCE; }
     private ThemeManager() {}
 
-    // ── State ─────────────────────────────────────────────────────────────────
     private boolean dark = false;
-    private final Set<Scene> scenes = new HashSet<>();
+    private final Set<Scene>     scenes    = new HashSet<>();
+    private final List<Runnable> listeners = new ArrayList<>();
 
-    // ── CSS resource paths (relative to classpath root) ───────────────────────
     private static final String LIGHT = "/styles/dashboard.css";
     private static final String DARK  = "/styles/dashboard-dark.css";
 
-    // ── Public API ────────────────────────────────────────────────────────────
     public void register(Scene scene) {
         if (scene == null) return;
         scenes.add(scene);
+        String lightUrl = toExternalForm(LIGHT);
+        if (lightUrl != null && !scene.getStylesheets().contains(lightUrl))
+            scene.getStylesheets().add(0, lightUrl);
         applyToScene(scene);
     }
 
@@ -50,39 +50,42 @@ public class ThemeManager {
     public void toggle() {
         dark = !dark;
         scenes.forEach(this::applyToScene);
+        listeners.forEach(Runnable::run);
     }
 
     public boolean isDark() { return dark; }
 
-    /** Apply current theme to a dialog pane (dialogs have no Scene of their own). */
+    /**
+     * Subscribe to theme changes.
+     * Use in any controller that has inline setStyle() calls so those nodes
+     * can update their colours when the user toggles dark mode.
+     */
+    public void addChangeListener(Runnable listener) {
+        if (listener != null) listeners.add(listener);
+    }
+
+    public void removeChangeListener(Runnable listener) {
+        listeners.remove(listener);
+    }
+
     public void applyToPane(DialogPane pane) {
         if (pane == null) return;
-        String light = toExternalForm(LIGHT);
-        String darkE  = toExternalForm(DARK);
-        if (light != null && !pane.getStylesheets().contains(light))
-            pane.getStylesheets().add(light);
-        if (dark) {
-            if (darkE != null && !pane.getStylesheets().contains(darkE))
-                pane.getStylesheets().add(darkE);
-        } else {
-            pane.getStylesheets().remove(darkE);
-        }
+        String lightUrl = toExternalForm(LIGHT);
+        String darkUrl  = toExternalForm(DARK);
+        if (lightUrl != null && !pane.getStylesheets().contains(lightUrl))
+            pane.getStylesheets().add(0, lightUrl);
+        pane.getStylesheets().remove(darkUrl);
+        if (dark && darkUrl != null)
+            pane.getStylesheets().add(darkUrl);
     }
 
-    // ── Internal ──────────────────────────────────────────────────────────────
     private void applyToScene(Scene scene) {
         String darkUrl = toExternalForm(DARK);
-        if (darkUrl == null) return; // CSS file not found on classpath — skip
-
-        if (dark) {
-            if (!scene.getStylesheets().contains(darkUrl))
-                scene.getStylesheets().add(darkUrl);
-        } else {
-            scene.getStylesheets().remove(darkUrl);
-        }
+        if (darkUrl == null) return;
+        scene.getStylesheets().remove(darkUrl);
+        if (dark) scene.getStylesheets().add(darkUrl);
     }
 
-    /** Resolves a classpath resource to an external URL string, or null if missing. */
     private static String toExternalForm(String path) {
         URL url = ThemeManager.class.getResource(path);
         return url != null ? url.toExternalForm() : null;

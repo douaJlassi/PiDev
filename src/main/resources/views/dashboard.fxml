@@ -37,6 +37,9 @@
                 <Button fx:id="postsNavBtn" text="Posts"
                         styleClass="sidebar-nav-btn, sidebar-nav-active"
                         maxWidth="Infinity"/>
+                <Button fx:id="mapNavBtn" text="🗺  Explore Map"
+                        styleClass="sidebar-nav-btn"
+                        maxWidth="Infinity" onAction="#showMapView"/>
                 <Button text="My Profile" styleClass="sidebar-nav-btn" maxWidth="Infinity"/>
                 <Button text="Favourites" styleClass="sidebar-nav-btn" maxWidth="Infinity"/>
                 <Button text="Bookings" styleClass="sidebar-nav-btn" maxWidth="Infinity"/>
