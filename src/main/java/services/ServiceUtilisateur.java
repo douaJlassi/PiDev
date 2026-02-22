@@ -5,6 +5,7 @@ import entities.Utilisateur;
 import utils.MyDBConnexion;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ServiceUtilisateur implements CRUD<Utilisateur> {
@@ -45,7 +46,24 @@ public class ServiceUtilisateur implements CRUD<Utilisateur> {
 
     @Override
     public List<Utilisateur> selectALL() throws SQLException {
-        return List.of();
+        String query= "SELECT * FROM `user`";
+        PreparedStatement ps =  connection.prepareStatement(query);
+        ResultSet rs = ps.executeQuery();
+        List<Utilisateur> utilisateurs = new ArrayList<>();
+        while (rs.next()) {
+            utilisateurs.add(new Utilisateur(
+                    rs.getInt(1),
+                    rs.getString(2),
+                    rs.getString(3),
+                    rs.getString(4),
+                    rs.getString(5),
+                    rs.getString(6),
+                    Role.valueOf(rs.getString("role")),
+                    rs.getTimestamp("dateCreation").toLocalDateTime(),
+                    rs.getBoolean("statut")
+            ));
+        }
+        return utilisateurs;
     }
 
     @Override

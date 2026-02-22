@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.effect.DropShadow?>
+<HBox prefHeight="630.0" prefWidth="800.0" style="-fx-background-color: #F4F7F6;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.ChatView">
+    <children>
+
+        <VBox prefWidth="280.0" style="-fx-background-color: white; -fx-border-color: #E0E0E0; -fx-border-width: 0 1 0 0;">
+            <children>
+                <TextField fx:id="searchField" promptText="Rechercher une discussion..." style="-fx-background-radius: 20; -fx-padding: 8;">
+                    <VBox.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                    </VBox.margin>
+                </TextField>
+                <HBox spacing="10.0" alignment="CENTER">
+                    <children>
+                        <ToggleButton fx:id="btnAll" mnemonicParsing="false" selected="true" onAction="#handleFilterChange" text="Toutes" prefWidth="80.0">
+                            <toggleGroup>
+                                <ToggleGroup fx:id="categoryGroup" />
+                            </toggleGroup>
+                        </ToggleButton>
+
+                        <ToggleButton fx:id="btnGroups" mnemonicParsing="false" onAction="#handleFilterChange" text="Groupes" prefWidth="80.0" toggleGroup="$categoryGroup" />
+                    </children>
+                    <VBox.margin>
+                        <Insets bottom="10.0" left="15.0" right="15.0" />
+                    </VBox.margin>
+                </HBox>
+                <ListView fx:id="listConversations" style="-fx-background-color: transparent;" VBox.vgrow="ALWAYS" />
+            </children>
+        </VBox>
+        <StackPane HBox.hgrow="ALWAYS" >
+            <children>
+                <VBox fx:id="paneDefault" alignment="CENTER" spacing="20.0" style="-fx-background-color: #F4F7F6;" managed="true" visible="true">
+                    <children>
+                        <Label text="Bienvenue sur Rehletna Chat" textFill="#0D3B66">
+                            <font>
+                                <Font name="System Bold" size="22.0" />
+                            </font>
+                        </Label>
+                        <Label text="Sélectionnez un contact pour commencer à discuter" textFill="#7f8c8d">
+                            <font>
+                                <Font size="14.0" />
+                            </font>
+                        </Label>
+                        <HBox spacing="20" alignment="CENTER">
+                            <children>
+                                <Button fx:id="btnNewChat" prefWidth="170.0"  mnemonicParsing="false" onAction="#handleNewChat"
+                                        style="-fx-cursor: hand; -fx-background-color: #10A5A5; -fx-text-fill: white; -fx-background-radius: 20; -fx-font-weight: bold;"
+                                        text="+ Nouveau Contact">
+                                    <padding>
+                                        <Insets bottom="10.0" left="30.0" right="30.0" top="10.0" />
+                                    </padding>
+
+                                </Button>
+                                <Button fx:id="btnNewGroup" prefWidth="170.0" mnemonicParsing="false" onAction="#handleNewGroup"
+                                        style="-fx-background-color: #10A5A5; -fx-text-fill: white; -fx-background-radius: 20; -fx-font-weight: bold;"
+                                        text="+ Créer un Groupe">
+                                    <padding>
+                                        <Insets bottom="10.0" left="30.0" right="30.0" top="10.0" />
+                                    </padding>
+                                </Button>
+                            </children>
+                            <VBox.margin>
+                                <Insets top="20.0" bottom="20.0" />
+                            </VBox.margin>
+                        </HBox>
+                        <HBox spacing="5" alignment="CENTER" maxWidth="400">
+                            <TextField fx:id="userSearchField" managed="false" visible="false" maxWidth="400.0"
+                                       promptText="Rechercher un utilisateur (nom, prénom ou email)..."
+                                       style="-fx-background-radius: 20; -fx-padding: 8;">
+                                <VBox.margin>
+                                    <Insets bottom="5.0" />
+                                </VBox.margin>
+                            </TextField>
+                            <Button fx:id="btnConfirmGroup" onAction="#handleConfirmGroupSelection" text="OK" visible="false" managed="false"
+                                    style="-fx-background-color: #10A5A5; -fx-text-fill: white; -fx-background-radius: 5;" />
+                        </HBox>
+                        <ListView fx:id="listAllUsers" managed="false" maxWidth="400.0" prefHeight="300.0" visible="false" style="-fx-background-radius: 10; -fx-border-color: #E0E0E0; -fx-border-radius: 10;" />
+                    </children>
+                </VBox>
+
+                <VBox fx:id="chatArea" managed="false" visible="false">
+                    <children>
+                        <HBox alignment="CENTER_LEFT" prefHeight="60.0" style="-fx-background-color: white; -fx-border-color: #E0E0E0; -fx-border-width: 0 0 1 0;">
+                            <children>
+                                <Circle fx:id="circleStatus" fill="#2ecc71" radius="6.0" stroke="WHITE" strokeType="INSIDE" strokeWidth="1.5" >
+                                    <HBox.margin>
+                                        <Insets left="20.0" />
+                                    </HBox.margin>
+                                    <effect>
+                                        <DropShadow color="#2ecc7144" radius="5.0" />
+                                    </effect>
+                                </Circle>
+                                <Label fx:id="lblNomContact" text="Nom du Contact" textFill="#0D3B66">
+                                    <font>
+                                        <Font name="System Bold" size="16.0" />
+                                    </font>
+                                    <HBox.margin>
+                                        <Insets left="20.0" />
+                                    </HBox.margin>
+                                </Label>
+                                <Pane HBox.hgrow="ALWAYS" />
+                                <MenuButton fx:id="btnOptions" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-cursor: hand;" text="">
+                                    <graphic>
+                                        <Label text="⋮" style="-fx-font-size: 26; -fx-text-fill: #7f8c8d; -fx-font-weight: bold;" />
+                                    </graphic>
+                                    <items>
+                                    </items>
+                                </MenuButton>
+                            </children>
+                        </HBox>
+                        <ScrollPane fx:id="scrollPaneMessages"
+                                    hbarPolicy="NEVER"
+                                    fitToWidth="true"
+                                    VBox.vgrow="ALWAYS"
+                                    style="-fx-background-color: transparent;
+                                    -fx-background: transparent;
+                                    -fx-background-image: url('/images/back3.png');
+                                    -fx-background-repeat: no-repeat;
+                                    -fx-background-size: cover;
+                                    -fx-background-position: center center;">
+                            <content>
+                                <VBox fx:id="vboxMessages" spacing="10.0" style="-fx-background-color: transparent;">
+                                    <padding>
+                                        <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+                                    </padding>
+                                </VBox>
+                            </content>
+                        </ScrollPane>
+                        <HBox fx:id="inputArea" alignment="CENTER" prefHeight="70.0" spacing="10.0" style="-fx-background-color: white; -fx-border-color: #E0E0E0; -fx-border-width: 1 0 0 0;">
+                            <children>
+                                <Button fx:id="btnAddFile" mnemonicParsing="false" onAction="#handleAttachFile"
+                                        prefHeight="10.0" prefWidth="15.0"
+                                        style="-fx-background-color: #0077B6; -fx-background-radius: 40; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 18; -fx-cursor: hand;"
+                                        text="+">
+                                    <HBox.margin>
+                                        <Insets right="5.0" />
+                                    </HBox.margin>
+                                </Button>
+                                <TextField fx:id="inputMessage" onAction="#handleSendMessage" promptText="Écrivez votre message..." style="-fx-background-radius: 20; -fx-padding: 10;" HBox.hgrow="ALWAYS" />
+                                <Button fx:id="btnSend" onAction="#handleSendMessage" style="-fx-background-color: #0077B6; -fx-text-fill: white; -fx-background-radius: 20;" text="Envoyer">
+                                    <padding>
+                                        <Insets bottom="8.0" left="15.0" right="15.0" top="8.0" />
+                                    </padding>
+                                </Button>
+                            </children>
+                            <padding>
+                                <Insets left="10.0" right="10.0" />
+                            </padding>
+                        </HBox>
+                        <HBox fx:id="paneQuitte" alignment="CENTER" managed="false" prefHeight="70.0" style="-fx-background-color: #F4F7F6; -fx-border-color: #E0E0E0; -fx-border-width: 1 0 0 0;" visible="false">
+                            <children>
+                                <Label fx:id="lblMessageQuitte" text="🚫 Vous avez quitté cette conversation" textFill="#7f8c8d">
+                                    <font>
+                                        <Font name="System Italic" size="14.0" />
+                                    </font>
+                                </Label>
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+        </StackPane>
+    </children>
+</HBox>

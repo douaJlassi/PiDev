@@ -2,6 +2,7 @@ package services;
 
 import entities.Conversation;
 import entities.Message;
+import entities.TypeMessage;
 import entities.Utilisateur;
 import utils.MyDBConnexion;
 
@@ -21,7 +22,7 @@ public class ServiceMessage implements CRUD<Message>{
 
     @Override
     public void insertOne(Message message) throws SQLException {
-        String query= "INSERT INTO `message`(`contenu`, `dateEnvoi`, `lu`, `idConversation`, `idExpediteur`) VALUES (?,?,?,?,?)";
+        String query= "INSERT INTO `message`(`contenu`, `dateEnvoi`, `lu`, `idConversation`, `idExpediteur`, `typeMessage`, `urlFichier`) VALUES (?,?,?,?,?,?,?)";
 
         PreparedStatement pst = cnx.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 
@@ -30,6 +31,8 @@ public class ServiceMessage implements CRUD<Message>{
         pst.setBoolean(3, message.isLu());
         pst.setInt(4,message.getConversation().getIdConversation());
         pst.setInt(5,message.getExpediteur().getIdUtilisateur());
+        pst.setString(6, message.getTypeMessage().name());
+        pst.setString(7, message.getUrlFichier());
         pst.executeUpdate();
         ResultSet rs = pst.getGeneratedKeys();
         if(rs.next()){
@@ -88,7 +91,9 @@ public class ServiceMessage implements CRUD<Message>{
                     rs.getTimestamp(3).toLocalDateTime(),
                     rs.getBoolean(4),
                     conv,
-                    exp
+                    exp,
+                    TypeMessage.valueOf(rs.getString("typeMessage")),
+                    rs.getString("urlFichier")
             ));
         }
         return messages;
@@ -111,7 +116,10 @@ public class ServiceMessage implements CRUD<Message>{
                     rs.getTimestamp(3).toLocalDateTime(),
                     rs.getBoolean(4),
                     conv,
-                    exp);
+                    exp,
+                    TypeMessage.valueOf(rs.getString("typeMessage")),
+                    rs.getString("urlFichier")
+            );
         }
         return null;
     }
@@ -132,8 +140,60 @@ public class ServiceMessage implements CRUD<Message>{
                     rs.getTimestamp(3).toLocalDateTime(),
                     rs.getBoolean(4),
                     conv,
-                    exp));
+                    exp,
+                    TypeMessage.valueOf(rs.getString("typeMessage")),
+                    rs.getString("urlFichier")
+            ));
         }
         return messages;
+    }
+
+    public Message selectLastMessage(int idConversation) throws SQLException {
+
+        String query = "SELECT * FROM `message` WHERE idConversation=? ORDER BY dateEnvoi Desc LIMIT 1";
+        PreparedStatement pst = cnx.prepareStatement(query);
+        pst.setInt(1, idConversation);
+        ResultSet rs = pst.executeQuery();
+        if (rs.next()) {
+            int idConv = rs.getInt("idConversation");
+            Conversation conv = serConv.selectOne(idConv);
+            int idExp = rs.getInt("idExpediteur");
+            Utilisateur exp = serUtilisateur.selectOne(idExp);
+            return new Message(rs.getInt("idMessage"),
+                    rs.getString("contenu"),
+                    rs.getTimestamp("dateEnvoi").toLocalDateTime(),
+                    rs.getBoolean("lu"),
+                    conv,
+                    exp,
+                    TypeMessage.valueOf(rs.getString("typeMessage")),
+                    rs.getString("urlFichier")
+            );
+        }
+        return null;
+    }
+
+    public void marquerCommeLu(int idConv, int idUser) throws SQLException {
+        String query = "UPDATE `message` SET lu = 1 WHERE idConversation = ? AND idExpediteur != ? AND lu = 0";
+        try (PreparedStatement ps = cnx.prepareStatement(query)) {
+            ps.setInt(1, idConv);
+            ps.setInt(2, idUser);
+            ps.executeUpdate();
+        }
+    }
+
+    public int countUnreadMessages(int userId) throws SQLException {
+        String query = "SELECT COUNT(*) FROM message m " +
+                "JOIN participantConversation pc ON m.idConversation = pc.idConversation " +
+                "WHERE pc.idUtilisateur = ? AND m.lu = 0 AND m.idExpediteur != ?";
+
+        try (PreparedStatement ps = cnx.prepareStatement(query)) {
+            ps.setInt(1, userId);
+            ps.setInt(2, userId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+        return 0;
     }
 }

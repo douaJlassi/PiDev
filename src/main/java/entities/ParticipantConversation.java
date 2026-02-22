@@ -9,20 +9,22 @@ public class ParticipantConversation {
     private Utilisateur participant;
     private Conversation conversation;
     private LocalDateTime dateAjout;
-
+    private boolean estActif;
     public ParticipantConversation() {}
 
-    public ParticipantConversation(int idParticipant, Utilisateur participant, Conversation conversation, LocalDateTime dateAjout) {
+    public ParticipantConversation(int idParticipant, Utilisateur participant, Conversation conversation, LocalDateTime dateAjout, boolean estActif) {
         this.idParticipant = idParticipant;
         this.participant = participant;
         this.conversation = conversation;
         this.dateAjout = dateAjout;
+        this.estActif = estActif;
     }
     public ParticipantConversation(Utilisateur participant, Conversation conversation, LocalDateTime dateAjout) {
         this.idParticipant = idParticipant;
         this.participant = participant;
         this.conversation = conversation;
         this.dateAjout = dateAjout;
+        this.estActif = true;
     }
 
     public int getIdParticipant() {
@@ -56,6 +58,12 @@ public class ParticipantConversation {
     public void setDateAjout(LocalDateTime dateAjout) {
         this.dateAjout = dateAjout;
     }
+    public boolean isEstActif() {
+        return estActif;
+    }
+    public void setEstActif(boolean estActif) {
+        this.estActif = estActif;
+    }
 
     @Override
     public String toString() {
@@ -63,17 +71,18 @@ public class ParticipantConversation {
                 "participant=" + participant +
                 ", conversation=" + conversation +
                 ", dateAjout=" + dateAjout +
+                ", estActif=" + estActif +
                 '}';
     }
 
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof ParticipantConversation that)) return false;
-        return Objects.equals(participant, that.participant) && Objects.equals(conversation, that.conversation) && Objects.equals(dateAjout, that.dateAjout);
+        return Objects.equals(participant, that.participant) && Objects.equals(conversation, that.conversation) && Objects.equals(dateAjout, that.dateAjout) && estActif == that.estActif;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(participant, conversation, dateAjout);
+        return Objects.hash(participant, conversation, dateAjout, estActif);
     }
 }

@@ -35,9 +35,12 @@ public class ServiceConversation implements CRUD<Conversation>{
     }
 
     public String getNomAffichage(Conversation cnv, int idUserConnected){
-        String query= "SELECT u.nom, u.prenom FROM utilisateur u " +
-                "JOIN participant_conversation pc ON u.idUtilisateur = pc.idUtilisateur " +
-                "WHERE pc.idConversation = ? AND u.idUtilisateur != ?";
+        if (cnv.getTypeConversation() == TypeConversation.GROUPE) {
+            return (cnv.getTitre() != null && !cnv.getTitre().isEmpty()) ? cnv.getTitre() : "Groupe sans nom";
+        }
+        String query= "SELECT u.nom, u.prenom FROM user u " +
+                "JOIN participantConversation pc ON u.idUser = pc.idUtilisateur " +
+                "WHERE pc.idConversation = ? AND u.idUser != ?";
         try {
             PreparedStatement ps = cnx.prepareStatement(query);
             ps.setInt(1, cnv.getIdConversation());
@@ -112,20 +115,49 @@ public class ServiceConversation implements CRUD<Conversation>{
 
     public List<Conversation> selectByUser(int idUserConnected) throws SQLException {
         List<Conversation> conversations = new ArrayList<>();
-        String query = "SELECT c.* FROM conversation c " +
-                "JOIN participant_conversation pc ON c.idConversation = pc.idConversation " +
-                "WHERE pc.idUtilisateur = ?";
-        PreparedStatement ps = cnx.prepareStatement(query);
-        ps.setInt(1, idUserConnected);
-        ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-            conversations.add(new Conversation(
-                    rs.getInt(1),
-                    TypeConversation.valueOf(rs.getString("type")),
-                    rs.getTimestamp(3).toLocalDateTime(),
-                    rs.getString(4)
-            ));
+        String query = "SELECT c.*, MAX(m.dateEnvoi)" +
+                "FROM conversation c " +
+                "JOIN participantConversation pc ON c.idConversation = pc.idConversation " +
+                "LEFT JOIN message m ON c.idConversation = m.idConversation " +
+                "WHERE pc.idUtilisateur = ? " +
+                "GROUP BY c.idConversation " +
+                "ORDER BY COALESCE(MAX(m.dateEnvoi), c.dateCreation) DESC";
+
+        try (PreparedStatement ps = cnx.prepareStatement(query)) {
+            ps.setInt(1, idUserConnected);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                conversations.add(new Conversation(
+                        rs.getInt("idConversation"),
+                        TypeConversation.valueOf(rs.getString("type")),
+                        rs.getTimestamp("dateCreation").toLocalDateTime(),
+                        rs.getString("titre")
+                ));
+            }
         }
         return conversations;
+    }
+
+    public Conversation findPrivateChat(int user1Id, int user2Id) throws SQLException {
+        String query = "SELECT c.* FROM conversation c " +
+                "JOIN participantConversation pc1 ON c.idConversation = pc1.idConversation " +
+                "JOIN participantConversation pc2 ON c.idConversation = pc2.idConversation " +
+                "WHERE c.type = 'PRIVEE' AND pc1.idUtilisateur = ? AND pc2.idUtilisateur = ?";
+
+        try (PreparedStatement ps = cnx.prepareStatement(query)) {
+            ps.setInt(1, user1Id);
+            ps.setInt(2, user2Id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return new Conversation(
+                        rs.getInt("idConversation"),
+                        TypeConversation.valueOf(rs.getString("type")),
+                        rs.getTimestamp("dateCreation").toLocalDateTime(),
+                        rs.getString("titre")
+                );
+            }
+        }
+        return null;
     }
 }
