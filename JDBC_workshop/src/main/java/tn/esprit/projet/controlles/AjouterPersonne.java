@@ -64,7 +64,7 @@ public class AjouterPersonne {
     @FXML private TextField faceIDEmailField;
     @FXML private Label faceIDEmailError;
     @FXML private VBox faceIDEmailSection;
-
+    @FXML private Button qrScanButton;
     // Validation lines and error messages
     private Line firstNameLine;
     private Line lastNameLine;
@@ -1385,5 +1385,101 @@ public class AjouterPersonne {
         alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();
+    }
+
+    @FXML
+    public void handleQRScan() {
+        System.out.println("==========================================");
+        System.out.println("🟠 QR SCAN BUTTON CLICKED!");
+        System.out.println("==========================================");
+
+        // Check if multiple cameras are available
+        int cameraIndex = 0;
+        if (CameraUtil.hasMultipleCameras()) {
+            System.out.println("📷 Multiple cameras detected: " + CameraUtil.getCameraCount());
+
+            // Show camera selection dialog
+            CameraSelectionDialog selectionDialog = new CameraSelectionDialog();
+            int selectedCamera = selectionDialog.showAndWait();
+
+            if (selectedCamera == -1) {
+                System.out.println("⚠️ Camera selection cancelled");
+                return;
+            }
+
+            cameraIndex = selectedCamera;
+            System.out.println("📷 Selected camera index: " + cameraIndex);
+        }
+
+        // Show QR scanner dialog
+        QRScannerDialog scannerDialog = new QRScannerDialog(cameraIndex);
+        String[] credentials = scannerDialog.showAndWait();
+
+        if (credentials != null && credentials.length == 3) {
+            String username = credentials[0];
+            String email = credentials[1];
+            String password = credentials[2];
+
+            System.out.println("📋 QR Code contains - Username: " + username + ", Email: " + email);
+
+            // Show loading indicator
+            ProgressIndicator pi = new ProgressIndicator();
+            pi.setMaxSize(50, 50);
+            loginPane.getChildren().add(pi);
+
+            try {
+                // Try to login with the credentials
+                Person user = personService.login(email, password);
+
+                if (user == null) {
+                    // Try with username as emailOrUsername parameter
+                    user = personService.login(username, password);
+                }
+
+                loginPane.getChildren().remove(pi);
+
+                if (user != null) {
+                    // Verify that the username matches (extra security)
+                    if (user.getUsername().equals(username) || user.getEmail().equals(email)) {
+                        System.out.println("✅ QR Code login successful for user: " + user.getUsername());
+                        showAlert("Success", "QR Code verified! Logging in...", Alert.AlertType.INFORMATION);
+
+                        // Complete login (similar to normal login)
+                        completeQRLogin(user);
+                    } else {
+                        System.out.println("❌ Username mismatch: QR says " + username + " but DB has " + user.getUsername());
+                        showAlert("Error", "QR Code data does not match user account.", Alert.AlertType.ERROR);
+                    }
+                } else {
+                    System.out.println("❌ Invalid credentials from QR code");
+                    showAlert("Error", "Invalid username/email or password in QR code.", Alert.AlertType.ERROR);
+                }
+
+            } catch (SQLException e) {
+                loginPane.getChildren().remove(pi);
+                e.printStackTrace();
+                showAlert("Error", "Database error: " + e.getMessage(), Alert.AlertType.ERROR);
+            }
+        } else {
+            System.out.println("❌ No valid QR code detected or cancelled");
+            showAlert("Info", "No QR code detected or scan cancelled.", Alert.AlertType.INFORMATION);
+        }
+    }
+
+    /**
+     * Complete QR code login
+     */
+    private void completeQRLogin(Person user) throws SQLException {
+        // Update user status to online in database
+        personService.updateUserStatus(user.getId(), "online");
+
+        // Check and set default profile image if needed
+        checkAndSetDefaultProfileImage(user);
+
+        // Create session
+        SessionManager.createSession(user);
+
+        // Navigate to main page with loading animation
+        navigateToDashboardWithLoading(user);
     }
 }

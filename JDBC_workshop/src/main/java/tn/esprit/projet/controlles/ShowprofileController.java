@@ -122,6 +122,8 @@ public class ShowprofileController {
     private boolean isEditMode = false;
     private boolean isAdmin = false;
     private byte[] newProfileImage = null;
+    @FXML
+    private Button qrCodeButton;
 
     @FXML
     public void initialize() {
@@ -769,6 +771,12 @@ public class ShowprofileController {
             e.printStackTrace();
             showAlert("Error", "Failed to process image: " + e.getMessage(), Alert.AlertType.ERROR);
         }
+    }
+
+    @FXML
+    private void handleQRCode() {
+        QRCodeDialog qrDialog = new QRCodeDialog();
+        qrDialog.show(currentUser);
     }
 
     @FXML
