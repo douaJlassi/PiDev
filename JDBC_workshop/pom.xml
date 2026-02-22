@@ -14,6 +14,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <javafx.version>21.0.2</javafx.version>
         <slf4j.version>2.0.9</slf4j.version>
+        <javacv.version>1.5.9</javacv.version>
     </properties>
 
     <dependencies>
@@ -56,58 +57,39 @@
             <version>1.6.2</version>
         </dependency>
 
-        <!-- OpenCV for face detection and recognition -->
-        <dependency>
-            <groupId>org.openpnp</groupId>
-            <artifactId>opencv</artifactId>
-            <version>4.5.1-2</version>
-        </dependency>
-
         <!-- Webcam Capture -->
         <dependency>
             <groupId>com.github.sarxos</groupId>
             <artifactId>webcam-capture</artifactId>
             <version>0.3.12</version>
         </dependency>
+
+        <!-- JavaCV (includes OpenCV with contrib modules) - REPLACES openpnp -->
         <dependency>
             <groupId>org.bytedeco</groupId>
             <artifactId>javacv-platform</artifactId>
-            <version>1.5.9</version>
+            <version>${javacv.version}</version>
         </dependency>
-        <!-- SLF4J Simple for logging (suppresses warnings) -->
+
+        <!-- SLF4J Simple for logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>${slf4j.version}</version>
         </dependency>
 
-        <!-- Optional: Add webcam driver for better performance -->
+        <!-- Optional: Webcam driver for better performance -->
         <dependency>
             <groupId>com.github.sarxos</groupId>
             <artifactId>webcam-capture-driver-gstreamer</artifactId>
             <version>0.3.12</version>
             <optional>true</optional>
         </dependency>
-
     </dependencies>
 
     <build>
         <plugins>
-            <!-- JavaFX Maven Plugin for running the application -->
-            <plugin>
-                <groupId>org.openjfx</groupId>
-                <artifactId>javafx-maven-plugin</artifactId>
-                <version>0.0.8</version>
-                <configuration>
-                    <mainClass>tn.esprit.projet.test.MainFX</mainClass>
-                    <!-- Add VM arguments to suppress native access warnings -->
-                    <options>
-                        <option>--enable-native-access=ALL-UNNAMED</option>
-                    </options>
-                </configuration>
-            </plugin>
-
-            <!-- Compiler plugin to ensure Java 17 compatibility -->
+            <!-- Compiler plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -115,6 +97,20 @@
                 <configuration>
                     <source>17</source>
                     <target>17</target>
+                </configuration>
+            </plugin>
+
+            <!-- JavaFX Maven Plugin -->
+            <plugin>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>0.0.8</version>
+                <configuration>
+                    <mainClass>tn.esprit.projet.test.MainFX</mainClass>
+                    <options>
+                        <option>--enable-native-access=ALL-UNNAMED</option>
+                        <option>-Djava.library.path=${project.basedir}/lib</option>
+                    </options>
                 </configuration>
             </plugin>
         </plugins>

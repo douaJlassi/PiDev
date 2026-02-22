@@ -903,32 +903,23 @@ public class ShowprofileController {
         try {
             int cameraIndex = 0;
 
-            // Check if multiple cameras are available
             if (CameraUtil.hasMultipleCameras()) {
-                // Show camera selection dialog
                 CameraSelectionDialog selectionDialog = new CameraSelectionDialog();
                 int selectedCamera = selectionDialog.showAndWait();
-
-                if (selectedCamera == -1) {
-                    // User cancelled selection
-                    return;
-                }
+                if (selectedCamera == -1) return;
                 cameraIndex = selectedCamera;
-                System.out.println("📷 Selected camera index for setup: " + cameraIndex);
             }
 
-            // Open camera dialog with selected camera
             EnhancedFaceCaptureDialog dialog = new EnhancedFaceCaptureDialog(cameraIndex);
             byte[] faceData = dialog.showAndWait("setup");
 
             if (faceData != null) {
-                // Save face data to database
+                // Save to database
                 personService.saveFaceData(currentUser.getId(), faceData);
 
-                // ALSO TRAIN THE RECOGNIZER for better accuracy
+                // Train the recognizer
                 FaceRecognitionUtil faceUtil = new FaceRecognitionUtil();
                 faceUtil.trainFace(currentUser.getId(), faceData);
-                System.out.println("✅ Face recognizer trained for user: " + currentUser.getId());
 
                 // Update UI
                 faceIDEnabled = true;
@@ -938,24 +929,10 @@ public class ShowprofileController {
                 faceIDSetup.setManaged(true);
 
                 showAlert("Success", "Face ID has been set up successfully!", Alert.AlertType.INFORMATION);
-            } else {
-                // Face capture failed or cancelled
-                faceIDEnabled = false;
-                faceIDButton.setText("OFF");
-                faceIDButton.setStyle("-fx-background-color: #ff5e62; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: hand;");
-                faceIDSetup.setVisible(false);
-                faceIDSetup.setManaged(false);
             }
         } catch (SQLException e) {
             e.printStackTrace();
             showAlert("Error", "Failed to save face data: " + e.getMessage(), Alert.AlertType.ERROR);
-
-            // Revert UI
-            faceIDEnabled = false;
-            faceIDButton.setText("OFF");
-            faceIDButton.setStyle("-fx-background-color: #ff5e62; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: hand;");
-            faceIDSetup.setVisible(false);
-            faceIDSetup.setManaged(false);
         }
     }
     private void disableFaceID() {
