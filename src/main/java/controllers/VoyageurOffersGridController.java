@@ -13,8 +13,12 @@ import repositories.OffreRepository;
 
 import java.io.IOException;
 import java.util.List;
+import controllers.OfferFilterAware;
+import entities.OfferFilter;
 
-public class VoyageurOffersGridController {
+public class VoyageurOffersGridController implements OfferFilterAware {
+    private OfferFilter currentFilter = new OfferFilter();
+
 
     @FXML private TilePane tilePane;
     private final IOffreRepository repo = new OffreRepository();
@@ -28,7 +32,7 @@ public class VoyageurOffersGridController {
     public void refresh() {
         tilePane.getChildren().clear();
 
-        List<Offre> offers = repo.findAllAdmin(); // all offers
+        List<Offre> offers = repo.searchActiveOffers(currentFilter); // all offers
         for (Offre offer : offers) {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/OfferCard.fxml"));
@@ -42,6 +46,11 @@ public class VoyageurOffersGridController {
                 showError("UI error", e.getMessage());
             }
         }
+    }
+    @Override
+    public void applyFilter(OfferFilter filter) {
+        this.currentFilter = (filter == null) ? new OfferFilter() : filter;
+        refresh();
     }
 
     private void showError(String title, String msg) {
