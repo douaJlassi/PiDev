@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="20" styleClass="dash-content"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.MyReservationsController">
+
+    <padding>
+        <Insets top="30" right="30" bottom="30" left="30"/>
+    </padding>
+
+    <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 15; -fx-border-color: #E7ECF3; -fx-border-radius: 15;">
+        <HBox alignment="CENTER_LEFT" spacing="20">
+            <StackPane style="-fx-background-color: rgba(27, 183, 177, 0.1); -fx-background-radius: 10; -fx-padding: 8;">
+                <Button onAction="#onBack" styleClass="btn-ghost" text="←" style="-fx-font-size: 16px;"/>
+            </StackPane>
+            <VBox HBox.hgrow="ALWAYS">
+                <Label text="My Reservations" styleClass="h1" style="-fx-font-size: 22px; -fx-text-fill: #0F172A;" />
+                <Label text="Manage your upcoming adventures" styleClass="dash-muted" />
+            </VBox>
+            <Button text="Refresh" onAction="#onRefresh"
+                    style="-fx-background-color: #F1F5F9; -fx-text-fill: #475569; -fx-background-radius: 8; -fx-font-weight: bold;"/>
+        </HBox>
+
+        <Separator opacity="0.4"/>
+
+        <HBox spacing="15" alignment="CENTER_LEFT">
+            <TextField fx:id="searchField" promptText="Search by date or status..."
+                       styleClass="dash-search" HBox.hgrow="ALWAYS" />
+            <ComboBox fx:id="statusFilter" promptText="Filter Status" prefWidth="150"
+                      style="-fx-background-radius: 12; -fx-background-color: #F2F5FA;"/>
+        </HBox>
+    </VBox>
+
+    <TableView fx:id="table" VBox.vgrow="ALWAYS" styleClass="modern-table">
+        <columns>
+            <TableColumn fx:id="dateCol" text="RESERVATION DATE" prefWidth="180" />
+            <TableColumn fx:id="statusCol" text="STATUS" prefWidth="140" />
+            <TableColumn fx:id="payCol" text="METHOD" prefWidth="140" />
+            <TableColumn fx:id="totalCol" text="TOTAL AMOUNT" prefWidth="140" />
+            <TableColumn fx:id="actionCol" text="DETAILS" prefWidth="100" />
+        </columns>
+    </TableView>
+
+    <HBox alignment="CENTER_RIGHT">
+        <Label fx:id="msgLbl" styleClass="dash-muted" text="Showing all reservations" />
+    </HBox>
+</VBox>
