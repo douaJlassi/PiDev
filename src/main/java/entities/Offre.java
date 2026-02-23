@@ -12,6 +12,10 @@ public class Offre {
     private int idAgence;
     private String imageUrl;
     private String nomAgence;
+    private OffreStatus status;
+    private BigDecimal prixOriginal;
+
+
 
     // Optional: if you applied the "status" column
     // private OffreStatus status = OffreStatus.ACTIVE;
@@ -19,7 +23,7 @@ public class Offre {
     public Offre() {}
 
     public Offre(int idOffre, String titre, String description, BigDecimal prixPromo,
-                 LocalDate dateDebut, LocalDate dateFin, int idAgence, String imageUrl) {
+                 LocalDate dateDebut, LocalDate dateFin, int idAgence, String imageUrl, OffreStatus status) {
         this.idOffre = idOffre;
         this.titre = titre;
         this.description = description;
@@ -28,10 +32,14 @@ public class Offre {
         this.dateFin = dateFin;
         this.idAgence = idAgence;
         this.imageUrl = imageUrl;
+        this.status = status;
     }
 
     public int getIdOffre() { return idOffre; }
     public void setIdOffre(int idOffre) { this.idOffre = idOffre; }
+
+    public OffreStatus getStatus() { return status; }
+    public void setStatus(OffreStatus status) { this.status = status; }
 
     public String getTitre() { return titre; }
     public void setTitre(String titre) { this.titre = titre; }
@@ -56,6 +64,9 @@ public class Offre {
 
     public String getNomAgence() { return nomAgence; }
     public void setNomAgence(String nomAgence) { this.nomAgence = nomAgence; }
+
+    public BigDecimal getPrixOriginal() { return prixOriginal; }
+    public void setPrixOriginal(BigDecimal prixOriginal) { this.prixOriginal = prixOriginal; }
 
     @Override
     public String toString() {
