@@ -22,7 +22,7 @@ public class Service {
     public String getKind() { return kind; }
     public void setKind(String kind) { this.kind = kind; }
 
-    // This is important so the ListView displays something nice
+
     @Override
     public String toString() {
         if (kind == null || kind.isBlank()) return nom;
