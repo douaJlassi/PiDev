@@ -18,13 +18,16 @@ public class CartViewController {
 
     @FXML private VBox itemsBox;
     @FXML private Label totalLbl;
+    @FXML private Label countLbl;
 
     private final ReservationRepository reservationRepo = new ReservationRepository();
     private final LignePanierRepository ligneRepo = new LignePanierRepository();
+    private final repositories.UserRepository userRepo = new repositories.UserRepository();
+    private final services.EmailService emailService = new services.EmailService();
 
     private int cartId;
 
-    public void loadCart() {
+    /*public void loadCart() {
         if (!Session.isClient()) {
             showError("Access denied", "Only clients can access the cart.");
             return;
@@ -32,9 +35,31 @@ public class CartViewController {
 
         cartId = reservationRepo.getOrCreateDraftCart(Session.getUserId());
         refresh();
+    }*/
+    public void loadCart() {
+        if (!Session.isClient()) {
+            showError("Access denied", "Only clients can access the cart.");
+            return;
+        }
+
+        Integer existing = reservationRepo.findDraftCartId(Session.getUserId());
+        if (existing == null) {
+            cartId = 0;
+            showEmptyCart();
+            return;
+        }
+
+        cartId = existing;
+        refresh();
     }
 
-    private void refresh() {
+    private void showEmptyCart() {
+        itemsBox.getChildren().clear();
+        totalLbl.setText("Total: 0 TND");
+        itemsBox.getChildren().add(new Label("Your cart is empty."));
+    }
+
+    /*private void refresh() {
         itemsBox.getChildren().clear();
 
         List<CartItem> items = ligneRepo.findCartItems(cartId);
@@ -65,6 +90,41 @@ public class CartViewController {
                 itemsBox.getChildren().add(new Label("Error loading cart item: " + e.getMessage()));
             }
         }
+    }*/
+    private void refresh() {
+        itemsBox.getChildren().clear();
+
+        if (cartId == 0) {
+            showEmptyCart();
+            return;
+        }
+
+        List<CartItem> items = ligneRepo.findCartItems(cartId);
+
+        reservationRepo.recomputeTotal(cartId);
+        totalLbl.setText("Total: " + reservationRepo.getTotal(cartId) + " TND");
+
+        int count = ligneRepo.countItems(cartId);
+        if (countLbl != null) countLbl.setText(count + " items");
+
+        if (items.isEmpty()) {
+            showEmptyCart();
+            return;
+        }
+
+        for (CartItem it : items) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/CartItemCard.fxml"));
+                Parent card = loader.load();
+
+                CartItemCardController ctrl = loader.getController();
+                ctrl.setData(it, this::refresh);
+
+                itemsBox.getChildren().add(card);
+            } catch (Exception e) {
+                itemsBox.getChildren().add(new Label("Error loading cart item: " + e.getMessage()));
+            }
+        }
     }
 
     @FXML
@@ -75,6 +135,58 @@ public class CartViewController {
 
     private void showError(String title, String msg) {
         Alert a = new Alert(Alert.AlertType.ERROR);
+        a.setTitle(title);
+        a.setHeaderText(null);
+        a.setContentText(msg);
+        a.showAndWait();
+    }
+    @FXML
+    private void onClear() {
+        if (cartId == 0) return;
+
+        ligneRepo.clearCart(cartId);
+        reservationRepo.recomputeTotal(cartId);
+        refresh();
+    }
+
+    @FXML
+    private void onCheckout() {
+        if (cartId == 0) return;
+
+        boolean ok = reservationRepo.checkout(cartId, Session.getUserId(), "CASH");
+        if (!ok) {
+            showError("Checkout", "Checkout failed (cart might be empty or already confirmed).");
+            return;
+        }
+
+        // ✅ send email after confirmation
+        try {
+            String to = userRepo.findEmailByUserId(Session.getUserId());
+            if (to != null && !to.isBlank()) {
+                var total = reservationRepo.getTotal(cartId); // you already have getTotal()
+                String subject = "Rehletna - Reservation Confirmed ✅";
+                String body =
+                        "Hello,\n\n" +
+                                "Your reservation has been confirmed.\n\n" +
+                                "Reservation ID: " + cartId + "\n" +
+                                "Payment: CASH\n" +
+                                "Total: " + total + " TND\n\n" +
+                                "Thank you for using Rehletna!";
+
+                emailService.send(to, subject, body);
+            }
+        } catch (Exception e) {
+            // don't block checkout if email fails
+            System.out.println("Email failed: " + e.getMessage());
+        }
+
+        cartId = 0;
+        showInfo("Success", "Reservation confirmed ✅ (Email sent if configured)");
+        refresh();
+    }
+
+    private void showInfo(String title, String msg) {
+        Alert a = new Alert(Alert.AlertType.INFORMATION);
         a.setTitle(title);
         a.setHeaderText(null);
         a.setContentText(msg);
