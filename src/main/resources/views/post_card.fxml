@@ -8,7 +8,8 @@
 
 <VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="controllers.PostCardController"
-      styleClass="post-card-grid">
+      styleClass="post-card-grid"
+      stylesheets="@../styles/dashboard.css">
 
     <!-- ===== HEADER ===== -->
     <HBox fx:id="cardHeader" styleClass="post-header" alignment="CENTER_LEFT" spacing="12">
@@ -21,7 +22,6 @@
                 <Label fx:id="dateLabel" styleClass="post-meta" text="Date"/>
                 <Label fx:id="placeDot" styleClass="post-meta" text="•" visible="false" managed="false"/>
                 <Label fx:id="placeLabel" styleClass="post-place-tag" text="" visible="false" managed="false"/>
-                <!-- PHASE 4B: Weather badge (populated programmatically) -->
                 <HBox fx:id="weatherBadge" styleClass="weather-badge" spacing="6" alignment="CENTER_LEFT"
                       visible="false" managed="false">
                     <ImageView fx:id="weatherIcon" styleClass="weather-icon" fitWidth="24" fitHeight="24" preserveRatio="true"/>
@@ -38,18 +38,17 @@
         <Label fx:id="contentLabel" styleClass="post-text-preview" wrapText="true" text="Post content"/>
     </VBox>
 
-    <!-- ===== IMAGE (hidden when no image) ===== -->
+    <!-- ===== IMAGE (hidden when no image, alignment CENTER so portrait images centre) ===== -->
     <VBox fx:id="imageContainer" styleClass="post-image-container"
-          visible="false" managed="false" alignment="CENTER">
+          alignment="CENTER"
+          visible="false" managed="false">
         <ImageView fx:id="postImage" styleClass="post-image-grid"
                    preserveRatio="true" smooth="true" fitWidth="420"/>
     </VBox>
 
-    <!-- ===== STATS BAR — hidden by default, shown only when counts > 0 ===== -->
-    <HBox fx:id="statsBar" styleClass="post-stats" alignment="CENTER_LEFT" spacing="16"
-          visible="false" managed="false">
+    <!-- ===== STATS BAR ===== -->
+    <HBox fx:id="statsBar" styleClass="post-stats" alignment="CENTER_LEFT" spacing="16" visible="false" managed="false">
         <Label fx:id="likesStatLabel" styleClass="post-stats-text" text="" visible="false" managed="false"/>
-        <Region HBox.hgrow="ALWAYS"/>
         <Label fx:id="commentsStatLabel" styleClass="post-stats-text" text="" visible="false" managed="false"/>
     </HBox>
 

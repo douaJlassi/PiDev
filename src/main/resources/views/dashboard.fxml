@@ -109,6 +109,7 @@
                     <!-- Grid View -->
                     <FlowPane fx:id="postsGrid" styleClass="posts-grid"
                               hgap="24" vgap="24" alignment="TOP_CENTER"
+                              rowValignment="TOP"
                               visible="true" managed="true">
                         <padding><Insets top="30" right="30" bottom="30" left="30"/></padding>
                     </FlowPane>

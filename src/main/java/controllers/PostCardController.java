@@ -12,6 +12,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
+import services.LikeService;
+import services.CommentService;
 import services.WeatherService;
 
 import java.io.File;
@@ -50,6 +52,9 @@ public class PostCardController {
     @FXML private ImageView postImage;
 
     // ── Stats ────────────────────────────────────────────────────────────────
+    @FXML private HBox     statsBar;
+    private final LikeService    likeService    = new LikeService();
+    private final CommentService commentService = new CommentService();
     @FXML private Label    likesStatLabel;
     @FXML private Label    commentsStatLabel;
 
@@ -122,16 +127,20 @@ public class PostCardController {
         int likesCount = publication.getLikes() != null ? publication.getLikes().size() : 0;
         int commentsCount = publication.getComments() != null ? publication.getComments().size() : 0;
 
-        if (likesCount > 0) {
-            likesStatLabel.setText("♥ " + likesCount);
-            likesStatLabel.setVisible(true);
-            likesStatLabel.setManaged(true);
-        }
-        if (commentsCount > 0) {
-            commentsStatLabel.setText("💬 " + commentsCount);
-            commentsStatLabel.setVisible(true);
-            commentsStatLabel.setManaged(true);
-        }
+        // Fetch real counts from DB via services (collection on entity may not be loaded)
+        int realLikes = likesCount;
+        int realComments = commentsCount;
+        try { realLikes    = likeService.getLikeCount(publication.getPublicationID()); } catch (Exception ignored) {}
+        try { realComments = commentService.getCommentCount(publication.getPublicationID()); } catch (Exception ignored) {}
+
+        likesStatLabel.setText("♥  " + realLikes);
+        likesStatLabel.setVisible(true);
+        likesStatLabel.setManaged(true);
+        commentsStatLabel.setText("💬  " + realComments);
+        commentsStatLabel.setVisible(true);
+        commentsStatLabel.setManaged(true);
+        statsBar.setVisible(true);
+        statsBar.setManaged(true);
 
         // Like button (delegated)
         dashboard.getLikeController().initButton(likeBtn, publication);

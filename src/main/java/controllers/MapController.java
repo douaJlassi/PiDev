@@ -119,6 +119,7 @@ public class MapController {
 
     // ── Popup ─────────────────────────────────────────────────────────────────
     private VBox activePopup;
+    private Pane popupLayer;   // full-size transparent Pane overlay for popup cards
 
     // ── Publication cache (for "Open" button) ─────────────────────────────────
     private List<Publication> publications = new ArrayList<>();
@@ -171,14 +172,53 @@ public class MapController {
 
         mapGroup = new Pane(mapCanvas, pinsPane);
         mapGroup.setPrefSize(CANVAS_W, CANVAS_H);
-        // Use explicit Scale(pivot=0,0) instead of setScaleX/Y so zoom math is consistent
         mapGroup.getTransforms().add(mapScale);
 
-        mapContainer.setStyle("-fx-background-color: " + toHexStr(OCEAN) + ";");
-        mapContainer.getChildren().add(0, mapGroup);
+        /*
+         * CLIPPING — The single most important fix.
+         *
+         * mapContainer is a StackPane. Its children can visually overflow
+         * outside it (StackPane doesn't clip by default). When transX > 0
+         * or the map is large, it renders over the sidebar/navbar.
+         *
+         * We bind a Rectangle clip to mapContainer's width/height.
+         * Anything outside [0,0,w,h] is invisible — including any part of
+         * the giant 4000px canvas that would bleed into the sidebar.
+         *
+         * The clip is updated automatically when the container resizes.
+         */
+        javafx.scene.shape.Rectangle clip = new javafx.scene.shape.Rectangle();
+        clip.widthProperty().bind(mapContainer.widthProperty());
+        clip.heightProperty().bind(mapContainer.heightProperty());
+        mapContainer.setClip(clip);
 
-        // Dismiss popup on click (handled in mapContainer.setOnMouseClicked below,
-        // set up in wirePan — we just need the canvas click to bubble up)
+        mapContainer.setStyle("-fx-background-color: " + toHexStr(OCEAN) + ";");
+        /*
+         * POPUP LAYER — a full-size Pane that sits on top of the map in mapContainer.
+         *
+         * WHY NOT add popup directly to mapContainer (StackPane)?
+         *   StackPane ignores layoutX/layoutY on its children — it positions
+         *   them by alignment (default CENTER or TOP_LEFT). Our computed cx/cy
+         *   would be silently discarded and the popup would always appear in
+         *   the same place regardless of which pin was clicked.
+         *
+         * WHY NOT add popup to pinsPane (map space)?
+         *   pinsPane is scaled and translated with the map. The popup would
+         *   move when panning, and would be tiny/huge depending on zoom level.
+         *
+         * SOLUTION: A dedicated Pane (popupLayer) that:
+         *   - Is sized to fill mapContainer via binding (so it covers the whole map area)
+         *   - Is mouseTransparent EXCEPT where the popup card is
+         *   - Respects layoutX/layoutY on its children (regular Pane does this)
+         *   - Sits above the map but below nothing (last in z-order)
+         */
+        popupLayer = new Pane();
+        popupLayer.setMouseTransparent(true); // transparent except popup children
+        popupLayer.prefWidthProperty().bind(mapContainer.widthProperty());
+        popupLayer.prefHeightProperty().bind(mapContainer.heightProperty());
+
+        mapContainer.getChildren().addAll(mapGroup, popupLayer);
+
         mapCanvas.setOnMouseClicked(e -> {
             if (e.getButton() == MouseButton.PRIMARY) dismissPopup();
         });
@@ -186,11 +226,9 @@ public class MapController {
         wirePan();
         wireZoom();
 
-        // Centre on Mediterranean / Tunisia once container has its size
         mapContainer.widthProperty().addListener((o, ov, nv) -> { if (!centred) initialView(); });
         mapContainer.heightProperty().addListener((o, ov, nv) -> { if (!centred) initialView(); });
 
-        // Load GeoJSON and draw map on background thread, then geocode posts
         new Thread(() -> {
             updateStatus("Loading map…");
             drawCountries();
@@ -261,6 +299,7 @@ public class MapController {
 
             Platform.runLater(() -> {
                 for (Runnable r : drawCalls) r.run();
+                drawCountryLabels(gc);
                 updateStatus("");
             });
 
@@ -303,6 +342,103 @@ public class MapController {
         gc.setStroke(LAND_STROKE);
         gc.setLineWidth(0.6);
         gc.stroke();
+    }
+
+    // ── Country name labels ──────────────────────────────────────────────────
+
+    /**
+     * Draws country name labels at approximate country centres.
+     *
+     * Technique: two-pass rendering
+     *   Pass 1: draw text as a thick white stroke (halo effect)
+     *   Pass 2: draw text as dark fill on top
+     * This makes labels readable over both land (beige) and ocean (blue).
+     *
+     * Labels are only drawn for countries large enough to be visible at
+     * the default zoom level (Mediterranean view). Micro-states are skipped.
+     *
+     * Coordinates are approximate geographic centres [lon, lat].
+     */
+    private void drawCountryLabels(GraphicsContext gc) {
+        // [name, lon, lat] — approximate visual centres
+        Object[][] countries = {
+                {"Tunisia",        9.0,  34.0},
+                {"Algeria",        3.0,  28.0},
+                {"Morocco",       -6.0,  32.0},
+                {"Libya",         17.0,  27.0},
+                {"Egypt",         30.0,  27.0},
+                {"France",         2.5,  46.5},
+                {"Spain",         -3.5,  40.0},
+                {"Germany",       10.5,  51.0},
+                {"Italy",         12.5,  42.5},
+                {"Turkey",        35.0,  39.0},
+                {"Ukraine",       32.0,  49.0},
+                {"Poland",        20.0,  52.0},
+                {"Norway",         8.0,  65.0},
+                {"Sweden",        18.0,  62.0},
+                {"Finland",       27.0,  64.0},
+                {"UK",            -2.0,  54.0},
+                {"Russia",        95.0,  60.0},
+                {"Kazakhstan",    68.0,  48.0},
+                {"China",        105.0,  35.0},
+                {"India",         80.0,  22.0},
+                {"Saudi Arabia",  45.0,  24.0},
+                {"Iran",          53.0,  32.0},
+                {"Iraq",          44.0,  33.0},
+                {"Pakistan",      69.0,  30.0},
+                {"Sudan",         30.0,  16.0},
+                {"Ethiopia",      40.0,   9.0},
+                {"Nigeria",        8.0,  10.0},
+                {"DR Congo",      24.0,  -3.0},
+                {"South Africa",  25.0, -29.0},
+                {"Kenya",         38.0,   0.0},
+                {"Tanzania",      35.0,  -6.0},
+                {"Canada",       -96.0,  60.0},
+                {"USA",          -98.0,  39.0},
+                {"Mexico",       -102.0, 23.0},
+                {"Brazil",       -52.0, -10.0},
+                {"Argentina",    -65.0, -35.0},
+                {"Colombia",     -74.0,   4.0},
+                {"Peru",         -76.0, -10.0},
+                {"Australia",    134.0, -26.0},
+                {"Indonesia",    118.0,  -2.0},
+                {"Japan",        138.0,  37.0},
+                {"Malaysia",     110.0,   3.0},
+                {"Thailand",     101.0,  15.0},
+                {"Myanmar",       96.0,  20.0},
+                {"Angola",        18.0, -12.0},
+                {"Mozambique",    35.0, -18.0},
+                {"Madagascar",    47.0, -20.0},
+                {"Mali",          -2.0,  18.0},
+                {"Niger",          9.0,  17.0},
+                {"Chad",          18.0,  15.0},
+                {"Mauritania",   -11.0,  20.0},
+        };
+
+        gc.save();
+
+        for (Object[] c : countries) {
+            String name = (String) c[0];
+            double lon  = (Double) c[1];
+            double lat  = (Double) c[2];
+
+            double px = mercatorX(lon);
+            double py = mercatorY(lat);
+
+            // Pass 1: white halo for legibility
+            gc.setFont(javafx.scene.text.Font.font("Arial", javafx.scene.text.FontWeight.BOLD, 22));
+            gc.setTextAlign(javafx.scene.text.TextAlignment.CENTER);
+            gc.setTextBaseline(javafx.geometry.VPos.CENTER);
+            gc.setStroke(javafx.scene.paint.Color.WHITE);
+            gc.setLineWidth(4.0);
+            gc.strokeText(name, px, py);
+
+            // Pass 2: dark label on top
+            gc.setFill(javafx.scene.paint.Color.web("#4a4a5a"));
+            gc.fillText(name, px, py);
+        }
+
+        gc.restore();
     }
 
     // ── Mercator projection ────────────────────────────────────────────────────
@@ -393,10 +529,54 @@ public class MapController {
      *
      * The popup card is NOT in pinsPane — see showPopup() for why.
      */
+    // Track all placed pin positions to detect overlaps
+    private final java.util.List<double[]> placedPins = new java.util.ArrayList<>();
+
     private void addPin(Publication pub, double lat, double lon,
                         int likes, int comments) {
         double x = lonToX(lon);
         double y = latToY(lat);
+
+        /*
+         * CLUSTER OFFSET — prevent pins from stacking on top of each other.
+         *
+         * When multiple posts share the same location (e.g. "Tunis, Tunisia"),
+         * Nominatim returns the exact same lat/lon for all of them. The pins
+         * stack invisibly and only the top one is clickable.
+         *
+         * Fix: check if any existing pin is within CLUSTER_RADIUS canvas pixels.
+         * If so, spread pins out in a small spiral around the original point:
+         *   ring 1 (2-6 pins):  radius=18px, evenly spaced angles
+         *   ring 2 (7-12 pins): radius=36px, evenly spaced angles
+         *
+         * The offset is small enough that the pin still appears "in" the city
+         * but large enough to be individually clickable.
+         */
+        final double CLUSTER_RADIUS = 14.0; // canvas pixels — pins closer than this get offset
+
+        // Count how many existing pins are within cluster radius of this position
+        // Use effectively-final copies of x/y for the stream lambda
+        final double baseX = x;
+        final double baseY = y;
+        long nearby = placedPins.stream()
+                .filter(p -> Math.hypot(p[0] - baseX, p[1] - baseY) < CLUSTER_RADIUS)
+                .count();
+
+        // Compute final offset position — stored in pinX/pinY (effectively final)
+        final double pinX;
+        final double pinY;
+        if (nearby > 0) {
+            int ring   = (int)(nearby / 6) + 1;
+            int pos    = (int)(nearby % 6);
+            double r   = ring * 18.0;
+            double ang = pos * (2 * Math.PI / 6.0);
+            pinX = baseX + r * Math.cos(ang);
+            pinY = baseY + r * Math.sin(ang);
+        } else {
+            pinX = baseX;
+            pinY = baseY;
+        }
+        placedPins.add(new double[]{pinX, pinY});
 
         // Teardrop SVG path, tip at bottom-centre (0,24), head at (0,0)
         SVGPath pin = new SVGPath();
@@ -407,19 +587,16 @@ public class MapController {
         pin.setStroke(Color.web(WHITE));
         pin.setStrokeWidth(1.5);
 
-        // Inner white dot
         javafx.scene.shape.Circle dot = new javafx.scene.shape.Circle(3.5, Color.WHITE);
         dot.setLayoutX(10);
         dot.setLayoutY(10);
 
         Pane pinGroup = new Pane(pin, dot);
         pinGroup.setPrefSize(20, 24);
-        // Centre pin horizontally, tip at the coordinate point
-        pinGroup.setLayoutX(x - 10);
-        pinGroup.setLayoutY(y - 24);
+        pinGroup.setLayoutX(pinX - 10);
+        pinGroup.setLayoutY(pinY - 24);
         pinGroup.setCursor(Cursor.HAND);
 
-        // Hover animation
         pinGroup.setOnMouseEntered(e -> {
             ScaleTransition st = new ScaleTransition(Duration.millis(100), pinGroup);
             st.setToX(1.3); st.setToY(1.3);
@@ -431,13 +608,12 @@ public class MapController {
             st.play();
         });
 
-        // Click: show popup positioned in screen space
+        // pinX/pinY are effectively final — safe to use in lambda
         pinGroup.setOnMouseClicked(e -> {
             if (e.getButton() == MouseButton.PRIMARY) {
                 e.consume();
-                // Convert pin's map position to screen position for popup placement
-                double screenX = x * scale + transX;
-                double screenY = y * scale + transY;
+                double screenX = pinX * scale + transX;
+                double screenY = pinY * scale + transY;
                 showPopup(pub, screenX, screenY, likes, comments);
             }
         });
@@ -487,21 +663,46 @@ public class MapController {
         card.setPrefHeight(158);
         card.setMaxHeight(158);
 
-        // ── Teal header (fixed 40px) ──
+        // ── Teal header (fixed 40px) — with ✕ close button ──
         HBox header = new HBox();
         header.setPrefHeight(40);
         header.setMaxHeight(40);
-        header.setPadding(new Insets(0, 14, 0, 14));
+        header.setPadding(new Insets(0, 10, 0, 14));
         header.setAlignment(Pos.CENTER_LEFT);
         header.setStyle(
                 "-fx-background-color: " + TEAL + ";" +
                         "-fx-background-radius: 12 12 0 0;"
         );
-        Label placeLabel = new Label("📍  " + trunc(pub.getPlace(), 26));
+        Label placeLabel = new Label("📍  " + trunc(pub.getPlace(), 22));
         placeLabel.setStyle(
                 "-fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 12px;");
-        placeLabel.setMaxWidth(230);
-        header.getChildren().add(placeLabel);
+        placeLabel.setMaxWidth(180);
+
+        Region headerSpacer = new Region();
+        HBox.setHgrow(headerSpacer, Priority.ALWAYS);
+
+        // ✕ close button — lets user dismiss popup without dragging the map
+        Button closeBtn = new Button("✕");
+        closeBtn.setStyle(
+                "-fx-background-color: transparent;" +
+                        "-fx-text-fill: rgba(255,255,255,0.85);" +
+                        "-fx-font-size: 13px; -fx-font-weight: 700;" +
+                        "-fx-padding: 2 6; -fx-cursor: hand;" +
+                        "-fx-background-radius: 4;"
+        );
+        closeBtn.setOnMouseEntered(e ->
+                closeBtn.setStyle(
+                        "-fx-background-color: rgba(255,255,255,0.15);" +
+                                "-fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: 700;" +
+                                "-fx-padding: 2 6; -fx-cursor: hand; -fx-background-radius: 4;"));
+        closeBtn.setOnMouseExited(e ->
+                closeBtn.setStyle(
+                        "-fx-background-color: transparent;" +
+                                "-fx-text-fill: rgba(255,255,255,0.85); -fx-font-size: 13px; -fx-font-weight: 700;" +
+                                "-fx-padding: 2 6; -fx-cursor: hand; -fx-background-radius: 4;"));
+        closeBtn.setOnAction(e -> dismissPopup());
+
+        header.getChildren().addAll(placeLabel, headerSpacer, closeBtn);
 
         // ── Body (fixed 80px) ──
         VBox body = new VBox(3);
@@ -571,7 +772,9 @@ public class MapController {
         card.setOnMouseClicked(javafx.event.Event::consume);
 
         card.setOpacity(0);
-        mapContainer.getChildren().add(card);
+        // Add to popupLayer (a Pane) — it respects layoutX/layoutY unlike StackPane
+        popupLayer.setMouseTransparent(false);
+        popupLayer.getChildren().add(card);
 
         FadeTransition ft = new FadeTransition(Duration.millis(160), card);
         ft.setToValue(1.0);
@@ -582,7 +785,8 @@ public class MapController {
 
     private void dismissPopup() {
         if (activePopup != null) {
-            mapContainer.getChildren().remove(activePopup);
+            popupLayer.getChildren().remove(activePopup);
+            popupLayer.setMouseTransparent(true);
             activePopup = null;
         }
     }
@@ -604,13 +808,32 @@ public class MapController {
                 return;
             }
 
-            Platform.runLater(() -> updateStatus("Mapping " + withPlace.size() + " posts…"));
+            Platform.runLater(() -> updateStatus("Geocoding " + withPlace.size() + " locations…"));
 
             AtomicInteger pending  = new AtomicInteger(withPlace.size());
             AtomicInteger pinsDone = new AtomicInteger(0);
 
             for (Publication pub : withPlace) {
+                /*
+                 * Two-attempt geocoding strategy:
+                 *
+                 * Many users type place names without a country (e.g. "Medina", "Sfax").
+                 * Nominatim needs enough context to resolve ambiguous names.
+                 * We try the raw place string first. If it returns null, we retry
+                 * with ", Tunisia" appended — since Rehletna is a Tunisian travel app,
+                 * most posts will be in Tunisia and this dramatically improves hit rate.
+                 *
+                 * If both attempts fail, the post is simply not mapped (no pin added)
+                 * but it still counts toward the "posts with locations" total in status.
+                 */
                 geocodingService.geocode(pub.getPlace())
+                        .thenCompose(coords -> {
+                            if (coords != null) return java.util.concurrent.CompletableFuture.completedFuture(coords);
+                            // Retry with Tunisia suffix
+                            String fallback = pub.getPlace().trim() + ", Tunisia";
+                            System.out.println("[Map] Retrying geocode with: " + fallback);
+                            return geocodingService.geocode(fallback);
+                        })
                         .thenAccept(coords -> {
                             if (coords != null) {
                                 try {
@@ -623,9 +846,17 @@ public class MapController {
                                 } catch (Exception ex) {
                                     System.err.println("[Map] count error: " + ex.getMessage());
                                 }
+                            } else {
+                                System.err.println("[Map] Could not geocode: " + pub.getPlace());
                             }
-                            if (pending.decrementAndGet() == 0)
-                                Platform.runLater(() -> updateStatus(""));
+                            if (pending.decrementAndGet() == 0) {
+                                int total = pinsDone.get();
+                                Platform.runLater(() -> {
+                                    updateStatus("");
+                                    // Final count: show how many were successfully mapped
+                                    updatePinCount(total);
+                                });
+                            }
                         })
                         .exceptionally(err -> {
                             System.err.println("[Map] geocode error: " + err.getMessage());
@@ -749,21 +980,36 @@ public class MapController {
          *   Using a Scale transform with pivot (0,0) keeps everything consistent.
          * ─────────────────────────────────────────────────────────────────────
          */
-        double vw     = mapContainer.getWidth();
-        double vh     = mapContainer.getHeight();
-        double margin = 50.0;
-        double rendW  = CANVAS_W * scale;
-        double rendH  = CANVAS_H * scale;
+        double vw    = mapContainer.getWidth();
+        double vh    = mapContainer.getHeight();
+        double rendW = CANVAS_W * scale;
+        double rendH = CANVAS_H * scale;
 
-        // Clamp X
-        double minTX = Math.min(margin, vw - rendW - margin); // allow small maps to float
-        double maxTX = margin;
-        transX = Math.max(minTX, Math.min(maxTX, transX));
+        /*
+         * CLAMPING — hard bounds, no positive overscroll.
+         *
+         * transX=0 means map left edge is at container left edge.
+         * transX>0 would push map right, revealing blank space on the left
+         * through which the sidebar could bleed in. We never allow this.
+         *
+         * transX = -(rendW - vw) means map right edge is at container right edge.
+         * Going further left would show blank space on the right.
+         *
+         * If the map is narrower than the viewport (low zoom), we centre it.
+         */
+        if (rendW >= vw) {
+            // Map wider than viewport: constrain left/right edges
+            transX = Math.max(-(rendW - vw), Math.min(0, transX));
+        } else {
+            // Map narrower than viewport: centre horizontally
+            transX = (vw - rendW) / 2.0;
+        }
 
-        // Clamp Y
-        double minTY = Math.min(margin, vh - rendH - margin);
-        double maxTY = margin;
-        transY = Math.max(minTY, Math.min(maxTY, transY));
+        if (rendH >= vh) {
+            transY = Math.max(-(rendH - vh), Math.min(0, transY));
+        } else {
+            transY = (vh - rendH) / 2.0;
+        }
 
         // Apply: Scale(pivot=0,0) first, then translate
         mapScale.setX(scale);

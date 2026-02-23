@@ -374,6 +374,7 @@ Light BG: #f0f2f5
     -fx-padding: 0;
     -fx-background-color: #f0f2f5;
     -fx-max-width: 420;
+    -fx-alignment: CENTER;
 }
 
 .post-image-grid {
@@ -1266,39 +1267,6 @@ Light BG: #f0f2f5
     -fx-background-radius: 6;
     -fx-padding: 8 12;
 }
-/* ═══════════════════════════════════════════════════════════════════════
-   MAP VIEW
-   Styles for map_view.fxml — the Leaflet interactive map overlay.
-   The WebView itself is unstyled from JavaFX's side (Leaflet handles it).
-   ═══════════════════════════════════════════════════════════════════════ */
-
-/* Root overlay — fills the entire contentContainer StackPane */
-.map-view-root {
-    -fx-background-color: white;
-}
-
-/* Header bar — matches the post detail top bar style */
-.map-header {
-    -fx-background-color: white;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 4, 0, 0, 1);
-    -fx-border-color: #e4e6eb;
-    -fx-border-width: 0 0 1 0;
-}
-
-/* Map title */
-.map-header-title {
-    -fx-font-size: 17px;
-    -fx-font-weight: 700;
-    -fx-text-fill: #050505;
-}
-
-/* Status label shown during geocoding (e.g. "Mapping 12 posts…") */
-.map-status-label {
-    -fx-font-size: 13px;
-    -fx-text-fill: #65676b;
-    -fx-font-style: italic;
-}
-
 /* ── Map zoom buttons ── */
 .map-zoom-btn {
     -fx-background-color: white;
@@ -1313,16 +1281,10 @@ Light BG: #f0f2f5
     -fx-cursor: hand;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 4, 0, 0, 1);
 }
-.map-zoom-btn:hover {
-    -fx-background-color: #f0f2f5;
-}
+.map-zoom-btn:hover { -fx-background-color: #f0f2f5; }
 
-/* ── Map canvas container ── */
-.map-canvas-container {
-    -fx-background-color: #b8d4e8;
-}
+.map-canvas-container { -fx-background-color: #b8d4e8; }
 
-/* ── Pin count pill ── */
 .map-pin-count {
     -fx-background-color: rgba(255,255,255,0.95);
     -fx-background-radius: 24;
@@ -1331,4 +1293,25 @@ Light BG: #f0f2f5
     -fx-font-weight: 700;
     -fx-text-fill: #17B3A6;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 8, 0, 0, 2);
+}
+
+.map-view-root { -fx-background-color: white; }
+
+.map-header {
+    -fx-background-color: white;
+    -fx-border-color: #e4e6eb;
+    -fx-border-width: 0 0 1 0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 4, 0, 0, 1);
+}
+
+.map-header-title {
+    -fx-font-size: 17px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #1a1d27;
+}
+
+.map-status-label {
+    -fx-font-size: 13px;
+    -fx-font-style: italic;
+    -fx-text-fill: #65676b;
 }
