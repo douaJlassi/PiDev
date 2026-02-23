@@ -21,9 +21,9 @@ public class ServiceCardController {
 
         descLbl.setText(s.getDescription() == null ? "" : s.getDescription());
 
-        priceLbl.setText("Applied price: " + s.getPrixApplique() + " TND");
-        qtyLbl.setText("Qty: " + s.getQuantite());
-        subtotalLbl.setText("Subtotal: " + s.getSousTotal() + " TND");
+        priceLbl.setText(s.getPrixApplique() + " TND");
+        qtyLbl.setText("" + s.getQuantite());
+        subtotalLbl.setText(s.getSousTotal() + " TND");
 
         // Extra info depending on kind
         String extra = "";
