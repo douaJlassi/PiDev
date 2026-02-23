@@ -30,8 +30,8 @@ public class ExchangeRateService {
         String baseLc = base.toLowerCase();
         String targetLc = target.toLowerCase();
 
-        String url1 = "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/" + baseLc + ".json";
-        String url2 = "https://latest.currency-api.pages.dev/v1/currencies/" + baseLc + ".json"; // fallback
+        String url1 = "";
+        String url2 = ""; // fallback
 
         try {
             String body = fetch(url1);
@@ -77,7 +77,7 @@ public class ExchangeRateService {
 
         int start = idx + targetMarker.length();
 
-        // skip spaces/colon
+
         while (start < body.length() && (body.charAt(start) == ' ' || body.charAt(start) == ':')) start++;
 
         int end = start;
