@@ -23,5 +23,11 @@ public interface IOffreRepository {
     boolean isOwnedByAgency(int idOffre, int agencyId);
 
     List<Offre> findAllAdminByAgency(Integer agencyId); // null => all
+    boolean archiveForAgency(int idOffre, int idAgence);
+    boolean restoreForAgency(int idOffre, int idAgence);
+    List<Offre> findArchivedByAgency(int idAgence);
+    boolean deleteHardAdmin(int idOffre);
+    List<Offre> searchActiveOffers(entities.OfferFilter filter);
+
 
 }

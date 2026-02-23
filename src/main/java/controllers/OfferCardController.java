@@ -31,6 +31,8 @@ public class OfferCardController {
     @FXML private javafx.scene.control.Button editBtn;
     @FXML private Button addToCartBtn;
     @FXML private Button deleteBtn;
+    @FXML private Label promoRibbonLbl;
+    @FXML private Label originalPriceLbl;
 
 
 
@@ -57,11 +59,52 @@ public class OfferCardController {
             if (editBtn != null) { editBtn.setVisible(false); editBtn.setManaged(false); }
             if (deleteBtn != null) { deleteBtn.setVisible(false); deleteBtn.setManaged(false); }
         }
+        if (Session.isAgency()) {
+            if (deleteBtn != null) deleteBtn.setText("Archive");
+        }
         this.offer = offer;
         this.onChanged = onChanged;
 
         titleLbl.setText(offer.getTitre());
-        priceLbl.setText("Price: " + offer.getPrixPromo() + " TND");
+        var promo = offer.getPrixPromo();
+        var original = offer.getPrixOriginal(); // new field you added
+
+        priceLbl.setText("Price: " + promo + " TND");
+
+// promo condition: original exists and is greater than promo
+        //boolean isPromo = (original != null && promo != null && original.compareTo(promo) > 0);
+
+        boolean isPromo = (original != null && promo != null && original.compareTo(promo) > 0);
+
+
+
+// --- Ribbon toggle (THIS was missing) ---
+        if (promoRibbonLbl != null) {
+            promoRibbonLbl.setVisible(isPromo);
+            promoRibbonLbl.setManaged(isPromo);
+
+            if (isPromo) {
+                java.math.BigDecimal pct = java.math.BigDecimal.ONE
+                        .subtract(promo.divide(original, 4, java.math.RoundingMode.HALF_UP))
+                        .multiply(new java.math.BigDecimal("100"));
+
+                int pctInt = pct.setScale(0, java.math.RoundingMode.HALF_UP).intValue();
+                promoRibbonLbl.setText("-" + pctInt + "%");
+            }
+        }
+
+        if (originalPriceLbl != null) {
+            if (isPromo) {
+                originalPriceLbl.setText(original + " TND");
+                originalPriceLbl.setOpacity(1.0);
+
+            } else {
+                // keep same height/space so cards align
+                originalPriceLbl.setText(" ");     // or "--"
+                originalPriceLbl.setOpacity(0.0);  // invisible but keeps layout
+            }
+
+        }
         datesLbl.setText("Dates: " + offer.getDateDebut() + " → " + offer.getDateFin());
         agencyLbl.setText("Agency: " + (offer.getNomAgence() != null ? offer.getNomAgence() : ("#" + offer.getIdAgence())));
         loadImage(offer.getImageUrl());
@@ -90,7 +133,7 @@ public class OfferCardController {
         if (Session.isAdmin()) {
             ok = repo.deleteSafe(offer.getIdOffre()); // admin deletes any offer (still safe vs lignepanier)
         } else {
-            ok = repo.deleteSafeForAgency(offer.getIdOffre(), Session.getUserId()); // agency ownership check
+            ok = repo.archiveForAgency(offer.getIdOffre(), Session.getUserId()); // agency ownership check
         }
 
         if (!ok) {

@@ -29,23 +29,48 @@ public class OfferDetailsController {
     @FXML private VBox servicesBox;
     @FXML private Button addToCartBtn;
 
+
     private Offre offer;
 
     private final OffreDetailsRepository detailsRepo = new OffreDetailsRepository();
+    private final services.ExchangeRateService fx = new services.ExchangeRateService();
+    private final repositories.ReservationRepository reservationRepo = new repositories.ReservationRepository();
+    private final repositories.LignePanierRepository ligneRepo = new repositories.LignePanierRepository();
+
+    // Add these to your FXML fields at the top
+    @FXML private Label euroPriceLbl;
+    @FXML private Label usdPriceLbl;
 
     public void setOffer(Offre offer) {
         this.offer = offer;
 
+        // Basic Info
         titleLbl.setText(offer.getTitre());
         kindLbl.setText("OFFRE");
-        agencyLbl.setText("Agency: " + (offer.getNomAgence() != null ? offer.getNomAgence() : ("#" + offer.getIdAgence())));
-        datesLbl.setText("Dates: " + offer.getDateDebut() + " → " + offer.getDateFin());
-        priceLbl.setText("Offer price: " + offer.getPrixPromo() + " TND");
-        descLbl.setText(offer.getDescription() == null ? "" : offer.getDescription());
+        agencyLbl.setText(offer.getNomAgence() != null ? offer.getNomAgence() : ("Agency #" + offer.getIdAgence()));
+        datesLbl.setText(offer.getDateDebut() + " → " + offer.getDateFin());
 
-        loadImage(offer.getImageUrl());
+        // Set Base TND Price
+        priceLbl.setText(String.format("%.3f TND", offer.getPrixPromo()));
 
-        // Only show AddToCart to CLIENT (voyageur)
+        // Handle Exchange Rates
+        try {
+            var eur = fx.convert(offer.getPrixPromo(), "TND", "EUR").setScale(2, java.math.RoundingMode.HALF_UP);
+            var usd = fx.convert(offer.getPrixPromo(), "TND", "USD").setScale(2, java.math.RoundingMode.HALF_UP);
+
+            euroPriceLbl.setText("€" + eur);
+            usdPriceLbl.setText("$" + usd);
+            System.out.println("FX EUR=" + eur + " USD=" + usd);
+        } catch (Exception e) {
+            System.out.println("FX API failed: " + e.getMessage());
+            // Fallback: Show a generic estimate or keep it hidden
+            euroPriceLbl.setText("--- €");
+            usdPriceLbl.setText("--- $");
+        }
+
+        descLbl.setText(offer.getDescription() == null ? "No description available." : offer.getDescription());
+
+        // Only show AddToCart to CLIENT
         boolean client = Session.isClient();
         addToCartBtn.setVisible(client);
         addToCartBtn.setManaged(client);
@@ -55,6 +80,7 @@ public class OfferDetailsController {
 
     private void loadServices() {
         servicesBox.getChildren().clear();
+        servicesBox.setFillWidth(true);
 
         List<ServiceDetails> services = detailsRepo.findServicesDetailsByOffre(offer.getIdOffre());
         if (services.isEmpty()) {
@@ -93,7 +119,7 @@ public class OfferDetailsController {
             } catch (Exception ignored) {}
         }
 
-        offerImg.setImage(img);
+        //offerImg.setImage(img);
     }
 
     @FXML
@@ -104,11 +130,31 @@ public class OfferDetailsController {
 
     @FXML
     private void onAddToCart() {
+        if (!Session.isClient()) return;
 
-        Alert a = new Alert(Alert.AlertType.INFORMATION);
-        a.setTitle("Cart");
-        a.setHeaderText(null);
-        a.setContentText("");
-        a.showAndWait();
+        try {
+            int cartId = reservationRepo.getOrCreateDraftCart(Session.getUserId());
+
+            boolean added = ligneRepo.addOffer(
+                    cartId,
+                    offer.getIdOffre(),
+                    offer.getPrixPromo() // final price
+            );
+
+            reservationRepo.recomputeTotal(cartId);
+
+            Alert a = new Alert(Alert.AlertType.INFORMATION);
+            a.setTitle("Cart");
+            a.setHeaderText(null);
+            a.setContentText(added ? "Added to cart ✅" : "Already in cart.");
+            a.showAndWait();
+
+        } catch (Exception e) {
+            Alert a = new Alert(Alert.AlertType.ERROR);
+            a.setTitle("Cart error");
+            a.setHeaderText(null);
+            a.setContentText(e.getMessage());
+            a.showAndWait();
+        }
     }
 }

@@ -15,6 +15,8 @@ import repositories.OffreRepository;
 import javafx.stage.FileChooser;
 import repositories.OffreServiceRepository;
 import repositories.ServiceRepository;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 
 import java.io.File;
 
@@ -36,6 +38,8 @@ public class OffreFormController {
     @FXML private Label errorLbl;
     @FXML private TextField imageTf;
     @FXML private ListView<Service> servicesLv;
+    @FXML private TextField originalPriceTf;
+    @FXML private TextField discountTf;
 
 
 
@@ -58,8 +62,15 @@ public class OffreFormController {
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setTitle(offerToEdit == null ? "Add Offer" : "Edit Offer");
-            stage.setScene(new Scene(root));
+            Scene scene = new Scene(root);
+
+            scene.getStylesheets().add(OffreFormController.class.getResource("/css/app.css").toExternalForm());
+            //scene.getStylesheets().add(OffreFormController.class.getResource("/css/forms.css").toExternalForm());
+
+
+            stage.setScene(scene);
             stage.showAndWait();
+
 
         } catch (IOException e) {
             Alert a = new Alert(Alert.AlertType.ERROR);
@@ -74,6 +85,39 @@ public class OffreFormController {
         servicesLv.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         List<Service> all = serviceRepo.findAllByAgency(Session.getUserId());
         servicesLv.getItems().setAll(all);
+        setupPromoCalc();
+
+
+    }
+    private void setupPromoCalc() {
+        ChangeListener<String> listener = new ChangeListener<>() {
+            @Override
+            public void changed(ObservableValue<? extends String> obs, String oldV, String newV) {
+                computePromo();
+            }
+        };
+
+        originalPriceTf.textProperty().addListener(listener);
+        discountTf.textProperty().addListener(listener);
+    }
+
+    private void computePromo() {
+        if (priceTf == null) return;
+
+        var original = parseBigDecimalOrNull(originalPriceTf.getText());
+        var discount = parseBigDecimalOrNull(discountTf.getText());
+
+        if (original == null) { priceTf.setText(""); return; }
+        if (discount == null) discount = java.math.BigDecimal.ZERO;
+
+        // clamp 0..90
+        if (discount.compareTo(java.math.BigDecimal.ZERO) < 0) discount = java.math.BigDecimal.ZERO;
+        if (discount.compareTo(new java.math.BigDecimal("90")) > 0) discount = new java.math.BigDecimal("90");
+
+        var hundred = new java.math.BigDecimal("100");
+        var promo = original.multiply(hundred.subtract(discount)).divide(hundred, 0, java.math.RoundingMode.HALF_UP);
+
+        priceTf.setText(promo.toPlainString());
     }
 
 
@@ -103,6 +147,9 @@ public class OffreFormController {
         //agencyTf.setText(String.valueOf(offer.getIdAgence()));
         descTa.setText(offer.getDescription());
         imageTf.setText(offer.getImageUrl());
+        originalPriceTf.setText(offer.getPrixOriginal() != null ? offer.getPrixOriginal().toPlainString() : "");
+        discountTf.setText(""); // optional
+        priceTf.setText(offer.getPrixPromo() != null ? offer.getPrixPromo().toPlainString() : "");
         //servicesLv.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
         //List<Service> all = serviceRepo.findAllByAgency(Session.getUserId());
@@ -122,6 +169,13 @@ public class OffreFormController {
         }
 
 
+    }
+    private java.math.BigDecimal parseBigDecimalOrNull(String s) {
+        if (s == null) return null;
+        s = s.trim();
+        if (s.isEmpty()) return null;
+        try { return new java.math.BigDecimal(s); }
+        catch (Exception e) { return null; }
     }
 
 
@@ -203,6 +257,22 @@ public class OffreFormController {
                 current.getIdOffre(),
                 selected.stream().map(Service::getIdService).toList()
         );
+        BigDecimal original;
+        BigDecimal promo;
+
+        try { original = new BigDecimal(originalPriceTf.getText().trim()); }
+        catch (Exception ex) { errorLbl.setText("Original price must be a valid number."); return; }
+
+        try { promo = new BigDecimal(priceTf.getText().trim()); }
+        catch (Exception ex) { errorLbl.setText("Promo price is missing (check discount)."); return; }
+
+        if (promo.compareTo(original) > 0) {
+            errorLbl.setText("Promo price must be <= original price.");
+            return;
+        }
+
+        current.setPrixOriginal(original);
+        current.setPrixPromo(promo);
 
 
     }
@@ -229,5 +299,40 @@ public class OffreFormController {
         String uri = file.toURI().toString();   // e.g. file:/C:/Users/.../pic.jpg
         imageTf.setText(uri);
     }
+    @FXML
+    private void onGenerateAIDescription() {
+        String title = titleTf.getText();
+
+        if (title == null || title.trim().isEmpty()) {
+            errorLbl.setText("Please enter a title first so the AI knows what to write about!");
+            return;
+        }
+
+        // Visual feedback
+        descTa.setPromptText("AI is crafting your description... ✨");
+        descTa.setDisable(true);
+
+        javafx.concurrent.Task<String> aiTask = new javafx.concurrent.Task<>() {
+            @Override
+            protected String call() throws Exception {
+                // Using the service we created
+                return services.AIService.generateDescription(title);
+            }
+        };
+
+        aiTask.setOnSucceeded(e -> {
+            descTa.setText(aiTask.getValue());
+            descTa.setDisable(false);
+            errorLbl.setText("");
+        });
+
+        aiTask.setOnFailed(e -> {
+            descTa.setDisable(false);
+            errorLbl.setText("AI Service currently unavailable.");
+        });
+
+        new Thread(aiTask).start();
+    }
+
 
 }
