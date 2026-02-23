@@ -16,8 +16,11 @@
     </padding>
 
     <HBox spacing="10">
-        <Button text="Add Offer" onAction="#onAdd"/>
-        <Button text="Refresh" onAction="#onRefresh"/>
+        <Button onAction="#onRefresh" styleClass="btn-ghost" text="Refresh"
+        style="-fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-padding: 10 15;"/>
+
+        <Button onAction="#onAdd" text="+ New Offer" styleClass="btn-primary"
+                style="-fx-background-color: -brand-teal; -fx-padding: 10 25; -fx-font-weight: bold; -fx-background-radius: 10;"/>
     </HBox>
 
     <ScrollPane fitToWidth="true">
