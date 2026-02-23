@@ -86,6 +86,28 @@ public class LignePanierRepository {
 
         return list;
     }
+    public void clearCart(int idReservation) {
+        String sql = "DELETE FROM lignepanier WHERE idReservation=?";
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setInt(1, idReservation);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Error clearCart: " + e.getMessage(), e);
+        }
+    }
+
+    public int countItems(int idReservation) {
+        String sql = "SELECT COUNT(*) FROM lignepanier WHERE idReservation=?";
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setInt(1, idReservation);
+            try (ResultSet rs = ps.executeQuery()) {
+                rs.next();
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error countItems: " + e.getMessage(), e);
+        }
+    }
 
 
 
