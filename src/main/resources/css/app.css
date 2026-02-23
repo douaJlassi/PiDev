@@ -1,0 +1,790 @@
+/* =========================
+   Global Theme (Rehletna)
+   ========================= */
+
+/* ---- Brand colors (logo-ish) ---- */
+.root {
+    -brand-blue:   #0B5ED7;   /* deep blue */
+    -brand-orange: #F4A61D;   /* orange */
+    -brand-teal:   #1BB7B1;   /* turquoise */
+    -bg:           #F6F8FB;
+    -card:         #FFFFFF;
+    -text:         #0F172A;
+    -muted:        #6B7280;
+    -border:       #E5E7EB;
+    -shadow:       rgba(0,0,0,0.10);
+
+    -fx-font-family: "Segoe UI", "Inter", Arial;
+    -fx-font-size: 13px;
+    -fx-background-color: -bg;
+}
+
+/* =========================
+   Typography
+   ========================= */
+.h1 {
+    -fx-font-size: 18px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -text;
+}
+
+.h2 {
+    -fx-font-size: 14px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -text;
+}
+
+.muted, .card-muted {
+    -fx-text-fill: -muted;
+}
+
+/* =========================
+   Cards
+   ========================= */
+.card, .service-card {
+    -fx-background-color: -card;
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-border-color: -border;
+    -fx-border-width: 1;
+    -fx-padding: 12;
+    -fx-effect: dropshadow(gaussian, -shadow, 14, 0.25, 0, 4);
+}
+
+.card-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -text;
+}
+
+.price {
+    -fx-font-size: 13px;
+    -fx-font-weight: 900;
+    -fx-text-fill: -brand-orange;
+}
+
+.card-price {
+    -fx-font-size: 12px;
+    -fx-font-weight: 900;
+    -fx-text-fill: -brand-orange;
+}
+
+.error {
+    -fx-text-fill: #EF4444;
+    -fx-font-weight: 800;
+}
+
+/* Image wrapper (if you use it) */
+.card-image-wrap {
+    -fx-background-color: #F3F5F9;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+}
+
+/* =========================
+   Buttons (Tunisianet-ish)
+   ========================= */
+/* Base button = neutral */
+.button {
+    -fx-background-radius: 10;
+    -fx-padding: 8 12 8 12;
+    -fx-cursor: hand;
+    -fx-font-weight: 800;
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: -text;
+    -fx-border-color: -border;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+}
+
+.button:hover {
+    -fx-background-color: rgba(27,183,177,0.08); /* teal tint */
+}
+
+/* Primary actions = TEAL */
+.btn-primary, .btn-accent {
+    -fx-background-color: -brand-teal;
+    -fx-text-fill: white;
+    -fx-border-color: transparent;
+}
+.btn-primary:hover, .btn-accent:hover { -fx-opacity: 0.92; }
+
+/* Destructive */
+.btn-danger {
+    -fx-background-color: #EF4444;
+    -fx-text-fill: white;
+    -fx-border-color: transparent;
+}
+
+/* Secondary */
+.btn-ghost {
+    -fx-background-color: transparent;
+    -fx-text-fill: -text;
+    -fx-border-color: -border;
+}
+
+/* =========================
+   Inputs
+   ========================= */
+.text-field, .text-area, .combo-box, .date-picker, .spinner {
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: -brand-teal;
+    -fx-background-color: white;
+}
+
+.text-field:focused, .text-area:focused, .combo-box:focused, .date-picker:focused {
+    -fx-border-color: -brand-blue;
+}
+
+/* =========================
+   Badges (VOL/HOTEL/SERVICE)
+   ========================= */
+.badge {
+    -fx-padding: 3 10 3 10;
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-font-size: 11px;
+    -fx-font-weight: 900;
+    -fx-text-fill: white;
+    -fx-background-color: #111827; /* default */
+}
+
+.badge-vol     { -fx-background-color: -brand-blue; }
+.badge-hotel   { -fx-background-color: #7C3AED; }
+.badge-service { -fx-background-color: -brand-teal; }
+
+/* =========================
+   ScrollPane clean look
+   ========================= */
+.scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+/* table look */
+.table-view {
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-border-color: rgba(0,0,0,0.08);
+    -fx-background-color: white;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #f3f4f6;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: #0b2e4d;
+    -fx-font-weight: 800;
+}
+
+/* small status/payment badges */
+.badge-cell {
+    -fx-padding: 3 10 3 10;
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-font-weight: 800;
+    -fx-font-size: 11px;
+}
+
+/* payment */
+.pay-cash { -fx-background-color: rgba(34,197,94,0.18); -fx-text-fill: #166534; }   /* green */
+.pay-card { -fx-background-color: rgba(59,130,246,0.18); -fx-text-fill: #1d4ed8; }  /* blue */
+.pay-na   { -fx-background-color: rgba(107,114,128,0.16); -fx-text-fill: #374151; } /* gray */
+
+/* status */
+.st-confirm { -fx-background-color: rgba(34,197,94,0.18); -fx-text-fill: #166534; }
+.st-wait    { -fx-background-color: rgba(245,158,11,0.18); -fx-text-fill: #92400e; }
+.st-cancel  { -fx-background-color: rgba(239,68,68,0.18); -fx-text-fill: #991b1b; }
+
+/* crossed original price */
+.price-original {
+    -fx-text-fill: #6B7280;
+    -fx-opacity: 0.9;
+    -fx-strikethrough: true;
+    -fx-font-weight: 700;
+}
+
+/* promo ribbon on image */
+.promo-ribbon {
+    -fx-background-color: -brand-orange;   /* your orange */
+    -fx-text-fill: white;
+    -fx-font-weight: 900;
+    -fx-padding: 6 10 6 10;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 10, 0.25, 0, 2);
+    -fx-translate-x: 8;
+    -fx-translate-y: 8;
+}
+/* Table polish */
+.table-view {
+    -fx-background-color: white;
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-border-color: rgba(0,0,0,0.08);
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #F6F8FB;
+    -fx-background-radius: 14 14 0 0;
+}
+
+.table-view .column-header .label {
+    -fx-font-weight: 900;
+    -fx-text-fill: #0B2B3A;
+}
+
+.table-row-cell:filled:selected {
+    -fx-background-color: rgba(27,183,177,0.14); /* teal tint */
+}
+
+.table-row-cell:filled:hover {
+    -fx-background-color: rgba(27,183,177,0.08);
+}
+
+/* “View” button in table */
+.table-cell .button {
+    -fx-background-color: rgba(27,183,177,0.12);
+    -fx-text-fill: #0B2B3A;
+    -fx-font-weight: 800;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: rgba(27,183,177,0.35);
+}
+.table-cell .button:hover {
+    -fx-background-color: rgba(27,183,177,0.18);
+}
+/* Make the price field stand out but look disabled */
+.price-field {
+    -fx-opacity: 1.0; /* Keep text dark even if not editable */
+    -fx-alignment: CENTER_RIGHT;
+}
+
+/* Fix DatePicker width issue in FXML */
+.date-picker > .text-field {
+    -fx-background-radius: 10 0 0 10;
+}
+.date-picker > .arrow-button {
+    -fx-background-color: -brand-teal;
+    -fx-background-radius: 0 10 10 0;
+}
+.date-picker > .arrow-button > .arrow {
+    -fx-background-color: white;
+}
+
+/* Modernizing the ListView */
+.modern-list-view {
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: -border;
+}
+.modern-list-view .list-cell:filled:selected {
+    -fx-background-color: rgba(27,183,177,0.2);
+    -fx-text-fill: -text;
+}
+/* Make the back button subtle but clickable */
+.btn-ghost {
+    -fx-background-color: transparent;
+    -fx-border-color: -border;
+    -fx-text-fill: -text;
+}
+
+.btn-ghost:hover {
+    -fx-background-color: #f1f5f9;
+}
+
+/* Specific styling for the Services items inside the VBox */
+.service-item {
+    -fx-padding: 10;
+    -fx-background-color: #f8fafc;
+    -fx-background-radius: 8;
+    -fx-border-color: -border;
+    -fx-border-width: 0.5;
+}
+
+/* Price Label on details should be huge */
+.price-large {
+    -fx-font-size: 32px;
+    -fx-font-weight: 900;
+    -fx-text-fill: -brand-orange;
+}
+/* Pricing Bar Styling */
+.price-large {
+    -fx-font-size: 26px;
+    -fx-font-weight: 900;
+    -fx-text-fill: -brand-orange;
+}
+
+/* Make sure the image looks rounded at the top only if needed,
+   but since it's in a VBox with 0 padding we let it breathe */
+.image-view {
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);
+}
+
+/* Spacing for service cards loaded dynamically */
+.services-container {
+    -fx-background-color: transparent;
+}
+
+/* Styling for the small currency boxes */
+.currency-card {
+    -fx-background-color: white;
+    -fx-border-color: -border;
+    -fx-border-radius: 8;
+    -fx-padding: 4 8;
+}
+
+/* Specific button size for the details page */
+.btn-primary {
+    -fx-background-color: -brand-teal;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+/* Styling for labels in the service card */
+.service-item .muted {
+    -fx-opacity: 0.8;
+}
+
+/* Ensure the subtotal stands out slightly more than the unit price */
+.service-item .price {
+    -fx-text-fill: -brand-teal;
+    -fx-font-weight: 800;
+}
+/* Modernizing the ListView and its Cells */
+.modern-list-view {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: -brand-teal; /* Matches your inputs */
+    -fx-padding: 5;
+}
+
+.modern-list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: -text;
+    -fx-padding: 8 12;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-margin: 2 0;
+}
+
+/* Hover and Selection states */
+.modern-list-view .list-cell:filled:hover {
+    -fx-background-color: rgba(27,183,177,0.08);
+}
+
+.modern-list-view .list-cell:filled:selected {
+    -fx-background-color: -brand-teal;
+    -fx-text-fill: white;
+}
+
+/* Remove the ugly focus ring inside the list */
+.modern-list-view:focused {
+    -fx-background-color: white;
+}
+/* Teal-themed Price */
+.price-teal {
+    -fx-font-size: 28px;
+    -fx-font-weight: 900;
+    -fx-text-fill: -brand-teal;
+}
+
+/* Professional Description Box */
+.description-container {
+    -fx-background-color: #F8FAFC;
+    -fx-padding: 15;
+    -fx-background-radius: 10;
+    -fx-border-color: -brand-teal;
+    -fx-border-width: 0 0 0 4; /* Left teal accent border */
+}
+
+/* Exchange Rate Box */
+.exchange-box {
+    -fx-background-color: white;
+    -fx-border-color: -border;
+    -fx-border-radius: 10;
+    -fx-padding: 12;
+}
+
+/* Container for the Pricing Dashboard */
+.pricing-dashboard {
+    -fx-background-color: #F8FAFC;
+    -fx-padding: 20;
+    -fx-background-radius: 12;
+    -fx-border-color: -border;
+    -fx-border-width: 1;
+    -fx-border-style: dashed; /* Matches the dashed look in your image */
+}
+
+/* Individual Value Boxes */
+.value-card {
+    -fx-background-color: white;
+    -fx-padding: 12 15;
+    -fx-background-radius: 8;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 5, 0, 0, 2);
+    -fx-min-width: 140;
+}
+
+.value-card-title {
+    -fx-font-size: 11px;
+    -fx-text-fill: -muted;
+    -fx-font-weight: bold;
+    -fx-text-transform: uppercase;
+}
+
+.value-card-amount {
+    -fx-font-size: 18px;
+    -fx-font-weight: 900;
+    -fx-text-fill: -text;
+}
+
+.value-card-amount-teal {
+    -fx-text-fill: -brand-teal;
+}
+
+.card-image-wrap {
+    -fx-background-color: #F3F5F9;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-alignment: center;
+    -fx-overflow-hidden: true; /* Prevents large images from leaking out */
+}
+
+.image-view {
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);
+}
+/* Ensure the table fills the card properly */
+/* Ensure the table fills the card properly */
+/* Revitalizing the Table */
+.table-view {
+    -fx-background-color: white;
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+    -fx-border-color: #E2E8F0;
+    -fx-border-width: 1;
+}
+
+/* Give the header a fresh, professional feel */
+.table-view .column-header-background {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #f8fafc);
+    -fx-background-radius: 15 15 0 0;
+    -fx-padding: 8 0;
+}
+
+.table-view .column-header {
+    -fx-background-color: transparent;
+    -fx-border-color: #E2E8F0;
+    -fx-border-width: 0 1 1 0;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: #1E293B;
+    -fx-font-weight: 800;
+    -fx-font-size: 13px;
+}
+
+/* Zebra striping that doesn't look boring */
+.table-row-cell:odd {
+    -fx-background-color: #FAFCFF;
+}
+
+/* Hover effect: Glowy Teal */
+.table-row-cell:hover {
+    -fx-background-color: rgba(27, 183, 177, 0.05);
+    -fx-cursor: hand;
+}
+
+/* Active selection: High contrast teal */
+.table-row-cell:filled:selected {
+    -fx-background-color: rgba(27, 183, 177, 0.15);
+    -fx-table-cell-border-color: transparent;
+}
+
+.table-row-cell:filled:selected .label {
+    -fx-text-fill: #0B5ED7; /* Blue accent for selected text */
+    -fx-font-weight: bold;
+}
+
+/* The Action Button in the table */
+.table-cell .button {
+    -fx-background-color: -brand-teal;
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 5 12;
+}
+/* Vibrant Pills */
+.badge-cell {
+    -fx-alignment: center;
+    -fx-padding: 0;
+}
+
+/* Confirmed = Success Green */
+.st-confirm {
+    -fx-background-color: #DCFCE7;
+    -fx-text-fill: #166534;
+    -fx-background-radius: 12;
+    -fx-padding: 4 10;
+}
+
+/* Waiting = Warm Amber */
+.st-wait {
+    -fx-background-color: #FEF3C7;
+    -fx-text-fill: #92400E;
+    -fx-background-radius: 12;
+    -fx-padding: 4 10;
+}
+
+/* Canceled = Soft Red */
+.st-cancel {
+    -fx-background-color: #FEE2E2;
+    -fx-text-fill: #991B1B;
+    -fx-background-radius: 12;
+    -fx-padding: 4 10;
+}
+/* Specific styling for Cart Items */
+.cart-item-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: #E7ECF3;
+    -fx-border-width: 1;
+    -fx-transition: 0.3s;
+}
+
+.cart-item-card:hover {
+    -fx-border-color: -brand-teal;
+    -fx-effect: dropshadow(gaussian, rgba(27,183,177,0.1), 10, 0, 0, 4);
+}
+
+/* A smaller, cleaner remove button */
+.btn-remove-tiny {
+    -fx-background-color: #FEE2E2; /* Very light red */
+    -fx-text-fill: #EF4444;       /* Danger red */
+    -fx-font-weight: bold;
+    -fx-background-radius: 50;    /* Circular */
+    -fx-padding: 4 8;
+    -fx-cursor: hand;
+}
+
+.btn-remove-tiny:hover {
+    -fx-background-color: #EF4444;
+    -fx-text-fill: white;
+}
+
+/* Ensure the image looks crisp */
+.cart-item-card .card-image-wrap {
+    -fx-background-color: #F1F5F9;
+    -fx-background-radius: 8;
+    -fx-overflow-hidden: true;
+}
+/* Pricing in the Cart Header */
+.price-teal {
+    -fx-text-fill: -brand-teal;
+    -fx-font-weight: 900;
+}
+
+/* Ensure the background of the items area is clean */
+.services-container {
+    -fx-background-color: transparent;
+}
+
+/* Style for the ScrollPane scrollbar to be subtle */
+.scroll-pane .thumb {
+    -fx-background-color: #E2E8F0;
+    -fx-background-radius: 10;
+}
+/* Sidebar refinement */
+.dash-sidebar {
+    -fx-background-color: white;
+    -fx-border-color: #E2E8F0;
+    -fx-border-width: 0 1 0 0;
+}
+
+.dash-nav-btn {
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 12 15;
+    -fx-font-size: 14px;
+}
+
+.dash-nav-btn:hover {
+    -fx-background-color: #F1F5F9;
+}
+
+.dash-nav-btn.active {
+    -fx-background-color: rgba(27, 183, 177, 0.1);
+    -fx-text-fill: -brand-teal;
+    -fx-border-color: -brand-teal;
+    -fx-border-width: 0 0 0 4; /* Left indicator bar */
+    -fx-background-radius: 0 8 8 0;
+}
+.card-hoverable {
+    -fx-background-color: white;
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+    -fx-border-color: #E2E8F0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.02), 10, 0, 0, 2);
+}
+
+.card-hoverable:hover {
+    -fx-translate-y: -4;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 15, 0, 0, 5);
+}
+
+/* Icon-only button style */
+.btn-icon-only {
+    -fx-background-color: #F1F5F9;
+    -fx-background-radius: 10;
+    -fx-padding: 8;
+    -fx-cursor: hand;
+}
+
+.btn-icon-only:hover {
+    -fx-background-color: #E2E8F0;
+}
+
+.btn-icon-only-danger {
+    -fx-background-color: #FEE2E2;
+    -fx-background-radius: 10;
+    -fx-padding: 8;
+}
+
+.btn-icon-only-danger:hover {
+    -fx-background-color: #EF4444;
+}
+
+.btn-icon-only-danger:hover SVGPath {
+    -fx-fill: white;
+}
+.badge-service {
+    -fx-background-color: rgba(27, 183, 177, 0.1);
+    -fx-text-fill: #1BB7B1;
+    -fx-background-radius: 5;
+    -fx-padding: 2 8;
+    -fx-font-weight: bold;
+}
+
+.price-teal {
+    -fx-text-fill: #1BB7B1;
+    -fx-font-weight: 900;
+}
+/* Modern Pill Base */
+.status-pill {
+    -fx-padding: 3 12;
+    -fx-background-radius: 15;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+}
+
+/* Soft Green */
+.pill-success {
+    -fx-background-color: rgba(34, 197, 94, 0.15);
+    -fx-text-fill: #15803d;
+}
+
+/* Soft Yellow/Orange */
+.pill-warning {
+    -fx-background-color: rgba(245, 158, 11, 0.15);
+    -fx-text-fill: #b45309;
+}
+
+/* Soft Red */
+.pill-danger {
+    -fx-background-color: rgba(239, 68, 68, 0.15);
+    -fx-text-fill: #b91c1c;
+}
+
+/* Payment Label (Subtle) */
+.payment-label {
+    -fx-text-fill: #64748B;
+    -fx-font-size: 11px;
+    -fx-background-color: #F8FAFC;
+    -fx-padding: 2 6;
+    -fx-background-radius: 4;
+    -fx-border-color: #E2E8F0;
+    -fx-border-width: 1;}
+
+/* Table Row Hover */
+.table-row-cell:hover {
+    -fx-background-color: #F8FAFC;
+}
+/* Sidebar Nav Buttons */
+.dash-nav-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #475569;
+    -fx-font-weight: 600;
+    -fx-padding: 12 15;
+    -fx-background-radius: 10;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.dash-nav-btn:hover {
+    -fx-background-color: #F1F5F9;
+}
+
+.dash-nav-btn.active {
+    -fx-background-color: rgba(27, 183, 177, 0.1); /* Subtle Teal tint */
+    -fx-text-fill: #1BB7B1;
+    -fx-border-color: #1BB7B1;
+    -fx-border-width: 0 0 0 3; /* Left accent line */
+}
+
+/* Icon Buttons in Topbar */
+.btn-icon-top {
+    -fx-background-color: transparent;
+    -fx-padding: 8;
+    -fx-background-radius: 50;
+    -fx-cursor: hand;
+}
+
+.btn-icon-top:hover {
+    -fx-background-color: #F1F5F9;
+}
+
+/* Filter Toggle Button */
+.btn-filter-toggle {
+    -fx-background-color: white;
+    -fx-border-color: #E2E8F0;
+    -fx-border-radius: 10;
+    -fx-padding: 8 16;
+    -fx-text-fill: #64748B;
+    -fx-font-weight: bold;
+}
+/* Make archived cards look slightly different on hover */
+.card-archived:hover {
+    -fx-opacity: 1.0;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 4);
+    -fx-translate-y: -2;
+}
+.btn-action-edit {
+    -fx-background-color: #F5F3FF; /* Very light purple */
+    -fx-background-radius: 8;
+    -fx-padding: 8;
+    -fx-cursor: hand;
+}
+.btn-ai-sparkle {
+    -fx-background-color: linear-gradient(to right, #6366F1, #A855F7);
+    -fx-text-fill: white;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 20;
+    -fx-padding: 6 12;
+    -fx-cursor: hand;
+    -fx-transition: all 0.3s;
+}
+
+.btn-ai-sparkle:hover {
+    -fx-effect: dropshadow(three-pass-box, rgba(168, 85, 247, 0.5), 10, 0, 0, 0);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+
+
+
