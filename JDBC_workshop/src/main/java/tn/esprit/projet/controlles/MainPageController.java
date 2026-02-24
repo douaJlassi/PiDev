@@ -77,6 +77,8 @@ public class MainPageController {
     private Label nextCoinTimerLabel;
     @FXML
     private ProgressIndicator coinProgressIndicator;
+    @FXML
+    private HBox coinCollectionBox;
 
     // Ad components
     private Popup adPopup;
@@ -95,7 +97,8 @@ public class MainPageController {
     // Coin timer components
     private Timeline coinTimer;
     private LocalDateTime lastCoinTime;
-    private Tooltip profileTooltip;
+    private Popup profilePopup;
+    private Timeline hoverTimer;
     private double coinRate = 0.1; // Default for standard
 
     @FXML
@@ -105,11 +108,12 @@ public class MainPageController {
         System.out.println("MainPageController initialized");
 
         setupButtonActions();
+        setupAvatarHoverHandler();
         setupAvatarClickHandler();
 
         // Initialize coin collection UI as hidden until user data is loaded
-        if (collectCoinBtn != null) {
-            collectCoinBtn.setVisible(false);
+        if (coinCollectionBox != null) {
+            coinCollectionBox.setVisible(false);
         }
     }
 
@@ -122,6 +126,140 @@ public class MainPageController {
             userAvatarImage.setOnMouseClicked(this::handleAvatarClick);
             userAvatarImage.setStyle("-fx-cursor: hand;");
         }
+    }
+
+    private void setupAvatarHoverHandler() {
+        if (userAvatar != null) {
+            userAvatar.setOnMouseEntered(event -> startHoverTimer());
+            userAvatar.setOnMouseExited(event -> stopHoverTimer());
+        }
+        if (userAvatarImage != null) {
+            userAvatarImage.setOnMouseEntered(event -> startHoverTimer());
+            userAvatarImage.setOnMouseExited(event -> stopHoverTimer());
+        }
+    }
+
+    private void startHoverTimer() {
+        if (hoverTimer != null) {
+            hoverTimer.stop();
+        }
+
+        hoverTimer = new Timeline(new KeyFrame(Duration.seconds(3), e -> {
+            showProfilePopup();
+        }));
+        hoverTimer.setCycleCount(1);
+        hoverTimer.play();
+    }
+
+    private void stopHoverTimer() {
+        if (hoverTimer != null) {
+            hoverTimer.stop();
+        }
+        if (profilePopup != null && profilePopup.isShowing()) {
+            profilePopup.hide();
+        }
+    }
+
+    private void showProfilePopup() {
+        if (userProfile == null) return;
+
+        profilePopup = new Popup();
+        profilePopup.setAutoHide(true);
+
+        String membership = userMembership;
+        int coins = userProfile.getCoins();
+
+        String icon = "👤";
+        String color = "#666";
+        String bgColor = "#f5f5f5";
+
+        switch(membership.toLowerCase()) {
+            case "vip+":
+                icon = "💎";
+                color = "#1D4D7C";
+                bgColor = "#e6f0fa";
+                break;
+            case "vip":
+                icon = "👑";
+                color = "#FEC74C";
+                bgColor = "#fff9e6";
+                break;
+            case "premium":
+                icon = "⭐";
+                color = "#0FA5A2";
+                bgColor = "#e6f7f5";
+                break;
+            default:
+                icon = "👤";
+                color = "#666";
+                bgColor = "#f5f5f5";
+        }
+
+        String coinRateText = getCoinRateText();
+
+        VBox popupContent = new VBox(10);
+        popupContent.setStyle(
+                "-fx-background-color: " + bgColor + ";" +
+                        "-fx-padding: 15;" +
+                        "-fx-background-radius: 15;" +
+                        "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 15, 0, 0, 0);" +
+                        "-fx-border-color: " + color + ";" +
+                        "-fx-border-width: 2;" +
+                        "-fx-border-radius: 15;"
+        );
+        popupContent.setMinWidth(200);
+
+        // Header with icon and membership
+        HBox headerBox = new HBox(10);
+        headerBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
+        Label iconLabel = new Label(icon);
+        iconLabel.setStyle("-fx-font-size: 24px;");
+
+        Label membershipLabel = new Label(membership.toUpperCase());
+        membershipLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: " + color + ";");
+
+        headerBox.getChildren().addAll(iconLabel, membershipLabel);
+
+        // Separator
+        Separator separator = new Separator();
+        separator.setStyle("-fx-background-color: " + color + ";");
+
+        // Coins info
+        HBox coinsBox = new HBox(10);
+        coinsBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
+        Label coinIcon = new Label("🪙");
+        coinIcon.setStyle("-fx-font-size: 18px;");
+
+        Label coinsValue = new Label(coins + " coins");
+        coinsValue.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+
+        coinsBox.getChildren().addAll(coinIcon, coinsValue);
+
+        // Rate info
+        HBox rateBox = new HBox(10);
+        rateBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
+        Label rateIcon = new Label("⚡");
+        rateIcon.setStyle("-fx-font-size: 18px;");
+
+        Label rateValue = new Label(coinRateText);
+        rateValue.setStyle("-fx-font-size: 14px;");
+
+        rateBox.getChildren().addAll(rateIcon, rateValue);
+
+        // Add all to popup
+        popupContent.getChildren().addAll(headerBox, separator, coinsBox, rateBox);
+
+        profilePopup.getContent().add(popupContent);
+
+        // Show popup near avatar
+        Stage stage = (Stage) userAvatar.getScene().getWindow();
+        double x = stage.getX() + userAvatar.localToScene(0, 0).getX() + userAvatar.getScene().getX() + 50;
+        double y = stage.getY() + userAvatar.localToScene(0, 0).getY() + userAvatar.getScene().getY() + 50;
+
+        profilePopup.show(stage, x, y);
     }
 
     @FXML
@@ -307,9 +445,6 @@ public class MainPageController {
 
         // Setup coin collection for all users (with different rates)
         setupCoinCollection();
-
-        // Setup profile tooltip
-        setupProfileTooltip();
     }
 
     private void checkUserPremiumStatus() {
@@ -335,57 +470,12 @@ public class MainPageController {
         }
     }
 
-    private void setupProfileTooltip() {
-        if (userProfile == null) return;
-
-        profileTooltip = new Tooltip();
-        profileTooltip.setStyle("-fx-font-size: 14px; -fx-background-color: white; -fx-text-fill: #333; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 0);");
-
-        String membership = userMembership;
-        int coins = userProfile.getCoins();
-
-        String icon = "⭐";
-        String color = "#666";
-
-        switch(membership.toLowerCase()) {
-            case "vip+":
-                icon = "💎";
-                color = "#1D4D7C";
-                break;
-            case "vip":
-                icon = "👑";
-                color = "#FEC74C";
-                break;
-            case "premium":
-                icon = "⭐";
-                color = "#0FA5A2";
-                break;
-            default:
-                icon = "👤";
-                color = "#666";
-        }
-
-        String coinRateText = getCoinRateText();
-
-        profileTooltip.setText(
-                "┌─────────────────┐\n" +
-                        "│ " + icon + " " + membership.toUpperCase() + "    \n" +
-                        "├─────────────────┤\n" +
-                        "│ 🪙 Coins: " + String.format("%-4d", coins) + "      │\n" +
-                        "│ 📊 Rate: " + coinRateText + " │\n" +
-                        "└─────────────────┘"
-        );
-
-        Tooltip.install(userAvatar, profileTooltip);
-        Tooltip.install(userAvatarImage, profileTooltip);
-    }
-
     private String getCoinRateText() {
         switch(userMembership.toLowerCase()) {
-            case "vip+": return "5/30sec ";
-            case "vip": return "5/30sec ";
-            case "premium": return "1/30sec ";
-            default: return "0.1/30sec";
+            case "vip+": return "5 coins/30s";
+            case "vip": return "5 coins/30s";
+            case "premium": return "1 coin/30s";
+            default: return "0.1 coin/30s";
         }
     }
 
@@ -393,8 +483,8 @@ public class MainPageController {
         if (userProfile == null) return;
 
         // Show coin collection UI
-        if (collectCoinBtn != null) {
-            collectCoinBtn.setVisible(true);
+        if (coinCollectionBox != null) {
+            coinCollectionBox.setVisible(true);
         }
 
         // Set coin rate based on membership
@@ -422,7 +512,7 @@ public class MainPageController {
 
     private void updateCoinDisplay() {
         if (coinCountLabel != null && userProfile != null) {
-            coinCountLabel.setText(userProfile.getCoins() + " coins");
+            coinCountLabel.setText(userProfile.getCoins() + " 🪙");
         }
     }
 
@@ -437,28 +527,30 @@ public class MainPageController {
             // Ready to collect
             if (collectCoinBtn != null) {
                 collectCoinBtn.setDisable(false);
-                collectCoinBtn.setText("✨ COLLECT");
-                collectCoinBtn.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold; -fx-padding: 5 15; -fx-background-radius: 20; -fx-cursor: hand;");
+                collectCoinBtn.setText("⚡");
+                collectCoinBtn.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-min-width: 30; -fx-min-height: 30; -fx-background-radius: 15; -fx-cursor: hand;");
             }
             if (coinProgressIndicator != null) {
                 coinProgressIndicator.setProgress(1.0);
             }
             if (nextCoinTimerLabel != null) {
-                nextCoinTimerLabel.setText("Ready to collect!");
+                nextCoinTimerLabel.setText("Ready!");
+                nextCoinTimerLabel.setStyle("-fx-text-fill: #2ecc71; -fx-font-weight: bold;");
             }
         } else {
             // Waiting for next collection
             if (collectCoinBtn != null) {
                 collectCoinBtn.setDisable(true);
-                collectCoinBtn.setText("⏳ " + secondsRemaining + "s");
-                collectCoinBtn.setStyle("-fx-background-color: #ccc; -fx-text-fill: #666; -fx-font-size: 12px; -fx-padding: 5 15; -fx-background-radius: 20;");
+                collectCoinBtn.setText(String.valueOf(secondsRemaining));
+                collectCoinBtn.setStyle("-fx-background-color: #e0e0e0; -fx-text-fill: #666; -fx-font-size: 12px; -fx-font-weight: bold; -fx-min-width: 30; -fx-min-height: 30; -fx-background-radius: 15;");
             }
             if (coinProgressIndicator != null) {
                 double progress = 1.0 - ((double) secondsRemaining / 30);
                 coinProgressIndicator.setProgress(progress);
             }
             if (nextCoinTimerLabel != null) {
-                nextCoinTimerLabel.setText("Next in " + secondsRemaining + "s");
+                nextCoinTimerLabel.setText(secondsRemaining + "s");
+                nextCoinTimerLabel.setStyle("-fx-text-fill: #666;");
             }
         }
     }
@@ -482,12 +574,16 @@ public class MainPageController {
 
             // Show animation
             if (collectCoinBtn != null) {
-                collectCoinBtn.setText("✓ +" + roundedCoins + " COIN!");
-                collectCoinBtn.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold; -fx-padding: 5 15; -fx-background-radius: 20;");
-            }
+                collectCoinBtn.setText("✓");
+                collectCoinBtn.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-min-width: 30; -fx-min-height: 30; -fx-background-radius: 15;");
 
-            // Update tooltip
-            setupProfileTooltip();
+                // Reset after 1 second
+                Timeline resetBtn = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+                    collectCoinBtn.setText("⚡");
+                }));
+                resetBtn.setCycleCount(1);
+                resetBtn.play();
+            }
 
             System.out.println("Collected " + roundedCoins + " coins. Total: " + userProfile.getCoins());
 
@@ -866,9 +962,15 @@ public class MainPageController {
         if (coinTimer != null) {
             coinTimer.stop();
         }
+        if (hoverTimer != null) {
+            hoverTimer.stop();
+        }
         if (adPopup != null && adPopup.isShowing()) {
             adPopup.hide();
             adPopup = null;
+        }
+        if (profilePopup != null && profilePopup.isShowing()) {
+            profilePopup.hide();
         }
     }
 
