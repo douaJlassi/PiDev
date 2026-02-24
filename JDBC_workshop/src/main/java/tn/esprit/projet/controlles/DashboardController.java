@@ -41,10 +41,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.List;
-import java.util.Optional;
-import java.util.HashMap;
-import java.util.Map;
 
 public class DashboardController {
 
@@ -54,6 +52,8 @@ public class DashboardController {
     private Label usersMenuItem;
     @FXML
     private Label todoMenuItem;
+    @FXML
+    private Label statsMenuItem;
     @FXML
     private Label myTicketsMenuItem;
     @FXML
@@ -137,8 +137,6 @@ public class DashboardController {
     private Button backToMainBtn;
     @FXML
     private ImageView userAvatarImage;
-    @FXML
-    private Label statsMenuItem;
 
     // Services
     private PersonService personService;
@@ -291,14 +289,15 @@ public class DashboardController {
         addMenuHoverEffect(dashboardMenuItem);
         addMenuHoverEffect(usersMenuItem);
         addMenuHoverEffect(todoMenuItem);
+        addMenuHoverEffect(statsMenuItem);
         addMenuHoverEffect(myTicketsMenuItem);
         addMenuHoverEffect(favouriteMenuItem);
         addMenuHoverEffect(messageMenuItem);
         addMenuHoverEffect(transactionMenuItem);
         addMenuHoverEffect(bookingsMenuItem);
         addMenuHoverEffect(settingsMenuItem);
-        addMenuHoverEffect(statsMenuItem);
     }
+
     private void handleStatsMenuClick(MouseEvent event) {
         showStatsView();
         updateMenuStyles(statsMenuItem);
@@ -2149,7 +2148,6 @@ public class DashboardController {
         }
     }
 
-
     private void nextPage() {
         if (currentPage < totalPages - 1) {
             currentPage++;
@@ -2549,26 +2547,14 @@ public class DashboardController {
         }
     }
 
-    // Add this field with other FXML fields
-
-
-// Add these methods for stats calculations
-
-    /**
-     * Calculate age from birth date
-     */
+    // Stats methods
     private int calculateAge(java.sql.Date birthDate) {
         if (birthDate == null) return 0;
-
         LocalDate birthLocalDate = birthDate.toLocalDate();
         LocalDate currentDate = LocalDate.now();
-
         return Period.between(birthLocalDate, currentDate).getYears();
     }
 
-    /**
-     * Get age distribution statistics
-     */
     private Map<String, Integer> getAgeDistribution(List<Person> users) {
         Map<String, Integer> ageStats = new HashMap<>();
         ageStats.put("Under 18", 0);
@@ -2580,46 +2566,28 @@ public class DashboardController {
         for (Person user : users) {
             if (user.getDate() != null) {
                 int age = calculateAge(user.getDate());
-
-                if (age < 18) {
-                    ageStats.put("Under 18", ageStats.get("Under 18") + 1);
-                } else if (age <= 25) {
-                    ageStats.put("18-25", ageStats.get("18-25") + 1);
-                } else if (age <= 35) {
-                    ageStats.put("26-35", ageStats.get("26-35") + 1);
-                } else if (age <= 50) {
-                    ageStats.put("36-50", ageStats.get("36-50") + 1);
-                } else {
-                    ageStats.put("Over 50", ageStats.get("Over 50") + 1);
-                }
+                if (age < 18) ageStats.put("Under 18", ageStats.get("Under 18") + 1);
+                else if (age <= 25) ageStats.put("18-25", ageStats.get("18-25") + 1);
+                else if (age <= 35) ageStats.put("26-35", ageStats.get("26-35") + 1);
+                else if (age <= 50) ageStats.put("36-50", ageStats.get("36-50") + 1);
+                else ageStats.put("Over 50", ageStats.get("Over 50") + 1);
             }
         }
-
         return ageStats;
     }
 
-    /**
-     * Get 2FA statistics
-     */
     private Map<String, Integer> getTwoFAStats(List<Person> users) {
         Map<String, Integer> twoFAStats = new HashMap<>();
         twoFAStats.put("Enabled", 0);
         twoFAStats.put("Disabled", 0);
 
         for (Person user : users) {
-            if (user.isTwoFactorEnabled()) {
-                twoFAStats.put("Enabled", twoFAStats.get("Enabled") + 1);
-            } else {
-                twoFAStats.put("Disabled", twoFAStats.get("Disabled") + 1);
-            }
+            if (user.isTwoFactorEnabled()) twoFAStats.put("Enabled", twoFAStats.get("Enabled") + 1);
+            else twoFAStats.put("Disabled", twoFAStats.get("Disabled") + 1);
         }
-
         return twoFAStats;
     }
 
-    /**
-     * Get membership statistics
-     */
     private Map<String, Integer> getMembershipStats() {
         Map<String, Integer> membershipStats = new HashMap<>();
         membershipStats.put("Premium", 0);
@@ -2628,27 +2596,19 @@ public class DashboardController {
 
         try {
             List<Person> users = personService.selectALL();
-            ProfileService profileService = new ProfileService();
-
             for (Person user : users) {
                 Profile profile = profileService.getProfileByUserId(user.getId());
-                if (profile != null) {
+                if (profile != null && profile.getMemberPremium() != null) {
                     String membership = profile.getMemberPremium();
-                    if (membership != null) {
-                        membershipStats.put(membership, membershipStats.getOrDefault(membership, 0) + 1);
-                    }
+                    membershipStats.put(membership, membershipStats.getOrDefault(membership, 0) + 1);
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return membershipStats;
     }
 
-    /**
-     * Show Stats View
-     */
     private void showStatsView() {
         try {
             VBox statsView = createStatsView();
@@ -2660,152 +2620,183 @@ public class DashboardController {
         }
     }
 
-    /**
-     * Create Stats View
-     */
     private VBox createStatsView() {
         VBox view = new VBox(20);
         view.setPadding(new Insets(20));
         view.setStyle("-fx-background-color: #f5f5f5;");
 
-        // Header
+        // Header with title only
         HBox header = new HBox(20);
         header.setAlignment(Pos.CENTER_LEFT);
-
         Label title = new Label("📊 Statistics Dashboard");
-        title.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C;");
+        title.setStyle("-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C;");
+        header.getChildren().add(title);
 
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-
-        // Refresh Button
-        Button refreshBtn = new Button("🔄 Refresh");
-        refreshBtn.setStyle("-fx-background-color: #0FA5A2; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: hand;");
+        // Centered Refresh Button
+        HBox refreshContainer = new HBox();
+        refreshContainer.setAlignment(Pos.CENTER);
+        Button refreshBtn = new Button("🔄 Refresh Data");
+        refreshBtn.setStyle("-fx-background-color: #0FA5A2; -fx-text-fill: white; -fx-padding: 12 30; -fx-background-radius: 25; -fx-font-weight: bold; -fx-font-size: 14px; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, #0FA5A280, 10, 0, 0, 0);");
         refreshBtn.setOnAction(e -> showStatsView());
-
-        header.getChildren().addAll(title, spacer, refreshBtn);
-
-        // Stats Grid
-        GridPane statsGrid = new GridPane();
-        statsGrid.setHgap(20);
-        statsGrid.setVgap(20);
-        statsGrid.setAlignment(Pos.TOP_CENTER);
-
-        ColumnConstraints col1 = new ColumnConstraints();
-        col1.setPercentWidth(33);
-        ColumnConstraints col2 = new ColumnConstraints();
-        col2.setPercentWidth(33);
-        ColumnConstraints col3 = new ColumnConstraints();
-        col3.setPercentWidth(34);
-
-        statsGrid.getColumnConstraints().addAll(col1, col2, col3);
+        refreshContainer.getChildren().add(refreshBtn);
 
         try {
             List<Person> users = personService.selectALL();
 
+            // Stats Grid
+            GridPane statsGrid = new GridPane();
+            statsGrid.setHgap(25);
+            statsGrid.setVgap(25);
+            statsGrid.setAlignment(Pos.CENTER);
+
+            ColumnConstraints col1 = new ColumnConstraints();
+            col1.setPercentWidth(50);
+            col1.setHgrow(Priority.ALWAYS);
+
+            ColumnConstraints col2 = new ColumnConstraints();
+            col2.setPercentWidth(50);
+            col2.setHgrow(Priority.ALWAYS);
+
+            statsGrid.getColumnConstraints().addAll(col1, col2);
+
             // Age Distribution Card
-            VBox ageCard = createStatCard("Age Distribution", "#0FA5A2");
-            Map<String, Integer> ageStats = getAgeDistribution(users);
+            VBox ageCard = createModernStatCard(
+                    "📊 Age Distribution",
+                    "#0FA5A2",
+                    getAgeDistribution(users),
+                    users.size()
+            );
 
-            for (Map.Entry<String, Integer> entry : ageStats.entrySet()) {
-                HBox statRow = createStatRow(entry.getKey(), entry.getValue(), users.size());
-                ageCard.getChildren().add(statRow);
-            }
+            // 2FA Status Card
+            VBox twoFACard = createModernStatCard(
+                    "🔐 2FA Status",
+                    "#FEC74C",
+                    getTwoFAStats(users),
+                    users.size()
+            );
 
-            // 2FA Statistics Card
-            VBox twoFACard = createStatCard("2FA Status", "#FEC74C");
-            Map<String, Integer> twoFAStats = getTwoFAStats(users);
-
-            for (Map.Entry<String, Integer> entry : twoFAStats.entrySet()) {
-                HBox statRow = createStatRow(entry.getKey(), entry.getValue(), users.size());
-                twoFACard.getChildren().add(statRow);
-            }
-
-            // Membership Statistics Card
-            VBox membershipCard = createStatCard("Membership Status", "#9C27B0");
-            Map<String, Integer> membershipStats = getMembershipStats();
-
-            for (Map.Entry<String, Integer> entry : membershipStats.entrySet()) {
-                HBox statRow = createStatRow(entry.getKey(), entry.getValue(), users.size());
-                membershipCard.getChildren().add(statRow);
-            }
+            // Membership Status Card
+            VBox membershipCard = createModernStatCard(
+                    "💎 Membership Status",
+                    "#9C27B0",
+                    getMembershipStats(),
+                    users.size()
+            );
 
             statsGrid.add(ageCard, 0, 0);
             statsGrid.add(twoFACard, 1, 0);
-            statsGrid.add(membershipCard, 2, 0);
+            statsGrid.add(membershipCard, 0, 1, 2, 1);
+
+            view.getChildren().addAll(header, refreshContainer, statsGrid);
 
         } catch (SQLException e) {
             e.printStackTrace();
             showAlert("Error", "Failed to load statistics: " + e.getMessage());
         }
 
-        view.getChildren().addAll(header, statsGrid);
         return view;
     }
 
-    /**
-     * Create a stat card
-     */
-    private VBox createStatCard(String title, String color) {
-        VBox card = new VBox(15);
-        card.setStyle("-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);");
-        card.setPrefWidth(350);
+    private VBox createModernStatCard(String title, String color, Map<String, Integer> stats, int total) {
+        VBox card = new VBox(20);
+        card.setStyle("-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 15, 0, 0, 0);");
+        card.setPrefWidth(450);
+
+        // Card Header
+        HBox header = new HBox();
+        header.setAlignment(Pos.CENTER_LEFT);
 
         Label titleLabel = new Label(title);
-        titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: " + color + "; -fx-border-color: " + color + "; -fx-border-width: 0 0 2 0; -fx-padding: 0 0 10 0;");
+        titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: " + color + ";");
 
-        card.getChildren().add(titleLabel);
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        Label totalLabel = new Label("Total: " + total);
+        totalLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #666; -fx-background-color: #f0f0f0; -fx-padding: 5 12; -fx-background-radius: 20;");
+
+        header.getChildren().addAll(titleLabel, spacer, totalLabel);
+
+        // Stats Content
+        VBox content = new VBox(15);
+        content.setPadding(new Insets(10, 0, 0, 0));
+
+        // Sort stats by value
+        List<Map.Entry<String, Integer>> sortedStats = new ArrayList<>(stats.entrySet());
+        sortedStats.sort((a, b) -> b.getValue().compareTo(a.getValue()));
+
+        for (Map.Entry<String, Integer> entry : sortedStats) {
+            String key = entry.getKey();
+            int value = entry.getValue();
+            double percentage = total > 0 ? (double) value / total * 100 : 0;
+
+            HBox statRow = new HBox(15);
+            statRow.setAlignment(Pos.CENTER_LEFT);
+
+            // Label with icon
+            String icon = getIconForKey(key);
+            Label keyLabel = new Label(icon + " " + key);
+            keyLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-min-width: 120; -fx-text-fill: #333;");
+
+            // Value badge
+            Label valueBadge = new Label(String.valueOf(value));
+            valueBadge.setStyle("-fx-background-color: " + color + "; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 3 10; -fx-background-radius: 15; -fx-min-width: 40; -fx-alignment: center;");
+
+            // Progress bar container
+            StackPane progressContainer = new StackPane();
+            progressContainer.setPrefWidth(200);
+            progressContainer.setPrefHeight(12);
+            progressContainer.setStyle("-fx-background-color: #f0f0f0; -fx-background-radius: 10;");
+
+            // Progress bar
+            Rectangle progressBar = new Rectangle(200 * percentage / 100, 12);
+            progressBar.setFill(getProgressGradient(color, percentage));
+            progressBar.setArcWidth(10);
+            progressBar.setArcHeight(10);
+
+            progressContainer.getChildren().add(progressBar);
+
+            // Percentage label
+            Label percentLabel = new Label(String.format("%.1f%%", percentage));
+            percentLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: " + color + "; -fx-min-width: 55;");
+
+            statRow.getChildren().addAll(keyLabel, valueBadge, progressContainer, percentLabel);
+            content.getChildren().add(statRow);
+        }
+
+        card.getChildren().addAll(header, content);
         return card;
     }
 
-    /**
-     * Create a stat row with percentage bar
-     */
-    private HBox createStatRow(String label, int value, int total) {
-        HBox row = new HBox(10);
-        row.setAlignment(Pos.CENTER_LEFT);
-        row.setPrefHeight(40);
-
-        double percentage = total > 0 ? (double) value / total * 100 : 0;
-
-        Label labelText = new Label(label);
-        labelText.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-min-width: 100;");
-
-        Label valueText = new Label(String.valueOf(value));
-        valueText.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-min-width: 40; -fx-alignment: center-right;");
-
-        // Progress bar
-        StackPane progressContainer = new StackPane();
-        progressContainer.setPrefWidth(150);
-        progressContainer.setPrefHeight(20);
-        progressContainer.setStyle("-fx-background-color: #f0f0f0; -fx-background-radius: 10;");
-
-        Rectangle progressBar = new Rectangle(150 * percentage / 100, 20);
-        progressBar.setFill(getProgressColor(percentage));
-        progressBar.setArcWidth(10);
-        progressBar.setArcHeight(10);
-
-        progressContainer.getChildren().add(progressBar);
-
-        Label percentLabel = new Label(String.format("%.1f%%", percentage));
-        percentLabel.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #666; -fx-min-width: 50;");
-
-        row.getChildren().addAll(labelText, valueText, progressContainer, percentLabel);
-
-        return row;
-    }
-
-    /**
-     * Get color based on percentage
-     */
-    private Color getProgressColor(double percentage) {
-        if (percentage < 30) {
-            return Color.web("#ff5e62");
-        } else if (percentage < 60) {
-            return Color.web("#FEC74C");
-        } else {
-            return Color.web("#2ecc71");
+    private String getIconForKey(String key) {
+        switch (key.toLowerCase()) {
+            case "enabled": return "✅";
+            case "disabled": return "❌";
+            case "premium": return "💎";
+            case "standard": return "📋";
+            case "vip": return "👑";
+            case "under 18": return "🧒";
+            case "18-25": return "👤";
+            case "26-35": return "👨";
+            case "36-50": return "👨‍🦰";
+            case "over 50": return "👴";
+            default: return "📊";
         }
     }
 
+    private LinearGradient getProgressGradient(String baseColor, double percentage) {
+        Color startColor, endColor;
+        if (percentage < 30) {
+            startColor = Color.web("#ff5e62");
+            endColor = Color.web("#ff9966");
+        } else if (percentage < 60) {
+            startColor = Color.web("#FEC74C");
+            endColor = Color.web("#FFD966");
+        } else {
+            startColor = Color.web("#2ecc71");
+            endColor = Color.web("#27ae60");
+        }
+        return new LinearGradient(0, 0, 1, 0, true, CycleMethod.NO_CYCLE,
+                new Stop(0, startColor), new Stop(1, endColor));
+    }
 }
