@@ -97,22 +97,6 @@ public class ChatPopupController {
                 handleSendMessage();
             }
         });
-
-        // Verify that all FXML fields are injected
-        System.out.println("=== FXML Injection Check ===");
-        System.out.println("conversationTitle injected: " + (conversationTitle != null));
-        System.out.println("chatTabPane injected: " + (chatTabPane != null));
-        System.out.println("messagesTab injected: " + (messagesTab != null));
-        System.out.println("conversationsList injected: " + (conversationsList != null));
-        System.out.println("chatArea injected: " + (chatArea != null));
-        System.out.println("messageInput injected: " + (messageInput != null));
-        System.out.println("sendMessageBtn injected: " + (sendMessageBtn != null));
-        System.out.println("unreadCountLabel injected: " + (unreadCountLabel != null));
-        System.out.println("chatScrollPane injected: " + (chatScrollPane != null));
-        System.out.println("searchField injected: " + (searchField != null));
-        System.out.println("newChatBtn injected: " + (newChatBtn != null));
-        System.out.println("backToConversationsBtn injected: " + (backToConversationsBtn != null));
-        System.out.println("closeButton injected: " + (closeButton != null));
     }
 
     public void setUserData(Person user, Popup parentPopup) {
@@ -135,10 +119,10 @@ public class ChatPopupController {
             newChatBtn.setText("+ New Support Chat");
             System.out.println("Admin mode: can see all conversations");
         } else {
-            newChatBtn.setVisible(true);
-            newChatBtn.setManaged(true);
-            newChatBtn.setText("+ Contact Support");
-            System.out.println("User/Guider mode: can only contact support");
+            // Hide the new chat button for regular users - they already have one conversation
+            newChatBtn.setVisible(false);
+            newChatBtn.setManaged(false);
+            System.out.println("User/Guider mode: single conversation only");
         }
     }
 
@@ -163,11 +147,19 @@ public class ChatPopupController {
         try {
             List<String> userConversations;
             if (isAdmin()) {
+                // Admins see all conversations
                 userConversations = messageService.getAllAdminConversations();
                 System.out.println("Loading all conversations for admin: " + userConversations.size());
             } else {
+                // Regular users see their single conversation
                 userConversations = messageService.getUserConversations(currentUser.getId());
                 System.out.println("Loading personal conversations for user/guider: " + userConversations.size());
+
+                // If user has no conversations, create one automatically
+                if (userConversations.isEmpty()) {
+                    createUserConversation();
+                    return; // loadConversations will be called again after creation
+                }
             }
 
             if (!conversations.equals(userConversations)) {
@@ -175,6 +167,24 @@ public class ChatPopupController {
             }
         } catch (SQLException e) {
             System.err.println("Error loading conversations: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void createUserConversation() {
+        if (currentUser == null) return;
+
+        String newConversationId = "support_" + currentUser.getId();
+        System.out.println("Creating default conversation for user: " + newConversationId);
+
+        try {
+            // Add to conversations list
+            conversations.add(0, newConversationId);
+
+            // Auto-load the conversation
+            loadConversation(newConversationId);
+
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -280,7 +290,6 @@ public class ChatPopupController {
             return;
         }
 
-        // Check if conversationTitle is null (should not happen if FXML is correct)
         if (conversationTitle == null) {
             System.err.println("FATAL: conversationTitle is null! Check FXML injection.");
             return;
@@ -388,6 +397,24 @@ public class ChatPopupController {
             return;
         }
 
+        // For non-admin users, ensure they have a conversation ID
+        if (!isAdmin() && currentConversationId == null) {
+            // Create or get existing conversation for this user
+            try {
+                List<String> userConvs = messageService.getUserConversations(currentUser.getId());
+                if (userConvs.isEmpty()) {
+                    currentConversationId = "support_" + currentUser.getId();
+                } else {
+                    currentConversationId = userConvs.get(0); // Use existing conversation
+                }
+                loadConversation(currentConversationId);
+            } catch (SQLException e) {
+                e.printStackTrace();
+                showAlert("Error", "Failed to load conversation.");
+                return;
+            }
+        }
+
         if (currentConversationId == null) {
             showAlert("Warning", "Please select a conversation first.");
             return;
@@ -451,12 +478,25 @@ public class ChatPopupController {
             newConversationId = "chat_" + System.currentTimeMillis();
             System.out.println("Admin starting new conversation: " + newConversationId);
         } else {
-            newConversationId = "support_" + currentUser.getId() + "_" + System.currentTimeMillis();
-            System.out.println("User starting support conversation: " + newConversationId);
+            // For non-admin users, use a fixed ID based on user ID
+            newConversationId = "support_" + currentUser.getId();
+            System.out.println("User using conversation: " + newConversationId);
         }
 
         try {
-            conversations.add(0, newConversationId);
+            // Check if conversation already exists
+            boolean exists = false;
+            for (String conv : conversations) {
+                if (conv.equals(newConversationId)) {
+                    exists = true;
+                    break;
+                }
+            }
+
+            if (!exists) {
+                conversations.add(0, newConversationId);
+            }
+
             loadConversation(newConversationId);
             messageInput.requestFocus();
         } catch (Exception e) {
