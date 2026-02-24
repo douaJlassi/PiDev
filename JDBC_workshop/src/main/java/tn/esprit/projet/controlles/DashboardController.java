@@ -138,6 +138,9 @@ public class DashboardController {
     @FXML
     private ImageView userAvatarImage;
 
+    @FXML
+    private Label shopMenuItem;
+
     // Services
     private PersonService personService;
     private ProfileService profileService;
@@ -235,6 +238,12 @@ public class DashboardController {
             }
         }
 
+        if (shopMenuItem != null) {
+            shopMenuItem.setOnMouseClicked(this::handleShopMenuClick);
+            shopMenuItem.setStyle("-fx-padding: 12 15; -fx-background-radius: 10; -fx-cursor: hand;");
+        }
+
+
         if (usersMenuItem != null) {
             usersMenuItem.setOnMouseClicked(this::handleUsersMenuClick);
             usersMenuItem.setStyle("-fx-padding: 12 15; -fx-background-radius: 10; -fx-cursor: hand;");
@@ -296,6 +305,7 @@ public class DashboardController {
         addMenuHoverEffect(transactionMenuItem);
         addMenuHoverEffect(bookingsMenuItem);
         addMenuHoverEffect(settingsMenuItem);
+        addMenuHoverEffect(shopMenuItem);
     }
 
     private void handleStatsMenuClick(MouseEvent event) {
@@ -2215,8 +2225,9 @@ public class DashboardController {
     }
 
     private void updateMenuStyles(Label activeMenu) {
-        Label[] menus = {dashboardMenuItem, usersMenuItem, todoMenuItem, statsMenuItem, myTicketsMenuItem,
-                favouriteMenuItem, messageMenuItem, transactionMenuItem,
+
+        Label[] menus = {dashboardMenuItem, usersMenuItem, todoMenuItem, statsMenuItem, shopMenuItem, // Add here
+                myTicketsMenuItem, favouriteMenuItem, messageMenuItem, transactionMenuItem,
                 bookingsMenuItem, settingsMenuItem};
 
         for (Label menu : menus) {
@@ -2798,5 +2809,26 @@ public class DashboardController {
         }
         return new LinearGradient(0, 0, 1, 0, true, CycleMethod.NO_CYCLE,
                 new Stop(0, startColor), new Stop(1, endColor));
+    }
+
+    private void handleShopMenuClick(MouseEvent event) {
+        showShopManagement();
+        updateMenuStyles(shopMenuItem);
+    }
+
+    private void showShopManagement() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ShopManagement.fxml"));
+            Parent shopRoot = loader.load();
+
+            ShopManagementController shopController = loader.getController();
+            shopController.setUserData(currentUser);
+
+            contentArea.getChildren().setAll(shopRoot);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to open shop management: " + e.getMessage());
+        }
     }
 }

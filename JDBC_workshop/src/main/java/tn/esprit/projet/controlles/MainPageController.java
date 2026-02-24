@@ -79,6 +79,8 @@ public class MainPageController {
     private ProgressIndicator coinProgressIndicator;
     @FXML
     private HBox coinCollectionBox;
+    @FXML
+    private Button shopBtn;
 
     // Ad components
     private Popup adPopup;
@@ -345,6 +347,9 @@ public class MainPageController {
                 }
             });
         }
+        if (shopBtn != null) {
+            shopBtn.setOnAction(event -> openShop());
+        }
 
         // Activities button action
         if (activitiesBtn != null) {
@@ -395,7 +400,26 @@ public class MainPageController {
             collectCoinBtn.setOnAction(event -> collectCoin());
         }
     }
+    private void openShop() {
+        try {
+            stopAllTimers();
 
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Shop.fxml"));
+            Parent shopRoot = loader.load();
+
+            ShopController shopController = loader.getController();
+            shopController.setUserData(currentUser);
+
+            Stage currentStage = (Stage) shopBtn.getScene().getWindow();
+            currentStage.setScene(new Scene(shopRoot));
+            currentStage.setTitle("Shop - " + currentUser.getUsername());
+            currentStage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to open shop: " + e.getMessage());
+        }
+    }
     private void addHoverEffect(Button button) {
         if (button == null) return;
 
