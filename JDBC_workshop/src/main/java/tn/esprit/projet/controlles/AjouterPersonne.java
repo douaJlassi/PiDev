@@ -54,20 +54,19 @@ public class AjouterPersonne {
     @FXML private PasswordField confirmPasswordField;
     @FXML private CheckBox guiderCheckbox;
 
-
     // Login fields
     @FXML private TextField loginEmailField;
     @FXML private PasswordField loginPasswordField;
     @FXML private CheckBox rememberMeCheckBox;
     @FXML private Button faceIDLoginButton;
+    @FXML private Button qrScanButton;
+    @FXML private Label forgotPasswordLink;
 
-    // New Face ID Email Verification Field
+    // Face ID Email Verification Fields - Added to FXML
+    @FXML private VBox faceIDEmailSection;
     @FXML private TextField faceIDEmailField;
     @FXML private Label faceIDEmailError;
-    @FXML private VBox faceIDEmailSection;
-    @FXML private Button qrScanButton;
 
-    @FXML private Label forgotPasswordLink;
     // Validation lines and error messages
     private Line firstNameLine;
     private Line lastNameLine;
@@ -102,6 +101,9 @@ public class AjouterPersonne {
 
     // Face ID email validation property
     private final BooleanProperty faceIDEmailValid = new SimpleBooleanProperty(false);
+
+    // Store user after email validation
+    private Person currentFaceIDUser;
 
     private static final Duration FAST = Duration.millis(250);
     private static final Duration NORMAL = Duration.millis(450);
@@ -146,10 +148,11 @@ public class AjouterPersonne {
         createErrorLabels();
         createSuccessMessage();
         createLoginError();
-        createFaceIDEmailValidation();
 
         // Setup validation listeners
         setupValidation();
+
+        // Setup Face ID email validation
         setupFaceIDEmailValidation();
 
         // Disable signup button initially
@@ -195,75 +198,155 @@ public class AjouterPersonne {
         }
     }
 
-    private void createFaceIDEmailValidation() {
-        // Create email field if not in FXML (or use existing)
-        if (faceIDEmailField == null) {
-            faceIDEmailField = new TextField();
-            faceIDEmailField.setPromptText("Enter your email");
-            faceIDEmailField.setPrefHeight(48);
-            faceIDEmailField.setStyle("-fx-background-color: rgba(255,255,255,0.20); -fx-background-radius: 24; -fx-border-radius: 24; -fx-border-color: rgba(255,255,255,0.35); -fx-text-fill: white; -fx-font-size: 14px; -fx-prompt-text-fill: rgba(255,255,255,0.75); -fx-padding: 0 18;");
-
-            faceIDEmailError = new Label();
-            faceIDEmailError.setTextFill(Color.INDIANRED);
-            faceIDEmailError.setFont(Font.font("Segoe UI", FontWeight.NORMAL, 11));
-            faceIDEmailError.setOpacity(0);
-
-            faceIDEmailSection = new VBox(3);
-            faceIDEmailSection.setPadding(new Insets(0));
-            faceIDEmailSection.getChildren().addAll(faceIDEmailField, faceIDEmailError);
-
-            // Add to login pane before the Face ID button
-            int index = loginPane.getChildren().indexOf(faceIDLoginButton);
-            if (index >= 0) {
-                loginPane.getChildren().add(index, faceIDEmailSection);
-            }
-        }
-    }
-
+    /**
+     * Setup Face ID email validation
+     */
     private void setupFaceIDEmailValidation() {
+        if (faceIDEmailField == null) return;
+
+        // Initially disable Face ID button until email is validated
+        faceIDLoginButton.setDisable(true);
+        faceIDLoginButton.setOpacity(0.5);
+
+        // Add validation listener
         faceIDEmailField.textProperty().addListener((obs, old, val) -> {
-            if (val == null || val.trim().isEmpty()) {
-                faceIDEmailValid.set(false);
-                faceIDEmailError.setOpacity(0);
-                faceIDEmailField.setStyle("-fx-background-color: rgba(255,255,255,0.20); -fx-background-radius: 24; -fx-border-radius: 24; -fx-border-color: rgba(255,255,255,0.35); -fx-text-fill: white;");
-            } else if (!val.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
-                faceIDEmailValid.set(false);
-                faceIDEmailError.setText("Please enter a valid email address");
-                faceIDEmailError.setOpacity(1);
-                faceIDEmailField.setStyle("-fx-background-color: rgba(255,255,255,0.20); -fx-background-radius: 24; -fx-border-radius: 24; -fx-border-color: #ff5e62; -fx-border-width: 2; -fx-text-fill: white;");
-            } else {
-                // Check if email exists in database (async)
-                checkEmailExists(val);
+            validateFaceIDEmail(val);
+        });
+
+        // Add focus listener to validate on focus lost too
+        faceIDEmailField.focusedProperty().addListener((obs, old, isFocused) -> {
+            if (!isFocused) {
+                validateFaceIDEmail(faceIDEmailField.getText());
             }
         });
     }
 
-    private void checkEmailExists(String email) {
-        // Run in background thread to not block UI
+    /**
+     * Validate Face ID email
+     */
+    private void validateFaceIDEmail(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            faceIDEmailValid.set(false);
+            faceIDEmailError.setText("Email is required");
+            faceIDEmailError.setOpacity(1);
+            faceIDEmailError.setStyle("-fx-text-fill: #ff5e62;");
+            faceIDEmailField.setStyle("-fx-background-color: rgba(255,255,255,0.20); -fx-background-radius: 24; " +
+                    "-fx-border-radius: 24; -fx-border-color: #ff5e62; -fx-border-width: 2; " +
+                    "-fx-text-fill: white;");
+            faceIDLoginButton.setDisable(true);
+            faceIDLoginButton.setOpacity(0.5);
+            return;
+        }
+
+        // Check email format
+        if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+            faceIDEmailValid.set(false);
+            faceIDEmailError.setText("Please enter a valid email address");
+            faceIDEmailError.setOpacity(1);
+            faceIDEmailError.setStyle("-fx-text-fill: #ff5e62;");
+            faceIDEmailField.setStyle("-fx-background-color: rgba(255,255,255,0.20); -fx-background-radius: 24; " +
+                    "-fx-border-radius: 24; -fx-border-color: #ff5e62; -fx-border-width: 2; " +
+                    "-fx-text-fill: white;");
+            faceIDLoginButton.setDisable(true);
+            faceIDLoginButton.setOpacity(0.5);
+            return;
+        }
+
+        // Check if email exists in database (async)
+        checkEmailExistsForFaceID(email);
+    }
+
+    /**
+     * Check if email exists in database for Face ID
+     */
+    private void checkEmailExistsForFaceID(String email) {
+        // Show loading state
+        faceIDEmailField.setDisable(true);
+        faceIDEmailField.setPromptText("Checking...");
+        faceIDEmailError.setText("Checking...");
+        faceIDEmailError.setOpacity(1);
+        faceIDEmailError.setStyle("-fx-text-fill: #FEC74C;");
+
+        // Run in background thread
         new Thread(() -> {
             try {
                 boolean exists = personService.emailExists(email);
                 javafx.application.Platform.runLater(() -> {
+                    faceIDEmailField.setDisable(false);
+                    faceIDEmailField.setPromptText("Enter your email for Face ID");
+
                     if (exists) {
-                        faceIDEmailValid.set(true);
-                        faceIDEmailError.setOpacity(0);
-                        faceIDEmailField.setStyle("-fx-background-color: rgba(255,255,255,0.20); -fx-background-radius: 24; -fx-border-radius: 24; -fx-border-color: #2ecc71; -fx-border-width: 2; -fx-text-fill: white;");
+                        // Check if user has face data registered
+                        try {
+                            Person user = personService.getUserByEmail(email);
+                            if (user != null && user.getFaceData() != null && user.getFaceData().length > 0) {
+                                // Email exists and has face data
+                                faceIDEmailValid.set(true);
+                                faceIDEmailError.setOpacity(0);
+                                faceIDEmailField.setStyle("-fx-background-color: rgba(255,255,255,0.20); -fx-background-radius: 24; " +
+                                        "-fx-border-radius: 24; -fx-border-color: #2ecc71; -fx-border-width: 2; " +
+                                        "-fx-text-fill: white;");
+                                faceIDLoginButton.setDisable(false);
+                                faceIDLoginButton.setOpacity(1.0);
+
+                                // Store user for later use
+                                currentFaceIDUser = user;
+                            } else {
+                                // Email exists but no face data
+                                faceIDEmailValid.set(false);
+                                faceIDEmailError.setText("No Face ID registered for this email");
+                                faceIDEmailError.setOpacity(1);
+                                faceIDEmailError.setStyle("-fx-text-fill: #ff5e62;");
+                                faceIDEmailField.setStyle("-fx-background-color: rgba(255,255,255,0.20); -fx-background-radius: 24; " +
+                                        "-fx-border-radius: 24; -fx-border-color: #ff5e62; -fx-border-width: 2; " +
+                                        "-fx-text-fill: white;");
+                                faceIDLoginButton.setDisable(true);
+                                faceIDLoginButton.setOpacity(0.5);
+                                currentFaceIDUser = null;
+                            }
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                            handleFaceIDEmailError("Database error");
+                        }
                     } else {
+                        // Email not found
                         faceIDEmailValid.set(false);
                         faceIDEmailError.setText("Email not found in database");
                         faceIDEmailError.setOpacity(1);
-                        faceIDEmailField.setStyle("-fx-background-color: rgba(255,255,255,0.20); -fx-background-radius: 24; -fx-border-radius: 24; -fx-border-color: #ff5e62; -fx-border-width: 2; -fx-text-fill: white;");
+                        faceIDEmailError.setStyle("-fx-text-fill: #ff5e62;");
+                        faceIDEmailField.setStyle("-fx-background-color: rgba(255,255,255,0.20); -fx-background-radius: 24; " +
+                                "-fx-border-radius: 24; -fx-border-color: #ff5e62; -fx-border-width: 2; " +
+                                "-fx-text-fill: white;");
+                        faceIDLoginButton.setDisable(true);
+                        faceIDLoginButton.setOpacity(0.5);
+                        currentFaceIDUser = null;
                     }
                 });
             } catch (SQLException e) {
                 e.printStackTrace();
                 javafx.application.Platform.runLater(() -> {
-                    faceIDEmailValid.set(false);
-                    faceIDEmailError.setText("Database error");
-                    faceIDEmailError.setOpacity(1);
+                    handleFaceIDEmailError("Database error");
                 });
             }
         }).start();
+    }
+
+    /**
+     * Handle Face ID email error
+     */
+    private void handleFaceIDEmailError(String errorMessage) {
+        faceIDEmailField.setDisable(false);
+        faceIDEmailField.setPromptText("Enter your email for Face ID");
+        faceIDEmailValid.set(false);
+        faceIDEmailError.setText(errorMessage);
+        faceIDEmailError.setOpacity(1);
+        faceIDEmailError.setStyle("-fx-text-fill: #ff5e62;");
+        faceIDEmailField.setStyle("-fx-background-color: rgba(255,255,255,0.20); -fx-background-radius: 24; " +
+                "-fx-border-radius: 24; -fx-border-color: #ff5e62; -fx-border-width: 2; " +
+                "-fx-text-fill: white;");
+        faceIDLoginButton.setDisable(true);
+        faceIDLoginButton.setOpacity(0.5);
+        currentFaceIDUser = null;
     }
 
     private void initializeFaceIDLogin() {
@@ -1196,8 +1279,8 @@ public class AjouterPersonne {
             return;
         }
 
-        if (!faceIDEmailValid.get()) {
-            showAlert("Invalid Email", "Please enter a valid email address that exists in our database.", Alert.AlertType.WARNING);
+        if (!faceIDEmailValid.get() || currentFaceIDUser == null) {
+            showAlert("Invalid Email", "Please enter a valid email address that exists in our database with Face ID registered.", Alert.AlertType.WARNING);
             faceIDEmailField.requestFocus();
             return;
         }
@@ -1218,17 +1301,17 @@ public class AjouterPersonne {
             System.out.println("📷 Selected camera index: " + selectedCamera);
 
             // Use selected camera with LBPH
-            processFaceIDWithLBPH(selectedCamera, email);
+            processFaceIDWithLBPH(selectedCamera, currentFaceIDUser);
         } else {
             System.out.println("📷 Single camera detected, using default");
-            processFaceIDWithLBPH(0, email);
+            processFaceIDWithLBPH(0, currentFaceIDUser);
         }
     }
 
     /**
-     * NEW METHOD: Process Face ID login using LBPH recognizer
+     * Process Face ID login using LBPH recognizer with Person object
      */
-    private void processFaceIDWithLBPH(int cameraIndex, String email) {
+    private void processFaceIDWithLBPH(int cameraIndex, Person user) {
         // Disable button to prevent multiple clicks
         faceIDLoginButton.setDisable(true);
         faceIDLoginButton.setText("Processing...");
@@ -1258,7 +1341,7 @@ public class AjouterPersonne {
             System.out.println("📥 Captured face: " + (capturedFace != null ? "Yes (" + capturedFace.length + " bytes)" : "No"));
 
             if (capturedFace != null) {
-                System.out.println("🔎 Searching for user by email: " + email);
+                System.out.println("🔎 Verifying face for user: " + user.getUsername());
                 System.out.println("⚡ Using LBPH Face Recognizer with threshold: > 51%");
 
                 // Show loading indicator
@@ -1267,17 +1350,7 @@ public class AjouterPersonne {
                 loginPane.getChildren().add(pi);
 
                 try {
-                    // First get user by email
-                    Person user = personService.getUserByEmail(email);
-
-                    if (user == null) {
-                        loginPane.getChildren().remove(pi);
-                        System.out.println("❌ User not found with email: " + email);
-                        showAlert("Error", "User not found with this email.", Alert.AlertType.ERROR);
-                        return;
-                    }
-
-                    // Then verify face data matches
+                    // Verify face data matches
                     byte[] storedFace = user.getFaceData();
                     if (storedFace == null || storedFace.length == 0) {
                         loginPane.getChildren().remove(pi);
@@ -1306,11 +1379,11 @@ public class AjouterPersonne {
                             goToTwoFAVerification(user);
                         } else {
                             System.out.println("➡️ Redirecting to loading page");
-                            goToLoading(user);
+                            completeFaceIDLogin(user);
                         }
                     } else {
                         System.out.println("❌ Face does not match for user: " + user.getUsername() + " (similarity: " + similarity + ")");
-                        showAlert("Error", "Face does not match the registered face for this email.\n(LBPH Similarity: " + String.format("%.1f%%", similarity * 100) + " needed: >51%)", Alert.AlertType.ERROR);
+                        showAlert("Error", "Face does not match the registered face.\n(LBPH Similarity: " + String.format("%.1f%%", similarity * 100) + " needed: >51%)", Alert.AlertType.ERROR);
                     }
                 } catch (SQLException e) {
                     System.err.println("🔥 SQL Error in Face ID login: " + e.getMessage());
@@ -1334,11 +1407,21 @@ public class AjouterPersonne {
         System.out.println("==========================================");
     }
 
-    // Keep the old method for backward compatibility if needed, but rename it
-    private void processFaceIDWithCameraOld(int cameraIndex, String email) {
-        // This is the old template matching method - kept for reference
-        // You can remove this if you're sure you won't need it
-        processFaceIDWithLBPH(cameraIndex, email); // Just call the new method
+    /**
+     * Complete Face ID login
+     */
+    private void completeFaceIDLogin(Person user) throws SQLException {
+        // Update user status to online in database
+        personService.updateUserStatus(user.getId(), "online");
+
+        // Check and set default profile image if needed
+        checkAndSetDefaultProfileImage(user);
+
+        // Create session
+        SessionManager.createSession(user);
+
+        // Navigate to main page with loading animation
+        navigateToDashboardWithLoading(user);
     }
 
     private void goToTwoFAVerification(Person user) {
@@ -1358,27 +1441,6 @@ public class AjouterPersonne {
         } catch (IOException e) {
             e.printStackTrace();
             showAlert("Error", "Failed to load 2FA page: " + e.getMessage(), Alert.AlertType.ERROR);
-        }
-    }
-
-    private void goToLoading(Person user) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/loading.fxml"));
-            Parent root = loader.load();
-
-            Stage stage = (Stage) loginPane.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle("Loading...");
-            stage.show();
-
-            // After loading, go to main page
-            javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(Duration.seconds(3));
-            pause.setOnFinished(e -> goToMainPage(user));
-            pause.play();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            showAlert("Error", "Failed to load: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
