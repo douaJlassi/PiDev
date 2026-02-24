@@ -77,6 +77,8 @@ public class MainPageController {
     private ProfileService profileService;
     private Profile userProfile;
     private Timeline messageCheckTimeline;
+    private ChatPopupController chatPopupController;
+    private Popup chatPopup;
 
     @FXML
     public void initialize() {
@@ -138,38 +140,46 @@ public class MainPageController {
     @FXML
     private void handleChatButton() {
         try {
-
             if (messageCheckTimeline != null) {
                 messageCheckTimeline.stop();
             }
 
-
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/chat_popup.fxml"));
             Parent chatRoot = loader.load();
 
-
-            Popup popup = new Popup();
-            popup.getContent().add(chatRoot);
-            popup.setAutoHide(false);
-
+            chatPopup = new Popup();
+            chatPopup.getContent().add(chatRoot);
+            chatPopup.setAutoHide(false);
 
             Stage stage = (Stage) chatButton.getScene().getWindow();
-            popup.show(stage);
+            chatPopup.show(stage);
 
+            chatPopup.setX(stage.getX() + stage.getWidth() - 370);
+            chatPopup.setY(stage.getY() + stage.getHeight() - 550);
 
-            popup.setX(stage.getX() + stage.getWidth() - 370);
-            popup.setY(stage.getY() + stage.getHeight() - 550);
-
-            // Set user data
-            ChatPopupController controller = loader.getController();
-            controller.setUserData(currentUser, popup);
+            // Get controller and store reference
+            chatPopupController = loader.getController();
+            chatPopupController.setUserData(currentUser, chatPopup);
 
             // Restart message check timer when popup closes
-            popup.setOnHidden(e -> startMessageCheckTimer());
+            chatPopup.setOnHidden(e -> {
+                chatPopupController = null;
+                startMessageCheckTimer();
+            });
 
         } catch (IOException e) {
             e.printStackTrace();
             showAlert("Error", "Failed to open chat: " + e.getMessage());
+        }
+    }
+
+    // Add this method to close chat popup
+    public void closeChatPopup() {
+        if (chatPopup != null && chatPopup.isShowing()) {
+            chatPopup.hide();
+            chatPopup = null;
+            chatPopupController = null;
+            System.out.println("Chat popup closed");
         }
     }
 
@@ -694,6 +704,9 @@ public class MainPageController {
     private void handleLogout() {
         System.out.println("Logout button clicked");
 
+        // Close chat popup if open
+        closeChatPopup();
+
         // Stop all timers
         if (messageCheckTimeline != null) {
             messageCheckTimeline.stop();
@@ -760,7 +773,6 @@ public class MainPageController {
             showAlert("Error", "Failed to logout: " + e.getMessage());
         }
     }
-
     private void showAlert(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
