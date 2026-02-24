@@ -120,6 +120,25 @@
                     </effect>
                 </Label>
 
+                <Label fx:id="todoMenuItem" text="Todo List"
+                       style="-fx-padding: 12 15; -fx-background-radius: 10; -fx-background-color: #34495e; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"
+                       maxWidth="Infinity">
+                    <effect>
+                        <DropShadow color="#00000080" radius="6" offsetX="2" offsetY="2"/>
+                        <InnerShadow color="#FFFFFF33" radius="2"/>
+                    </effect>
+                </Label>
+
+                <!-- Stats Menu Item -->
+                <Label fx:id="statsMenuItem" text="Stats"
+                       style="-fx-padding: 12 15; -fx-background-radius: 10; -fx-background-color: #34495e; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"
+                       maxWidth="Infinity">
+                    <effect>
+                        <DropShadow color="#00000080" radius="6" offsetX="2" offsetY="2"/>
+                        <InnerShadow color="#FFFFFF33" radius="2"/>
+                    </effect>
+                </Label>
+
                 <!-- My Tickets Menu Item -->
                 <Label fx:id="myTicketsMenuItem" text="My Tickets"
                        style="-fx-padding: 12 15; -fx-background-radius: 10; -fx-background-color: #34495e; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"

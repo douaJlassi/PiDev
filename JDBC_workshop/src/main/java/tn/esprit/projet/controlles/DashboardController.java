@@ -6,6 +6,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -14,23 +15,31 @@ import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.InnerShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.*;
 import javafx.scene.paint.*;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import tn.esprit.projet.entities.Person;
 import tn.esprit.projet.entities.Profile;
+import tn.esprit.projet.entities.Todo;
 import tn.esprit.projet.services.PersonService;
 import tn.esprit.projet.services.ProfileService;
+import tn.esprit.projet.services.TodoService;
 import tn.esprit.projet.utils.SessionManager;
 import tn.esprit.projet.utils.UserStatusManager;
 
 import java.io.*;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
@@ -43,6 +52,8 @@ public class DashboardController {
     private Label dashboardMenuItem;
     @FXML
     private Label usersMenuItem;
+    @FXML
+    private Label todoMenuItem;
     @FXML
     private Label myTicketsMenuItem;
     @FXML
@@ -126,12 +137,20 @@ public class DashboardController {
     private Button backToMainBtn;
     @FXML
     private ImageView userAvatarImage;
+    @FXML
+    private Label statsMenuItem;
 
+    // Services
+    private PersonService personService;
     private ProfileService profileService;
+    private TodoService todoService;
+
+    // User data
+    private Person currentUser;
     private Profile userProfile;
     private Map<Integer, Image> profileImageCache = new HashMap<>();
 
-    private Person currentUser;
+    // Timer variables
     private Timeline timeline;
     private Timeline earningsTimeline;
     private Timeline statusUpdateTimeline;
@@ -144,16 +163,48 @@ public class DashboardController {
     private static final String TIMER_FILE_PREFIX = "timer_";
     private static final String EARNINGS_FILE_PREFIX = "earnings_";
 
-    private PersonService personService;
+    // User lists
     private ObservableList<Person> usersList;
     private ObservableList<Person> filteredList;
     private ObservableList<Person> onlineUsers;
     private ObservableList<Person> offlineUsers;
 
+    // Todo lists
+    private ObservableList<Todo> todoList;
+    private ObservableList<Todo> inProgressList;
+    private ObservableList<Todo> doneList;
+
     // Pagination variables
     private int currentPage = 0;
     private int itemsPerPage = 5;
     private int totalPages = 0;
+
+    @FXML
+    public void initialize() {
+        personService = new PersonService();
+        profileService = new ProfileService();
+        todoService = new TodoService();
+
+        usersList = FXCollections.observableArrayList();
+        filteredList = FXCollections.observableArrayList();
+        onlineUsers = FXCollections.observableArrayList();
+        offlineUsers = FXCollections.observableArrayList();
+
+        // Initialize todo lists
+        todoList = FXCollections.observableArrayList();
+        inProgressList = FXCollections.observableArrayList();
+        doneList = FXCollections.observableArrayList();
+
+        // Create todo table if not exists
+        try {
+            todoService.createTable();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        setupMenuItems();
+        showDashboard();
+    }
 
     @FXML
     private void handleBackToMain() {
@@ -175,19 +226,6 @@ public class DashboardController {
         }
     }
 
-    @FXML
-    public void initialize() {
-        personService = new PersonService();
-        profileService = new ProfileService();
-        usersList = FXCollections.observableArrayList();
-        filteredList = FXCollections.observableArrayList();
-        onlineUsers = FXCollections.observableArrayList();
-        offlineUsers = FXCollections.observableArrayList();
-
-        setupMenuItems();
-        showDashboard();
-    }
-
     private void setupMenuItems() {
         if (dashboardMenuItem != null) {
             dashboardMenuItem.setOnMouseClicked((MouseEvent e) -> showDashboard());
@@ -202,6 +240,16 @@ public class DashboardController {
         if (usersMenuItem != null) {
             usersMenuItem.setOnMouseClicked(this::handleUsersMenuClick);
             usersMenuItem.setStyle("-fx-padding: 12 15; -fx-background-radius: 10; -fx-cursor: hand;");
+        }
+
+        if (statsMenuItem != null) {
+            statsMenuItem.setOnMouseClicked(this::handleStatsMenuClick);
+            statsMenuItem.setStyle("-fx-padding: 12 15; -fx-background-radius: 10; -fx-cursor: hand;");
+        }
+
+        if (todoMenuItem != null) {
+            todoMenuItem.setOnMouseClicked(this::handleTodoMenuClick);
+            todoMenuItem.setStyle("-fx-padding: 12 15; -fx-background-radius: 10; -fx-cursor: hand;");
         }
 
         if (myTicketsMenuItem != null) {
@@ -242,18 +290,29 @@ public class DashboardController {
 
         addMenuHoverEffect(dashboardMenuItem);
         addMenuHoverEffect(usersMenuItem);
+        addMenuHoverEffect(todoMenuItem);
         addMenuHoverEffect(myTicketsMenuItem);
         addMenuHoverEffect(favouriteMenuItem);
         addMenuHoverEffect(messageMenuItem);
         addMenuHoverEffect(transactionMenuItem);
         addMenuHoverEffect(bookingsMenuItem);
         addMenuHoverEffect(settingsMenuItem);
+        addMenuHoverEffect(statsMenuItem);
+    }
+    private void handleStatsMenuClick(MouseEvent event) {
+        showStatsView();
+        updateMenuStyles(statsMenuItem);
     }
 
     private void handleUsersMenuClick(MouseEvent event) {
         isUsersViewActive = true;
         showUsersView();
         updateMenuStyles(usersMenuItem);
+    }
+
+    private void handleTodoMenuClick(MouseEvent event) {
+        showTodoView();
+        updateMenuStyles(todoMenuItem);
     }
 
     private void handleMenuClick(MouseEvent event) {
@@ -269,6 +328,12 @@ public class DashboardController {
                 break;
             case "Users":
                 showUsersView();
+                break;
+            case "Todo List":
+                showTodoView();
+                break;
+            case "Stats":
+                showStatsView();
                 break;
             default:
                 showComingSoon(menuText);
@@ -294,6 +359,530 @@ public class DashboardController {
         }
     }
 
+    private void showUsersView() {
+        try {
+            VBox usersView = createUsersView();
+            contentArea.getChildren().setAll(usersView);
+            loadUsersFromDatabase();
+
+            if (searchField != null) {
+                searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+                    filterUsers(newValue);
+                });
+            }
+
+            if (addUserBtn != null) {
+                addUserBtn.setOnAction(e -> handleAddUser());
+            }
+
+            if (prevPageBtn != null) {
+                prevPageBtn.setOnAction(e -> previousPage());
+            }
+            if (nextPageBtn != null) {
+                nextPageBtn.setOnAction(e -> nextPage());
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to load users view: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Show Todo List View with drag and drop
+     */
+    private void showTodoView() {
+        try {
+            // Load todos from database
+            loadTodosFromDatabase();
+
+            VBox todoView = createTodoView();
+            contentArea.getChildren().setAll(todoView);
+            updateMenuStyles(todoMenuItem);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to load todo view: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Create the Todo view with drag and drop columns
+     */
+    private VBox createTodoView() {
+        VBox view = new VBox(20);
+        view.setPadding(new Insets(20));
+        view.setStyle("-fx-background-color: #f5f5f5;");
+
+        // Header
+        HBox header = new HBox(20);
+        header.setAlignment(Pos.CENTER_LEFT);
+
+        Label title = new Label("📋 Todo List");
+        title.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C;");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        // Add Todo Button
+        Button addTodoBtn = new Button("+ Add New Task");
+        addTodoBtn.setStyle("-fx-background-color: #0FA5A2; -fx-text-fill: white; -fx-padding: 10 20; -fx-background-radius: 10; -fx-font-weight: bold; -fx-cursor: hand;");
+        addTodoBtn.setOnAction(e -> showAddTodoDialog());
+
+        header.getChildren().addAll(title, spacer, addTodoBtn);
+
+        // Kanban Board (3 columns)
+        HBox kanbanBoard = new HBox(20);
+        kanbanBoard.setAlignment(Pos.TOP_CENTER);
+        kanbanBoard.setPrefHeight(600);
+
+        // To Do Column
+        VBox todoColumn = createKanbanColumn("📝 To Do", "#0FA5A2", todoList, "To Do");
+        todoColumn.setPrefWidth(350);
+
+        // In Progress Column
+        VBox inProgressColumn = createKanbanColumn("⚡ In Progress", "#FEC74C", inProgressList, "In Progress");
+        inProgressColumn.setPrefWidth(350);
+
+        // Done Column
+        VBox doneColumn = createKanbanColumn("✅ Done", "#2ecc71", doneList, "Done");
+        doneColumn.setPrefWidth(350);
+
+        kanbanBoard.getChildren().addAll(todoColumn, inProgressColumn, doneColumn);
+
+        view.getChildren().addAll(header, kanbanBoard);
+        return view;
+    }
+
+    /**
+     * Create a Kanban column with drag and drop support
+     */
+    private VBox createKanbanColumn(String columnTitle, String color, ObservableList<Todo> items, String status) {
+        VBox column = new VBox(10);
+        column.setStyle("-fx-background-color: #f8f9fa; -fx-background-radius: 15; -fx-padding: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 0);");
+
+        // Column Header
+        HBox header = new HBox(10);
+        header.setAlignment(Pos.CENTER_LEFT);
+
+        Label titleLabel = new Label(columnTitle);
+        titleLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: " + color + ";");
+
+        Label countLabel = new Label("(" + items.size() + ")");
+        countLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #666;");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        header.getChildren().addAll(titleLabel, countLabel, spacer);
+
+        // Items Container (with drag drop target)
+        VBox itemsContainer = new VBox(10);
+        itemsContainer.setPrefHeight(500);
+        itemsContainer.setStyle("-fx-padding: 5;");
+
+        // Add drag drop target to column
+        setupDropTarget(itemsContainer, status, countLabel);
+
+        // Populate items
+        for (Todo todo : items) {
+            HBox itemCard = createTodoCard(todo, itemsContainer, countLabel);
+            itemsContainer.getChildren().add(itemCard);
+        }
+
+        // Make container scrollable
+        ScrollPane scrollPane = new ScrollPane(itemsContainer);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setPrefHeight(450);
+        scrollPane.setStyle("-fx-background-color: transparent; -fx-border-color: transparent;");
+
+        column.getChildren().addAll(header, scrollPane);
+        return column;
+    }
+
+    /**
+     * Create a draggable todo card
+     */
+    private HBox createTodoCard(Todo todo, VBox container, Label countLabel) {
+        HBox card = new HBox(10);
+        card.setStyle("-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 12; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);");
+        card.setPrefHeight(80);
+        card.setMaxWidth(Double.MAX_VALUE);
+
+        // Priority indicator
+        Rectangle priorityIndicator = new Rectangle(5, 60);
+        priorityIndicator.setFill(Color.web(todo.getPriorityColor()));
+        priorityIndicator.setArcWidth(5);
+        priorityIndicator.setArcHeight(5);
+
+        // Content
+        VBox content = new VBox(5);
+        content.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(content, Priority.ALWAYS);
+
+        Label titleLabel = new Label(todo.getTitle());
+        titleLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C;");
+
+        Label descLabel = new Label(todo.getDescription() != null ?
+                (todo.getDescription().length() > 30 ? todo.getDescription().substring(0, 27) + "..." : todo.getDescription()) : "");
+        descLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #666;");
+
+        // Footer
+        HBox footer = new HBox(10);
+        footer.setAlignment(Pos.CENTER_LEFT);
+
+        Label categoryLabel = new Label(todo.getCategory() != null ? todo.getCategory() : "General");
+        categoryLabel.setStyle("-fx-background-color: #f0f0f0; -fx-padding: 3 8; -fx-background-radius: 10; -fx-font-size: 10px; -fx-text-fill: #666;");
+
+        Label priorityLabel = new Label(todo.getPriorityText());
+        priorityLabel.setStyle("-fx-background-color: " + todo.getPriorityColor() + "20; -fx-padding: 3 8; -fx-background-radius: 10; -fx-font-size: 10px; -fx-text-fill: " + todo.getPriorityColor() + "; -fx-font-weight: bold;");
+
+        footer.getChildren().addAll(categoryLabel, priorityLabel);
+
+        content.getChildren().addAll(titleLabel, descLabel, footer);
+
+        // Action buttons
+        VBox actions = new VBox(5);
+        actions.setAlignment(Pos.CENTER);
+
+        Button editBtn = new Button("✎");
+        editBtn.setStyle("-fx-background-color: #0FA5A2; -fx-text-fill: white; -fx-font-size: 10px; -fx-padding: 5; -fx-background-radius: 5; -fx-cursor: hand;");
+        editBtn.setPrefSize(25, 25);
+        editBtn.setOnAction(e -> showEditTodoDialog(todo));
+
+        Button deleteBtn = new Button("🗑");
+        deleteBtn.setStyle("-fx-background-color: #ff5e62; -fx-text-fill: white; -fx-font-size: 10px; -fx-padding: 5; -fx-background-radius: 5; -fx-cursor: hand;");
+        deleteBtn.setPrefSize(25, 25);
+        deleteBtn.setOnAction(e -> handleDeleteTodo(todo, container, countLabel));
+
+        actions.getChildren().addAll(editBtn, deleteBtn);
+
+        card.getChildren().addAll(priorityIndicator, content, actions);
+
+        // Make card draggable
+        setupDraggable(card, todo, container);
+
+        return card;
+    }
+
+    /**
+     * Setup draggable functionality for todo cards
+     */
+    private void setupDraggable(HBox card, Todo todo, VBox sourceContainer) {
+        card.setOnDragDetected(event -> {
+            Dragboard db = card.startDragAndDrop(TransferMode.MOVE);
+            ClipboardContent content = new ClipboardContent();
+            content.putString(todo.getId() + ":" + todo.getStatus());
+            db.setContent(content);
+
+            // Store reference to the card for removal
+            db.setDragView(card.snapshot(null, null));
+            event.consume();
+        });
+
+        card.setOnDragDone(event -> {
+            if (event.getTransferMode() == TransferMode.MOVE) {
+                // Remove from source container after successful drop
+                javafx.application.Platform.runLater(() -> {
+                    sourceContainer.getChildren().remove(card);
+                });
+            }
+            event.consume();
+        });
+    }
+
+    /**
+     * Setup drop target for todo columns
+     */
+    private void setupDropTarget(VBox targetContainer, String targetStatus, Label countLabel) {
+        targetContainer.setOnDragOver(event -> {
+            if (event.getGestureSource() != targetContainer && event.getDragboard().hasString()) {
+                event.acceptTransferModes(TransferMode.MOVE);
+            }
+            event.consume();
+        });
+
+        targetContainer.setOnDragDropped(event -> {
+            Dragboard db = event.getDragboard();
+            boolean success = false;
+
+            if (db.hasString()) {
+                String[] data = db.getString().split(":");
+                int todoId = Integer.parseInt(data[0]);
+                String sourceStatus = data[1];
+
+                if (!sourceStatus.equals(targetStatus)) {
+                    try {
+                        // Update in database
+                        todoService.moveTodo(todoId, targetStatus);
+
+                        // Find and move the todo in lists
+                        moveTodoBetweenLists(todoId, sourceStatus, targetStatus);
+
+                        success = true;
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        showAlert("Error", "Failed to move todo: " + e.getMessage());
+                    }
+                }
+            }
+
+            event.setDropCompleted(success);
+            event.consume();
+        });
+    }
+
+    /**
+     * Move todo between ObservableLists
+     */
+    private void moveTodoBetweenLists(int todoId, String sourceStatus, String targetStatus) {
+        ObservableList<Todo> sourceList = getListByStatus(sourceStatus);
+        ObservableList<Todo> targetList = getListByStatus(targetStatus);
+
+        for (Todo todo : sourceList) {
+            if (todo.getId() == todoId) {
+                sourceList.remove(todo);
+                todo.setStatus(targetStatus);
+                targetList.add(todo);
+                break;
+            }
+        }
+
+        // Refresh the view
+        refreshTodoView();
+    }
+
+    /**
+     * Get ObservableList by status
+     */
+    private ObservableList<Todo> getListByStatus(String status) {
+        switch (status) {
+            case "To Do": return todoList;
+            case "In Progress": return inProgressList;
+            case "Done": return doneList;
+            default: return todoList;
+        }
+    }
+
+    /**
+     * Refresh the todo view
+     */
+    private void refreshTodoView() {
+        // This will trigger a UI update
+        showTodoView();
+    }
+
+    /**
+     * Load todos from database
+     */
+    private void loadTodosFromDatabase() {
+        if (currentUser == null) return;
+
+        try {
+            List<Todo> allTodos = todoService.getTodosByUserId(currentUser.getId());
+
+            todoList.clear();
+            inProgressList.clear();
+            doneList.clear();
+
+            for (Todo todo : allTodos) {
+                switch (todo.getStatus()) {
+                    case "To Do":
+                        todoList.add(todo);
+                        break;
+                    case "In Progress":
+                        inProgressList.add(todo);
+                        break;
+                    case "Done":
+                        doneList.add(todo);
+                        break;
+                }
+            }
+
+            System.out.println("✅ Loaded todos: " + allTodos.size());
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to load todos: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Show dialog to add a new todo
+     */
+    private void showAddTodoDialog() {
+        Dialog<Todo> dialog = new Dialog<>();
+        dialog.setTitle("Add New Task");
+        dialog.setHeaderText("Create a new todo item");
+
+        ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20));
+
+        TextField titleField = new TextField();
+        titleField.setPromptText("Task title");
+
+        TextArea descArea = new TextArea();
+        descArea.setPromptText("Task description");
+        descArea.setPrefRowCount(3);
+
+        ComboBox<String> priorityCombo = new ComboBox<>();
+        priorityCombo.getItems().addAll("High", "Medium", "Low");
+        priorityCombo.setValue("Medium");
+
+        TextField categoryField = new TextField();
+        categoryField.setPromptText("Category (e.g., Work, Personal)");
+
+        int row = 0;
+        grid.add(new Label("Title:"), 0, row);
+        grid.add(titleField, 1, row++);
+        grid.add(new Label("Description:"), 0, row);
+        grid.add(descArea, 1, row++);
+        grid.add(new Label("Priority:"), 0, row);
+        grid.add(priorityCombo, 1, row++);
+        grid.add(new Label("Category:"), 0, row);
+        grid.add(categoryField, 1, row);
+
+        dialog.getDialogPane().setContent(grid);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == saveButtonType) {
+                Todo todo = new Todo();
+                todo.setTitle(titleField.getText());
+                todo.setDescription(descArea.getText());
+                todo.setStatus("To Do");
+                todo.setUserId(currentUser.getId());
+                todo.setCreatedAt(LocalDateTime.now());
+                todo.setUpdatedAt(LocalDateTime.now());
+
+                // Set priority
+                String priority = priorityCombo.getValue();
+                if (priority.equals("High")) todo.setPriority(1);
+                else if (priority.equals("Medium")) todo.setPriority(2);
+                else todo.setPriority(3);
+
+                todo.setCategory(categoryField.getText());
+                return todo;
+            }
+            return null;
+        });
+
+        Optional<Todo> result = dialog.showAndWait();
+        result.ifPresent(todo -> {
+            try {
+                todoService.addTodo(todo);
+                todoList.add(todo);
+                refreshTodoView();
+                showAlert("Success", "Task added successfully!", Alert.AlertType.INFORMATION);
+            } catch (SQLException e) {
+                e.printStackTrace();
+                showAlert("Error", "Failed to add task: " + e.getMessage(), Alert.AlertType.ERROR);
+            }
+        });
+    }
+
+    /**
+     * Show dialog to edit a todo
+     */
+    private void showEditTodoDialog(Todo todo) {
+        Dialog<Todo> dialog = new Dialog<>();
+        dialog.setTitle("Edit Task");
+        dialog.setHeaderText("Edit todo item");
+
+        ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20));
+
+        TextField titleField = new TextField(todo.getTitle());
+        TextArea descArea = new TextArea(todo.getDescription());
+
+        ComboBox<String> priorityCombo = new ComboBox<>();
+        priorityCombo.getItems().addAll("High", "Medium", "Low");
+        priorityCombo.setValue(todo.getPriorityText());
+
+        TextField categoryField = new TextField(todo.getCategory());
+
+        int row = 0;
+        grid.add(new Label("Title:"), 0, row);
+        grid.add(titleField, 1, row++);
+        grid.add(new Label("Description:"), 0, row);
+        grid.add(descArea, 1, row++);
+        grid.add(new Label("Priority:"), 0, row);
+        grid.add(priorityCombo, 1, row++);
+        grid.add(new Label("Category:"), 0, row);
+        grid.add(categoryField, 1, row);
+
+        dialog.getDialogPane().setContent(grid);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == saveButtonType) {
+                todo.setTitle(titleField.getText());
+                todo.setDescription(descArea.getText());
+
+                String priority = priorityCombo.getValue();
+                if (priority.equals("High")) todo.setPriority(1);
+                else if (priority.equals("Medium")) todo.setPriority(2);
+                else todo.setPriority(3);
+
+                todo.setCategory(categoryField.getText());
+                todo.setUpdatedAt(LocalDateTime.now());
+                return todo;
+            }
+            return null;
+        });
+
+        Optional<Todo> result = dialog.showAndWait();
+        result.ifPresent(updatedTodo -> {
+            try {
+                todoService.updateTodo(updatedTodo);
+                refreshTodoView();
+                showAlert("Success", "Task updated successfully!", Alert.AlertType.INFORMATION);
+            } catch (SQLException e) {
+                e.printStackTrace();
+                showAlert("Error", "Failed to update task: " + e.getMessage(), Alert.AlertType.ERROR);
+            }
+        });
+    }
+
+    /**
+     * Handle delete todo
+     */
+    private void handleDeleteTodo(Todo todo, VBox container, Label countLabel) {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Delete Task");
+        confirm.setHeaderText(null);
+        confirm.setContentText("Are you sure you want to delete: " + todo.getTitle() + "?");
+
+        Optional<ButtonType> result = confirm.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                todoService.deleteTodo(todo.getId());
+
+                // Remove from list
+                ObservableList<Todo> list = getListByStatus(todo.getStatus());
+                list.remove(todo);
+
+                // Update count
+                countLabel.setText("(" + list.size() + ")");
+
+                refreshTodoView();
+                showAlert("Success", "Task deleted successfully!", Alert.AlertType.INFORMATION);
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+                showAlert("Error", "Failed to delete task: " + e.getMessage(), Alert.AlertType.ERROR);
+            }
+        }
+    }
+
     private void updateWelcomeName() {
         if (currentUser != null && welcomeNameLabel != null) {
             welcomeNameLabel.setText(currentUser.getName() + "!");
@@ -310,7 +899,7 @@ public class DashboardController {
 
         // Create a horizontal box for recent users and online/offline users
         HBox usersSection = new HBox(20);
-        usersSection.setAlignment(javafx.geometry.Pos.TOP_LEFT);
+        usersSection.setAlignment(Pos.TOP_LEFT);
 
         // Recent Users Table (left side)
         VBox recentUsersTable = createRecentUsersTable();
@@ -336,13 +925,13 @@ public class DashboardController {
 
         // Status Summary
         HBox summaryBox = new HBox(20);
-        summaryBox.setAlignment(javafx.geometry.Pos.CENTER);
+        summaryBox.setAlignment(Pos.CENTER);
         summaryBox.setPadding(new Insets(10, 0, 10, 0));
         summaryBox.setStyle("-fx-background-color: #f8f9fa; -fx-background-radius: 10; -fx-padding: 10;");
 
         // Online Summary
         VBox onlineSummary = new VBox(5);
-        onlineSummary.setAlignment(javafx.geometry.Pos.CENTER);
+        onlineSummary.setAlignment(Pos.CENTER);
         onlineSummary.setPrefWidth(150);
 
         Circle onlineDot = new Circle(8);
@@ -358,7 +947,7 @@ public class DashboardController {
 
         // Offline Summary
         VBox offlineSummary = new VBox(5);
-        offlineSummary.setAlignment(javafx.geometry.Pos.CENTER);
+        offlineSummary.setAlignment(Pos.CENTER);
         offlineSummary.setPrefWidth(150);
 
         Circle offlineDot = new Circle(8);
@@ -408,7 +997,7 @@ public class DashboardController {
 
     private HBox createWelcomeHeader() {
         HBox header = new HBox(20);
-        header.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        header.setAlignment(Pos.CENTER_LEFT);
         header.setStyle("-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 0);");
 
         VBox welcomeBox = new VBox(5);
@@ -433,7 +1022,7 @@ public class DashboardController {
 
     private StackPane createTimerComponent() {
         StackPane container = new StackPane();
-        container.setAlignment(javafx.geometry.Pos.CENTER);
+        container.setAlignment(Pos.CENTER);
 
         timerCircle = new Circle(30);
         timerCircle.setStroke(Color.web("#0FA5A2"));
@@ -447,12 +1036,12 @@ public class DashboardController {
         dropdownTimer.setVisible(false);
         dropdownTimer.setManaged(false);
         dropdownTimer.setStyle("-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 0); -fx-padding: 20;");
-        dropdownTimer.setAlignment(javafx.geometry.Pos.CENTER);
+        dropdownTimer.setAlignment(Pos.CENTER);
         dropdownTimer.setMinWidth(250);
         dropdownTimer.setTranslateY(50);
 
         VBox lineContainer = new VBox(5);
-        lineContainer.setAlignment(javafx.geometry.Pos.CENTER);
+        lineContainer.setAlignment(Pos.CENTER);
 
         Label lineLabel = new Label("Session Progress");
         lineLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C;");
@@ -474,7 +1063,7 @@ public class DashboardController {
         lineStack.getChildren().addAll(bgLine, progressLine);
 
         HBox earningsBox = new HBox(10);
-        earningsBox.setAlignment(javafx.geometry.Pos.CENTER);
+        earningsBox.setAlignment(Pos.CENTER);
 
         Label earningsTitle = new Label("Total Earnings:");
         earningsTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #666;");
@@ -499,7 +1088,7 @@ public class DashboardController {
 
     private HBox createStatsCards() {
         HBox cards = new HBox(20);
-        cards.setAlignment(javafx.geometry.Pos.CENTER);
+        cards.setAlignment(Pos.CENTER);
 
         VBox totalUsersCard = createStatCard("Total Users", "0", "#0FA5A2");
         totalUsersLabel = (Label) totalUsersCard.getChildren().get(1);
@@ -519,7 +1108,7 @@ public class DashboardController {
 
     private VBox createStatCard(String title, String value, String color) {
         VBox card = new VBox(10);
-        card.setAlignment(javafx.geometry.Pos.CENTER);
+        card.setAlignment(Pos.CENTER);
         card.setPrefWidth(180);
         card.setPrefHeight(120);
         card.setStyle("-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 0);");
@@ -585,42 +1174,13 @@ public class DashboardController {
         return table;
     }
 
-    private void showUsersView() {
-        try {
-            VBox usersView = createUsersView();
-            contentArea.getChildren().setAll(usersView);
-            loadUsersFromDatabase();
-
-            if (searchField != null) {
-                searchField.textProperty().addListener((observable, oldValue, newValue) -> {
-                    filterUsers(newValue);
-                });
-            }
-
-            if (addUserBtn != null) {
-                addUserBtn.setOnAction(e -> handleAddUser());
-            }
-
-            if (prevPageBtn != null) {
-                prevPageBtn.setOnAction(e -> previousPage());
-            }
-            if (nextPageBtn != null) {
-                nextPageBtn.setOnAction(e -> nextPage());
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            showAlert("Error", "Failed to load users view: " + e.getMessage());
-        }
-    }
-
     private VBox createUsersView() {
         VBox view = new VBox(20);
         view.setPadding(new Insets(20));
         view.setStyle("-fx-background-color: #f5f5f5;");
 
         HBox header = new HBox(20);
-        header.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        header.setAlignment(Pos.CENTER_LEFT);
 
         Label title = new Label("User Management");
         title.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C;");
@@ -695,7 +1255,7 @@ public class DashboardController {
         usersContainer = new VBox(10);
 
         HBox pagination = new HBox(10);
-        pagination.setAlignment(javafx.geometry.Pos.CENTER);
+        pagination.setAlignment(Pos.CENTER);
         pagination.setPadding(new Insets(20, 0, 0, 0));
 
         prevPageBtn = new Button("← Previous");
@@ -868,7 +1428,7 @@ public class DashboardController {
 
     private HBox createRoleBadge(String role) {
         HBox badge = new HBox(5);
-        badge.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        badge.setAlignment(Pos.CENTER_LEFT);
         badge.setMinWidth(70);
 
         Circle indicator = new Circle(5);
@@ -965,7 +1525,7 @@ public class DashboardController {
 
         // Username with better styling
         VBox nameContainer = new VBox(2);
-        nameContainer.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        nameContainer.setAlignment(Pos.CENTER_LEFT);
 
         Label usernameLabel = new Label(user.getUsername());
         usernameLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C;");
@@ -978,7 +1538,7 @@ public class DashboardController {
 
         // Email with icon
         HBox emailBox = new HBox(5);
-        emailBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        emailBox.setAlignment(Pos.CENTER_LEFT);
 
         Label emailIcon = new Label("📧");
         emailIcon.setStyle("-fx-font-size: 14px;");
@@ -996,7 +1556,7 @@ public class DashboardController {
         // Status with better styling
         boolean isOnline = "online".equalsIgnoreCase(user.getStatus());
         HBox statusBox = new HBox(8);
-        statusBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        statusBox.setAlignment(Pos.CENTER_LEFT);
 
         Circle statusDot = new Circle(6);
         if (isOnline) {
@@ -1014,7 +1574,7 @@ public class DashboardController {
 
         // Action buttons with enhanced emoji design
         HBox actionBox = new HBox(12);
-        actionBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        actionBox.setAlignment(Pos.CENTER_LEFT);
 
         // Edit Button with emoji - Circular design
         StackPane editBtn = new StackPane();
@@ -1086,7 +1646,7 @@ public class DashboardController {
      */
     private HBox createEnhancedRoleBadge(String role) {
         HBox badge = new HBox(8);
-        badge.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        badge.setAlignment(Pos.CENTER_LEFT);
         badge.setMinWidth(80);
         badge.setPadding(new Insets(4, 10, 4, 8));
 
@@ -1118,6 +1678,7 @@ public class DashboardController {
         badge.getChildren().addAll(indicator, roleLabel);
         return badge;
     }
+
     private void handleAddUser() {
         Dialog<Object[]> dialog = new Dialog<>();
         dialog.setTitle("Add New User");
@@ -1472,7 +2033,7 @@ public class DashboardController {
         }
 
         VBox userInfo = new VBox(2);
-        userInfo.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        userInfo.setAlignment(Pos.CENTER_LEFT);
 
         Label usernameLabel = new Label(user.getUsername());
         usernameLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C;");
@@ -1588,6 +2149,7 @@ public class DashboardController {
         }
     }
 
+
     private void nextPage() {
         if (currentPage < totalPages - 1) {
             currentPage++;
@@ -1655,7 +2217,7 @@ public class DashboardController {
     }
 
     private void updateMenuStyles(Label activeMenu) {
-        Label[] menus = {dashboardMenuItem, usersMenuItem, myTicketsMenuItem,
+        Label[] menus = {dashboardMenuItem, usersMenuItem, todoMenuItem, statsMenuItem, myTicketsMenuItem,
                 favouriteMenuItem, messageMenuItem, transactionMenuItem,
                 bookingsMenuItem, settingsMenuItem};
 
@@ -1986,4 +2548,264 @@ public class DashboardController {
                     new Stop(1, Color.web("#1D4D7C"))));
         }
     }
+
+    // Add this field with other FXML fields
+
+
+// Add these methods for stats calculations
+
+    /**
+     * Calculate age from birth date
+     */
+    private int calculateAge(java.sql.Date birthDate) {
+        if (birthDate == null) return 0;
+
+        LocalDate birthLocalDate = birthDate.toLocalDate();
+        LocalDate currentDate = LocalDate.now();
+
+        return Period.between(birthLocalDate, currentDate).getYears();
+    }
+
+    /**
+     * Get age distribution statistics
+     */
+    private Map<String, Integer> getAgeDistribution(List<Person> users) {
+        Map<String, Integer> ageStats = new HashMap<>();
+        ageStats.put("Under 18", 0);
+        ageStats.put("18-25", 0);
+        ageStats.put("26-35", 0);
+        ageStats.put("36-50", 0);
+        ageStats.put("Over 50", 0);
+
+        for (Person user : users) {
+            if (user.getDate() != null) {
+                int age = calculateAge(user.getDate());
+
+                if (age < 18) {
+                    ageStats.put("Under 18", ageStats.get("Under 18") + 1);
+                } else if (age <= 25) {
+                    ageStats.put("18-25", ageStats.get("18-25") + 1);
+                } else if (age <= 35) {
+                    ageStats.put("26-35", ageStats.get("26-35") + 1);
+                } else if (age <= 50) {
+                    ageStats.put("36-50", ageStats.get("36-50") + 1);
+                } else {
+                    ageStats.put("Over 50", ageStats.get("Over 50") + 1);
+                }
+            }
+        }
+
+        return ageStats;
+    }
+
+    /**
+     * Get 2FA statistics
+     */
+    private Map<String, Integer> getTwoFAStats(List<Person> users) {
+        Map<String, Integer> twoFAStats = new HashMap<>();
+        twoFAStats.put("Enabled", 0);
+        twoFAStats.put("Disabled", 0);
+
+        for (Person user : users) {
+            if (user.isTwoFactorEnabled()) {
+                twoFAStats.put("Enabled", twoFAStats.get("Enabled") + 1);
+            } else {
+                twoFAStats.put("Disabled", twoFAStats.get("Disabled") + 1);
+            }
+        }
+
+        return twoFAStats;
+    }
+
+    /**
+     * Get membership statistics
+     */
+    private Map<String, Integer> getMembershipStats() {
+        Map<String, Integer> membershipStats = new HashMap<>();
+        membershipStats.put("Premium", 0);
+        membershipStats.put("Standard", 0);
+        membershipStats.put("VIP", 0);
+
+        try {
+            List<Person> users = personService.selectALL();
+            ProfileService profileService = new ProfileService();
+
+            for (Person user : users) {
+                Profile profile = profileService.getProfileByUserId(user.getId());
+                if (profile != null) {
+                    String membership = profile.getMemberPremium();
+                    if (membership != null) {
+                        membershipStats.put(membership, membershipStats.getOrDefault(membership, 0) + 1);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return membershipStats;
+    }
+
+    /**
+     * Show Stats View
+     */
+    private void showStatsView() {
+        try {
+            VBox statsView = createStatsView();
+            contentArea.getChildren().setAll(statsView);
+            updateMenuStyles(statsMenuItem);
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to load stats view: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Create Stats View
+     */
+    private VBox createStatsView() {
+        VBox view = new VBox(20);
+        view.setPadding(new Insets(20));
+        view.setStyle("-fx-background-color: #f5f5f5;");
+
+        // Header
+        HBox header = new HBox(20);
+        header.setAlignment(Pos.CENTER_LEFT);
+
+        Label title = new Label("📊 Statistics Dashboard");
+        title.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C;");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        // Refresh Button
+        Button refreshBtn = new Button("🔄 Refresh");
+        refreshBtn.setStyle("-fx-background-color: #0FA5A2; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: hand;");
+        refreshBtn.setOnAction(e -> showStatsView());
+
+        header.getChildren().addAll(title, spacer, refreshBtn);
+
+        // Stats Grid
+        GridPane statsGrid = new GridPane();
+        statsGrid.setHgap(20);
+        statsGrid.setVgap(20);
+        statsGrid.setAlignment(Pos.TOP_CENTER);
+
+        ColumnConstraints col1 = new ColumnConstraints();
+        col1.setPercentWidth(33);
+        ColumnConstraints col2 = new ColumnConstraints();
+        col2.setPercentWidth(33);
+        ColumnConstraints col3 = new ColumnConstraints();
+        col3.setPercentWidth(34);
+
+        statsGrid.getColumnConstraints().addAll(col1, col2, col3);
+
+        try {
+            List<Person> users = personService.selectALL();
+
+            // Age Distribution Card
+            VBox ageCard = createStatCard("Age Distribution", "#0FA5A2");
+            Map<String, Integer> ageStats = getAgeDistribution(users);
+
+            for (Map.Entry<String, Integer> entry : ageStats.entrySet()) {
+                HBox statRow = createStatRow(entry.getKey(), entry.getValue(), users.size());
+                ageCard.getChildren().add(statRow);
+            }
+
+            // 2FA Statistics Card
+            VBox twoFACard = createStatCard("2FA Status", "#FEC74C");
+            Map<String, Integer> twoFAStats = getTwoFAStats(users);
+
+            for (Map.Entry<String, Integer> entry : twoFAStats.entrySet()) {
+                HBox statRow = createStatRow(entry.getKey(), entry.getValue(), users.size());
+                twoFACard.getChildren().add(statRow);
+            }
+
+            // Membership Statistics Card
+            VBox membershipCard = createStatCard("Membership Status", "#9C27B0");
+            Map<String, Integer> membershipStats = getMembershipStats();
+
+            for (Map.Entry<String, Integer> entry : membershipStats.entrySet()) {
+                HBox statRow = createStatRow(entry.getKey(), entry.getValue(), users.size());
+                membershipCard.getChildren().add(statRow);
+            }
+
+            statsGrid.add(ageCard, 0, 0);
+            statsGrid.add(twoFACard, 1, 0);
+            statsGrid.add(membershipCard, 2, 0);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to load statistics: " + e.getMessage());
+        }
+
+        view.getChildren().addAll(header, statsGrid);
+        return view;
+    }
+
+    /**
+     * Create a stat card
+     */
+    private VBox createStatCard(String title, String color) {
+        VBox card = new VBox(15);
+        card.setStyle("-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);");
+        card.setPrefWidth(350);
+
+        Label titleLabel = new Label(title);
+        titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: " + color + "; -fx-border-color: " + color + "; -fx-border-width: 0 0 2 0; -fx-padding: 0 0 10 0;");
+
+        card.getChildren().add(titleLabel);
+        return card;
+    }
+
+    /**
+     * Create a stat row with percentage bar
+     */
+    private HBox createStatRow(String label, int value, int total) {
+        HBox row = new HBox(10);
+        row.setAlignment(Pos.CENTER_LEFT);
+        row.setPrefHeight(40);
+
+        double percentage = total > 0 ? (double) value / total * 100 : 0;
+
+        Label labelText = new Label(label);
+        labelText.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-min-width: 100;");
+
+        Label valueText = new Label(String.valueOf(value));
+        valueText.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-min-width: 40; -fx-alignment: center-right;");
+
+        // Progress bar
+        StackPane progressContainer = new StackPane();
+        progressContainer.setPrefWidth(150);
+        progressContainer.setPrefHeight(20);
+        progressContainer.setStyle("-fx-background-color: #f0f0f0; -fx-background-radius: 10;");
+
+        Rectangle progressBar = new Rectangle(150 * percentage / 100, 20);
+        progressBar.setFill(getProgressColor(percentage));
+        progressBar.setArcWidth(10);
+        progressBar.setArcHeight(10);
+
+        progressContainer.getChildren().add(progressBar);
+
+        Label percentLabel = new Label(String.format("%.1f%%", percentage));
+        percentLabel.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #666; -fx-min-width: 50;");
+
+        row.getChildren().addAll(labelText, valueText, progressContainer, percentLabel);
+
+        return row;
+    }
+
+    /**
+     * Get color based on percentage
+     */
+    private Color getProgressColor(double percentage) {
+        if (percentage < 30) {
+            return Color.web("#ff5e62");
+        } else if (percentage < 60) {
+            return Color.web("#FEC74C");
+        } else {
+            return Color.web("#2ecc71");
+        }
+    }
+
 }
