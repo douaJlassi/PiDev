@@ -455,5 +455,21 @@ public class PersonService implements CRUD<Person> {
         return false;
     }
 
+    /**
+     * Find user by email or username
+     */
+    public Person findByEmailOrUsername(String emailOrUsername) throws SQLException {
+        String req = "SELECT * FROM `user` WHERE email = ? OR username = ?";
+        PreparedStatement ps = cnx.prepareStatement(req);
+        ps.setString(1, emailOrUsername);
+        ps.setString(2, emailOrUsername);
+        ResultSet rs = ps.executeQuery();
+
+        if (rs.next()) {
+            return mapPerson(rs);
+        }
+        return null;
+    }
+
   
 }

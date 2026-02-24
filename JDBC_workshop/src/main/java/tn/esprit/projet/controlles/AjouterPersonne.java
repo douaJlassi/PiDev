@@ -54,6 +54,7 @@ public class AjouterPersonne {
     @FXML private PasswordField confirmPasswordField;
     @FXML private CheckBox guiderCheckbox;
 
+
     // Login fields
     @FXML private TextField loginEmailField;
     @FXML private PasswordField loginPasswordField;
@@ -65,6 +66,8 @@ public class AjouterPersonne {
     @FXML private Label faceIDEmailError;
     @FXML private VBox faceIDEmailSection;
     @FXML private Button qrScanButton;
+
+    @FXML private Label forgotPasswordLink;
     // Validation lines and error messages
     private Line firstNameLine;
     private Line lastNameLine;
@@ -1481,5 +1484,27 @@ public class AjouterPersonne {
 
         // Navigate to main page with loading animation
         navigateToDashboardWithLoading(user);
+    }
+
+    @FXML
+    private void handleForgotPassword() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/forgot_password.fxml"));
+            Parent forgotRoot = loader.load();
+
+            Stage stage = getStage();
+            if (stage == null) {
+                showAlert("Error", "Cannot get stage reference", Alert.AlertType.ERROR);
+                return;
+            }
+
+            stage.setScene(new Scene(forgotRoot));
+            stage.setTitle("Forgot Password");
+            stage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to load forgot password page: " + e.getMessage(), Alert.AlertType.ERROR);
+        }
     }
 }

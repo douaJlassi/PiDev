@@ -514,7 +514,7 @@ public class EnhancedFaceCaptureDialog {
                             "-fx-text-fill: #FEC74C; -fx-font-size: 14px; -fx-font-weight: bold;");
                 });
 
-                // Clean up (no release needed for RectVector in JavaCV)
+                // Clean up
                 faceROI.close();
 
             } else {
@@ -548,7 +548,6 @@ public class EnhancedFaceCaptureDialog {
             }
 
             gray.close();
-            // faceDetections.close(); // Not needed in JavaCV
 
         } catch (Exception e) {
             System.err.println("Error in face detection: " + e.getMessage());
@@ -572,18 +571,22 @@ public class EnhancedFaceCaptureDialog {
         new Thread(() -> {
             try {
                 if (currentFrame != null && !currentFrame.isNull()) {
-                    // Encode Mat to byte array using JavaCV
+                    // FIXED: Use imencode with correct JavaCV signature
+                    // Create a MatVector to store the encoded image
                     MatVector buf = new MatVector();
+
+                    // Call imencode - it returns a boolean and stores result in buf
                     imencode(".jpg", currentFrame, buf.asByteBuffer());
 
-                    if (!buf.empty()) {
+                    if (!buf.empty() && buf.get(0) != null) {
                         Mat encoded = buf.get(0);
-                        BytePointer dataPointer = encoded.data();
-                        int size = (int) (encoded.total() * encoded.channels());
+                        long total = encoded.total();
+                        int channels = encoded.channels();
+                        int size = (int) (total * channels);
 
-                        if (dataPointer != null && !dataPointer.isNull()) {
+                        if (size > 0) {
                             byte[] imageBytes = new byte[size];
-                            dataPointer.get(imageBytes);
+                            encoded.data().get(imageBytes);
 
                             FaceRecognitionUtil faceUtil = new FaceRecognitionUtil();
                             byte[] faceFeatures = faceUtil.extractFaceFeatures(imageBytes);
@@ -643,7 +646,7 @@ public class EnhancedFaceCaptureDialog {
                         Mat laplacian = new Mat();
                         Laplacian(gray, laplacian, CV_64F);
 
-                        // Calculate mean of laplacian for sharpness using Core.mean
+                        // Calculate mean of laplacian for sharpness
                         Mat meanMat = new Mat();
                         Mat stddevMat = new Mat();
                         meanStdDev(laplacian, meanMat, stddevMat);

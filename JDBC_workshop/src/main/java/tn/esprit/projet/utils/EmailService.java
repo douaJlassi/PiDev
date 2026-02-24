@@ -31,187 +31,148 @@ public class EmailService {
     }
 
     /**
+     * Generate a random 6-digit password reset code
+     */
+    public static String generatePasswordResetCode() {
+        Random random = new Random();
+        int code = 100000 + random.nextInt(900000);
+        return String.valueOf(code);
+    }
+
+    /**
      * Send 2FA code via email
      */
     public static boolean send2FACode(String toEmail, String code) {
-        Properties props = new Properties();
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.host", SMTP_HOST);
-        props.put("mail.smtp.port", SMTP_PORT);
+        String subject = "🔐 Your 2FA Verification Code - rehletna.tn";
 
-        Session session = Session.getInstance(props, new javax.mail.Authenticator() {
-            @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(EMAIL_FROM, EMAIL_PASSWORD);
-            }
-        });
-
-        try {
-            Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(EMAIL_FROM));
-            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
-            message.setSubject("🔐 Your 2FA Verification Code - rehletna.tn");
-
-            String emailContent = """
-                <html>
-                <head>
-                    <style>
-                        body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }
-                        .container { max-width: 600px; margin: 0 auto; background-color: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-                        h1 { color: #1D4D7C; margin: 0; text-align: center; }
-                        h2 { color: #0FA5A2; text-align: center; font-size: 48px; letter-spacing: 5px; margin: 30px 0; }
-                        .info { background-color: #f8f9fa; border-radius: 8px; padding: 20px; margin: 20px 0; }
-                        .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #999; font-size: 12px; }
-                    </style>
-                </head>
-                <body>
-                    <div class="container">
-                        <h1>✨ rehletna.tn ✨</h1>
-                        <p style="text-align: center; color: #666;">Two-Factor Authentication</p>
-                        
-                        <div class="info">
-                            <p style="color: #666;">Your verification code is:</p>
-                            <h2>%s</h2>
-                            <p style="color: #666; font-size: 14px;">Enter this code to complete your login</p>
-                        </div>
-                        
-                        <div style="background-color: #fff3cd; border-radius: 8px; padding: 15px; margin: 20px 0;">
-                            <p style="color: #856404; margin: 0; font-size: 13px;">
-                                ⏰ This code will expire in 5 minutes. If you didn't request this code, please ignore this email.
-                            </p>
-                        </div>
-                        
-                        <div class="footer">
-                            <p>© 2025 rehletna.tn - All rights reserved</p>
-                            <p style="font-size: 10px;">This is an automated message, please do not reply.</p>
-                        </div>
+        String emailContent = """
+            <html>
+            <head>
+                <style>
+                    body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }
+                    .container { max-width: 600px; margin: 0 auto; background-color: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+                    h1 { color: #1D4D7C; margin: 0; text-align: center; }
+                    h2 { color: #0FA5A2; text-align: center; font-size: 48px; letter-spacing: 5px; margin: 30px 0; }
+                    .info { background-color: #f8f9fa; border-radius: 8px; padding: 20px; margin: 20px 0; }
+                    .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #999; font-size: 12px; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <h1>✨ rehletna.tn ✨</h1>
+                    <p style="text-align: center; color: #666;">Two-Factor Authentication</p>
+                    
+                    <div class="info">
+                        <p style="color: #666;">Your verification code is:</p>
+                        <h2>%s</h2>
+                        <p style="color: #666; font-size: 14px;">Enter this code to complete your login</p>
                     </div>
-                </body>
-                </html>
-                """.formatted(code);
+                    
+                    <div style="background-color: #fff3cd; border-radius: 8px; padding: 15px; margin: 20px 0;">
+                        <p style="color: #856404; margin: 0; font-size: 13px;">
+                            ⏰ This code will expire in 5 minutes. If you didn't request this code, please ignore this email.
+                        </p>
+                    </div>
+                    
+                    <div class="footer">
+                        <p>© 2025 rehletna.tn - All rights reserved</p>
+                        <p style="font-size: 10px;">This is an automated message, please do not reply.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """.formatted(code);
 
-            message.setContent(emailContent, "text/html; charset=utf-8");
-
-            Transport.send(message);
-            System.out.println("✅ 2FA code sent to: " + toEmail);
-            return true;
-
-        } catch (MessagingException e) {
-            System.err.println("❌ Failed to send 2FA email: " + e.getMessage());
-            e.printStackTrace();
-            return false;
-        }
+        return sendEmail(toEmail, subject, emailContent);
     }
 
     /**
      * Send 2FA activation confirmation email
      */
     public static boolean send2FAActivationEmail(String toEmail, String username) {
-        Properties props = new Properties();
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.host", SMTP_HOST);
-        props.put("mail.smtp.port", SMTP_PORT);
+        String subject = "✅ 2FA Activated - rehletna.tn";
 
-        Session session = Session.getInstance(props, new javax.mail.Authenticator() {
-            @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(EMAIL_FROM, EMAIL_PASSWORD);
-            }
-        });
-
-        try {
-            Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(EMAIL_FROM));
-            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
-            message.setSubject("✅ 2FA Activated - rehletna.tn");
-
-            String emailContent = """
-                <html>
-                <head>
-                    <style>
-                        body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }
-                        .container { max-width: 600px; margin: 0 auto; background-color: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-                        h1 { color: #1D4D7C; text-align: center; }
-                        .success-icon { font-size: 60px; color: #2ecc71; text-align: center; }
-                        .info { background-color: #f8f9fa; border-radius: 8px; padding: 20px; margin: 20px 0; }
-                        .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #999; font-size: 12px; }
-                    </style>
-                </head>
-                <body>
-                    <div class="container">
-                        <h1>✨ rehletna.tn ✨</h1>
-                        <div class="success-icon">✅</div>
-                        <h2 style="color: #1D4D7C; text-align: center;">Hello %s!</h2>
-                        <p style="text-align: center; color: #666; font-size: 16px;">
-                            Two-Factor Authentication has been successfully enabled on your account.
-                        </p>
-                        
-                        <div class="info">
-                            <p style="color: #666; margin: 5px 0;"><strong>🔐 What's next?</strong></p>
-                            <ul style="color: #666; margin: 10px 0; padding-left: 20px;">
-                                <li>You'll need to enter a verification code sent to this email every time you log in</li>
-                                <li>Keep your email account secure</li>
-                                <li>If you didn't enable this, please contact support immediately</li>
-                            </ul>
-                        </div>
-                        
-                        <div class="footer">
-                            <p>© 2025 rehletna.tn - All rights reserved</p>
-                            <p style="font-size: 10px;">This is an automated message, please do not reply.</p>
-                        </div>
+        String emailContent = """
+            <html>
+            <head>
+                <style>
+                    body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }
+                    .container { max-width: 600px; margin: 0 auto; background-color: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+                    h1 { color: #1D4D7C; text-align: center; }
+                    .success-icon { font-size: 60px; color: #2ecc71; text-align: center; }
+                    .info { background-color: #f8f9fa; border-radius: 8px; padding: 20px; margin: 20px 0; }
+                    .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #999; font-size: 12px; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <h1>✨ rehletna.tn ✨</h1>
+                    <div class="success-icon">✅</div>
+                    <h2 style="color: #1D4D7C; text-align: center;">Hello %s!</h2>
+                    <p style="text-align: center; color: #666; font-size: 16px;">
+                        Two-Factor Authentication has been successfully enabled on your account.
+                    </p>
+                    
+                    <div class="info">
+                        <p style="color: #666; margin: 5px 0;"><strong>🔐 What's next?</strong></p>
+                        <ul style="color: #666; margin: 10px 0; padding-left: 20px;">
+                            <li>You'll need to enter a verification code sent to this email every time you log in</li>
+                            <li>Keep your email account secure</li>
+                            <li>If you didn't enable this, please contact support immediately</li>
+                        </ul>
                     </div>
-                </body>
-                </html>
-                """.formatted(username);
+                    
+                    <div class="footer">
+                        <p>© 2025 rehletna.tn - All rights reserved</p>
+                        <p style="font-size: 10px;">This is an automated message, please do not reply.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """.formatted(username);
 
-            message.setContent(emailContent, "text/html; charset=utf-8");
-
-            Transport.send(message);
-            System.out.println("✅ 2FA activation email sent to: " + toEmail);
-            return true;
-
-        } catch (MessagingException e) {
-            System.err.println("❌ Failed to send activation email: " + e.getMessage());
-            e.printStackTrace();
-            return false;
-        }
+        return sendEmail(toEmail, subject, emailContent);
     }
 
     /**
-     * Custom DataSource for byte array
+     * Send password reset code via email
      */
-    private static class ByteArrayDataSource implements DataSource {
-        private final byte[] data;
-        private final String contentType;
-        private final String name;
+    public static boolean sendPasswordResetCode(String toEmail, String code) {
+        String subject = "🔐 Password Reset Code - Rehletna.tn";
 
-        public ByteArrayDataSource(byte[] data, String contentType, String name) {
-            this.data = data;
-            this.contentType = contentType;
-            this.name = name;
-        }
+        String emailContent = """
+            <html>
+            <head>
+                <style>
+                    body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }
+                    .container { max-width: 600px; margin: 0 auto; background-color: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+                    h1 { color: #1D4D7C; text-align: center; }
+                    .code { background-color: #f8f9fa; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center; }
+                    .code h2 { color: #0FA5A2; font-size: 48px; letter-spacing: 5px; margin: 0; }
+                    .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #999; font-size: 12px; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <h1>✨ Rehletna.tn ✨</h1>
+                    <h2 style="color: #1D4D7C; text-align: center;">Password Reset Request</h2>
+                    <p style="font-size: 16px; color: #333;">Hello,</p>
+                    <p style="font-size: 14px; color: #666;">We received a request to reset your password. Use the code below to proceed:</p>
+                    <div class="code">
+                        <h2>%s</h2>
+                    </div>
+                    <p style="font-size: 14px; color: #666;">This code will expire in 5 minutes.</p>
+                    <p style="font-size: 14px; color: #666;">If you didn't request this, please ignore this email.</p>
+                    <div class="footer">
+                        <p>© 2025 Rehletna.tn - All rights reserved</p>
+                        <p style="font-size: 10px;">This is an automated message, please do not reply.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """.formatted(code);
 
-        @Override
-        public InputStream getInputStream() throws IOException {
-            return new ByteArrayInputStream(data);
-        }
-
-        @Override
-        public OutputStream getOutputStream() throws IOException {
-            throw new UnsupportedOperationException("Not supported");
-        }
-
-        @Override
-        public String getContentType() {
-            return contentType;
-        }
-
-        @Override
-        public String getName() {
-            return name;
-        }
+        return sendEmail(toEmail, subject, emailContent);
     }
 
     /**
@@ -324,6 +285,76 @@ public class EmailService {
             System.err.println("❌ Failed to send QR Code email: " + e.getMessage());
             e.printStackTrace();
             return false;
+        }
+    }
+
+    /**
+     * Generic method to send HTML emails
+     */
+    private static boolean sendEmail(String toEmail, String subject, String htmlContent) {
+        Properties props = new Properties();
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.host", SMTP_HOST);
+        props.put("mail.smtp.port", SMTP_PORT);
+
+        Session session = Session.getInstance(props, new javax.mail.Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(EMAIL_FROM, EMAIL_PASSWORD);
+            }
+        });
+
+        try {
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(EMAIL_FROM));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
+            message.setSubject(subject);
+            message.setContent(htmlContent, "text/html; charset=utf-8");
+
+            Transport.send(message);
+            System.out.println("✅ Email sent successfully to: " + toEmail);
+            return true;
+
+        } catch (MessagingException e) {
+            System.err.println("❌ Failed to send email: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Custom DataSource for byte array
+     */
+    private static class ByteArrayDataSource implements DataSource {
+        private final byte[] data;
+        private final String contentType;
+        private final String name;
+
+        public ByteArrayDataSource(byte[] data, String contentType, String name) {
+            this.data = data;
+            this.contentType = contentType;
+            this.name = name;
+        }
+
+        @Override
+        public InputStream getInputStream() throws IOException {
+            return new ByteArrayInputStream(data);
+        }
+
+        @Override
+        public OutputStream getOutputStream() throws IOException {
+            throw new UnsupportedOperationException("Not supported");
+        }
+
+        @Override
+        public String getContentType() {
+            return contentType;
+        }
+
+        @Override
+        public String getName() {
+            return name;
         }
     }
 }
