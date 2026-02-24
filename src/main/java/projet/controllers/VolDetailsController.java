@@ -59,7 +59,7 @@ public class VolDetailsController {
         lblVilleArrivee.setText(vol.getVilleArrivee());
         lblDateArrivee.setText(vol.getDateArrivee().toString());
         lblDateDepart.setText(vol.getDateDepart().toString());
-        lblCapacite.setText(vol.getNumeroVol());
+        lblCapacite.setText(String.valueOf(vol.getCapacite()));
         if (vol.getDisponibilite()){
             lblStatus.setText("disponible");}
         else {
@@ -94,6 +94,7 @@ btnReserver.setOnAction(e -> {handleReserver();});
             Parent root = loader.load();
             AddReservationController addReservationController = loader.getController();
             addReservationController.setIdService(id);
+            addReservationController.setType("vol");
             retourBtn.getScene().setRoot(root);
         } catch (IOException e) {
             e.printStackTrace();

@@ -112,4 +112,15 @@ public class ServiceService implements CRUD<String,service> {
         }
         return sr;
     }
+    public void DecrementCapacite(int id) throws SQLException {
+        String req = "UPDATE services SET capacite=capacite-1,disponibilite = CASE WHEN capacite - 1 = 0 THEN 'false' WHEN disponibilite = 'false' THEN 'false' ELSE 'true' END WHERE `idService` = " + "'" + id+ "' AND capacite > 0";
+        Statement stmt = connection.createStatement();
+        stmt.executeUpdate(req);
+    }
+    public void IncrementCapacite(int id) throws SQLException {
+        String req = "UPDATE services SET capacite=capacite+1,disponibilite = CASE WHEN capacite+1 > 0 THEN 'true'  ELSE 'false'" +
+                " END WHERE `idService` = " + "'" + id+ "'";
+        Statement stmt = connection.createStatement();
+        stmt.executeUpdate(req);
+    }
 }

@@ -14,8 +14,6 @@ public class ReservationService implements CRUD<String, reservation> {
     public ReservationService() {
         connection = MyDBConnexion.getInstance().getConnection();
     }
-
-
     @Override
     public void insertOne(reservation r) throws SQLException {
         java.sql.Date sqlDate = java.sql.Date.valueOf(r.getDateReservation().toString());
@@ -30,11 +28,6 @@ public class ReservationService implements CRUD<String, reservation> {
             System.out.println("Réservation ajoutée avec succès !");
         }
     }
-
-    /**
-     * Met à jour une réservation existante.
-     * Le paramètre 's' est l'ID de la réservation à mettre à jour.
-     */
     @Override
     public void updateOne(String id, reservation r) throws SQLException {
         java.sql.Date sqlDate = java.sql.Date.valueOf(r.getDateReservation().toString());
@@ -54,16 +47,12 @@ public class ReservationService implements CRUD<String, reservation> {
             }
         }
     }
-
-
     @Override
     public void deleteOne(reservation r) throws SQLException {
         String req = "DELETE FROM `reservations` WHERE `nom` = " + "'" + r.getNom() + "'";
         PreparedStatement ps = connection.prepareStatement(req);
         ps.executeUpdate();
     }
-
-
     @Override
     public List<reservation> selectALL() throws SQLException {
         List<reservation> reservations = new ArrayList<>();

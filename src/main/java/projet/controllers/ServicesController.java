@@ -28,9 +28,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class ServicesContoller implements Initializable {
+public class ServicesController implements Initializable {
    // user connectedUser=new user("achref","souli","admin");
-    user connectedUser=new user("achref","souli","user");
+    user connectedUser=new user("achref","souli","admin");
 
     @FXML
     private FlowPane cardsContainer;

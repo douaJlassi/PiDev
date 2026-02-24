@@ -154,6 +154,7 @@ public class HotelDetailsController {
             Parent root = loader.load();
             AddReservationController addReservationController = loader.getController();
             addReservationController.setIdService(id);
+            addReservationController.setType("hotel");
             retourBtn.getScene().setRoot(root);
         } catch (IOException e) {
             e.printStackTrace();

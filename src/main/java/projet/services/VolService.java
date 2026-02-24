@@ -101,4 +101,33 @@ public class VolService implements CRUD<String,vol> {
         }
         return sr;
     }
+    public vol selectById(int id) throws SQLException {
+        String req = "SELECT * FROM `services` WHERE `idService` = '" + id + "'";
+        Statement st = connection.createStatement();
+
+        ResultSet rs = st.executeQuery(req);
+
+        vol sr = null;
+        while (rs.next()) {
+
+            sr = new vol(
+                    rs.getString(2),
+                    rs.getString(3),
+                    rs.getDouble(4),
+                    rs.getBoolean(5),
+                    rs.getInt(6),
+                    rs.getString(10),
+                    rs.getString(11),
+                    rs.getString(12),
+                    rs.getDate(13),
+                    rs.getDate(14),
+                    rs.getString(15)
+            );
+
+        }
+        return sr;
+    }
+
+
+
 }

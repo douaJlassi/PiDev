@@ -67,13 +67,13 @@ public class ReservationsController implements Initializable {
     private VBox createServiceCard(reservation r) {
         ReservationService Service = new ReservationService();
 
-        // --- CONTAINER ---
+
         VBox card = new VBox();
         card.getStyleClass().add("service-card");
         card.setPrefWidth(220);
         card.setMinWidth(220);
         card.setSpacing(10);
-        // --- DETAILS ---
+
         VBox details = new VBox();
         details.setPadding(new Insets(10));
         details.setSpacing(5);
@@ -92,7 +92,7 @@ public class ReservationsController implements Initializable {
         name.setWrapText(true);
 
 
-        // --- ACTION BUTTONS ---
+
 
         HBox actions = new HBox();
         actions.setAlignment(Pos.CENTER_RIGHT);
@@ -106,6 +106,8 @@ public class ReservationsController implements Initializable {
         btnDelete.setOnAction(event -> {
             try {
                 Service.deleteOne(r);
+                ServiceService service = new ServiceService();
+                service.IncrementCapacite(r.getIdService());
                 refreshServices();
             } catch (SQLException e) {
                 throw new RuntimeException(e);
