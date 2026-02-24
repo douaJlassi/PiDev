@@ -34,6 +34,7 @@ import tn.esprit.projet.utils.SessionManager;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class MainPageController {
@@ -67,10 +68,21 @@ public class MainPageController {
     @FXML
     private StackPane contentArea;
 
+    // New FXML elements for coin collection
+    @FXML
+    private Button collectCoinBtn;
+    @FXML
+    private Label coinCountLabel;
+    @FXML
+    private Label nextCoinTimerLabel;
+    @FXML
+    private ProgressIndicator coinProgressIndicator;
+
     // Ad components
     private Popup adPopup;
     private Timeline adTimeline;
     private boolean isPremiumUser = false;
+    private String userMembership = "Standard";
 
     private Person currentUser;
     private PersonService personService;
@@ -80,17 +92,25 @@ public class MainPageController {
     private ChatPopupController chatPopupController;
     private Popup chatPopup;
 
+    // Coin timer components
+    private Timeline coinTimer;
+    private LocalDateTime lastCoinTime;
+    private Tooltip profileTooltip;
+    private double coinRate = 0.1; // Default for standard
+
     @FXML
     public void initialize() {
         personService = new PersonService();
         profileService = new ProfileService();
         System.out.println("MainPageController initialized");
 
-
         setupButtonActions();
-
-
         setupAvatarClickHandler();
+
+        // Initialize coin collection UI as hidden until user data is loaded
+        if (collectCoinBtn != null) {
+            collectCoinBtn.setVisible(false);
+        }
     }
 
     private void setupAvatarClickHandler() {
@@ -109,15 +129,8 @@ public class MainPageController {
         try {
             System.out.println("Avatar clicked, opening profile page");
 
-            // Stop message check timer when leaving main page
-            if (messageCheckTimeline != null) {
-                messageCheckTimeline.stop();
-            }
-
-            // Stop ad timer when leaving main page
-            if (adTimeline != null) {
-                adTimeline.stop();
-            }
+            // Stop timers when leaving main page
+            stopAllTimers();
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Showprofile.fxml"));
             Parent profileRoot = loader.load();
@@ -173,7 +186,6 @@ public class MainPageController {
         }
     }
 
-    // Add this method to close chat popup
     public void closeChatPopup() {
         if (chatPopup != null && chatPopup.isShowing()) {
             chatPopup.hide();
@@ -184,7 +196,7 @@ public class MainPageController {
     }
 
     private void setupButtonActions() {
-        // Dashboard button action - OPENS DASHBOARD IN THE SAME WINDOW
+        // Dashboard button action
         if (dashboardBtn != null) {
             dashboardBtn.setOnAction(event -> {
                 System.out.println("Dashboard button clicked");
@@ -239,6 +251,11 @@ public class MainPageController {
         addHoverEffect(favoritesBtn);
         addHoverEffect(settingsBtn);
         addHoverEffect(logoutBtn);
+
+        // Coin collection button action
+        if (collectCoinBtn != null) {
+            collectCoinBtn.setOnAction(event -> collectCoin());
+        }
     }
 
     private void addHoverEffect(Button button) {
@@ -285,8 +302,14 @@ public class MainPageController {
         // Start a timer to periodically check for new messages
         startMessageCheckTimer();
 
-        // Start ad timer for non-premium users
+        // Start ad timer for standard users only
         startAdTimer();
+
+        // Setup coin collection for all users (with different rates)
+        setupCoinCollection();
+
+        // Setup profile tooltip
+        setupProfileTooltip();
     }
 
     private void checkUserPremiumStatus() {
@@ -294,27 +317,194 @@ public class MainPageController {
             userProfile = profileService.getProfileByUserId(currentUser.getId());
             if (userProfile != null) {
                 String membership = userProfile.getMemberPremium();
+                userMembership = membership != null ? membership : "Standard";
                 isPremiumUser = membership != null &&
-                        (membership.equalsIgnoreCase("Premium") || membership.equalsIgnoreCase("VIP"));
-                System.out.println("User premium status: " + isPremiumUser + " (Membership: " + membership + ")");
+                        (membership.equalsIgnoreCase("Premium") ||
+                                membership.equalsIgnoreCase("VIP") ||
+                                membership.equalsIgnoreCase("VIP+"));
+                System.out.println("User membership: " + userMembership + " (Is premium: " + isPremiumUser + ")");
             } else {
                 isPremiumUser = false;
-                System.out.println("No profile found, user is not premium");
+                userMembership = "Standard";
+                System.out.println("No profile found, user is standard");
             }
         } catch (SQLException e) {
             e.printStackTrace();
             isPremiumUser = false;
+            userMembership = "Standard";
+        }
+    }
+
+    private void setupProfileTooltip() {
+        if (userProfile == null) return;
+
+        profileTooltip = new Tooltip();
+        profileTooltip.setStyle("-fx-font-size: 14px; -fx-background-color: white; -fx-text-fill: #333; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 0);");
+
+        String membership = userMembership;
+        int coins = userProfile.getCoins();
+
+        String icon = "⭐";
+        String color = "#666";
+
+        switch(membership.toLowerCase()) {
+            case "vip+":
+                icon = "💎";
+                color = "#1D4D7C";
+                break;
+            case "vip":
+                icon = "👑";
+                color = "#FEC74C";
+                break;
+            case "premium":
+                icon = "⭐";
+                color = "#0FA5A2";
+                break;
+            default:
+                icon = "👤";
+                color = "#666";
+        }
+
+        String coinRateText = getCoinRateText();
+
+        profileTooltip.setText(
+                "┌─────────────────┐\n" +
+                        "│ " + icon + " " + membership.toUpperCase() + "    \n" +
+                        "├─────────────────┤\n" +
+                        "│ 🪙 Coins: " + String.format("%-4d", coins) + "      │\n" +
+                        "│ 📊 Rate: " + coinRateText + " │\n" +
+                        "└─────────────────┘"
+        );
+
+        Tooltip.install(userAvatar, profileTooltip);
+        Tooltip.install(userAvatarImage, profileTooltip);
+    }
+
+    private String getCoinRateText() {
+        switch(userMembership.toLowerCase()) {
+            case "vip+": return "5/30sec ";
+            case "vip": return "5/30sec ";
+            case "premium": return "1/30sec ";
+            default: return "0.1/30sec";
+        }
+    }
+
+    private void setupCoinCollection() {
+        if (userProfile == null) return;
+
+        // Show coin collection UI
+        if (collectCoinBtn != null) {
+            collectCoinBtn.setVisible(true);
+        }
+
+        // Set coin rate based on membership
+        switch(userMembership.toLowerCase()) {
+            case "vip+":
+            case "vip":
+                coinRate = 5.0;
+                break;
+            case "premium":
+                coinRate = 1.0;
+                break;
+            default:
+                coinRate = 0.1;
+        }
+
+        // Update coin display
+        updateCoinDisplay();
+
+        // Start coin timer
+        lastCoinTime = LocalDateTime.now();
+        coinTimer = new Timeline(new KeyFrame(Duration.seconds(1), e -> updateCoinTimer()));
+        coinTimer.setCycleCount(Timeline.INDEFINITE);
+        coinTimer.play();
+    }
+
+    private void updateCoinDisplay() {
+        if (coinCountLabel != null && userProfile != null) {
+            coinCountLabel.setText(userProfile.getCoins() + " coins");
+        }
+    }
+
+    private void updateCoinTimer() {
+        if (lastCoinTime == null || userProfile == null) return;
+
+        LocalDateTime now = LocalDateTime.now();
+        long secondsElapsed = java.time.Duration.between(lastCoinTime, now).getSeconds();
+        long secondsRemaining = 30 - secondsElapsed;
+
+        if (secondsRemaining <= 0) {
+            // Ready to collect
+            if (collectCoinBtn != null) {
+                collectCoinBtn.setDisable(false);
+                collectCoinBtn.setText("✨ COLLECT");
+                collectCoinBtn.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold; -fx-padding: 5 15; -fx-background-radius: 20; -fx-cursor: hand;");
+            }
+            if (coinProgressIndicator != null) {
+                coinProgressIndicator.setProgress(1.0);
+            }
+            if (nextCoinTimerLabel != null) {
+                nextCoinTimerLabel.setText("Ready to collect!");
+            }
+        } else {
+            // Waiting for next collection
+            if (collectCoinBtn != null) {
+                collectCoinBtn.setDisable(true);
+                collectCoinBtn.setText("⏳ " + secondsRemaining + "s");
+                collectCoinBtn.setStyle("-fx-background-color: #ccc; -fx-text-fill: #666; -fx-font-size: 12px; -fx-padding: 5 15; -fx-background-radius: 20;");
+            }
+            if (coinProgressIndicator != null) {
+                double progress = 1.0 - ((double) secondsRemaining / 30);
+                coinProgressIndicator.setProgress(progress);
+            }
+            if (nextCoinTimerLabel != null) {
+                nextCoinTimerLabel.setText("Next in " + secondsRemaining + "s");
+            }
+        }
+    }
+
+    private void collectCoin() {
+        try {
+            int currentCoins = userProfile.getCoins();
+
+            // Add coins based on membership rate
+            double coinsToAdd = coinRate;
+            int roundedCoins = (int) Math.round(coinsToAdd);
+
+            userProfile.setCoins(currentCoins + roundedCoins);
+            profileService.updateOne(userProfile);
+
+            // Update display
+            updateCoinDisplay();
+
+            // Reset timer
+            lastCoinTime = LocalDateTime.now();
+
+            // Show animation
+            if (collectCoinBtn != null) {
+                collectCoinBtn.setText("✓ +" + roundedCoins + " COIN!");
+                collectCoinBtn.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold; -fx-padding: 5 15; -fx-background-radius: 20;");
+            }
+
+            // Update tooltip
+            setupProfileTooltip();
+
+            System.out.println("Collected " + roundedCoins + " coins. Total: " + userProfile.getCoins());
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to collect coins: " + e.getMessage());
         }
     }
 
     private void startAdTimer() {
-        // Only show ads for non-premium users
-        if (isPremiumUser || isAdmin()) {
-            System.out.println("User is premium or admin - no ads will be shown");
+        // Only show ads for Standard users
+        if (!"Standard".equalsIgnoreCase(userMembership) || isAdmin()) {
+            System.out.println("User is " + userMembership + " or admin - no ads will be shown");
             return;
         }
 
-        System.out.println("Starting ad timer for non-premium user");
+        System.out.println("Starting ad timer for Standard user");
 
         adTimeline = new Timeline(new KeyFrame(Duration.seconds(30), e -> {
             showAdPopup();
@@ -324,24 +514,20 @@ public class MainPageController {
     }
 
     private void showAdPopup() {
-        // Don't show if already showing
         if (adPopup != null && adPopup.isShowing()) {
             return;
         }
 
         try {
-            // Create ad popup
             adPopup = new Popup();
             adPopup.setAutoHide(false);
 
-            // Create ad content with light gray background
             VBox adContent = new VBox(20);
             adContent.setStyle("-fx-background-color: #f5f5f5; -fx-background-radius: 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 20, 0, 0, 0);");
             adContent.setPrefWidth(400);
             adContent.setPrefHeight(500);
             adContent.setAlignment(javafx.geometry.Pos.TOP_CENTER);
 
-            // Close button (X) at top right - more visible
             HBox topBar = new HBox();
             topBar.setAlignment(javafx.geometry.Pos.TOP_RIGHT);
             topBar.setPadding(new Insets(10, 10, 0, 0));
@@ -359,7 +545,6 @@ public class MainPageController {
                             "-fx-cursor: hand;"
             );
 
-            // Hover effect for close button
             closeButton.setOnMouseEntered(e ->
                     closeButton.setStyle(
                             "-fx-background-color: #ff5e62;" +
@@ -388,13 +573,12 @@ public class MainPageController {
             closeButton.setOnAction(e -> {
                 if (adPopup != null) {
                     adPopup.hide();
-                    adPopup = null; // Allow new popup to be created next time
+                    adPopup = null;
                 }
             });
 
             topBar.getChildren().add(closeButton);
 
-            // Background Image
             ImageView adImageView = new ImageView();
             try {
                 Image adImage = new Image(getClass().getResourceAsStream("/image/ads.jpg"));
@@ -412,7 +596,6 @@ public class MainPageController {
                 adImageView = null;
             }
 
-            // Ad text
             Label titleLabel = new Label("✨ Make Your Travel Easy! ✨");
             titleLabel.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C;");
 
@@ -429,11 +612,9 @@ public class MainPageController {
             descriptionLabel.setAlignment(javafx.geometry.Pos.CENTER);
             descriptionLabel.setPadding(new Insets(0, 20, 0, 20));
 
-            // Limited time offer label
             Label offerLabel = new Label("⏰ Limited Time Offer! ⏰");
             offerLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #ff5e62;");
 
-            // Get Premium Button
             Button getPremiumBtn = new Button("✨ GET PREMIUM NOW ✨");
             getPremiumBtn.setStyle(
                     "-fx-background-color: linear-gradient(to right, #FEC74C, #0FA5A2);" +
@@ -445,16 +626,13 @@ public class MainPageController {
                             "-fx-cursor: hand;"
             );
             getPremiumBtn.setOnAction(e -> {
-                // Handle premium upgrade
                 if (adPopup != null) {
                     adPopup.hide();
                     adPopup = null;
                 }
-                showMessage("✨ Welcome to Premium! ✨\n\nYou now have access to exclusive travel deals and priority support!");
-                // Here you can navigate to a payment page or update membership status
+                openPremiumSubscription();
             });
 
-            // Hover effect for button
             getPremiumBtn.setOnMouseEntered(e ->
                     getPremiumBtn.setStyle(
                             "-fx-background-color: linear-gradient(to right, #0FA5A2, #FEC74C);" +
@@ -480,14 +658,12 @@ public class MainPageController {
                     )
             );
 
-            // Add all elements to ad content
             adContent.getChildren().add(topBar);
 
             if (adImageView != null) {
                 VBox.setMargin(adImageView, new Insets(0, 10, 0, 10));
                 adContent.getChildren().add(adImageView);
             } else {
-                // Create a stylish fallback
                 Rectangle fallbackRect = new Rectangle(380, 200);
                 fallbackRect.setFill(Color.web("#0FA5A2"));
                 fallbackRect.setArcWidth(20);
@@ -502,18 +678,12 @@ public class MainPageController {
             }
 
             adContent.getChildren().addAll(titleLabel, descriptionLabel, offerLabel, getPremiumBtn);
-
-            // Add some padding at the bottom
             VBox.setMargin(getPremiumBtn, new Insets(10, 0, 20, 0));
 
-            // Add to popup
             adPopup.getContent().add(adContent);
 
-            // Position in center of screen
             Stage stage = (Stage) chatButton.getScene().getWindow();
             adPopup.show(stage);
-
-            // Center position
             adPopup.setX(stage.getX() + (stage.getWidth() - 400) / 2);
             adPopup.setY(stage.getY() + (stage.getHeight() - 500) / 2);
 
@@ -524,10 +694,8 @@ public class MainPageController {
 
     private void updateUserInterface() {
         if (currentUser != null) {
-            // Set username from database
             userNameLabel.setText(currentUser.getUsername());
 
-            // Set role label based on user role
             String role = currentUser.getRole();
             if (role != null) {
                 String lowerRole = role.toLowerCase().trim();
@@ -546,31 +714,24 @@ public class MainPageController {
         if (currentUser == null) return;
 
         try {
-            // Get profile from database
             userProfile = profileService.getProfileByUserId(currentUser.getId());
 
             if (userProfile != null && userProfile.getImage() != null && userProfile.getImage().length > 0) {
-                // Convert byte array to Image
                 ByteArrayInputStream bis = new ByteArrayInputStream(userProfile.getImage());
                 Image profileImage = new Image(bis);
 
-                // Set the image to the ImageView
                 userAvatarImage.setImage(profileImage);
-
-                // Show image view, hide gradient circle
                 userAvatarImage.setVisible(true);
                 userAvatar.setVisible(false);
 
                 System.out.println("Profile image loaded successfully");
             } else {
-                // No profile image, use default gradient
                 userAvatarImage.setVisible(false);
                 userAvatar.setVisible(true);
                 System.out.println("No profile image found, using gradient");
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            // Fallback to gradient
             userAvatarImage.setVisible(false);
             userAvatar.setVisible(true);
         }
@@ -578,32 +739,20 @@ public class MainPageController {
 
     private void checkUserRole() {
         if (currentUser != null) {
-            // Get role and handle null case
             String userRole = currentUser.getRole();
-
             boolean isAdmin = false;
 
             if (userRole != null) {
                 String trimmedRole = userRole.trim();
                 String lowerRole = trimmedRole.toLowerCase();
 
-                System.out.println("Original role: '" + userRole + "'");
-                System.out.println("Trimmed role: '" + trimmedRole + "'");
-                System.out.println("Lowercase role: '" + lowerRole + "'");
-
-                // Check multiple conditions
                 isAdmin = lowerRole.equals("admin") ||
                         lowerRole.equals("administrator") ||
                         lowerRole.contains("admin");
-
-                System.out.println("Is admin: " + isAdmin);
             }
 
-            // Show/hide dashboard button based on role
             dashboardBtn.setVisible(isAdmin);
             dashboardBtn.setManaged(isAdmin);
-
-            System.out.println("Dashboard button visible: " + dashboardBtn.isVisible());
         }
     }
 
@@ -612,9 +761,6 @@ public class MainPageController {
         return currentUser.getRole().toLowerCase().contains("admin");
     }
 
-    /**
-     * Opens the dashboard in the same window
-     */
     private void openDashboard() {
         try {
             System.out.println("Opening dashboard in same window");
@@ -624,17 +770,7 @@ public class MainPageController {
                 return;
             }
 
-            // Stop timers when leaving main page
-            if (messageCheckTimeline != null) {
-                messageCheckTimeline.stop();
-            }
-            if (adTimeline != null) {
-                adTimeline.stop();
-            }
-            if (adPopup != null && adPopup.isShowing()) {
-                adPopup.hide();
-                adPopup = null;
-            }
+            stopAllTimers();
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/dashboard.fxml"));
 
@@ -652,7 +788,6 @@ public class MainPageController {
                 dashboardController.setUserData(currentUser);
             }
 
-            // Get the current stage and replace the scene
             Stage currentStage = (Stage) dashboardBtn.getScene().getWindow();
             currentStage.setScene(new Scene(dashboardRoot));
             currentStage.setTitle("Dashboard - " + currentUser.getUsername());
@@ -662,6 +797,35 @@ public class MainPageController {
             System.err.println("Error loading dashboard: " + e.getMessage());
             e.printStackTrace();
             showAlert("Error", "Failed to load dashboard: " + e.getMessage());
+        }
+    }
+
+    private void openPremiumSubscription() {
+        // Only allow Standard users to access subscription page
+        if (!"Standard".equalsIgnoreCase(userMembership)) {
+            showAlert("Already Premium", "You are already a " + userMembership + " member!\n\nYour premium benefits are already active.");
+            return;
+        }
+
+        try {
+            System.out.println("Opening premium subscription page");
+
+            stopAllTimers();
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/PremiumSubscription.fxml"));
+            Parent subscriptionRoot = loader.load();
+
+            PremiumSubscriptionController subscriptionController = loader.getController();
+            subscriptionController.setUserData(currentUser);
+
+            Stage currentStage = (Stage) chatButton.getScene().getWindow();
+            currentStage.setScene(new Scene(subscriptionRoot));
+            currentStage.setTitle("Premium Subscription - " + currentUser.getUsername());
+            currentStage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to open premium subscription: " + e.getMessage());
         }
     }
 
@@ -692,6 +856,22 @@ public class MainPageController {
         messageCheckTimeline.play();
     }
 
+    private void stopAllTimers() {
+        if (messageCheckTimeline != null) {
+            messageCheckTimeline.stop();
+        }
+        if (adTimeline != null) {
+            adTimeline.stop();
+        }
+        if (coinTimer != null) {
+            coinTimer.stop();
+        }
+        if (adPopup != null && adPopup.isShowing()) {
+            adPopup.hide();
+            adPopup = null;
+        }
+    }
+
     private void showMessage(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Information");
@@ -704,36 +884,20 @@ public class MainPageController {
     private void handleLogout() {
         System.out.println("Logout button clicked");
 
-        // Close chat popup if open
         closeChatPopup();
-
-        // Stop all timers
-        if (messageCheckTimeline != null) {
-            messageCheckTimeline.stop();
-        }
-        if (adTimeline != null) {
-            adTimeline.stop();
-        }
-        if (adPopup != null && adPopup.isShowing()) {
-            adPopup.hide();
-            adPopup = null;
-        }
+        stopAllTimers();
 
         try {
-            // Update user status to offline in database
             if (currentUser != null) {
                 System.out.println("Setting user " + currentUser.getUsername() + " to offline");
                 personService.updateUserStatus(currentUser.getId(), "offline");
             }
 
-            // Clear session
             SessionManager.clearSession();
             System.out.println("Session cleared");
 
-            // Get current stage
             Stage stage = (Stage) logoutBtn.getScene().getWindow();
 
-            // Load loading screen
             FXMLLoader loadingLoader = new FXMLLoader(getClass().getResource("/loading.fxml"));
             Parent loadingRoot = loadingLoader.load();
 
@@ -742,7 +906,6 @@ public class MainPageController {
             stage.show();
             System.out.println("Loading screen shown");
 
-            // Wait 4 seconds then open login page
             PauseTransition pause = new PauseTransition(Duration.seconds(4));
 
             pause.setOnFinished(event -> {
@@ -752,7 +915,6 @@ public class MainPageController {
                     FXMLLoader loginLoader = new FXMLLoader(getClass().getResource("/AjouterPersonne.fxml"));
                     Parent loginRoot = loginLoader.load();
 
-                    // Set the stage reference for the login controller
                     AjouterPersonne loginController = loginLoader.getController();
                     loginController.setPrimaryStage(stage);
 
@@ -773,6 +935,7 @@ public class MainPageController {
             showAlert("Error", "Failed to logout: " + e.getMessage());
         }
     }
+
     private void showAlert(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);

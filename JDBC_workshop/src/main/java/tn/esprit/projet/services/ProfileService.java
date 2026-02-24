@@ -108,4 +108,8 @@ public class ProfileService implements CRUD<Profile> {
         return null;
     }
 
+    public void add(Profile profile) throws SQLException {
+        insertOne(profile);
+    }
+
 }

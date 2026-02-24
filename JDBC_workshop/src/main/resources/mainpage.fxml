@@ -154,5 +154,22 @@
             </StackPane>
         </HBox>
     </bottom>
+    <!-- Bottom Left Coin Collection -->
+    <bottom>
+        <HBox alignment="BOTTOM_LEFT" style="-fx-padding: 20;">
+            <VBox spacing="10" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);" prefWidth="250">
+                <Label text="🪙 Coin Collection" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C;"/>
+                <HBox spacing="15" alignment="CENTER_LEFT">
+                    <ProgressIndicator fx:id="coinProgressIndicator" prefWidth="50" prefHeight="50" progress="0"/>
+                    <VBox spacing="5">
+                        <Label fx:id="coinCountLabel" text="0 coins" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #FEC74C;"/>
+                        <Label fx:id="nextCoinTimerLabel" text="Next coin in 30s" style="-fx-font-size: 12px; -fx-text-fill: #666;"/>
+                        <Button fx:id="collectCoinBtn" text="COLLECT" disable="true"
+                                style="-fx-background-color: #0FA5A2; -fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold; -fx-padding: 5 15; -fx-background-radius: 20; -fx-cursor: hand;"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+        </HBox>
+    </bottom>
 
 </BorderPane>

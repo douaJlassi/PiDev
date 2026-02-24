@@ -12,40 +12,78 @@ public class Profile implements Serializable {
     private String memberPremium;
     private String language;
     private int idUser;
-    private int coins;
+    private int coins;  // Using primitive int for simplicity
 
+    // Default constructor
     public Profile() {}
 
-    public Profile(int id, byte[] image, String memberPremium,  String language, int idUser, int coins) {
+    // Full constructor
+    public Profile(int id, byte[] image, String memberPremium, String language, int idUser, int coins) {
         this.id = id;
         this.image = image;
         this.memberPremium = memberPremium;
+        this.language = language;
+        this.idUser = idUser;
+        this.coins = coins;
+    }
 
+    // Constructor without id (for new profiles)
+    public Profile(byte[] image, String memberPremium, String language, int idUser, int coins) {
+        this.image = image;
+        this.memberPremium = memberPremium;
         this.language = language;
         this.idUser = idUser;
         this.coins = coins;
     }
 
     // Getters and Setters
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
 
-    public byte[] getImage() { return image; }
-    public void setImage(byte[] image) { this.image = image; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public String getMemberPremium() { return memberPremium; }
-    public void setMemberPremium(String memberPremium) { this.memberPremium = memberPremium; }
+    public byte[] getImage() {
+        return image;
+    }
 
+    public void setImage(byte[] image) {
+        this.image = image;
+    }
 
+    public String getMemberPremium() {
+        return memberPremium;
+    }
 
-    public String getLanguage() { return language; }
-    public void setLanguage(String language) { this.language = language; }
+    public void setMemberPremium(String memberPremium) {
+        this.memberPremium = memberPremium;
+    }
 
-    public int getIdUser() { return idUser; }
-    public void setIdUser(int idUser) { this.idUser = idUser; }
+    public String getLanguage() {
+        return language;
+    }
 
-    public int getCoins() { return coins; }
-    public void setCoins(int coins) { this.coins = coins; }
+    public void setLanguage(String language) {
+        this.language = language;
+    }
+
+    public int getIdUser() {
+        return idUser;
+    }
+
+    public void setIdUser(int idUser) {
+        this.idUser = idUser;
+    }
+
+    public int getCoins() {
+        return coins;
+    }
+
+    public void setCoins(int coins) {
+        this.coins = coins;
+    }
 
     @Override
     public String toString() {

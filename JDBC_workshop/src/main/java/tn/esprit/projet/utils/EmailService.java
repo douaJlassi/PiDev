@@ -289,9 +289,9 @@ public class EmailService {
     }
 
     /**
-     * Generic method to send HTML emails
+     * Generic method to send HTML emails - MADE PUBLIC
      */
-    private static boolean sendEmail(String toEmail, String subject, String htmlContent) {
+    public static boolean sendEmail(String toEmail, String subject, String htmlContent) {
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");

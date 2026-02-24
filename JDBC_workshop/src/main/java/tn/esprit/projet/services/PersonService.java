@@ -471,5 +471,21 @@ public class PersonService implements CRUD<Person> {
         return null;
     }
 
+
+    /**
+     * Check if username is available
+     */
+    public boolean isUsernameAvailable(String username) throws SQLException {
+        String query = "SELECT COUNT(*) FROM `user` WHERE username = ?";
+        try (PreparedStatement ps = cnx.prepareStatement(query)) {
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) == 0;
+            }
+        }
+        return false;
+    }
+
   
 }
