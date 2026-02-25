@@ -4,17 +4,19 @@ import java.util.Date;
 import java.util.Objects;
 
 public class reservation {
+    private final int seatNb;
     private Date dateReservation;
     private String statut;
     private int idService;
     private  String modePaiement;
 private  String nom;
-    public reservation(String statut, Date dateReservation, int idService, String modePaiement,String nom) {
+    public reservation(String statut, Date dateReservation, int idService, String modePaiement,String nom,int seatNb) {
         this.statut = statut;
         this.dateReservation = dateReservation;
         this.idService = idService;
         this.modePaiement = modePaiement;
         this.nom = nom;
+        this.seatNb = seatNb;
     }
 
     public String getNom() {
@@ -55,6 +57,10 @@ private  String nom;
 
     public void setModePaiement(String modePaiement) {
         this.modePaiement = modePaiement;
+    }
+
+    public int getSeatNb() {
+        return seatNb;
     }
 
     @Override

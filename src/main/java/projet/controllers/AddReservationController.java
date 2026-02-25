@@ -38,6 +38,7 @@ public class AddReservationController {
                     "-fx-min-width: 42px; -fx-min-height: 38px; " +
                     "-fx-background-radius: 6 6 2 2; -fx-cursor: hand; " +
                     "-fx-effect: dropshadow(gaussian, #3498db, 8, 0.5, 0, 0);";
+    private Integer selectedSeatNumber = null;
     @FXML
     private TextField tfModePaiement;
     @FXML
@@ -80,7 +81,7 @@ void AddReservation(ActionEvent event)
     String statut="non acceptee";
     System.out.println(idService);
     ReservationService service = new ReservationService();
-    reservation reservation = new reservation(statut,sqlDateArrive,idService,modePaiement,nom);
+    reservation reservation = new reservation(statut,sqlDateArrive,idService,modePaiement,nom,selectedSeatNumber);
     try {
         service.insertOne(reservation);
         ServiceService serviceService = new ServiceService();
@@ -107,25 +108,23 @@ void AddReservation(ActionEvent event)
 
         try {
             VolService volService = new VolService();
-            projet.entites.vol v = volService.selectById(idService);
-            int capacity = v.getCapacite();
-
-           /* ReservationService reservationService = new ReservationService();
-            List<Integer> bookedSeats = reservationService.getBookedSeats(idService);*/
+            vol v = volService.selectById(idService);
+            ReservationService service = new ReservationService();
+             java.util.List<Integer> ls = service.selectSeats(idService);
+            int capacity = v.getCapacite()+ ls.size();
+            ReservationService reservationService = new ReservationService();
+            List<Integer> bookedSeats = reservationService.selectSeats(idService);
 
             for (int i = 1; i <= capacity; i++) {
                 final int seatNumber = i;
                 Button seatBtn = new Button(String.valueOf(i));
-              /*  if (bookedSeats.contains(i)) {
-                    // Taken — red, disabled
+                if (bookedSeats.contains(i)) {
                     seatBtn.setStyle(STYLE_BOOKED);
                     seatBtn.setDisable(true);
-                }
-                else {
-                    // Available — green, clickable
+                } else {
                     seatBtn.setStyle(STYLE_AVAILABLE);
                     seatBtn.setOnAction(e -> handleSeatClick(seatBtn, seatNumber));
-                }*/
+                }
 
                 seatGrid.getChildren().add(seatBtn);
             }
@@ -133,8 +132,7 @@ void AddReservation(ActionEvent event)
             e.printStackTrace();
         }
     }
-
-    /*private void handleSeatClick(Button clickedBtn, int seatNumber) {
+    private void handleSeatClick(Button clickedBtn, int seatNumber) {
         // Deselect previously selected seat
         if (selectedSeatNumber != null) {
             seatGrid.getChildren().stream()
@@ -155,7 +153,8 @@ void AddReservation(ActionEvent event)
         // Select the new seat
         selectedSeatNumber = seatNumber;
         clickedBtn.setStyle(STYLE_SELECTED);
+        System.out.println(selectedSeatNumber);
         lblSelectedSeat.setText("Siège sélectionné : " + seatNumber);
         errorContainer.getChildren().clear(); // clear any seat error
-    }*/
+    }
 }
