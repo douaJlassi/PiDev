@@ -1,15 +1,16 @@
 package services;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import entities.Conversation;
 import entities.Message;
 import entities.ParticipantConversation;
 import entities.Utilisateur;
+import utils.ElasticSearchClient;
 import utils.MyDBConnexion;
 
+import java.io.IOException;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ServiceParticipantConversation implements CRUD<ParticipantConversation> {
@@ -18,6 +19,7 @@ public class ServiceParticipantConversation implements CRUD<ParticipantConversat
     public ServiceParticipantConversation() {
         connection= MyDBConnexion.getInstance().getConnection();
     }
+    private ElasticsearchClient esClient= ElasticSearchClient.getInstance();
 
     private ServiceConversation serCnv = new ServiceConversation();
     private ServiceUtilisateur serUser = new ServiceUtilisateur();
@@ -34,6 +36,22 @@ public class ServiceParticipantConversation implements CRUD<ParticipantConversat
         ResultSet rs = ps.getGeneratedKeys();
         if (rs.next()) {
             pc.setIdParticipant(rs.getInt(1));
+        }
+        Map<String, Object> esData = new HashMap<>();
+        esData.put("idParticipant", pc.getIdParticipant());
+        esData.put("idConversation", pc.getConversation().getIdConversation());
+        esData.put("titreConversation", pc.getConversation().getTitre() != null ? pc.getConversation().getTitre() : "Privé");
+        esData.put("nomUtilisateur", pc.getParticipant().getPrenom() + " " + pc.getParticipant().getNom());
+        esData.put("dateAjout", pc.getDateAjout().toString());
+
+        try {
+            esClient.index(i -> i
+                    .index("participants")
+                    .id(String.valueOf(pc.getIdParticipant()))
+                    .document(esData)
+            );
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -54,6 +72,7 @@ public class ServiceParticipantConversation implements CRUD<ParticipantConversat
         PreparedStatement ps = connection.prepareStatement(query);
         ps.setInt(1, pc.getIdParticipant());
         ps.executeUpdate();
+
     }
 
     @Override
@@ -133,7 +152,21 @@ public class ServiceParticipantConversation implements CRUD<ParticipantConversat
             if (rowsUpdated > 0) {
                 System.out.println("L'utilisateur " + idUtilisateur + " est maintenant inactif dans la conversation " + idConversation);
             }
+            Map<String, Object> esData = new HashMap<>();
+            esData.put("idUtilisateur", idUtilisateur);
+            esData.put("idConversation", idConversation);
+            esData.put("estActif", 0);
+            String esId = idUtilisateur + "_" + idConversation;
+
+            esClient.index(i -> i
+                    .index("participants")
+                    .id(esId)
+                    .document(esData)
+            );
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
+
     }
 
     public boolean isUserActiveInConversation(int idUser, int idConv) throws SQLException {

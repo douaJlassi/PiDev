@@ -1,14 +1,19 @@
 package services;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import entities.Conversation;
 import entities.Message;
 import entities.TypeMessage;
 import entities.Utilisateur;
+import utils.ElasticSearchClient;
 import utils.MyDBConnexion;
 
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ServiceMessage implements CRUD<Message>{
 
@@ -16,6 +21,7 @@ public class ServiceMessage implements CRUD<Message>{
     public ServiceMessage(){
         cnx = MyDBConnexion.getInstance().getConnection();
     }
+    private ElasticsearchClient esClient= ElasticSearchClient.getInstance();
 
     private ServiceConversation serConv = new ServiceConversation();
     private ServiceUtilisateur serUtilisateur = new ServiceUtilisateur();
@@ -46,7 +52,24 @@ public class ServiceMessage implements CRUD<Message>{
         pst.setInt(1, message.getConversation().getIdConversation());
         pst.setInt(2, message.getExpediteur().getIdUtilisateur());
         pst.executeUpdate();
-        System.out.println("Message envoyé et anciens messages marqués comme lus !");
+        try {
+            Map<String, Object> esData = new HashMap<>();
+            esData.put("idMessage", message.getIdMessage());
+            esData.put("contenu",  message.getContenu());
+            esData.put("dateEnvoi", message.getDateEnvoi().toString());
+            esData.put("typeMessage", message.getTypeMessage().name());
+            esData.put("urlFichier", message.getUrlFichier());
+            esData.put("idConversation", message.getConversation().getIdConversation());
+            esData.put("expediteurNom", message.getExpediteur().getPrenom()+" "+ message.getExpediteur().getNom());
+            esData.put("lu", message.isLu());
+            esClient.index(i -> i
+                    .index("messages")
+                    .id(String.valueOf(message.getIdMessage()))
+                    .document(esData)
+            );
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -70,7 +93,12 @@ public class ServiceMessage implements CRUD<Message>{
         pst.setInt(1, message.getIdMessage());
 
         pst.executeUpdate();
-        System.out.println("Message supprimé");
+        try {
+            esClient.delete(d -> d.index("messages").id(String.valueOf(message.getIdMessage())));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
 
     }
 

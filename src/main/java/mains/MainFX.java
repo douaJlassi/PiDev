@@ -26,4 +26,17 @@ public class MainFX extends Application {
             System.out.println(e.getMessage());
         }
     }
+   /* @Override
+    public void start(Stage stage) throws Exception {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/MainLayoutBack.fxml"));
+        try {
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.setTitle("Rehletna.tn");
+            stage.show();
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+    }*/
 }

@@ -1,18 +1,23 @@
 package services;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import entities.Role;
 import entities.Utilisateur;
+import utils.ElasticSearchClient;
 import utils.MyDBConnexion;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ServiceUtilisateur implements CRUD<Utilisateur> {
     private Connection connection;
     public ServiceUtilisateur() {
         connection= MyDBConnexion.getInstance().getConnection();
     }
+    private ElasticsearchClient esClient= ElasticSearchClient.getInstance();
 
     @Override
     public void insertOne(Utilisateur utilisateur) throws SQLException {
@@ -32,6 +37,22 @@ public class ServiceUtilisateur implements CRUD<Utilisateur> {
                 utilisateur.setIdUtilisateur(rs.getInt(1));
             }
         }
+        try {
+            Map<String, Object> esData = new HashMap<>();
+            esData.put("idUser", utilisateur.getIdUtilisateur());
+            esData.put("nomComplet", utilisateur.getPrenom() + " " + utilisateur.getNom());
+            esData.put("email", utilisateur.getEmail());
+            esData.put("role", utilisateur.getRole().name());
+            esData.put("dateCreation", utilisateur.getDateCreation().toString());
+            esData.put("status", utilisateur.isStatus());
+
+            esClient.index(i -> i
+                    .index("utilisateurs")
+                    .id(String.valueOf(utilisateur.getIdUtilisateur()))
+                    .document(esData)
+            );
+        } catch (Exception e) { System.err.println("Erreur ES User: " + e.getMessage()); }
+
     }
 
     @Override

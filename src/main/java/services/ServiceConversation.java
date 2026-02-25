@@ -1,12 +1,14 @@
 package services;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import entities.Conversation;
 import entities.TypeConversation;
+import utils.ElasticSearchClient;
 import utils.MyDBConnexion;
 
+import java.io.IOException;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class ServiceConversation implements CRUD<Conversation>{
 
@@ -14,7 +16,7 @@ public class ServiceConversation implements CRUD<Conversation>{
     public ServiceConversation(){
         cnx = MyDBConnexion.getInstance().getConnection();
     }
-
+    private ElasticsearchClient esClient= ElasticSearchClient.getInstance();
     @Override
     public void insertOne(Conversation conversation) throws SQLException {
         String query= "INSERT INTO `conversation`(`type`, `dateCreation`, `titre`) VALUES (?,?,?)";
@@ -31,7 +33,22 @@ public class ServiceConversation implements CRUD<Conversation>{
         if (rs.next()) {
             conversation.setIdConversation(rs.getInt(1));
         }
-        System.out.println("Conversation créée");
+
+        Map<String, Object> esData = new HashMap<>();
+        esData.put("idConversation",conversation.getIdConversation());
+        esData.put("type", conversation.getTypeConversation().name());
+        esData.put("dateCreation", conversation.getDateCreation().toString());
+        esData.put("titre", conversation.getTitre() == null ? "Chat Privé" : conversation.getTitre());
+        try {
+            esClient.index(i -> i
+                    .index("conversations")
+                    .id(String.valueOf(conversation.getIdConversation()))
+                    .document(esData)
+            );
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public String getNomAffichage(Conversation cnv, int idUserConnected){
@@ -68,6 +85,21 @@ public class ServiceConversation implements CRUD<Conversation>{
         ps.setInt(3,conversation.getIdConversation());
         ps.executeUpdate();
         System.out.println("Conversation modifiée");
+        try{
+        Map<String, Object> esData = new HashMap<>();
+        esData.put("idConversation", conversation.getIdConversation());
+        esData.put("type", conversation.getTypeConversation().name());
+        esData.put("dateCreation", conversation.getDateCreation().toString());
+        esData.put("titre", conversation.getTitre());
+
+        // L'ID doit être le même que lors de l'insertion pour que ES écrase l'ancien titre
+        esClient.index(i -> i
+                .index("conversations")
+                .id(String.valueOf(conversation.getIdConversation()))
+                .document(esData)
+        );}catch(Exception e){
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -77,6 +109,12 @@ public class ServiceConversation implements CRUD<Conversation>{
         ps.setInt(1,conversation.getIdConversation());
         ps.executeUpdate();
         System.out.println("Conversation supprimée");
+        try {
+            esClient.delete(d -> d.index("conversations").id(String.valueOf(conversation.getIdConversation())));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     @Override
