@@ -282,6 +282,7 @@ public class FaceRecognitionUtil {
             e.printStackTrace();
             return 0;
         }
+
     }
     /**
      * LBPH-based face comparison

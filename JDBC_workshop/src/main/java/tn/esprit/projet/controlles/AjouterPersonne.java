@@ -1569,4 +1569,6 @@ public class AjouterPersonne {
             showAlert("Error", "Failed to load forgot password page: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
+
+
 }

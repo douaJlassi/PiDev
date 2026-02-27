@@ -81,6 +81,8 @@ public class MainPageController {
     private HBox coinCollectionBox;
     @FXML
     private Button shopBtn;
+    @FXML
+    private Button aiClassifierBtn;
 
     // Ad components
     private Popup adPopup;
@@ -350,6 +352,10 @@ public class MainPageController {
         if (shopBtn != null) {
             shopBtn.setOnAction(event -> openShop());
         }
+        if (aiClassifierBtn != null) {
+            aiClassifierBtn.setOnAction(event -> openAIClassifier());
+        }
+
 
         // Activities button action
         if (activitiesBtn != null) {
@@ -398,6 +404,27 @@ public class MainPageController {
         // Coin collection button action
         if (collectCoinBtn != null) {
             collectCoinBtn.setOnAction(event -> collectCoin());
+        }
+    }
+
+    private void openAIClassifier() {
+        try {
+            stopAllTimers();
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/AIClassifier.fxml"));
+            Parent aiRoot = loader.load();
+
+            AIClassifierController aiController = loader.getController();
+            aiController.setUserData(currentUser);
+
+            Stage currentStage = (Stage) aiClassifierBtn.getScene().getWindow();
+            currentStage.setScene(new Scene(aiRoot));
+            currentStage.setTitle("AI Travel Guide - " + currentUser.getUsername());
+            currentStage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to open AI classifier: " + e.getMessage());
         }
     }
     private void openShop() {

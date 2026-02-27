@@ -5,8 +5,8 @@
 
 <StackPane xmlns:fx="http://javafx.com/fxml"
            fx:controller="tn.esprit.projet.controlles.LoadingController"
-           prefWidth="1000"
-           prefHeight="787"
+           prefWidth="1300"
+           prefHeight="800"
            style="-fx-background-color: linear-gradient(to bottom right,#0FA5A2,#1D4D7C);">
 
     <HBox alignment="CENTER" spacing="0">

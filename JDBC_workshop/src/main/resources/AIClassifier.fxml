@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="tn.esprit.projet.controlles.AIClassifierController"
+            prefWidth="1200"
+            prefHeight="800"
+            style="-fx-background-color: linear-gradient(to bottom right, #1a2a3a, #0d1a26);">
+
+    <top>
+        <VBox spacing="0">
+            <!-- Header -->
+            <HBox alignment="CENTER_LEFT" spacing="20"
+                  style="-fx-background-color: rgba(0,0,0,0.5); -fx-padding: 20 30; -fx-background-radius: 0 0 20 20;">
+                <Label text="🤖 AI Travel Guide" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button fx:id="backBtn" text="← Back to Main"
+                        style="-fx-background-color: rgba(255,255,255,0.2); -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 25; -fx-cursor: hand;"
+                        onAction="#goBack"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-border-color: transparent;">
+            <VBox fx:id="mainContainer" spacing="30" alignment="TOP_CENTER"
+                  style="-fx-padding: 30; -fx-background-color: transparent;">
+
+                <!-- Title Section -->
+                <VBox spacing="10" alignment="CENTER">
+                    <Label fx:id="titleLabel" text="Discover Places Like This"
+                           style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                    <Label fx:id="subtitleLabel" text="Upload a photo of a landscape and our AI will find similar places around the world"
+                           style="-fx-font-size: 16px; -fx-text-fill: rgba(255,255,255,0.8);"/>
+                </VBox>
+
+                <!-- Upload Section -->
+                <VBox spacing="20" alignment="CENTER" style="-fx-padding: 20;">
+                    <Button fx:id="uploadBtn" text="📁 Choose Image"
+                            style="-fx-background-color: #0FA5A2; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 12 30; -fx-background-radius: 30; -fx-cursor: hand;"/>
+
+                    <!-- Drag & Drop Area - FIXED: replaced & with &amp; -->
+                    <VBox fx:id="uploadArea" alignment="CENTER" spacing="15"
+                          prefWidth="600" prefHeight="300"
+                          style="-fx-background-color: rgba(255,255,255,0.1); -fx-background-radius: 20; -fx-border-color: #0FA5A2; -fx-border-width: 2; -fx-border-style: dashed; -fx-border-radius: 20;">
+
+                        <padding>
+                            <Insets top="30" bottom="30" left="30" right="30"/>
+                        </padding>
+
+                        <Label text="📸" style="-fx-font-size: 48px;"/>
+                        <!-- FIXED: replaced & with &amp; -->
+                        <Label fx:id="uploadPrompt" text="Drag &amp; drop an image here or click 'Choose Image'"
+                               style="-fx-font-size: 16px; -fx-text-fill: rgba(255,255,255,0.8);"/>
+                        <ImageView fx:id="previewImage" fitWidth="300" fitHeight="200" preserveRatio="true"
+                                   style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 15, 0, 0, 0); -fx-background-radius: 10;"/>
+                    </VBox>
+
+                    <!-- Analyze Button -->
+                    <HBox alignment="CENTER" spacing="20">
+                        <Button fx:id="analyzeBtn" text="🔍 Analyze Image"
+                                style="-fx-background-color: linear-gradient(to right, #FEC74C, #0FA5A2); -fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold; -fx-padding: 15 40; -fx-background-radius: 30; -fx-cursor: hand;"/>
+                        <ProgressIndicator fx:id="loadingIndicator" visible="false" prefWidth="40" prefHeight="40"/>
+                    </HBox>
+
+                    <Label fx:id="statusLabel" style="-fx-text-fill: #FEC74C; -fx-font-size: 14px;"/>
+                </VBox>
+
+                <!-- Results Section -->
+                <VBox fx:id="resultContainer" spacing="20" visible="false" managed="false"
+                      style="-fx-background-color: rgba(255,255,255,0.95); -fx-background-radius: 20; -fx-padding: 30; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 20, 0, 0, 0);">
+
+                    <Label fx:id="resultTitle" text="✨ Analysis Complete!"
+                           style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C;"/>
+
+                    <HBox spacing="20" alignment="CENTER_LEFT">
+                        <Label fx:id="categoryLabel" text="FOREST"
+                               style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2ecc71;"/>
+                        <Label fx:id="confidenceLabel" text="Confidence: 95%"
+                               style="-fx-font-size: 16px; -fx-text-fill: #666; -fx-background-color: #f0f0f0; -fx-padding: 5 15; -fx-background-radius: 20;"/>
+                    </HBox>
+
+                    <Separator/>
+
+                    <Label fx:id="placesTitle" text="📍 Similar Places You Might Like"
+                           style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C; -fx-padding: 10 0;"/>
+
+                    <ScrollPane fitToWidth="true" prefHeight="300"
+                                style="-fx-background-color: transparent; -fx-border-color: transparent;">
+                        <FlowPane fx:id="placesGrid" hgap="20" vgap="20" alignment="CENTER">
+                            <padding>
+                                <Insets bottom="20" right="20"/>
+                            </padding>
+                        </FlowPane>
+                    </ScrollPane>
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+
+    <bottom>
+        <HBox alignment="CENTER" style="-fx-background-color: rgba(0,0,0,0.3); -fx-padding: 15;">
+            <Label text="© 2025 Rehletna.tn - AI Travel Assistant"
+                   style="-fx-font-size: 12px; -fx-text-fill: rgba(255,255,255,0.6);"/>
+        </HBox>
+    </bottom>
+</BorderPane>
