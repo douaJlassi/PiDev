@@ -12,6 +12,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.Glow;
 import javafx.scene.effect.InnerShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -24,6 +25,8 @@ import javafx.scene.paint.*;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import tn.esprit.projet.entities.Person;
@@ -1407,7 +1410,7 @@ public class DashboardController {
 
         Label editLabel = new Label("✏️");
         editLabel.setStyle("-fx-font-size: 18px; -fx-cursor: hand;");
-        editLabel.setOnMouseClicked(e -> handleEditUser(user));
+        editLabel.setOnMouseClicked(e -> showBeautifulEditUserDialog(user));
 
         Label deleteLabel = new Label("🗑️");
         deleteLabel.setStyle("-fx-font-size: 18px; -fx-cursor: hand;");
@@ -1612,7 +1615,7 @@ public class DashboardController {
             editBtn.setScaleX(1.0);
             editBtn.setScaleY(1.0);
         });
-        editBtn.setOnMouseClicked(e -> handleEditUser(user));
+        editBtn.setOnMouseClicked(e -> showBeautifulEditUserDialog(user));
 
         // Delete Button with emoji - Circular design
         StackPane deleteBtn = new StackPane();
@@ -1688,77 +1691,256 @@ public class DashboardController {
         return badge;
     }
 
+    // ==================== BEAUTIFUL ADD USER DIALOG ====================
+
     private void handleAddUser() {
         Dialog<Object[]> dialog = new Dialog<>();
-        dialog.setTitle("Add New User");
-        dialog.setHeaderText("Enter user details");
+        dialog.setTitle("✨ Add New User");
+        dialog.setHeaderText(null);
 
-        ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+        // Set dialog background and styling
+        DialogPane dialogPane = dialog.getDialogPane();
+        dialogPane.setStyle("-fx-background-color: linear-gradient(to bottom right, #0FA5A2, #1D4D7C); -fx-background-radius: 30; -fx-padding: 20;");
+        dialogPane.setPrefWidth(600);
+        dialogPane.setPrefHeight(700);
 
-        GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(20));
+        // Create header with icon
+        HBox headerBox = createDialogHeader("👤", "Create New Account", "Fill in the details to add a new user");
 
-        TextField usernameField = new TextField();
-        usernameField.setPromptText("Username");
-
-        TextField emailField = new TextField();
-        emailField.setPromptText("Email");
-
-        PasswordField passwordField = new PasswordField();
-        passwordField.setPromptText("Password");
-
-        TextField nameField = new TextField();
-        nameField.setPromptText("First Name");
-
-        TextField lastNameField = new TextField();
-        lastNameField.setPromptText("Last Name");
-
-        ComboBox<String> roleCombo = new ComboBox<>();
-        roleCombo.getItems().addAll("Admin", "Guider", "User");
-        roleCombo.setValue("User");
-
+        // Create form fields with validation
+        TextField usernameField = createStyledTextField("Username", "");
+        TextField emailField = createStyledTextField("Email", "");
+        PasswordField passwordField = createStyledPasswordField("Password", "");
+        PasswordField confirmPasswordField = createStyledPasswordField("Confirm Password", "");
+        TextField firstNameField = createStyledTextField("First Name", "");
+        TextField lastNameField = createStyledTextField("Last Name", "");
+        TextField dateField = createStyledTextField("Birth Date", "");
         DatePicker datePicker = new DatePicker();
+        datePicker.setPromptText("Select date");
+        datePicker.setPrefHeight(45);
+        datePicker.setStyle("-fx-background-color: #f8f9fa; -fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #e0e0e0; -fx-font-size: 14px;");
 
-        ComboBox<String> membershipCombo = new ComboBox<>();
-        membershipCombo.getItems().addAll("Standard", "Premium");
-        membershipCombo.setValue("Standard");
+        usernameField.setPromptText("Enter username");
+        emailField.setPromptText("Enter email address");
+        passwordField.setPromptText("Enter password");
+        confirmPasswordField.setPromptText("Confirm password");
+        firstNameField.setPromptText("Enter first name");
+        lastNameField.setPromptText("Enter last name");
+        dateField.setPromptText("DD/MM/YYYY");
+
+        // Add real-time validation
+        Label usernameError = createValidationLabel();
+        Label emailError = createValidationLabel();
+        Label passwordError = createValidationLabel();
+        Label confirmError = createValidationLabel();
+        Label dateError = createValidationLabel();
+
+        // Username validation
+        usernameField.textProperty().addListener((obs, old, val) -> {
+            if (val.isEmpty()) {
+                usernameError.setText("Username is required");
+                usernameError.setVisible(true);
+                usernameField.setStyle(getFieldErrorStyle());
+            } else if (val.length() < 3) {
+                usernameError.setText("Username must be at least 3 characters");
+                usernameError.setVisible(true);
+                usernameField.setStyle(getFieldErrorStyle());
+            } else if (!val.matches("[A-Za-z0-9_]+")) {
+                usernameError.setText("Only letters, numbers and underscore");
+                usernameError.setVisible(true);
+                usernameField.setStyle(getFieldErrorStyle());
+            } else {
+                usernameError.setVisible(false);
+                usernameField.setStyle(getFieldValidStyle());
+            }
+        });
+
+        // Email validation
+        emailField.textProperty().addListener((obs, old, val) -> {
+            if (val.isEmpty()) {
+                emailError.setText("Email is required");
+                emailError.setVisible(true);
+                emailField.setStyle(getFieldErrorStyle());
+            } else if (!val.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+                emailError.setText("Enter a valid email address");
+                emailError.setVisible(true);
+                emailField.setStyle(getFieldErrorStyle());
+            } else {
+                emailError.setVisible(false);
+                emailField.setStyle(getFieldValidStyle());
+            }
+        });
+
+        // Password validation
+        passwordField.textProperty().addListener((obs, old, val) -> {
+            if (val.isEmpty()) {
+                passwordError.setText("Password is required");
+                passwordError.setVisible(true);
+                passwordField.setStyle(getFieldErrorStyle());
+            } else if (val.length() < 8) {
+                passwordError.setText("Password must be at least 8 characters");
+                passwordError.setVisible(true);
+                passwordField.setStyle(getFieldErrorStyle());
+            } else {
+                passwordError.setVisible(false);
+                passwordField.setStyle(getFieldValidStyle());
+            }
+            validateConfirmPassword(passwordField, confirmPasswordField, confirmError);
+        });
+
+        // Confirm password validation
+        confirmPasswordField.textProperty().addListener((obs, old, val) -> {
+            validateConfirmPassword(passwordField, confirmPasswordField, confirmError);
+        });
+
+        // Date validation
+        dateField.textProperty().addListener((obs, old, val) -> {
+            if (!val.isEmpty() && !val.matches("^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/(19[4-9][0-9]|20[01][0-9]|202[0-6])$")) {
+                dateError.setText("Use format: DD/MM/YYYY");
+                dateError.setVisible(true);
+                dateField.setStyle(getFieldErrorStyle());
+            } else {
+                dateError.setVisible(false);
+                dateField.setStyle(getFieldValidStyle());
+            }
+        });
+
+        // Create form grid
+        GridPane grid = new GridPane();
+        grid.setHgap(15);
+        grid.setVgap(15);
+        grid.setAlignment(Pos.CENTER);
+
+        ColumnConstraints col1 = new ColumnConstraints(120);
+        ColumnConstraints col2 = new ColumnConstraints(350);
+        grid.getColumnConstraints().addAll(col1, col2);
 
         int row = 0;
-        grid.add(new Label("Username:"), 0, row);
-        grid.add(usernameField, 1, row++);
-        grid.add(new Label("Email:"), 0, row);
-        grid.add(emailField, 1, row++);
-        grid.add(new Label("Password:"), 0, row);
-        grid.add(passwordField, 1, row++);
-        grid.add(new Label("First Name:"), 0, row);
-        grid.add(nameField, 1, row++);
-        grid.add(new Label("Last Name:"), 0, row);
-        grid.add(lastNameField, 1, row++);
-        grid.add(new Label("Role:"), 0, row);
-        grid.add(roleCombo, 1, row++);
-        grid.add(new Label("Membership:"), 0, row);
-        grid.add(membershipCombo, 1, row++);
-        grid.add(new Label("Date:"), 0, row);
-        grid.add(datePicker, 1, row);
+        addFormFieldWithValidation(grid, "👤 Username:", usernameField, usernameError, row++);
+        addFormFieldWithValidation(grid, "📧 Email:", emailField, emailError, row++);
+        addFormFieldWithValidation(grid, "🔒 Password:", passwordField, passwordError, row++);
+        addFormFieldWithValidation(grid, "✓ Confirm:", confirmPasswordField, confirmError, row++);
+        addFormFieldWithValidation(grid, "📛 First Name:", firstNameField, null, row++);
+        addFormFieldWithValidation(grid, "📛 Last Name:", lastNameField, null, row++);
 
-        dialog.getDialogPane().setContent(grid);
+        // Date row with both text field and date picker
+        HBox dateBox = new HBox(10);
+        dateBox.getChildren().addAll(dateField, datePicker);
+        HBox.setHgrow(dateField, Priority.ALWAYS);
 
+        Label dateLabel = new Label("📅 Birth Date:");
+        dateLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C;");
+
+        VBox dateContainer = new VBox(3);
+        dateContainer.getChildren().addAll(dateBox, dateError);
+
+        grid.add(dateLabel, 0, row);
+        grid.add(dateContainer, 1, row++);
+
+        // Role selection
+        HBox roleBox = createRoleSelector();
+
+        // Membership selection with cards
+        VBox membershipBox = createMembershipSelector();
+
+        // Create content container
+        VBox content = new VBox(20);
+        content.setStyle("-fx-background-color: rgba(255,255,255,0.95); -fx-background-radius: 20; -fx-padding: 25;");
+        content.setEffect(new DropShadow(20, Color.web("#00000040")));
+        content.getChildren().addAll(grid, roleBox, membershipBox);
+
+        // Button Bar
+        ButtonType saveButtonType = new ButtonType("✨ Create Account", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelButtonType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        dialogPane.getButtonTypes().addAll(saveButtonType, cancelButtonType);
+
+        // Style buttons
+        Button saveButton = (Button) dialogPane.lookupButton(saveButtonType);
+        saveButton.setStyle("-fx-background-color: linear-gradient(to right, #0FA5A2, #1D4D7C); -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 12 30; -fx-background-radius: 25; -fx-cursor: hand;");
+        saveButton.setEffect(new DropShadow(10, Color.web("#0FA5A280")));
+
+        Button cancelButton = (Button) dialogPane.lookupButton(cancelButtonType);
+        cancelButton.setStyle("-fx-background-color: #ff5e62; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 12 30; -fx-background-radius: 25; -fx-cursor: hand;");
+        cancelButton.setEffect(new DropShadow(10, Color.web("#ff5e6280")));
+
+        // Add hover effects
+        addButtonHoverEffect(saveButton, "linear-gradient(to right, #0FA5A2, #1D4D7C)", "#0FA5A2");
+        addButtonHoverEffect(cancelButton, "#ff5e62", "#ff5e62");
+
+        // Disable save button initially
+        saveButton.setDisable(true);
+
+        // Enable save button only when all validations pass
+        Runnable updateSaveButton = () -> {
+            boolean valid = !usernameField.getText().isEmpty() && !usernameError.isVisible() &&
+                    !emailField.getText().isEmpty() && !emailError.isVisible() &&
+                    !passwordField.getText().isEmpty() && !passwordError.isVisible() &&
+                    !confirmPasswordField.getText().isEmpty() && !confirmError.isVisible();
+            saveButton.setDisable(!valid);
+        };
+
+        usernameField.textProperty().addListener((obs, old, val) -> updateSaveButton.run());
+        emailField.textProperty().addListener((obs, old, val) -> updateSaveButton.run());
+        passwordField.textProperty().addListener((obs, old, val) -> updateSaveButton.run());
+        confirmPasswordField.textProperty().addListener((obs, old, val) -> updateSaveButton.run());
+
+        // Combine everything
+        VBox mainContent = new VBox(20);
+        mainContent.getChildren().addAll(headerBox, content);
+
+        dialogPane.setContent(mainContent);
+
+        // Get selected role and membership
+        ToggleGroup roleGroup = (ToggleGroup) roleBox.getUserData();
+
+        // Set result converter
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == saveButtonType) {
                 Person person = new Person();
-                person.setUsername(usernameField.getText());
-                person.setEmail(emailField.getText());
+                person.setUsername(usernameField.getText().trim());
+                person.setEmail(emailField.getText().trim().toLowerCase());
                 person.setPassword(passwordField.getText());
-                person.setName(nameField.getText());
-                person.setLastName(lastNameField.getText());
-                person.setRole(roleCombo.getValue());
-                if (datePicker.getValue() != null) {
+                person.setName(firstNameField.getText().trim());
+                person.setLastName(lastNameField.getText().trim());
+
+                // Get selected role
+                RadioButton selectedRole = (RadioButton) roleGroup.getSelectedToggle();
+                String role = "USER";
+                if (selectedRole != null) {
+                    String roleText = selectedRole.getText();
+                    if (roleText.contains("Guider")) role = "GUIDER";
+                    else if (roleText.contains("Admin")) role = "ADMIN";
+                }
+                person.setRole(role);
+
+                // Parse date from either field or picker
+                if (!dateField.getText().isEmpty()) {
+                    try {
+                        String[] dateParts = dateField.getText().split("/");
+                        String sqlDateStr = dateParts[2] + "-" + dateParts[1] + "-" + dateParts[0];
+                        person.setDate(java.sql.Date.valueOf(sqlDateStr));
+                    } catch (Exception e) {
+                        // Invalid date
+                    }
+                } else if (datePicker.getValue() != null) {
                     person.setDate(java.sql.Date.valueOf(datePicker.getValue()));
                 }
-                return new Object[]{person, membershipCombo.getValue()};
+
+                // Get selected membership from the first selected card
+                String membership = "Standard";
+                HBox membershipCards = (HBox) membershipBox.getChildren().get(1);
+                for (Node node : membershipCards.getChildren()) {
+                    if (node instanceof VBox) {
+                        VBox card = (VBox) node;
+                        Rectangle indicator = (Rectangle) card.getChildren().get(3);
+                        if (indicator.isVisible()) {
+                            membership = (String) card.getUserData();
+                            break;
+                        }
+                    }
+                }
+
+                return new Object[]{person, membership};
             }
             return null;
         });
@@ -1768,122 +1950,250 @@ public class DashboardController {
         result.ifPresent(data -> {
             Person person = (Person) data[0];
             String membership = (String) data[1];
-
-            try {
-                personService.insertOneUpdated(person);
-                Person createdUser = personService.login(person.getEmail(), person.getPassword());
-
-                if (createdUser != null) {
-                    Profile profile = new Profile();
-                    profile.setIdUser(createdUser.getId());
-                    profile.setMemberPremium(membership);
-                    profile.setLanguage("English");
-                    profile.setCoins(0);
-
-                    String imagePath = "C:\\Users\\pyrox\\Downloads\\default_image.png";
-                    File imageFile = new File(imagePath);
-
-                    if (imageFile.exists()) {
-                        try (FileInputStream fis = new FileInputStream(imageFile)) {
-                            byte[] defaultImage = fis.readAllBytes();
-                            profile.setImage(defaultImage);
-                        } catch (IOException e) {
-                            System.err.println("Failed to load default image: " + e.getMessage());
-                        }
-                    }
-
-                    profileService.insertOne(profile);
-
-                    if (profile.getImage() != null) {
-                        Image image = new Image(new ByteArrayInputStream(profile.getImage()));
-                        profileImageCache.put(createdUser.getId(), image);
-                    }
-                }
-
-                loadUsersFromDatabase();
-                showAlert("Success", "User added successfully with " + membership + " membership!", Alert.AlertType.INFORMATION);
-
-            } catch (SQLException e) {
-                e.printStackTrace();
-                showAlert("Error", "Failed to add user: " + e.getMessage(), Alert.AlertType.ERROR);
-            }
+            saveNewUser(person, membership);
         });
     }
 
-    private void handleEditUser(Person user) {
+    // ==================== BEAUTIFUL EDIT USER DIALOG ====================
+
+    private void showBeautifulEditUserDialog(Person user) {
         Dialog<Object[]> dialog = new Dialog<>();
-        dialog.setTitle("Edit User");
-        dialog.setHeaderText("Edit user: " + user.getUsername());
+        dialog.setTitle("✏️ Edit User");
+        dialog.setHeaderText(null);
 
-        ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+        // Set dialog background and styling
+        DialogPane dialogPane = dialog.getDialogPane();
+        dialogPane.setStyle("-fx-background-color: linear-gradient(to bottom right, #FEC74C, #0FA5A2); -fx-background-radius: 30; -fx-padding: 20;");
+        dialogPane.setPrefWidth(600);
+        dialogPane.setPrefHeight(700);
 
-        GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(20));
-
-        TextField usernameField = new TextField(user.getUsername());
-        TextField emailField = new TextField(user.getEmail());
-        TextField nameField = new TextField(user.getName());
-        TextField lastNameField = new TextField(user.getLastName());
-
-        ComboBox<String> roleCombo = new ComboBox<>();
-        roleCombo.getItems().addAll("Admin", "Guider", "User");
-        roleCombo.setValue(user.getRole());
-
-        String currentMembership = "Standard";
-        boolean hasImage = false;
-        Profile existingProfile = null;
-
+        // Get current profile
+        Profile userProfile = null;
         try {
-            existingProfile = profileService.getProfileByUserId(user.getId());
-            if (existingProfile != null) {
-                currentMembership = existingProfile.getMemberPremium();
-                hasImage = existingProfile.getImage() != null && existingProfile.getImage().length > 0;
-            }
+            userProfile = profileService.getProfileByUserId(user.getId());
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        ComboBox<String> membershipCombo = new ComboBox<>();
-        membershipCombo.getItems().addAll("Standard", "Premium");
-        membershipCombo.setValue(currentMembership);
+        String currentMembership = (userProfile != null && userProfile.getMemberPremium() != null)
+                ? userProfile.getMemberPremium() : "Standard";
 
-        CheckBox setDefaultImageCheckBox = new CheckBox("Set default image");
-        setDefaultImageCheckBox.setSelected(false);
-        if (!hasImage) {
-            setDefaultImageCheckBox.setText("No image found - Set default image");
-            setDefaultImageCheckBox.setSelected(true);
-            setDefaultImageCheckBox.setStyle("-fx-text-fill: #ff5e62; -fx-font-weight: bold;");
+        // Create header with icon
+        HBox headerBox = createDialogHeader("✏️", "Edit User: " + user.getUsername(), "Update user information");
+
+        // Create form fields with existing data
+        TextField usernameField = createStyledTextField("Username", user.getUsername());
+        TextField emailField = createStyledTextField("Email", user.getEmail());
+        TextField firstNameField = createStyledTextField("First Name", user.getName());
+        TextField lastNameField = createStyledTextField("Last Name", user.getLastName());
+
+        // Format date for display
+        String dateString = "";
+        DatePicker datePicker = new DatePicker();
+        if (user.getDate() != null) {
+            LocalDate date = user.getDate().toLocalDate();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            dateString = date.format(formatter);
+            datePicker.setValue(date);
         }
+        datePicker.setPromptText("Select date");
+        datePicker.setPrefHeight(45);
+        datePicker.setStyle("-fx-background-color: #f8f9fa; -fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #e0e0e0; -fx-font-size: 14px;");
+
+        TextField dateField = createStyledTextField("Birth Date", dateString);
+
+        usernameField.setPromptText("Enter username");
+        emailField.setPromptText("Enter email address");
+        firstNameField.setPromptText("Enter first name");
+        lastNameField.setPromptText("Enter last name");
+        dateField.setPromptText("DD/MM/YYYY");
+
+        // Add validation labels
+        Label usernameError = createValidationLabel();
+        Label emailError = createValidationLabel();
+        Label dateError = createValidationLabel();
+
+        // Username validation
+        usernameField.textProperty().addListener((obs, old, val) -> {
+            if (val.isEmpty()) {
+                usernameError.setText("Username is required");
+                usernameError.setVisible(true);
+                usernameField.setStyle(getFieldErrorStyle());
+            } else if (val.length() < 3) {
+                usernameError.setText("Username must be at least 3 characters");
+                usernameError.setVisible(true);
+                usernameField.setStyle(getFieldErrorStyle());
+            } else if (!val.matches("[A-Za-z0-9_]+")) {
+                usernameError.setText("Only letters, numbers and underscore");
+                usernameError.setVisible(true);
+                usernameField.setStyle(getFieldErrorStyle());
+            } else {
+                usernameError.setVisible(false);
+                usernameField.setStyle(getFieldValidStyle());
+            }
+        });
+
+        // Email validation
+        emailField.textProperty().addListener((obs, old, val) -> {
+            if (val.isEmpty()) {
+                emailError.setText("Email is required");
+                emailError.setVisible(true);
+                emailField.setStyle(getFieldErrorStyle());
+            } else if (!val.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+                emailError.setText("Enter a valid email address");
+                emailError.setVisible(true);
+                emailField.setStyle(getFieldErrorStyle());
+            } else {
+                emailError.setVisible(false);
+                emailField.setStyle(getFieldValidStyle());
+            }
+        });
+
+        // Date validation
+        dateField.textProperty().addListener((obs, old, val) -> {
+            if (!val.isEmpty() && !val.matches("^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/(19[4-9][0-9]|20[01][0-9]|202[0-6])$")) {
+                dateError.setText("Use format: DD/MM/YYYY");
+                dateError.setVisible(true);
+                dateField.setStyle(getFieldErrorStyle());
+            } else {
+                dateError.setVisible(false);
+                dateField.setStyle(getFieldValidStyle());
+            }
+        });
+
+        // Create form grid
+        GridPane grid = new GridPane();
+        grid.setHgap(15);
+        grid.setVgap(15);
+        grid.setAlignment(Pos.CENTER);
+
+        ColumnConstraints col1 = new ColumnConstraints(120);
+        ColumnConstraints col2 = new ColumnConstraints(350);
+        grid.getColumnConstraints().addAll(col1, col2);
 
         int row = 0;
-        grid.add(new Label("Username:"), 0, row);
-        grid.add(usernameField, 1, row++);
-        grid.add(new Label("Email:"), 0, row);
-        grid.add(emailField, 1, row++);
-        grid.add(new Label("First Name:"), 0, row);
-        grid.add(nameField, 1, row++);
-        grid.add(new Label("Last Name:"), 0, row);
-        grid.add(lastNameField, 1, row++);
-        grid.add(new Label("Role:"), 0, row);
-        grid.add(roleCombo, 1, row++);
-        grid.add(new Label("Membership:"), 0, row);
-        grid.add(membershipCombo, 1, row++);
-        grid.add(new Label("Image:"), 0, row);
-        grid.add(setDefaultImageCheckBox, 1, row++);
+        addFormFieldWithValidation(grid, "👤 Username:", usernameField, usernameError, row++);
+        addFormFieldWithValidation(grid, "📧 Email:", emailField, emailError, row++);
+        addFormFieldWithValidation(grid, "📛 First Name:", firstNameField, null, row++);
+        addFormFieldWithValidation(grid, "📛 Last Name:", lastNameField, null, row++);
 
-        dialog.getDialogPane().setContent(grid);
+        // Date row with both text field and date picker
+        HBox dateBox = new HBox(10);
+        dateBox.getChildren().addAll(dateField, datePicker);
+        HBox.setHgrow(dateField, Priority.ALWAYS);
 
+        Label dateLabel = new Label("📅 Birth Date:");
+        dateLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C;");
+
+        VBox dateContainer = new VBox(3);
+        dateContainer.getChildren().addAll(dateBox, dateError);
+
+        grid.add(dateLabel, 0, row);
+        grid.add(dateContainer, 1, row++);
+
+        // Role selection - preselect current role
+        HBox roleBox = createRoleSelectorWithSelection(user.getRole());
+
+        // Membership selection with cards - preselect current membership
+        VBox membershipBox = createMembershipSelectorWithSelection(currentMembership);
+
+        // Set default image option
+        boolean hasImage = (userProfile != null && userProfile.getImage() != null && userProfile.getImage().length > 0);
+        CheckBox setDefaultImageCheckBox = new CheckBox(hasImage ? "Replace with default image" : "Set default image");
+        setDefaultImageCheckBox.setStyle("-fx-font-size: 13px; -fx-text-fill: #333;");
+        if (!hasImage) {
+            setDefaultImageCheckBox.setStyle("-fx-font-size: 13px; -fx-text-fill: #ff5e62; -fx-font-weight: bold;");
+        }
+
+        HBox imageOptionBox = new HBox(setDefaultImageCheckBox);
+        imageOptionBox.setAlignment(Pos.CENTER_LEFT);
+        imageOptionBox.setPadding(new Insets(10, 0, 0, 0));
+
+        // Create content container
+        VBox content = new VBox(20);
+        content.setStyle("-fx-background-color: rgba(255,255,255,0.95); -fx-background-radius: 20; -fx-padding: 25;");
+        content.setEffect(new DropShadow(20, Color.web("#00000040")));
+        content.getChildren().addAll(grid, roleBox, membershipBox, imageOptionBox);
+
+        // Button Bar
+        ButtonType saveButtonType = new ButtonType("💾 Save Changes", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelButtonType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        dialogPane.getButtonTypes().addAll(saveButtonType, cancelButtonType);
+
+        // Style buttons
+        Button saveButton = (Button) dialogPane.lookupButton(saveButtonType);
+        saveButton.setStyle("-fx-background-color: linear-gradient(to right, #0FA5A2, #1D4D7C); -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 12 30; -fx-background-radius: 25; -fx-cursor: hand;");
+        saveButton.setEffect(new DropShadow(10, Color.web("#0FA5A280")));
+
+        Button cancelButton = (Button) dialogPane.lookupButton(cancelButtonType);
+        cancelButton.setStyle("-fx-background-color: #ff5e62; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 12 30; -fx-background-radius: 25; -fx-cursor: hand;");
+        cancelButton.setEffect(new DropShadow(10, Color.web("#ff5e6280")));
+
+        // Add hover effects
+        addButtonHoverEffect(saveButton, "linear-gradient(to right, #0FA5A2, #1D4D7C)", "#0FA5A2");
+        addButtonHoverEffect(cancelButton, "#ff5e62", "#ff5e62");
+
+        // Disable save button initially if validation fails
+        saveButton.setDisable(false);
+
+        // Validate on load
+        usernameField.setText(user.getUsername()); // Trigger validation
+        emailField.setText(user.getEmail());
+
+        // Combine everything
+        VBox mainContent = new VBox(20);
+        mainContent.getChildren().addAll(headerBox, content);
+
+        dialogPane.setContent(mainContent);
+
+        // Get selected role and membership
+        ToggleGroup roleGroup = (ToggleGroup) roleBox.getUserData();
+
+        // Set result converter
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == saveButtonType) {
-                user.setUsername(usernameField.getText());
-                user.setEmail(emailField.getText());
-                user.setName(nameField.getText());
-                user.setLastName(lastNameField.getText());
-                user.setRole(roleCombo.getValue());
-                return new Object[]{user, membershipCombo.getValue(), setDefaultImageCheckBox.isSelected()};
+                user.setUsername(usernameField.getText().trim());
+                user.setEmail(emailField.getText().trim().toLowerCase());
+                user.setName(firstNameField.getText().trim());
+                user.setLastName(lastNameField.getText().trim());
+
+                // Get selected role
+                RadioButton selectedRole = (RadioButton) roleGroup.getSelectedToggle();
+                if (selectedRole != null) {
+                    String roleText = selectedRole.getText();
+                    if (roleText.contains("Guider")) user.setRole("GUIDER");
+                    else if (roleText.contains("Admin")) user.setRole("ADMIN");
+                    else user.setRole("USER");
+                }
+
+                // Parse date if provided
+                if (!dateField.getText().isEmpty()) {
+                    try {
+                        String[] dateParts = dateField.getText().split("/");
+                        String sqlDateStr = dateParts[2] + "-" + dateParts[1] + "-" + dateParts[0];
+                        user.setDate(java.sql.Date.valueOf(sqlDateStr));
+                    } catch (Exception e) {
+                        // Keep existing date
+                    }
+                } else if (datePicker.getValue() != null) {
+                    user.setDate(java.sql.Date.valueOf(datePicker.getValue()));
+                }
+
+                // Get selected membership from the first selected card
+                String membership = "Standard";
+                HBox membershipCards = (HBox) membershipBox.getChildren().get(1);
+                for (Node node : membershipCards.getChildren()) {
+                    if (node instanceof VBox) {
+                        VBox card = (VBox) node;
+                        Rectangle indicator = (Rectangle) card.getChildren().get(3);
+                        if (indicator.isVisible()) {
+                            membership = (String) card.getUserData();
+                            break;
+                        }
+                    }
+                }
+
+                return new Object[]{user, membership, setDefaultImageCheckBox.isSelected()};
             }
             return null;
         });
@@ -1894,90 +2204,446 @@ public class DashboardController {
             Person updatedUser = (Person) data[0];
             String newMembership = (String) data[1];
             boolean setDefaultImage = (boolean) data[2];
+            updateExistingUser(updatedUser, newMembership, setDefaultImage);
+        });
+    }
 
-            try {
-                personService.updateOne(updatedUser);
+    // ==================== HELPER METHODS FOR DIALOGS ====================
 
-                Profile profile = profileService.getProfileByUserId(updatedUser.getId());
+    private HBox createDialogHeader(String emoji, String title, String subtitle) {
+        HBox headerBox = new HBox(15);
+        headerBox.setAlignment(Pos.CENTER_LEFT);
+        headerBox.setPadding(new Insets(0, 0, 20, 0));
 
-                if (profile != null) {
-                    profile.setMemberPremium(newMembership);
+        Label iconLabel = new Label(emoji);
+        iconLabel.setStyle("-fx-font-size: 48px; -fx-background-color: #FEC74C; -fx-background-radius: 50; -fx-padding: 15; -fx-text-fill: #1D4D7C;");
+        iconLabel.setEffect(new DropShadow(15, Color.web("#FEC74C80")));
 
-                    if (setDefaultImage) {
-                        String imagePath = "C:\\Users\\pyrox\\Downloads\\default_image.png";
-                        File imageFile = new File(imagePath);
+        VBox titleBox = new VBox(5);
+        Label titleLabel = new Label(title);
+        titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;");
 
-                        if (imageFile.exists()) {
-                            try (FileInputStream fis = new FileInputStream(imageFile)) {
-                                byte[] defaultImage = fis.readAllBytes();
-                                profile.setImage(defaultImage);
+        Label subtitleLabel = new Label(subtitle);
+        subtitleLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: rgba(255,255,255,0.8);");
 
-                                Image image = new Image(new ByteArrayInputStream(defaultImage));
-                                profileImageCache.put(updatedUser.getId(), image);
-                            } catch (IOException e) {
-                                System.err.println("Failed to load default image: " + e.getMessage());
-                            }
-                        }
-                    }
+        titleBox.getChildren().addAll(titleLabel, subtitleLabel);
+        headerBox.getChildren().addAll(iconLabel, titleBox);
 
-                    profileService.updateOne(profile);
-                } else {
-                    profile = new Profile();
-                    profile.setIdUser(updatedUser.getId());
-                    profile.setMemberPremium(newMembership);
-                    profile.setLanguage("English");
-                    profile.setCoins(0);
+        return headerBox;
+    }
 
-                    if (setDefaultImage) {
-                        String imagePath = "C:\\Users\\pyrox\\Downloads\\default_image.png";
-                        File imageFile = new File(imagePath);
+    private TextField createStyledTextField(String prompt, String text) {
+        TextField field = new TextField(text);
+        field.setPromptText(prompt);
+        field.setPrefHeight(45);
+        field.setStyle("-fx-background-color: #f8f9fa; -fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-padding: 0 15; -fx-font-size: 14px;");
 
-                        if (imageFile.exists()) {
-                            try (FileInputStream fis = new FileInputStream(imageFile)) {
-                                byte[] defaultImage = fis.readAllBytes();
-                                profile.setImage(defaultImage);
-
-                                Image image = new Image(new ByteArrayInputStream(defaultImage));
-                                profileImageCache.put(updatedUser.getId(), image);
-                            } catch (IOException e) {
-                                System.err.println("Failed to load default image: " + e.getMessage());
-                            }
-                        }
-                    }
-
-                    profileService.insertOne(profile);
+        field.focusedProperty().addListener((obs, old, focused) -> {
+            if (focused) {
+                field.setStyle("-fx-background-color: white; -fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #0FA5A2; -fx-border-width: 2; -fx-padding: 0 15; -fx-font-size: 14px; -fx-effect: dropshadow(gaussian, #0FA5A240, 10, 0, 0, 0);");
+            } else {
+                String currentStyle = field.getStyle();
+                if (!currentStyle.contains("#ff5e62")) {
+                    field.setStyle("-fx-background-color: #f8f9fa; -fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-padding: 0 15; -fx-font-size: 14px;");
                 }
+            }
+        });
 
-                loadUsersFromDatabase();
-                String imageMessage = setDefaultImage ? " with default image" : "";
-                showAlert("Success", "User updated successfully! Membership: " + newMembership + imageMessage, Alert.AlertType.INFORMATION);
+        return field;
+    }
 
-            } catch (SQLException e) {
-                e.printStackTrace();
-                showAlert("Error", "Failed to update user: " + e.getMessage(), Alert.AlertType.ERROR);
+    private PasswordField createStyledPasswordField(String prompt, String text) {
+        PasswordField field = new PasswordField();
+        field.setPromptText(prompt);
+        field.setText(text);
+        field.setPrefHeight(45);
+        field.setStyle("-fx-background-color: #f8f9fa; -fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-padding: 0 15; -fx-font-size: 14px;");
+
+        field.focusedProperty().addListener((obs, old, focused) -> {
+            if (focused) {
+                field.setStyle("-fx-background-color: white; -fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #0FA5A2; -fx-border-width: 2; -fx-padding: 0 15; -fx-font-size: 14px; -fx-effect: dropshadow(gaussian, #0FA5A240, 10, 0, 0, 0);");
+            } else {
+                String currentStyle = field.getStyle();
+                if (!currentStyle.contains("#ff5e62")) {
+                    field.setStyle("-fx-background-color: #f8f9fa; -fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-padding: 0 15; -fx-font-size: 14px;");
+                }
+            }
+        });
+
+        return field;
+    }
+
+    private Label createValidationLabel() {
+        Label label = new Label();
+        label.setTextFill(Color.INDIANRED);
+        label.setFont(Font.font("Segoe UI", FontWeight.NORMAL, 11));
+        label.setVisible(false);
+        label.setWrapText(true);
+        return label;
+    }
+
+    private String getFieldErrorStyle() {
+        return "-fx-background-color: #fff0f0; -fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #ff5e62; -fx-border-width: 2; -fx-padding: 0 15; -fx-font-size: 14px;";
+    }
+
+    private String getFieldValidStyle() {
+        return "-fx-background-color: #f0fff0; -fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #2ecc71; -fx-border-width: 2; -fx-padding: 0 15; -fx-font-size: 14px;";
+    }
+
+    private void addFormFieldWithValidation(GridPane grid, String labelText, TextField field, Label errorLabel, int row) {
+        Label label = new Label(labelText);
+        label.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C;");
+
+        VBox fieldContainer = new VBox(3);
+        fieldContainer.getChildren().add(field);
+        if (errorLabel != null) {
+            fieldContainer.getChildren().add(errorLabel);
+        }
+
+        grid.add(label, 0, row);
+        grid.add(fieldContainer, 1, row);
+    }
+
+    private HBox createRoleSelector() {
+        HBox roleBox = new HBox(20);
+        roleBox.setAlignment(Pos.CENTER_LEFT);
+        roleBox.setPadding(new Insets(10, 0, 0, 0));
+
+        Label roleLabel = new Label("👥 Role:");
+        roleLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C; -fx-min-width: 120;");
+
+        ToggleGroup roleGroup = new ToggleGroup();
+
+        RadioButton userRadio = createStyledRoleRadio("👤 User", "#0FA5A2", roleGroup);
+        RadioButton guiderRadio = createStyledRoleRadio("🧭 Guider", "#FEC74C", roleGroup);
+        RadioButton adminRadio = createStyledRoleRadio("👑 Admin", "#9b59b6", roleGroup);
+
+        userRadio.setSelected(true);
+
+        roleBox.getChildren().addAll(roleLabel, userRadio, guiderRadio, adminRadio);
+        roleBox.setUserData(roleGroup);
+
+        return roleBox;
+    }
+
+    private HBox createRoleSelectorWithSelection(String currentRole) {
+        HBox roleBox = new HBox(20);
+        roleBox.setAlignment(Pos.CENTER_LEFT);
+        roleBox.setPadding(new Insets(10, 0, 0, 0));
+
+        Label roleLabel = new Label("👥 Role:");
+        roleLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C; -fx-min-width: 120;");
+
+        ToggleGroup roleGroup = new ToggleGroup();
+
+        RadioButton userRadio = createStyledRoleRadio("👤 User", "#0FA5A2", roleGroup);
+        RadioButton guiderRadio = createStyledRoleRadio("🧭 Guider", "#FEC74C", roleGroup);
+        RadioButton adminRadio = createStyledRoleRadio("👑 Admin", "#9b59b6", roleGroup);
+
+        // Select based on current role
+        if ("ADMIN".equalsIgnoreCase(currentRole)) {
+            adminRadio.setSelected(true);
+        } else if ("GUIDER".equalsIgnoreCase(currentRole)) {
+            guiderRadio.setSelected(true);
+        } else {
+            userRadio.setSelected(true);
+        }
+
+        roleBox.getChildren().addAll(roleLabel, userRadio, guiderRadio, adminRadio);
+        roleBox.setUserData(roleGroup);
+
+        return roleBox;
+    }
+
+    private RadioButton createStyledRoleRadio(String text, String color, ToggleGroup group) {
+        RadioButton radio = new RadioButton(text);
+        radio.setToggleGroup(group);
+        radio.setStyle("-fx-font-size: 13px; -fx-text-fill: #333; -fx-font-weight: bold;");
+
+        Circle circle = new Circle(8);
+        circle.setFill(Color.web(color));
+        circle.setEffect(new InnerShadow(3, Color.web(color + "80")));
+        radio.setGraphic(circle);
+
+        return radio;
+    }
+
+    private VBox createMembershipSelector() {
+        VBox membershipBox = new VBox(10);
+        membershipBox.setPadding(new Insets(10, 0, 0, 0));
+
+        Label membershipTitle = new Label("💎 Membership Plan");
+        membershipTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C;");
+
+        HBox membershipCards = new HBox(15);
+        membershipCards.setAlignment(Pos.CENTER);
+
+        VBox standardCard = createMembershipCard("📋 STANDARD", "0 DT", "#95a5a6");
+        VBox premiumCard = createMembershipCard("⭐ PREMIUM", "29 DT", "#0FA5A2");
+        VBox vipCard = createMembershipCard("👑 VIP", "59 DT", "#FEC74C");
+        VBox vipPlusCard = createMembershipCard("💎 VIP+", "99 DT", "#9b59b6");
+
+        standardCard.setUserData("Standard");
+        premiumCard.setUserData("Premium");
+        vipCard.setUserData("VIP");
+        vipPlusCard.setUserData("VIP+");
+
+        // Set Standard as default selected
+        Rectangle standardIndicator = (Rectangle) standardCard.getChildren().get(3);
+        standardIndicator.setVisible(true);
+
+        membershipCards.getChildren().addAll(standardCard, premiumCard, vipCard, vipPlusCard);
+        membershipBox.getChildren().addAll(membershipTitle, membershipCards);
+
+        return membershipBox;
+    }
+
+    private VBox createMembershipSelectorWithSelection(String currentMembership) {
+        VBox membershipBox = new VBox(10);
+        membershipBox.setPadding(new Insets(10, 0, 0, 0));
+
+        Label membershipTitle = new Label("💎 Membership Plan");
+        membershipTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C;");
+
+        HBox membershipCards = new HBox(15);
+        membershipCards.setAlignment(Pos.CENTER);
+
+        VBox standardCard = createMembershipCard("📋 STANDARD", "0 DT", "#95a5a6");
+        VBox premiumCard = createMembershipCard("⭐ PREMIUM", "29 DT", "#0FA5A2");
+        VBox vipCard = createMembershipCard("👑 VIP", "59 DT", "#FEC74C");
+        VBox vipPlusCard = createMembershipCard("💎 VIP+", "99 DT", "#9b59b6");
+
+        standardCard.setUserData("Standard");
+        premiumCard.setUserData("Premium");
+        vipCard.setUserData("VIP");
+        vipPlusCard.setUserData("VIP+");
+
+        // Select based on current membership
+        Rectangle indicator;
+        if ("VIP+".equalsIgnoreCase(currentMembership)) {
+            indicator = (Rectangle) vipPlusCard.getChildren().get(3);
+        } else if ("VIP".equalsIgnoreCase(currentMembership)) {
+            indicator = (Rectangle) vipCard.getChildren().get(3);
+        } else if ("Premium".equalsIgnoreCase(currentMembership)) {
+            indicator = (Rectangle) premiumCard.getChildren().get(3);
+        } else {
+            indicator = (Rectangle) standardCard.getChildren().get(3);
+        }
+        indicator.setVisible(true);
+
+        membershipCards.getChildren().addAll(standardCard, premiumCard, vipCard, vipPlusCard);
+        membershipBox.getChildren().addAll(membershipTitle, membershipCards);
+
+        return membershipBox;
+    }
+
+    private VBox createMembershipCard(String title, String price, String color) {
+        VBox card = new VBox(8);
+        card.setAlignment(Pos.CENTER);
+        card.setPrefWidth(110);
+        card.setPrefHeight(100);
+        card.setStyle("-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 12; -fx-border-color: #e0e0e0; -fx-border-radius: 15; -fx-border-width: 1; -fx-cursor: hand;");
+        card.setEffect(new DropShadow(5, Color.web("#00000020")));
+
+        String[] parts = title.split(" ");
+        String emoji = parts[0];
+        String name = parts[1];
+
+        Label emojiLabel = new Label(emoji);
+        emojiLabel.setStyle("-fx-font-size: 24px;");
+
+        Label nameLabel = new Label(name);
+        nameLabel.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: " + color + ";");
+
+        Label priceLabel = new Label(price);
+        priceLabel.setStyle("-fx-font-size: 10px; -fx-text-fill: #666;");
+
+        card.getChildren().addAll(emojiLabel, nameLabel, priceLabel);
+
+        // Selection indicator
+        Rectangle selectionIndicator = new Rectangle(90, 4, Color.web(color));
+        selectionIndicator.setArcWidth(4);
+        selectionIndicator.setArcHeight(4);
+        selectionIndicator.setVisible(false);
+        card.getChildren().add(selectionIndicator);
+
+        // Mouse click handler
+        card.setOnMouseClicked(e -> {
+            // Deselect all cards first
+            if (card.getParent() instanceof HBox) {
+                HBox parent = (HBox) card.getParent();
+                for (Node node : parent.getChildren()) {
+                    if (node instanceof VBox) {
+                        VBox otherCard = (VBox) node;
+                        Rectangle otherIndicator = (Rectangle) otherCard.getChildren().get(3);
+                        otherIndicator.setVisible(false);
+                    }
+                }
+            }
+            // Select this card
+            selectionIndicator.setVisible(true);
+        });
+
+        // Hover effects
+        card.setOnMouseEntered(e -> {
+            if (!selectionIndicator.isVisible()) {
+                card.setStyle("-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 12; -fx-border-color: " + color + "; -fx-border-radius: 15; -fx-border-width: 2; -fx-cursor: hand;");
+                card.setEffect(new DropShadow(10, Color.web(color + "80")));
+            }
+        });
+
+        card.setOnMouseExited(e -> {
+            if (!selectionIndicator.isVisible()) {
+                card.setStyle("-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 12; -fx-border-color: #e0e0e0; -fx-border-radius: 15; -fx-border-width: 1; -fx-cursor: hand;");
+                card.setEffect(new DropShadow(5, Color.web("#00000020")));
+            }
+        });
+
+        return card;
+    }
+
+    private void addButtonHoverEffect(Button button, String baseColor, String glowColor) {
+        button.setOnMouseEntered(e -> {
+            if (baseColor.startsWith("linear-gradient")) {
+                button.setStyle("-fx-background-color: linear-gradient(to right, #1D4D7C, #0FA5A2); -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 12 30; -fx-background-radius: 25; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, " + glowColor + ", 15, 0, 0, 0);");
+            } else {
+                button.setStyle("-fx-background-color: #ff3030; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 12 30; -fx-background-radius: 25; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, " + glowColor + ", 15, 0, 0, 0);");
+            }
+        });
+
+        button.setOnMouseExited(e -> {
+            if (baseColor.startsWith("linear-gradient")) {
+                button.setStyle("-fx-background-color: linear-gradient(to right, #0FA5A2, #1D4D7C); -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 12 30; -fx-background-radius: 25; -fx-cursor: hand;");
+            } else {
+                button.setStyle("-fx-background-color: #ff5e62; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 12 30; -fx-background-radius: 25; -fx-cursor: hand;");
             }
         });
     }
 
-    private void handleDeleteUser(Person user) {
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Delete User");
-        confirm.setHeaderText(null);
-        confirm.setContentText("Are you sure you want to delete user: " + user.getUsername() + "?");
+    private void validateConfirmPassword(PasswordField passwordField, PasswordField confirmField, Label errorLabel) {
+        String password = passwordField.getText();
+        String confirm = confirmField.getText();
 
-        Optional<ButtonType> result = confirm.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            try {
-                personService.deleteOne(user);
-                profileImageCache.remove(user.getId());
-                loadUsersFromDatabase();
-                showAlert("Success", "User deleted successfully!", Alert.AlertType.INFORMATION);
-            } catch (SQLException e) {
-                e.printStackTrace();
-                showAlert("Error", "Failed to delete user: " + e.getMessage(), Alert.AlertType.ERROR);
-            }
+        if (confirm.isEmpty()) {
+            errorLabel.setText("Please confirm your password");
+            errorLabel.setVisible(true);
+            confirmField.setStyle(getFieldErrorStyle());
+        } else if (!password.equals(confirm)) {
+            errorLabel.setText("Passwords do not match");
+            errorLabel.setVisible(true);
+            confirmField.setStyle(getFieldErrorStyle());
+        } else {
+            errorLabel.setVisible(false);
+            confirmField.setStyle(getFieldValidStyle());
         }
     }
+
+    private void saveNewUser(Person person, String membership) {
+        try {
+            personService.insertOneUpdated(person);
+            Person createdUser = personService.login(person.getEmail(), person.getPassword());
+
+            if (createdUser != null) {
+                Profile profile = new Profile();
+                profile.setIdUser(createdUser.getId());
+                profile.setMemberPremium(membership);
+                profile.setLanguage("English");
+                profile.setCoins(0);
+
+                String imagePath = "C:\\Users\\pyrox\\Downloads\\default_image.png";
+                File imageFile = new File(imagePath);
+
+                if (imageFile.exists()) {
+                    try (FileInputStream fis = new FileInputStream(imageFile)) {
+                        byte[] defaultImage = fis.readAllBytes();
+                        profile.setImage(defaultImage);
+                    } catch (IOException e) {
+                        System.err.println("Failed to load default image: " + e.getMessage());
+                    }
+                }
+
+                profileService.insertOne(profile);
+
+                if (profile.getImage() != null) {
+                    Image image = new Image(new ByteArrayInputStream(profile.getImage()));
+                    profileImageCache.put(createdUser.getId(), image);
+                }
+            }
+
+            loadUsersFromDatabase();
+            showAlert("Success", "User added successfully with " + membership + " membership!", Alert.AlertType.INFORMATION);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to add user: " + e.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+
+    private void updateExistingUser(Person user, String newMembership, boolean setDefaultImage) {
+        try {
+            personService.updateOne(user);
+
+            Profile profile = profileService.getProfileByUserId(user.getId());
+
+            if (profile != null) {
+                profile.setMemberPremium(newMembership);
+
+                if (setDefaultImage) {
+                    String imagePath = "C:\\Users\\pyrox\\Downloads\\default_image.png";
+                    File imageFile = new File(imagePath);
+
+                    if (imageFile.exists()) {
+                        try (FileInputStream fis = new FileInputStream(imageFile)) {
+                            byte[] defaultImage = fis.readAllBytes();
+                            profile.setImage(defaultImage);
+
+                            Image image = new Image(new ByteArrayInputStream(defaultImage));
+                            profileImageCache.put(user.getId(), image);
+                        } catch (IOException e) {
+                            System.err.println("Failed to load default image: " + e.getMessage());
+                        }
+                    }
+                }
+
+                profileService.updateOne(profile);
+            } else {
+                profile = new Profile();
+                profile.setIdUser(user.getId());
+                profile.setMemberPremium(newMembership);
+                profile.setLanguage("English");
+                profile.setCoins(0);
+
+                if (setDefaultImage) {
+                    String imagePath = "C:\\Users\\pyrox\\Downloads\\default_image.png";
+                    File imageFile = new File(imagePath);
+
+                    if (imageFile.exists()) {
+                        try (FileInputStream fis = new FileInputStream(imageFile)) {
+                            byte[] defaultImage = fis.readAllBytes();
+                            profile.setImage(defaultImage);
+
+                            Image image = new Image(new ByteArrayInputStream(defaultImage));
+                            profileImageCache.put(user.getId(), image);
+                        } catch (IOException e) {
+                            System.err.println("Failed to load default image: " + e.getMessage());
+                        }
+                    }
+                }
+
+                profileService.insertOne(profile);
+            }
+
+            loadUsersFromDatabase();
+            String imageMessage = setDefaultImage ? " with default image" : "";
+            showAlert("Success", "User updated successfully! Membership: " + newMembership + imageMessage, Alert.AlertType.INFORMATION);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to update user: " + e.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+
+    // ==================== EXISTING METHODS (continued) ====================
 
     private void updateUserStatusLists() {
         if (onlineUsersContainer == null || offlineUsersContainer == null) return;
@@ -2226,7 +2892,7 @@ public class DashboardController {
 
     private void updateMenuStyles(Label activeMenu) {
 
-        Label[] menus = {dashboardMenuItem, usersMenuItem, todoMenuItem, statsMenuItem, shopMenuItem, // Add here
+        Label[] menus = {dashboardMenuItem, usersMenuItem, todoMenuItem, statsMenuItem, shopMenuItem,
                 myTicketsMenuItem, favouriteMenuItem, messageMenuItem, transactionMenuItem,
                 bookingsMenuItem, settingsMenuItem};
 
@@ -2815,6 +3481,25 @@ public class DashboardController {
         showShopManagement();
         updateMenuStyles(shopMenuItem);
     }
+    private void handleDeleteUser(Person user) {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Delete User");
+        confirm.setHeaderText(null);
+        confirm.setContentText("Are you sure you want to delete user: " + user.getUsername() + "?");
+
+        Optional<ButtonType> result = confirm.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                personService.deleteOne(user);
+                profileImageCache.remove(user.getId());
+                loadUsersFromDatabase();
+                showAlert("Success", "User deleted successfully!", Alert.AlertType.INFORMATION);
+            } catch (SQLException e) {
+                e.printStackTrace();
+                showAlert("Error", "Failed to delete user: " + e.getMessage(), Alert.AlertType.ERROR);
+            }
+        }
+    }
 
     private void showShopManagement() {
         try {
@@ -2831,4 +3516,5 @@ public class DashboardController {
             showAlert("Error", "Failed to open shop management: " + e.getMessage());
         }
     }
+
 }
