@@ -17,7 +17,6 @@
             </VBox.margin>
         </Label>
 
-        <!-- LE COMPOSANT WEB -->
         <WebView fx:id="webViewKibana" VBox.vgrow="ALWAYS" />
     </children>
 </VBox>

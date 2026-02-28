@@ -5,7 +5,6 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -14,25 +13,26 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import services.ServiceConversation;
 import services.ServiceMessage;
 import services.ServiceParticipantConversation;
 import services.ServiceUtilisateur;
+import utils.AudioRecorder;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -96,6 +96,17 @@ public class ChatView {
     private Button btnAddFile;
 
     @FXML
+    private VBox paneMediaHistory, vboxMediaList;
+    @FXML private VBox paneScrollDown;
+    @FXML private Label lblNewMsgBadge;
+    private int newMessagesCount = 0;
+
+    private AudioRecorder recorder = new AudioRecorder();
+    private File currentAudioFile;
+
+    @FXML
+    private Button btnMic;
+    @FXML
     public void initialize() {
         try {
             this.userConnecte = serUser.selectOne(currentUserId);
@@ -145,6 +156,18 @@ public class ChatView {
                 } catch (SQLException e) { e.printStackTrace(); }
             }
         });
+
+        scrollPaneMessages.vvalueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal.doubleValue() < 0.9) {
+                paneScrollDown.setVisible(true);
+                paneScrollDown.setManaged(true);
+            } else {
+                paneScrollDown.setVisible(false);
+                paneScrollDown.setManaged(false);
+                newMessagesCount = 0;
+                lblNewMsgBadge.setVisible(false);
+            }
+        });
     }
 
     private void loadConversations() {
@@ -192,6 +215,7 @@ public class ChatView {
                 paneQuitte.setVisible(true);
                 paneQuitte.setManaged(true);
             }
+            handleCloseMedia();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -215,17 +239,22 @@ public class ChatView {
     }
 
     private void prepareUserSelectionList() {
+        // 1. Gestion de la visibilité des panneaux
         chatArea.setVisible(false);
         chatArea.setManaged(false);
         paneDefault.setVisible(true);
         paneDefault.setManaged(true);
+
+        // On montre les outils de recherche
         userSearchField.setVisible(true);
         userSearchField.setManaged(true);
         listAllUsers.setVisible(true);
         listAllUsers.setManaged(true);
+
         try {
             List<Utilisateur> allUsers = serUser.selectALL();
             allUsers.removeIf(u -> u.getIdUtilisateur() == currentUserId);
+
             masterUserList.setAll(allUsers);
             filteredUserList = new FilteredList<>(masterUserList, p -> true);
             listAllUsers.setItems(filteredUserList);
@@ -247,31 +276,54 @@ public class ChatView {
                     if (empty || user == null) {
                         setGraphic(null);
                         setText(null);
+                        setStyle("-fx-background-color: transparent;");
                     } else {
-                        HBox container = new HBox(10);
+                        HBox container = new HBox(15);
                         container.setAlignment(Pos.CENTER_LEFT);
                         container.setPadding(new Insets(10, 15, 10, 15));
-                        container.setStyle("-fx-border-color: #f1f2f6; -fx-border-width: 0 0 1 0;");
+                        container.setCursor(Cursor.HAND);
+
+                        String styleBase = "-fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #f1f2f6; -fx-border-width: 0 0 1 0;";
+                        container.setStyle(styleBase);
+
+                        StackPane avatarPane = new StackPane();
+                        Circle circle = new Circle(18, Color.web("#10A5A5"));
+
+                        String initialesText = (user.getPrenom().substring(0, 1) + user.getNom().substring(0, 1)).toUpperCase();
+                        javafx.scene.text.Text txtInitiales = new javafx.scene.text.Text(initialesText);
+                        txtInitiales.setFill(Color.WHITE);
+                        txtInitiales.setStyle("-fx-font-weight: bold; -fx-font-size: 12;");
+
+                        avatarPane.getChildren().addAll(circle, txtInitiales);
 
                         VBox infoBox = new VBox(2);
                         Label lblName = new Label(user.getPrenom() + " " + user.getNom());
-                        lblName.setStyle("-fx-text-fill: #0D3B66; -fx-font-weight: bold;");
+                        lblName.setStyle("-fx-text-fill: #0D3B66; -fx-font-weight: bold; -fx-font-size: 14px;");
+
                         Label lblEmail = new Label(user.getEmail());
                         lblEmail.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 11px;");
+
                         infoBox.getChildren().addAll(lblName, lblEmail);
+                        HBox.setHgrow(infoBox, Priority.ALWAYS);
 
                         if (isGroupMode) {
                             CheckBox cb = new CheckBox();
+                            cb.setStyle("-fx-accent: #10A5A5;"); // Checkbox turquoise
                             cb.setSelected(selectedUsers.contains(user));
+
                             cb.setOnAction(e -> {
                                 if (cb.isSelected()) selectedUsers.add(user);
                                 else selectedUsers.remove(user);
                             });
-                            container.getChildren().addAll(cb, infoBox);
+
+                            container.getChildren().addAll(cb, avatarPane, infoBox);
                         } else {
-                            container.getChildren().add(infoBox);
-                            container.setCursor(Cursor.HAND);
+                            container.getChildren().addAll(avatarPane, infoBox);
                         }
+
+                        container.setOnMouseEntered(e -> container.setStyle("-fx-background-color: #f4fbfc; -fx-background-radius: 10; -fx-border-color: #10A5A5; -fx-border-width: 0 0 1 0;"));
+                        container.setOnMouseExited(e -> container.setStyle(styleBase));
+
                         setGraphic(container);
                     }
                 }
@@ -284,10 +336,11 @@ public class ChatView {
                 }
             });
 
-        } catch (SQLException e) { e.printStackTrace(); }
+        } catch (SQLException e) {
+            System.err.println("Erreur chargement utilisateurs : " + e.getMessage());
+        }
     }
     public void handleConfirmGroupSelection() throws SQLException {
-        // 1. Contrôle de saisie
         if (selectedUsers.isEmpty()) {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Action requise");
             alert.setHeaderText("Aucun membre sélectionné");
@@ -305,7 +358,7 @@ public class ChatView {
         Integer existingGroupId = spc.findExistingGroupWithMembers(targetMemberIds);
 
         if (existingGroupId != null) {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION); // Information est plus doux que Warning ici
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setHeaderText("Discussion existante");
             alert.setContentText("Un groupe avec ces membres existe déjà. Redirection en cours...");
             styliserBoiteDialogue(alert.getDialogPane(), "#10A5A5");
@@ -448,8 +501,7 @@ public class ChatView {
             return nameToSearch.contains(searchText);
         });
     }
-
-    private void renderMessage(Message msg, boolean isCurrentUser) {
+    private void renderMessage(Message msg, boolean isMoi) {
         HBox lineContainer = new HBox(10);
         lineContainer.setPadding(new Insets(8, 15, 8, 15));
 
@@ -457,12 +509,86 @@ public class ChatView {
         try {
             Image img = new Image(getClass().getResourceAsStream("/images/default_user.png"));
             avatarView.setImage(img);
-        } catch (Exception e) {
-            System.err.println("Avatar introuvable");
-        }
+        } catch (Exception e) { System.err.println("Avatar introuvable"); }
         avatarView.setFitHeight(35);
         avatarView.setFitWidth(35);
         avatarView.setClip(new Circle(17.5, 17.5, 17.5));
+
+        if (msg.isDeleted()) {
+            VBox bubbleDeleted = new VBox(new Label("🚫 Ce message a été supprimé"));
+            bubbleDeleted.setPadding(new Insets(10));
+            bubbleDeleted.setStyle("-fx-background-color: rgba(255, 255, 255, 0.4); -fx-background-radius: 12; -fx-border-color: #bdc3c7; -fx-border-style: dashed; -fx-border-radius: 12;");
+            ((Label)bubbleDeleted.getChildren().get(0)).setStyle("-fx-text-fill: #95a5a6; -fx-font-style: italic; -fx-font-size: 12px;");
+
+            StackPane stack = new StackPane(bubbleDeleted);
+            lineContainer.setAlignment(isMoi ? Pos.CENTER_RIGHT : Pos.CENTER_LEFT);
+            lineContainer.getChildren().addAll(isMoi ? stack : avatarView, isMoi ? avatarView : stack);
+            vboxMessages.getChildren().add(lineContainer);
+            return;
+        }
+
+        Node visualContent;
+
+        if (msg.getTypeMessage() == TypeMessage.IMAGE && msg.getUrlFichier() != null) {
+            try {
+                File file = new File(UPLOAD_DIR + msg.getUrlFichier());
+                ImageView imgView = new ImageView(new Image(file.toURI().toString()));
+                imgView.setFitWidth(250); imgView.setPreserveRatio(true);
+                imgView.setCursor(Cursor.HAND);
+                imgView.setOnMouseClicked(e -> { try { java.awt.Desktop.getDesktop().open(file); } catch (Exception ex) {} });
+                visualContent = imgView;
+            } catch (Exception e) { visualContent = new Label("[Image introuvable]"); }
+        }
+        else if (msg.getTypeMessage() == TypeMessage.FICHIER && msg.getUrlFichier() != null) {
+            HBox fileBox = new HBox(10);
+            fileBox.setAlignment(Pos.CENTER_LEFT);
+            fileBox.setPadding(new Insets(8));
+            fileBox.setCursor(Cursor.HAND);
+            Label icon = new Label("📄"); icon.setStyle("-fx-font-size: 18;");
+            Label fileName = new Label(msg.getContenu()); fileName.setUnderline(true);
+            fileBox.getChildren().addAll(icon, fileName);
+            fileBox.setOnMouseClicked(e -> { try { java.awt.Desktop.getDesktop().open(new File(UPLOAD_DIR + msg.getUrlFichier())); } catch (Exception ex) {} });
+            visualContent = fileBox;
+        }
+        else if (msg.getTypeMessage() == TypeMessage.LOCATION && msg.getUrlFichier() != null) {
+            Label lblLoc = new Label("📍 Position partagée");
+            lblLoc.setUnderline(true); lblLoc.setCursor(Cursor.HAND);
+            lblLoc.setOnMouseClicked(e -> { try { java.awt.Desktop.getDesktop().browse(new java.net.URI("https://www.google.com/maps/search/?api=1&query=" + msg.getUrlFichier())); } catch (Exception ex) {} });
+            visualContent = lblLoc;
+        }
+        else if (msg.getTypeMessage() == TypeMessage.AUDIO && msg.getUrlFichier() != null) {
+            HBox audioBox = new HBox(10);
+            audioBox.setAlignment(Pos.CENTER_LEFT);
+            audioBox.setPadding(new Insets(5, 10, 5, 10));
+
+            Button btnPlay = new Button("▶");
+            btnPlay.setStyle("-fx-background-color: #10A5A5; -fx-text-fill: white; -fx-background-radius: 50; -fx-cursor: hand;");
+
+            Label lblAudio = new Label("Message vocal");
+            lblAudio.setFont(new Font("System", 13));
+
+            btnPlay.setOnAction(e -> {
+                try {
+                    File file = new File(UPLOAD_DIR + msg.getUrlFichier());
+                    javafx.scene.media.Media hit = new javafx.scene.media.Media(file.toURI().toString());
+                    javafx.scene.media.MediaPlayer mediaPlayer = new javafx.scene.media.MediaPlayer(hit);
+                    if (btnPlay.getText().equals("▶")) {
+                        mediaPlayer.play(); btnPlay.setText("⏸");
+                        mediaPlayer.setOnEndOfMedia(() -> btnPlay.setText("▶"));
+                    } else {
+                        mediaPlayer.stop(); btnPlay.setText("▶");
+                    }
+                } catch (Exception ex) { System.err.println("Erreur lecture audio"); }
+            });
+
+            audioBox.getChildren().addAll(btnPlay, lblAudio);
+            visualContent = audioBox;
+        }
+        else {
+            Label lblContent = new Label(msg.getContenu());
+            lblContent.setWrapText(true); lblContent.setFont(new Font("System", 14));
+            visualContent = lblContent;
+        }
 
         VBox bubble = new VBox(3);
         bubble.setMaxWidth(450);
@@ -471,175 +597,158 @@ public class ChatView {
         Label lblSenderName = new Label(msg.getExpediteur().getPrenom() + " " + msg.getExpediteur().getNom());
         lblSenderName.setFont(Font.font("System", FontWeight.BOLD, 11));
 
-        Node visualContent;
-
-        if (msg.getTypeMessage() == TypeMessage.IMAGE && msg.getUrlFichier() != null) {
-            try {
-                File file = new File(UPLOAD_DIR + msg.getUrlFichier());
-                Image img = new Image(file.toURI().toString());
-                ImageView imgView = new ImageView(img);
-                imgView.setFitWidth(250);
-                imgView.setPreserveRatio(true);
-                imgView.setCursor(Cursor.HAND);
-                imgView.setOnMouseClicked(e -> {
-                    try { java.awt.Desktop.getDesktop().open(file); } catch (Exception ex) {}
-                });
-                visualContent = imgView;
-            } catch (Exception e) {
-                visualContent = new Label("[Image introuvable]");
-            }
-        } else if (msg.getTypeMessage() == TypeMessage.FICHIER && msg.getUrlFichier() != null) {
-            HBox fileBox = new HBox(10);
-            fileBox.setAlignment(Pos.CENTER_LEFT);
-            fileBox.setPadding(new Insets(8)); // Un peu plus de padding pour le confort
-            fileBox.setCursor(Cursor.HAND);
-
-            Label icon = new Label("📄");
-            icon.setStyle("-fx-font-size: 18;");
-            Label fileName = new Label(msg.getContenu());
-            fileName.setUnderline(true);
-            fileName.setWrapText(true);
-            fileName.setMaxWidth(300);
-
-            fileBox.getChildren().addAll(icon, fileName);
-
-            fileBox.setOnMouseClicked(e -> {
-                try {
-                    java.awt.Desktop.getDesktop().open(new File(UPLOAD_DIR + msg.getUrlFichier()));
-                } catch (Exception ex) {
-                    System.err.println("Impossible d'ouvrir le fichier : " + ex.getMessage());
-                }
-            });
-            visualContent = fileBox;
-        } else {
-            Label lblContent = new Label(msg.getContenu());
-            lblContent.setWrapText(true);
-            lblContent.setFont(new Font("System", 14));
-            visualContent = lblContent;
-        }
-
         HBox topPart = new HBox(10);
         topPart.setAlignment(Pos.TOP_LEFT);
         HBox.setHgrow(visualContent, Priority.ALWAYS);
 
         MenuButton msgMenu = new MenuButton();
-        Label menuIcon = new Label("⋮");
-        menuIcon.setStyle("-fx-font-size: 16;");
+        Label menuIcon = new Label("⋮"); menuIcon.setStyle("-fx-font-size: 16;");
         msgMenu.setGraphic(menuIcon);
         msgMenu.setStyle("-fx-background-color: transparent; -fx-mark-color: transparent; -fx-cursor: hand;");
-
         MenuItem editItem = new MenuItem("Modifier ✏️");
         MenuItem deleteItem = new MenuItem("Supprimer 🗑️");
         msgMenu.getItems().addAll(editItem, deleteItem);
         if (msg.getTypeMessage() != TypeMessage.TEXTE) editItem.setDisable(true);
-
         deleteItem.setOnAction(e -> handleSupprimerMessage(msg, lineContainer));
         Node finalVisualContent = visualContent;
-        editItem.setOnAction(e -> {
-            if (finalVisualContent instanceof Label) handleModifierMessage(msg, (Label) finalVisualContent);
-        });
+        editItem.setOnAction(e -> { if (finalVisualContent instanceof Label) handleModifierMessage(msg, (Label) finalVisualContent); });
 
         topPart.getChildren().addAll(visualContent, msgMenu);
 
         HBox footerPart = new HBox(8);
         footerPart.setAlignment(Pos.CENTER_RIGHT);
-        String time = msg.getDateEnvoi().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"));
-        Label lblTime = new Label(time);
+        Label lblTime = new Label(msg.getDateEnvoi().format(DateTimeFormatter.ofPattern("HH:mm")));
         lblTime.setFont(new Font("System", 9));
         footerPart.getChildren().add(lblTime);
 
-        if (isCurrentUser) {
+        bubble.getChildren().addAll(lblSenderName, topPart, footerPart);
+        StackPane bubbleStack = new StackPane(bubble);
+
+        if (isMoi) {
             lineContainer.setAlignment(Pos.CENTER_RIGHT);
             lblSenderName.setStyle("-fx-text-fill: #8ECAE6;");
-            bubble.setStyle("-fx-background-color: #0D3B66; -fx-background-radius: 15 15 0 15; " +
-                    "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 2);");
+            bubble.setStyle("-fx-background-color: #0D3B66; -fx-background-radius: 15 15 0 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 1);");
 
             if (visualContent instanceof Label) ((Label) visualContent).setStyle("-fx-text-fill: white;");
             if (visualContent instanceof HBox) {
-                visualContent.setStyle("-fx-background-color: rgba(255,255,255,0.1); -fx-background-radius: 5;");
                 ((HBox) visualContent).lookupAll(".label").forEach(n -> n.setStyle("-fx-text-fill: white;"));
             }
 
             lblTime.setStyle("-fx-text-fill: #bdc3c7;");
             menuIcon.setStyle("-fx-text-fill: white;");
-
             Label lblStatus = new Label(msg.isLu() ? "✓✓" : "✓");
             lblStatus.setStyle(msg.isLu() ? "-fx-text-fill: #10A5A5; -fx-font-weight: bold;" : "-fx-text-fill: #bdc3c7;");
             footerPart.getChildren().add(lblStatus);
-            lineContainer.getChildren().addAll(bubble, avatarView);
+            lineContainer.getChildren().addAll(bubbleStack, avatarView);
         } else {
             lineContainer.setAlignment(Pos.CENTER_LEFT);
             lblSenderName.setStyle("-fx-text-fill: #10A5A5;");
-            bubble.setStyle("-fx-background-color: white; -fx-background-radius: 15 15 15 0; " +
-                    "-fx-border-color: #E0E0E0; -fx-border-width: 0.5; -fx-border-radius: 15 15 15 0; " +
-                    "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);");
-
+            bubble.setStyle("-fx-background-color: white; -fx-background-radius: 15 15 15 0; -fx-border-color: #E0E0E0; -fx-border-width: 0.5; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);");
             if (visualContent instanceof Label) ((Label) visualContent).setStyle("-fx-text-fill: #2c3e50;");
-            if (visualContent instanceof HBox) {
-                visualContent.setStyle("-fx-background-color: #f8f9fa; -fx-background-radius: 5; -fx-border-color: #eee; -fx-border-width: 1;");
-                ((HBox) visualContent).lookupAll(".label").forEach(n -> n.setStyle("-fx-text-fill: #0D3B66;"));
-            }
-
             lblTime.setStyle("-fx-text-fill: #7f8c8d;");
             msgMenu.setVisible(false);
-            lineContainer.getChildren().addAll(avatarView, bubble);
+
+            Button btnReact = new Button();
+            Label emojiIcon = new Label("☺"); emojiIcon.setStyle("-fx-font-family: 'Segoe UI Emoji'; -fx-font-size: 20; -fx-text-fill: #7f8c8d;");
+            btnReact.setGraphic(emojiIcon);
+            btnReact.setStyle("-fx-background-color: white; -fx-background-radius: 50; -fx-border-color: #eee; -fx-border-radius: 50; -fx-cursor: hand; -fx-padding: 5;");
+            btnReact.setOnAction(e -> showReactionMenu(btnReact, msg, bubbleStack));
+
+            lineContainer.getChildren().addAll(avatarView, bubbleStack, btnReact);
         }
 
-        bubble.getChildren().addAll(lblSenderName, topPart, footerPart);
+        if (msg.getReaction() != null && !msg.getReaction().isEmpty()) {
+            afficherBadgeReaction(bubbleStack, msg.getReaction(), isMoi);
+        }
+
         vboxMessages.getChildren().add(lineContainer);
+
+        if (!isMoi && scrollPaneMessages.getVvalue() < 0.9) {
+            newMessagesCount++;
+            lblNewMsgBadge.setText(String.valueOf(newMessagesCount));
+            lblNewMsgBadge.setVisible(true);
+        }
     }
-    private void handleSupprimerMessage(Message msg, HBox UIElement) {
-        try {
-            serMsg.deleteOne(msg);
-            vboxMessages.getChildren().remove(UIElement);
-        } catch (SQLException e) { e.printStackTrace(); }
+
+    @FXML
+    private void scrollToBottom() {
+        scrollPaneMessages.setVvalue(1.0);
+        newMessagesCount = 0;
+        lblNewMsgBadge.setVisible(false);
+        paneScrollDown.setVisible(false);
+        paneScrollDown.setManaged(false);
+    }
+    private void handleSupprimerMessage(Message msg, HBox lineContainer) {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setHeaderText("Supprimer ce message ?");
+        confirm.setContentText("Le message sera supprimé pour tout le monde.");
+        styliserBoiteDialogue(confirm.getDialogPane(), "#e74c3c");
+
+        if (confirm.showAndWait().get() == ButtonType.OK) {
+            try {
+                serMsg.deleteOne(msg);
+                Conversation current = listConversations.getSelectionModel().getSelectedItem();
+                chargerHistorique(current.getIdConversation());
+                listConversations.refresh();
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void handleModifierMessage(Message msg, Label lblContent) {
-        TextInputDialog dialog = new TextInputDialog(msg.getContenu());
-        dialog.setTitle("Rehletna - Modification");
-        dialog.setHeaderText("Modifier votre message");
-        dialog.setContentText("Nouveau contenu :");
-        DialogPane dialogPane = dialog.getDialogPane();
-        dialogPane.setStyle(
-                "-fx-background-color: white; " +
-                        "-fx-border-color: #10A5A5; " +
-                        "-fx-border-width: 2; " +
+        HBox parent = (HBox) lblContent.getParent();
+        int index = parent.getChildren().indexOf(lblContent);
+
+        TextField editField = new TextField(msg.getContenu());
+        HBox.setHgrow(editField, Priority.ALWAYS);
+        editField.setMaxWidth(Double.MAX_VALUE);
+        editField.setPrefHeight(30);
+        editField.setStyle(
+                "-fx-background-color: rgba(255, 255, 255, 0.15); " +
+                        "-fx-text-fill: white; " +
+                        "-fx-font-size: 14px; " +
+                        "-fx-background-radius: 10; " +
+                        "-fx-border-color: rgba(255, 255, 255, 0.4); " +
                         "-fx-border-radius: 10; " +
-                        "-fx-background-radius: 10;"
-        );
-        Node headerPanel = dialogPane.lookup(".header-panel");
-        if (headerPanel != null) {
-            headerPanel.setStyle("-fx-background-color: #0077B6; -fx-background-radius: 10 10 0 0;");
-            Label headerLabel = (Label) dialogPane.lookup(".header-panel > .label");
-            if (headerLabel != null) {
-                headerLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
-            }
-        }
-        TextField textField = dialog.getEditor();
-        textField.setStyle(
-                "-fx-background-radius: 15; " +
-                        "-fx-border-radius: 15; " +
-                        "-fx-border-color: #bdc3c7; " +
                         "-fx-padding: 5 10 5 10;"
         );
-        Button okButton = (Button) dialogPane.lookupButton(ButtonType.OK);
-        Button cancelButton = (Button) dialogPane.lookupButton(ButtonType.CANCEL);
-        String btnStyle = "-fx-background-radius: 20; -fx-cursor: hand; -fx-font-weight: bold;";
-        okButton.setStyle(btnStyle + "-fx-background-color: #10A5A5; -fx-text-fill: white;");
-        cancelButton.setStyle(btnStyle + "-fx-background-color: #ecf0f1; -fx-text-fill: #7f8c8d;");
-        dialog.showAndWait().ifPresent(newText -> {
-            if (!newText.trim().isEmpty() && !newText.equals(msg.getContenu())) {
-                try {
-                    msg.setContenu(newText);
-                    serMsg.updateOne(msg);
-                    lblContent.setText(newText);
-                    listConversations.refresh();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+        editField.setPrefWidth(lblContent.getWidth());
+
+        parent.getChildren().set(index, editField);
+        editField.requestFocus();
+        editField.selectAll();
+        editField.setOnKeyPressed(event -> {
+            if (event.getCode() == javafx.scene.input.KeyCode.ENTER) {
+                validerModificationInline(msg, lblContent, editField, parent, index);
+            } else if (event.getCode() == javafx.scene.input.KeyCode.ESCAPE) {
+                parent.getChildren().set(index, lblContent);
             }
         });
+
+        editField.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
+            if (!isFocused && parent.getChildren().contains(editField)) {
+                validerModificationInline(msg, lblContent, editField, parent, index);
+            }
+        });
+    }
+
+    private void validerModificationInline(Message msg, Label lblContent, TextField editField, HBox parent, int index) {
+        String newText = editField.getText().trim();
+
+        if (!newText.isEmpty() && !newText.equals(msg.getContenu())) {
+            try {
+                msg.setContenu(newText);
+                serMsg.updateOne(msg);
+                lblContent.setText(newText);
+                listConversations.refresh();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        parent.getChildren().set(index, lblContent);
     }
 
     private void chargerHistorique(int idConversation) {
@@ -669,61 +778,95 @@ public class ChatView {
                     setText(null);
                     setStyle("-fx-background-color: transparent;");
                 } else {
-                    VBox container = new VBox(5);
-                    container.setStyle("-fx-border-color: #f1f2f6; -fx-border-width: 0 0 1 0; -fx-background-color: transparent;");
-                    container.setPadding(new Insets(12, 15, 12, 15));
+                    HBox cellRoot = new HBox(12);
+                    cellRoot.setAlignment(Pos.CENTER_LEFT);
+                    cellRoot.setPadding(new Insets(10, 15, 10, 15));
+                    cellRoot.setStyle("-fx-border-color: #f1f2f6; -fx-border-width: 0 0 1 0; -fx-cursor: hand;");
 
+                    // --- 1. LOGIQUE DE L'AVATAR (Reste identique) ---
+                    StackPane avatarContainer = new StackPane();
+                    avatarContainer.setPrefSize(45, 45);
+                    String displayName = serConv.getNomAffichage(conv, currentUserId);
+                    String initials = getInitials(displayName);
+                    if (conv.getTypeConversation() == TypeConversation.GROUPE) {
+                        Circle c1 = new Circle(14, Color.web("#bdc3c7"));
+                        c1.setStroke(Color.WHITE); c1.setStrokeWidth(2);
+                        Circle c2 = new Circle(14, Color.web("#10A5A5"));
+                        c2.setStroke(Color.WHITE); c2.setStrokeWidth(2);
+                        StackPane.setAlignment(c1, Pos.TOP_RIGHT);
+                        StackPane.setAlignment(c2, Pos.BOTTOM_LEFT);
+                        Text t1 = new Text(initials.substring(0, 1).toUpperCase());
+                        t1.setFill(Color.WHITE); t1.setStyle("-fx-font-weight: bold; -fx-font-size: 10;");
+                        avatarContainer.getChildren().addAll(c1, c2, t1);
+                    } else {
+                        Circle circle = new Circle(20, Color.web("#10A5A5"));
+                        Text txt = new Text(initials);
+                        txt.setFill(Color.WHITE); txt.setStyle("-fx-font-weight: bold; -fx-font-size: 12;");
+                        avatarContainer.getChildren().addAll(circle, txt);
+                    }
+
+                    // --- 2. CONTENEUR DE TEXTE ---
+                    VBox textContainer = new VBox(3);
+                    HBox.setHgrow(textContainer, Priority.ALWAYS);
                     HBox topRow = new HBox();
                     topRow.setAlignment(Pos.CENTER_LEFT);
 
-                    Label lblName = new Label();
-                    lblName.setStyle("-fx-text-fill: #0D3B66; -fx-font-size: 15px; -fx-font-weight: bold;");
+                    Label lblName = new Label(serConv.getNomAffichage(conv, currentUserId));
+                    lblName.setStyle("-fx-text-fill: #0D3B66; -fx-font-size: 14px; -fx-font-weight: bold;");
 
                     Region spacer = new Region();
                     HBox.setHgrow(spacer, Priority.ALWAYS);
 
                     Label lblTime = new Label();
-                    lblTime.setStyle("-fx-text-fill: #95a5a6; -fx-font-size: 11px;");
-
+                    lblTime.setStyle("-fx-text-fill: #95a5a6; -fx-font-size: 10px;");
                     topRow.getChildren().addAll(lblName, spacer, lblTime);
 
                     Label lblLastMsg = new Label();
-                    lblLastMsg.setPrefWidth(220);
                     lblLastMsg.setEllipsisString("...");
+                    lblLastMsg.setMaxWidth(180);
 
-                    container.getChildren().addAll(topRow, lblLastMsg);
-
+                    // --- 3. LOGIQUE DE REMPLISSAGE (Mise à jour ici) ---
                     try {
-                        lblName.setText(serConv.getNomAffichage(conv, currentUserId));
-
                         Message last = serMsg.selectLastMessage(conv.getIdConversation());
 
                         if (last != null) {
                             lblLastMsg.setText(last.getContenu());
-                            lblTime.setText(last.getDateEnvoi().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")));
+                            lblTime.setText(last.getDateEnvoi().format(DateTimeFormatter.ofPattern("HH:mm")));
 
                             if (!last.isLu() && last.getExpediteur().getIdUtilisateur() != currentUserId) {
-                                lblLastMsg.setStyle("-fx-text-fill: #2c3e50; -fx-font-weight: bold; -fx-font-size: 13px;");
-                                lblTime.setStyle("-fx-text-fill: #10A5A5; -fx-font-weight: bold;");
-                                lblName.setStyle("-fx-text-fill: #10A5A5; -fx-font-size: 15px; -fx-font-weight: bold;");
+                                lblLastMsg.setStyle("-fx-text-fill: #2c3e50; -fx-font-weight: bold;");
+                                lblName.setStyle("-fx-text-fill: #10A5A5; -fx-font-weight: bold;");
                             } else {
-                                lblLastMsg.setStyle("-fx-text-fill: #7f8c8d; -fx-font-weight: normal; -fx-font-size: 13px;");
-                                lblTime.setStyle("-fx-text-fill: #95a5a6; -fx-font-size: 11px;");
-                                lblName.setStyle("-fx-text-fill: #0D3B66; -fx-font-size: 15px; -fx-font-weight: bold;");
+                                lblLastMsg.setStyle("-fx-text-fill: #7f8c8d;");
                             }
                         } else {
-                            lblLastMsg.setText("Aucun message");
-                            lblLastMsg.setStyle("-fx-text-fill: #bdc3c7; -fx-font-italic: true;");
-                        }
+                            lblLastMsg.setText("Aucun message...");
+                            lblLastMsg.setStyle("-fx-text-fill: #10A5A5; -fx-font-style: italic; -fx-font-size: 12px;");
 
+                            lblTime.setText(conv.getDateCreation().format(DateTimeFormatter.ofPattern("dd/MM")));
+                        }
                     } catch (SQLException e) {
-                        lblName.setText("Erreur");
+                        lblLastMsg.setText("Erreur chargement...");
                     }
 
-                    setGraphic(container);
+                    textContainer.getChildren().addAll(topRow, lblLastMsg);
+                    cellRoot.getChildren().addAll(avatarContainer, textContainer);
+                    setGraphic(cellRoot);
+
+                    cellRoot.setOnMouseEntered(e -> cellRoot.setStyle("-fx-background-color: #f4fbfc; -fx-border-color: #10A5A5; -fx-border-width: 0 0 1 0;"));
+                    cellRoot.setOnMouseExited(e -> cellRoot.setStyle("-fx-background-color: transparent; -fx-border-color: #f1f2f6; -fx-border-width: 0 0 1 0;"));
                 }
             }
         });
+    }
+
+    private String getInitials(String name) {
+        if (name == null || name.isEmpty()) return "?";
+        String[] words = name.split(" ");
+        if (words.length >= 2) {
+            return (words[0].substring(0, 1) + words[1].substring(0, 1)).toUpperCase();
+        }
+        return name.substring(0, Math.min(2, name.length())).toUpperCase();
     }
 
     @FXML
@@ -781,6 +924,9 @@ public class ChatView {
         itemSupprimer.setGraphic(new Label("🗑️"));
         itemSupprimer.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
         itemSupprimer.setOnAction(e -> handleSupprimerConversation(conv));
+        MenuItem itemMedia = new MenuItem(" 📎 Voir les fichiers");
+        itemMedia.setOnAction(e -> handleShowMedia());
+        btnOptions.getItems().add(itemMedia);
 
         if (conv.getTypeConversation() == TypeConversation.GROUPE) {
             MenuItem itemModifier = new MenuItem(" Modifier le nom");
@@ -799,9 +945,10 @@ public class ChatView {
             itemQuitter.setGraphic(new Label("🚪"));
             itemQuitter.setStyle("-fx-text-fill: #f39c12;");
             itemQuitter.setOnAction(e -> handleQuitterGroupe(conv));
+
             btnOptions.getItems().addAll(itemModifier, itemVoirMembres, itemAjouter, itemQuitter, new SeparatorMenuItem(), itemSupprimer);
         } else {
-            btnOptions.getItems().add(itemSupprimer);
+            btnOptions.getItems().addAll(itemSupprimer);
         }
     }
 
@@ -1092,5 +1239,206 @@ public class ChatView {
                 new Alert(Alert.AlertType.ERROR, "Erreur base de données : " + e.getMessage()).show();
             }
         }
+    }
+
+    @FXML
+    private void handleShowMedia() {
+        paneMediaHistory.setVisible(true);
+        paneMediaHistory.setManaged(true);
+        vboxMediaList.getChildren().clear();
+        vboxMediaList.setSpacing(15);
+
+        Conversation currentConv = listConversations.getSelectionModel().getSelectedItem();
+        if (currentConv == null) return;
+
+        try {
+            List<Message> medias = serMsg.getMediaHistory(currentConv.getIdConversation());
+            if (medias.isEmpty()) {
+                VBox emptyState = new VBox(15);
+                emptyState.setAlignment(Pos.CENTER);
+                emptyState.setPadding(new Insets(50, 20, 0, 20));
+
+                Label iconEmpty = new Label("📂");
+                iconEmpty.setStyle("-fx-font-size: 40; -fx-text-fill: #bdc3c7;");
+
+                Label lblEmpty = new Label("Aucun fichier trouvé");
+                lblEmpty.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 14; -fx-font-style: italic;");
+
+                emptyState.getChildren().addAll(iconEmpty, lblEmpty);
+                vboxMediaList.getChildren().add(emptyState);
+                return;
+            }
+            for (Message m : medias) {
+                HBox card = new HBox(12);
+                card.setAlignment(Pos.CENTER_LEFT);
+                card.setPadding(new Insets(12));
+
+                card.setStyle("-fx-background-color: #F8FAFB; " +
+                        "-fx-background-radius: 10; " +
+                        "-fx-border-color: #ECF0F1; " +
+                        "-fx-border-radius: 10; " +
+                        "-fx-cursor: hand;");
+
+                card.setOnMouseEntered(e -> card.setStyle("-fx-background-color: #E0F7FA; -fx-background-radius: 10; -fx-border-color: #10A5A5; -fx-border-radius: 10; -fx-cursor: hand;"));
+                card.setOnMouseExited(e -> card.setStyle("-fx-background-color: #F8FAFB; -fx-background-radius: 10; -fx-border-color: #ECF0F1; -fx-border-radius: 10;"));
+
+                Node preview;
+                if (m.getTypeMessage() == TypeMessage.IMAGE) {
+                    try {
+                        File file = new File(UPLOAD_DIR + m.getUrlFichier());
+                        ImageView iv = new ImageView(new Image(file.toURI().toString()));
+                        iv.setFitWidth(45); iv.setFitHeight(45); iv.setPreserveRatio(true);
+                        Rectangle clip = new Rectangle(45, 45);
+                        clip.setArcWidth(10); clip.setArcHeight(10);
+                        iv.setClip(clip);
+                        preview = iv;
+                    } catch (Exception e) {
+                        preview = new Label("🖼️");
+                    }
+                } else {
+                    Label fileIcon = new Label("📄");
+                    fileIcon.setStyle("-fx-font-size: 24; -fx-text-fill: #0D3B66;");
+                    preview = fileIcon;
+                }
+
+                VBox info = new VBox(3);
+                Label name = new Label(m.getContenu());
+                name.setStyle("-fx-font-weight: bold; -fx-text-fill: #0D3B66; -fx-font-size: 13;");
+                name.setWrapText(true);
+                name.setMaxWidth(160);
+
+                Label date = new Label(m.getDateEnvoi().format(DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm")));
+                date.setStyle("-fx-text-fill: #95a5a6; -fx-font-size: 10;");
+
+                info.getChildren().addAll(name, date);
+
+                card.getChildren().addAll(preview, info);
+
+                card.setOnMouseClicked(e -> {
+                    try { java.awt.Desktop.getDesktop().open(new File(UPLOAD_DIR + m.getUrlFichier())); } catch (Exception ex) {}
+                });
+
+                vboxMediaList.getChildren().add(card);
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+    }
+
+    @FXML
+    private void handleCloseMedia() {
+        paneMediaHistory.setVisible(false);
+        paneMediaHistory.setManaged(false);
+    }
+
+    private void showReactionMenu(Button source, Message msg, StackPane bubble) {
+        HBox emojiBar = new HBox(15);
+        emojiBar.setAlignment(Pos.CENTER);
+        emojiBar.setPadding(new Insets(10, 20, 10, 20));
+
+        emojiBar.setStyle(
+                "-fx-background-color: white; " +
+                        "-fx-background-radius: 40; " +
+                        "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 15, 0, 0, 5);"
+        );
+
+        String[] emojis = {"❤️", "😂", "😮", "😢", "👍", "🙏"};
+
+        javafx.stage.Popup popup = new javafx.stage.Popup();
+        popup.setAutoHide(true);
+        popup.getContent().add(emojiBar);
+
+        for (String e : emojis) {
+            Label lblEmoji = new Label(e);
+            lblEmoji.setStyle("-fx-font-family: 'Segoe UI Emoji'; -fx-font-size: 25; -fx-cursor: hand;");
+
+            lblEmoji.setOnMouseEntered(ev -> {
+                lblEmoji.setScaleX(1.4);
+                lblEmoji.setScaleY(1.4);
+                lblEmoji.setStyle("-fx-font-family: 'Segoe UI Emoji'; -fx-font-size: 25; -fx-cursor: hand; -fx-background-color: #E0F7FA; -fx-background-radius: 50;");
+            });
+
+            lblEmoji.setOnMouseExited(ev -> {
+                lblEmoji.setScaleX(1.0);
+                lblEmoji.setScaleY(1.0);
+                lblEmoji.setStyle("-fx-font-family: 'Segoe UI Emoji'; -fx-font-size: 25; -fx-cursor: hand; -fx-background-color: transparent;");
+            });
+
+            lblEmoji.setOnMouseClicked(ev -> {
+                try {
+                    serMsg.updateReaction(msg.getIdMessage(), e);
+                    msg.setReaction(e);
+
+                    boolean isMoi = (msg.getExpediteur().getIdUtilisateur() == currentUserId);
+
+                    afficherBadgeReaction(bubble, e, isMoi);
+
+                    popup.hide();
+                } catch (SQLException ex) { ex.printStackTrace(); }
+            });
+
+            emojiBar.getChildren().add(lblEmoji);
+        }
+
+        double x = source.localToScreen(source.getBoundsInLocal()).getMinX();
+        double y = source.localToScreen(source.getBoundsInLocal()).getMinY();
+        popup.show(source, x - 100, y - 60);
+    }
+
+    private void afficherBadgeReaction(StackPane stack, String emoji, boolean isMoi) {
+        stack.getChildren().removeIf(n -> n instanceof Label && "reaction".equals(n.getAccessibleText()));
+
+        Label badge = new Label(emoji);
+        badge.setAccessibleText("reaction");
+
+        badge.setStyle(
+                "-fx-background-color: white; " +
+                        "-fx-text-fill: #2c3e50; " +
+                        "-fx-background-radius: 20; " +
+                        "-fx-padding: 3 6 3 6; " +
+                        "-fx-font-size: 13; " +
+                        "-fx-font-family: 'Segoe UI Emoji'; " +
+                        "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 5, 0, 0, 1);"
+        );
+
+        stack.setAlignment(badge, isMoi ? Pos.BOTTOM_LEFT : Pos.BOTTOM_RIGHT);
+
+        badge.setTranslateY(10);
+        badge.setTranslateX(isMoi ? -10 : 10);
+
+        stack.getChildren().add(badge);
+    }
+
+
+
+    @FXML
+    private void startRecording() {
+        // 1. On prépare le fichier dans 'uploads'
+        String fileName = "voice_" + System.currentTimeMillis() + ".wav";
+        currentAudioFile = new File(UPLOAD_DIR + fileName);
+
+        // 2. On change le style du bouton pour montrer que ça enregistre
+        btnMic.setStyle("-fx-background-color: #c0392b; -fx-background-radius: 50; -fx-scale-x: 1.2; -fx-scale-y: 1.2;");
+
+        recorder.start(currentAudioFile);
+    }
+
+    @FXML
+    private void stopRecording() {
+        recorder.stop();
+        btnMic.setStyle("-fx-background-color: #0077B6; -fx-background-radius: 50;");
+
+        try {
+            Message m = new Message();
+            m.setContenu("🎤 Message Vocal");
+            m.setTypeMessage(TypeMessage.AUDIO);
+            m.setUrlFichier(currentAudioFile.getName());
+            m.setDateEnvoi(LocalDateTime.now());
+            m.setConversation(listConversations.getSelectionModel().getSelectedItem());
+            m.setExpediteur(userConnecte);
+            serMsg.insertOne(m);
+
+            loadConversations();
+            listConversations.getSelectionModel().select(m.getConversation());
+
+        } catch (SQLException e) { e.printStackTrace(); }
     }
 }

@@ -13,11 +13,13 @@ public class Message {
     private Utilisateur expediteur;
     private TypeMessage typeMessage;
     private String urlFichier;
+    private String reaction;
+    private boolean isDeleted;
 
     public Message() {
     }
 
-    public Message(int idMessage, String contenu, LocalDateTime dateEnvoi, boolean lu, Conversation conversation,  Utilisateur utilisateur,  TypeMessage typeMessage, String urlFichier) {
+    public Message(int idMessage, String contenu, LocalDateTime dateEnvoi, boolean lu, Conversation conversation,  Utilisateur utilisateur,  TypeMessage typeMessage, String urlFichier, String reaction, boolean isDeleted) {
         this.idMessage = idMessage;
         this.contenu = contenu;
         this.dateEnvoi = dateEnvoi;
@@ -26,6 +28,8 @@ public class Message {
         this.expediteur = utilisateur;
         this.typeMessage = typeMessage;
         this.urlFichier = urlFichier;
+        this.reaction = reaction;
+        this.isDeleted = isDeleted;
     }
 
     public int getIdMessage() {
@@ -91,6 +95,22 @@ public class Message {
         this.urlFichier = urlFichier;
     }
 
+    public String getReaction() {
+        return reaction;
+    }
+
+    public void setReaction(String reaction) {
+        this.reaction = reaction;
+    }
+
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
+    }
+
     @Override
     public String toString() {
         return "Message{" +
@@ -102,6 +122,8 @@ public class Message {
                 ", expediteur=" + expediteur +
                 ", typeMessage=" + typeMessage +
                 ", urlFichier='" + urlFichier + '\'' +
+                ", reaction='" + reaction + '\'' +
+                ", isDeleted=" + isDeleted +
                 '}';
     }
 
@@ -115,11 +137,13 @@ public class Message {
                 && Objects.equals(conversation, message.conversation)
                 && Objects.equals(expediteur, message.expediteur)
                 && typeMessage == message.typeMessage
-                && Objects.equals(urlFichier, message.urlFichier);
+                && Objects.equals(urlFichier, message.urlFichier)
+                && Objects.equals(reaction, message.reaction)
+                && isDeleted == message.isDeleted;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idMessage, contenu, dateEnvoi, lu, conversation, expediteur,  typeMessage, urlFichier);
+        return Objects.hash(idMessage, contenu, dateEnvoi, lu, conversation, expediteur,  typeMessage, urlFichier,  reaction, isDeleted);
     }
 }

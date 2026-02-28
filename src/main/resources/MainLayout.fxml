@@ -14,13 +14,7 @@
 <BorderPane fx:id="mainBorderPane" prefHeight="700.0" prefWidth="1000.0"
             xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="controllers.MainLayout">
-    <!--<top>
-        <HBox alignment="CENTER_LEFT" prefHeight="70.0" style="-fx-background-color: #0077B6;" BorderPane.alignment="CENTER">
-            <children>
 
-            </children>
-        </HBox>
-    </top>-->
     <left>
         <VBox fx:id="sideBar" prefWidth="200" spacing="10.0" style="-fx-background-color: #0077B6;" BorderPane.alignment="CENTER">
             <children>
@@ -38,13 +32,9 @@
                     <graphic>
                         <HBox alignment="CENTER_LEFT" spacing="15.0">
                             <children>
-                                <!-- STACKPANE avec taille fixe pour garantir l'alignement -->
                                 <StackPane alignment="CENTER" prefHeight="30.0" prefWidth="35.0">
                                     <children>
-                                        <!-- L'icône centrée -->
                                         <Label style="-fx-text-fill: white; -fx-font-size: 24;" text="💬" alignment="CENTER" />
-
-                                        <!-- LE BADGE décalé précisément -->
                                         <Label fx:id="lblBadge" alignment="CENTER" managed="false"
                                                minHeight="18.0" minWidth="18.0" text="0" visible="false"
                                                style="-fx-background-color: #e74c3c;
@@ -57,7 +47,6 @@
                                     </children>
                                 </StackPane>
 
-                                <!-- TEXTE ALIGNÉ SUR LA MÊME LIGNE -->
                                 <Label fx:id="lblChat" text="Messagerie" textFill="WHITE">
                                     <font>
                                         <Font name="System Bold" size="15.0" />

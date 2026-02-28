@@ -15,11 +15,9 @@ public class UserMigration {
         System.out.println("Migration des utilisateurs en cours...");
 
         try {
-            // 1. Récupérer les utilisateurs existants depuis MySQL
             List<Utilisateur> users = serUser.selectALL();
 
             for (Utilisateur u : users) {
-                // 2. Préparer les données pour Elasticsearch
                 Map<String, Object> esData = new HashMap<>();
                 esData.put("idUser", u.getIdUtilisateur());
                 esData.put("nomComplet", u.getPrenom() + " " + u.getNom());
@@ -28,7 +26,6 @@ public class UserMigration {
                 esData.put("dateCreation", u.getDateCreation().toString());
                 esData.put("status", u.isStatus());
 
-                // 3. Envoyer à l'API Elasticsearch
                 esClient.index(i -> i
                         .index("utilisateurs")
                         .id(String.valueOf(u.getIdUtilisateur()))

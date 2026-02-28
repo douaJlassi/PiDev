@@ -86,20 +86,12 @@ public class ServiceMessage implements CRUD<Message>{
     }
 
     @Override
-    public void deleteOne(Message message) throws SQLException {
-        String query= "DELETE FROM `message` WHERE idMessage=?";
-
-        PreparedStatement pst = cnx.prepareStatement(query);
-        pst.setInt(1, message.getIdMessage());
-
-        pst.executeUpdate();
-        try {
-            esClient.delete(d -> d.index("messages").id(String.valueOf(message.getIdMessage())));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+    public void deleteOne(Message m) throws SQLException {
+        String query = "UPDATE `message` SET isDeleted = 1 WHERE idMessage = ?";
+        try (PreparedStatement ps = cnx.prepareStatement(query)) {
+            ps.setInt(1, m.getIdMessage());
+            ps.executeUpdate();
         }
-
-
     }
 
     @Override
@@ -121,7 +113,9 @@ public class ServiceMessage implements CRUD<Message>{
                     conv,
                     exp,
                     TypeMessage.valueOf(rs.getString("typeMessage")),
-                    rs.getString("urlFichier")
+                    rs.getString("urlFichier"),
+                    rs.getString("reaction"),
+                    rs.getBoolean("isDeleted")
             ));
         }
         return messages;
@@ -146,7 +140,9 @@ public class ServiceMessage implements CRUD<Message>{
                     conv,
                     exp,
                     TypeMessage.valueOf(rs.getString("typeMessage")),
-                    rs.getString("urlFichier")
+                    rs.getString("urlFichier"),
+                    rs.getString("reaction"),
+                    rs.getBoolean("isDeleted")
             );
         }
         return null;
@@ -170,7 +166,9 @@ public class ServiceMessage implements CRUD<Message>{
                     conv,
                     exp,
                     TypeMessage.valueOf(rs.getString("typeMessage")),
-                    rs.getString("urlFichier")
+                    rs.getString("urlFichier"),
+                    rs.getString("reaction"),
+                    rs.getBoolean("isDeleted")
             ));
         }
         return messages;
@@ -194,7 +192,10 @@ public class ServiceMessage implements CRUD<Message>{
                     conv,
                     exp,
                     TypeMessage.valueOf(rs.getString("typeMessage")),
-                    rs.getString("urlFichier")
+                    rs.getString("urlFichier"),
+                    rs.getString("reaction"),
+                    rs.getBoolean("isDeleted")
+
             );
         }
         return null;
@@ -223,5 +224,43 @@ public class ServiceMessage implements CRUD<Message>{
             }
         }
         return 0;
+    }
+
+    public List<Message> getMediaHistory(int idConv) throws SQLException {
+        List<Message> medias = new ArrayList<>();
+        String query = "SELECT * FROM `message` WHERE idConversation = ? AND typeMessage != 'TEXTE' ORDER BY dateEnvoi DESC";
+
+        try (PreparedStatement ps = cnx.prepareStatement(query)) {
+            ps.setInt(1, idConv);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                int idConversation = rs.getInt("idConversation");
+                Conversation conv = serConv.selectOne(idConversation);
+                int idExp = rs.getInt("idExpediteur");
+                Utilisateur exp = serUtilisateur.selectOne(idExp);
+                medias.add(new Message(
+                        rs.getInt("idMessage"),
+                        rs.getString("contenu"),
+                        rs.getTimestamp("dateEnvoi").toLocalDateTime(),
+                        rs.getBoolean("lu"),
+                        conv,
+                        exp,
+                        TypeMessage.valueOf(rs.getString("typeMessage")),
+                        rs.getString("urlFichier"),
+                        rs.getString("reaction"),
+                        rs.getBoolean("isDeleted")
+                ));
+            }
+        }
+        return medias;
+    }
+
+    public void updateReaction(int idMsg, String emoji) throws SQLException {
+        String query = "UPDATE `message` SET reaction = ? WHERE idMessage = ?";
+        try (PreparedStatement ps = cnx.prepareStatement(query)) {
+            ps.setString(1, emoji);
+            ps.setInt(2, idMsg);
+            ps.executeUpdate();
+        }
     }
 }
