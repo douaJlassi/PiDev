@@ -12,8 +12,8 @@ public class ServiceService implements CRUD<String,service> {
     public ServiceService() {connection=MyDBConnexion.getInstance().getConnection();}
     @Override
     public void insertOne(service service) throws SQLException {
-        String req = "INSERT INTO `services`(`nom`,`description`,`prix`,`disponibilite`,`capacite`) VALUES " +
-                "('"+service.getNom()+"' ,  '"+service.getDescription()+"' , "+service.getPrix()+" , '"+service.getDisponibilite() +"' , '"+service.getCapacite()+"')";
+        String req = "INSERT INTO `services`(`nom`,`description`,`prix`,`disponibilite`,`capacite`,`imgUrl`) VALUES " +
+                "('"+service.getNom()+"' ,  '"+service.getDescription()+"' , "+service.getPrix()+" , '"+service.getDisponibilite() +"' , '"+service.getCapacite()+"' , '"+service.getImage()+"')";
         Statement stmt = connection.createStatement();
         stmt.executeUpdate(req);
         nom=service.getNom();
@@ -50,6 +50,7 @@ public class ServiceService implements CRUD<String,service> {
                     rs.getDouble(4),
                     rs.getBoolean(5),
                     rs.getInt(6),
+                    rs.getString(16),
                     rs.getString(15)
 
             );
@@ -74,7 +75,8 @@ public class ServiceService implements CRUD<String,service> {
                     rs.getDouble(4),
                     rs.getBoolean(5),
                     rs.getInt(6),
-                    "none"
+                    "none",
+                    rs.getString(15)
             );
 
         }
@@ -106,7 +108,8 @@ public class ServiceService implements CRUD<String,service> {
                     rs.getDouble(4),
                     rs.getBoolean(5),
                     rs.getInt(6),
-                    "none"
+                    "none",
+                    rs.getString(15)
             );
 
         }

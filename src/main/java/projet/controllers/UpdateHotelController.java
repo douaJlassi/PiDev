@@ -1,14 +1,20 @@
 package projet.controllers;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
+import javafx.stage.FileChooser;
 import projet.entites.Hotel;
 import projet.entites.vol;
 import projet.services.HotelService;
+import projet.services.SupabaseStorageService;
 import projet.services.VolService;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -51,6 +57,11 @@ public class UpdateHotelController {
     private Label lblErrorNom;
     @FXML
     private Label lblErrorPrix;
+    @FXML private Button btnChoisirPhoto;
+    @FXML private ImageView imgPreview;
+    @FXML private Label lblErrorPhoto;
+    private File selectedImageFile;
+    String imageUrl;
     private Hotel currentService;
 
     private boolean isNomValid() {
@@ -166,7 +177,7 @@ public class UpdateHotelController {
     @FXML
     private void handleUpdate() {
         resetStyles();
-        if (isNomValid() && isPrixValid() && isCapaciteValid() && isChambreValid() && isNbEtoilesValid()&& isDescriptionValid() && isLocalisationValid() && isNbEtoilesValid() ) {
+        if (isNomValid() && isPrixValid() && isCapaciteValid() && isChambreValid() && isNbEtoilesValid()&& isDescriptionValid() && isLocalisationValid() && isNbEtoilesValid() && isImage() ) {
             String newName = tfNom.getText();
             double newPrice = Double.parseDouble(tfPrix.getText());
             String newdescription = tfDescription.getText();
@@ -175,17 +186,16 @@ public class UpdateHotelController {
             boolean newdisponibilite = cbDisponibilite.isSelected();
             String newlocalisation = tfLocalisation.getText();
             String newtypechambre = tfChambre.getText();
+
             HotelService vs = new HotelService();
-            Hotel v = new Hotel(newName, newdescription, newPrice, newdisponibilite, newcapacite, "hotel", newnbetoiles, newlocalisation, newtypechambre);
+            Hotel v = new Hotel(newName, newdescription, newPrice, newdisponibilite, newcapacite, "hotel", newnbetoiles, newlocalisation, newtypechambre,imageUrl);
             try {
                 vs.updateOne(currentService.getNom(), v);
                 Parent dashboardView = FXMLLoader.load(getClass().getResource("/Dashboard.fxml"));
                 StackPane contentArea = (StackPane) tfNom.getScene().lookup("#contentArea");
                 if (contentArea != null) {
-                    // Replace the update form with the dashboard view
                     contentArea.getChildren().setAll(dashboardView);
                 } else {
-                    // Fallback if contentArea is not found (replaces the whole window)
                     tfNom.getScene().setRoot(dashboardView);
                 }
             } catch (SQLException e) {
@@ -253,7 +263,46 @@ public class UpdateHotelController {
         tfLocalisation.getStyleClass().remove("error");
         tfDescription.getStyleClass().remove("error");
     }
+    private boolean isImage(){
+        String photoUrl;
 
+        if (selectedImageFile != null) {
+            try {
+                SupabaseStorageService storageService = new SupabaseStorageService();
+                String fileName = "hotel_" + tfNom.getText() + "_" + System.currentTimeMillis()
+                        + selectedImageFile.getName().substring(selectedImageFile.getName().lastIndexOf('.'));
+                photoUrl = storageService.uploadImage(selectedImageFile.toPath(), fileName);
+                imageUrl=photoUrl;
+                if (photoUrl == null) {
+                    lblErrorPhoto.setText("Échec de l'upload de l'image.");
+                    lblErrorPhoto.setVisible(true);
+                    lblErrorPhoto.setManaged(true);
+                    return false;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                lblErrorPhoto.setText("Erreur lors de l'upload.");
+                lblErrorPhoto.setVisible(true);
+                lblErrorPhoto.setManaged(true);
+                return false;
+            }
+        }
+
+        return  true;
+    }
+    @FXML void choisirPhoto(ActionEvent event) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Choisir une image");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.gif")
+        );
+        selectedImageFile = fileChooser.showOpenDialog(btnChoisirPhoto.getScene().getWindow());
+        if (selectedImageFile != null) {
+            imgPreview.setImage(new Image(selectedImageFile.toURI().toString()));
+            lblErrorPhoto.setVisible(false);
+            lblErrorPhoto.setManaged(false);
+        }
+    }
 }
 
 

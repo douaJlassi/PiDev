@@ -6,12 +6,17 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
+import javafx.stage.FileChooser;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import projet.entites.vol;
+import projet.services.SupabaseStorageService;
 import projet.services.VolService;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -33,63 +38,31 @@ public class addVolController {
     String messageErrorVilleArrive="";
     String messageErrorDateDepart="";
     String messageErrorDateArrive="";
-    @FXML
-    private CheckBox cbDisponibilite;
-
-    @FXML
-    private DatePicker dpDateArrivee;
-
-    @FXML
-    private DatePicker dpDateDepart;
-
-    @FXML
-    private TextArea taDescription;
-
-    @FXML
-    private TextField tfCapacite;
-
-    @FXML
-    private TextField tfNom;
-
-    @FXML
-    private TextField tfNumeroVol;
-
-    @FXML
-    private TextField tfPrix;
-
-    @FXML
-    private TextField tfVilleArrivee;
-
-    @FXML
-    private TextField tfVilleDepart;
-
-    @FXML
-    private Label lblErrorCapacite;
-
-    @FXML
-    private Label lblErrorDateArrive;
-
-    @FXML
-    private Label lblErrorDateDepart;
-
-    @FXML
-    private Label lblErrorDescription;
-
-    @FXML
-    private Label lblErrorNom;
-
-    @FXML
-    private Label lblErrorNumeroVol;
-
-    @FXML
-    private Label lblErrorPrix;
-
-    @FXML
-    private Label lblErrorVilleArrive;
-
-    @FXML
-    private Label lblErrorVilleDepart;
+    @FXML private CheckBox cbDisponibilite;
+    @FXML private DatePicker dpDateArrivee;
+    @FXML private DatePicker dpDateDepart;
+    @FXML private TextArea taDescription;
+    @FXML private TextField tfCapacite;
+    @FXML private TextField tfNom;
+    @FXML private TextField tfNumeroVol;
+    @FXML private TextField tfPrix;
+    @FXML private TextField tfVilleArrivee;
+    @FXML private TextField tfVilleDepart;
+    @FXML private Label lblErrorCapacite;
+    @FXML private Label lblErrorDateArrive;
+    @FXML private Label lblErrorDateDepart;
+    @FXML private Label lblErrorDescription;
+    @FXML private Label lblErrorNom;
+    @FXML private Label lblErrorNumeroVol;
+    @FXML private Label lblErrorPrix;
+    @FXML private Label lblErrorVilleArrive;
+    @FXML private Label lblErrorVilleDepart;
+    @FXML private Button btnChoisirPhoto;
+    @FXML private ImageView imgPreview;
+    @FXML private Label lblErrorPhoto;
+    private File selectedImageFile;
     private String AviationStackapiKey;
+    String imageUrl;
 
     public void loadConfig() {
         try (InputStream input = getClass()
@@ -120,7 +93,7 @@ public class addVolController {
         java.sql.Date sqlDateArrive = java.sql.Date.valueOf(localDateArrivee);
         java.sql.Date sqlDateDepart = java.sql.Date.valueOf(localDateDepart);
         VolService service = new VolService();
-        vol vol = new vol(nom,description,prix,disponibilite,capacite,numeroVol,VilleDepart,VilleArrivee,sqlDateDepart,sqlDateArrive,"vol");
+        vol vol = new vol(nom,description,prix,disponibilite,capacite,numeroVol,VilleDepart,VilleArrivee,sqlDateDepart,sqlDateArrive,"vol",imageUrl);
         try {
             service.insertOne(vol);
             Parent dashboardView = FXMLLoader.load(getClass().getResource("/Dashboard.fxml"));
@@ -234,10 +207,25 @@ public class addVolController {
         }
         return true;
     }
-
+    private boolean isDateArriveValid() {
+        if (dpDateArrivee.getValue() == null){
+            dpDateArrivee.getStyleClass().add("error");
+            messageErrorDateArrive="date Arrive est requise.";
+            return false;
+        }
+        return true;
+    }
+    private boolean isDateDepartValid() {
+        if (dpDateDepart.getValue() == null){
+            dpDateDepart.getStyleClass().add("error");
+            messageErrorDateDepart="date Arrive est requise.";
+            return false;
+        }
+        return true;
+    }
     private boolean isInputValid() {
         resetStyles();
-        if (isNomValid() && isPrixValid() && isCapaciteValid() && isDescriptionValid() && isNumeroVolValid() && isVilleDepartValid() && isVilleArriveValid()) {
+        if (isNomValid() && isPrixValid() && isCapaciteValid() && isDescriptionValid() && isNumeroVolValid() && isVilleDepartValid() && isVilleArriveValid() && isImage() && isDateDepartValid() && isDateArriveValid()) {
 
             lblErrorNom.setVisible(false);
             lblErrorNom.setManaged(false);
@@ -253,6 +241,8 @@ public class addVolController {
             lblErrorVilleDepart.setManaged(false);
             lblErrorVilleArrive.setVisible(false);
             lblErrorVilleArrive.setManaged(false);
+            lblErrorPhoto.setVisible(false);
+            lblErrorPhoto.setManaged(false);
 
             return true;
         }
@@ -292,10 +282,48 @@ public class addVolController {
                 lblErrorVilleArrive.setVisible(true);
                 lblErrorVilleArrive.setManaged(true);
             }
+            if (!isDateArriveValid()){
+                lblErrorDateArrive.setText(messageErrorDateArrive);
+                lblErrorDateArrive.setVisible(true);
+                lblErrorDateArrive.setManaged(true);
+            }
+            if (!isDateDepartValid()){
+                lblErrorDateDepart.setText(messageErrorDateDepart);
+                lblErrorDateDepart.setVisible(true);
+                lblErrorDateDepart.setManaged(true);
+            }
+
+
 
             return false;
         }
 
+    }
+    private boolean isImage(){
+        String photoUrl;
+
+        if (selectedImageFile != null) {
+            try {
+                SupabaseStorageService storageService = new SupabaseStorageService();
+                String fileName = "vol_" + tfNumeroVol.getText() + "_" + System.currentTimeMillis()
+                        + selectedImageFile.getName().substring(selectedImageFile.getName().lastIndexOf('.'));
+                photoUrl = storageService.uploadImage(selectedImageFile.toPath(), fileName);
+                imageUrl = photoUrl;
+                if (photoUrl == null) {
+                    lblErrorPhoto.setText("Échec de l'upload de l'image.");
+                    lblErrorPhoto.setVisible(true);
+                    lblErrorPhoto.setManaged(true);
+                    return false;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                lblErrorPhoto.setText("Erreur lors de l'upload.");
+                lblErrorPhoto.setVisible(true);
+                lblErrorPhoto.setManaged(true);
+                return false;
+            }
+        }
+        return  true;
     }
     private void resetStyles() {
         lblErrorNom.setVisible(false);
@@ -323,9 +351,20 @@ public class addVolController {
         tfVilleArrivee.getStyleClass().remove("error");
 
     }
-
-    @FXML
-    void chercherVolAPI(ActionEvent event) {
+    @FXML void choisirPhoto(ActionEvent event) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Choisir une image");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.gif")
+        );
+        selectedImageFile = fileChooser.showOpenDialog(btnChoisirPhoto.getScene().getWindow());
+        if (selectedImageFile != null) {
+            imgPreview.setImage(new Image(selectedImageFile.toURI().toString()));
+            lblErrorPhoto.setVisible(false);
+            lblErrorPhoto.setManaged(false);
+        }
+    }
+    @FXML void chercherVolAPI(ActionEvent event) {
 
         if (isNumeroVolValid()){
         String numeroVol = tfNumeroVol.getText().trim();

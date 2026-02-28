@@ -35,16 +35,12 @@
                     <!-- LIGNE 0: Nom du Client -->
                     <Label styleClass="form-label" text="Nom du Client :" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                     <TextField fx:id="tfNom" promptText="Prénom et Nom" styleClass="form-input" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-
-
                     <!-- LIGNE 2: Date de Réservation -->
                     <Label styleClass="form-label" text="Date de Réservation :" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                     <DatePicker fx:id="dpDateReservation" maxWidth="1.7976931348623157E308" styleClass="form-input" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-
                     <!-- LIGNE 3: Mode de Paiement -->
                     <Label styleClass="form-label" text="Mode de Paiement :" GridPane.columnIndex="0" GridPane.rowIndex="3" />
                     <TextField fx:id="tfModePaiement" promptText="Choisir une méthode..." maxWidth="1.7976931348623157E308" styleClass="form-input" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-
                     <rowConstraints>
                         <RowConstraints />
                         <RowConstraints />
@@ -86,6 +82,11 @@
 
                 <!-- Bouton d'action -->
                 <Button  styleClass="btn-submit" onAction="#AddReservation" text="✔ Créer la Réservation" />
+                <VBox alignment="CENTER_LEFT" spacing="2">
+                    <Label fx:id="lblErrorNom" managed="false" styleClass="error-label" visible="false" wrapText="true" />
+                    <Label fx:id="lblErrorDate" managed="false" styleClass="error-label" visible="false" wrapText="true" />
+                    <Label fx:id="lblErrorMethode" managed="false" styleClass="error-label" visible="false" wrapText="true" />
+                </VBox>
             </VBox>
         </VBox>
     </children>

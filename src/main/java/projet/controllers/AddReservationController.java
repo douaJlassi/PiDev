@@ -8,6 +8,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import projet.entites.reservation;
+import projet.entites.user;
 import projet.entites.vol;
 import projet.services.ReservationService;
 import projet.services.ServiceService;
@@ -20,6 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AddReservationController {
+    String messageErrorNom="";
+    String messageErrorMethode="";
+    String messageErrorDate="";
     private static final String STYLE_AVAILABLE =
             "-fx-background-color: #2ecc71; -fx-text-fill: white; " +
                     "-fx-font-size: 11px; -fx-font-weight: bold; " +
@@ -39,24 +43,25 @@ public class AddReservationController {
                     "-fx-background-radius: 6 6 2 2; -fx-cursor: hand; " +
                     "-fx-effect: dropshadow(gaussian, #3498db, 8, 0.5, 0, 0);";
     private Integer selectedSeatNumber = null;
-    @FXML
-    private TextField tfModePaiement;
-    @FXML
-    private DatePicker dpDateReservation;
-    @FXML
-    private VBox errorContainer;
-    @FXML
-    private TextField tfNom;
+    @FXML private TextField tfModePaiement;
+    @FXML private DatePicker dpDateReservation;
+    @FXML private VBox errorContainer;
+    @FXML private TextField tfNom;
     @FXML private ComboBox<Integer> cbSiege;
     @FXML private Label lblSiege;
     @FXML private VBox seatMapContainer;
     @FXML private FlowPane seatGrid;
     @FXML private Label lblSelectedSeat;
+    @FXML private Label lblErrorMethode;
+    @FXML private Label lblErrorNom;
+    @FXML private Label lblErrorDate;
+
     private int idService;
     private String Type;
     VolService volService = new VolService();
     public void setType(String Type){
         this.Type = Type;
+        tfNom.setText(connectedUser.getNom()+" "+connectedUser.getPrenom());
         if (Type.equals("vol")) {
             seatMapContainer.setVisible(true);
             seatMapContainer.setManaged(true);
@@ -71,25 +76,28 @@ public class AddReservationController {
     }
     public void setIdService(int id){this.idService = id;}
 
-@FXML
-void AddReservation(ActionEvent event)
-{
-    String nom = tfNom.getText();
-    String modePaiement = tfModePaiement.getText();
-    LocalDate dateReservationValue = dpDateReservation.getValue();
-    java.sql.Date sqlDateArrive = java.sql.Date.valueOf(dateReservationValue);
-    String statut="non acceptee";
-    System.out.println(idService);
-    ReservationService service = new ReservationService();
-    reservation reservation = new reservation(statut,sqlDateArrive,idService,modePaiement,nom,selectedSeatNumber);
-    try {
-        service.insertOne(reservation);
-        ServiceService serviceService = new ServiceService();
-        serviceService.DecrementCapacite(idService);
-        handleBack();
-    } catch (SQLException e) {
-        throw new RuntimeException(e);
-    }
+
+    user connectedUser=new user("achref","souli","user");
+    @FXML
+    void AddReservation(ActionEvent event) {
+        if (isInputValid()) {
+            String nom = tfNom.getText();
+            String modePaiement = tfModePaiement.getText();
+            LocalDate dateReservationValue = dpDateReservation.getValue();
+            java.sql.Date sqlDateArrive = java.sql.Date.valueOf(dateReservationValue);
+            String statut = "non acceptee";
+            System.out.println(idService);
+            ReservationService service = new ReservationService();
+            reservation reservation = new reservation(statut, sqlDateArrive, idService, modePaiement, nom, selectedSeatNumber);
+            try {
+                service.insertOne(reservation);
+                ServiceService serviceService = new ServiceService();
+                serviceService.DecrementCapacite(idService);
+                handleBack();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
 }
     @FXML
     private void handleBack() {
@@ -156,5 +164,81 @@ void AddReservation(ActionEvent event)
         System.out.println(selectedSeatNumber);
         lblSelectedSeat.setText("Siège sélectionné : " + seatNumber);
         errorContainer.getChildren().clear(); // clear any seat error
+    }
+    private  boolean isNomValid() {
+        if (tfNom.getText() == null || tfNom.getText().trim().isEmpty()) {
+            tfNom.getStyleClass().add("error");
+            messageErrorNom="Le nom ne peut pas être vide" ;
+            return false;
+        } else if (tfNom.getText().trim().length()<3) {
+            messageErrorNom="Le nom doit être au moins 3 caracteres" ;
+            return false;
+        }
+        return true;
+    }
+    private  boolean isMethodeValid() {
+        if (tfModePaiement.getText() == null || tfModePaiement.getText().trim().isEmpty()) {
+            tfModePaiement.getStyleClass().add("error");
+            messageErrorMethode="La methode ne peut pas être vide" ;
+            return false;
+        } else if (tfModePaiement.getText().trim().length()<3) {
+            messageErrorMethode="La methode doit être au moins 3 caracteres" ;
+            return false;
+        }
+        return true;
+    }
+    private  boolean isDateValid() {
+        if (dpDateReservation.getValue() == null) {
+            dpDateReservation.getStyleClass().add("error");
+            messageErrorDate="La date ne peut pas être vide" ;
+            return false;
+        } else if (dpDateReservation.getValue().isAfter(LocalDate.now())) {
+            messageErrorDate="Date already passed" ;
+            return false;
+        }
+        return true;
+    }
+    private boolean isInputValid() {
+        resetStyles();
+        if (isNomValid()&&isMethodeValid()&&isDateValid()) {
+            lblErrorNom.setVisible(false);
+            lblErrorNom.setManaged(false);
+            lblErrorMethode.setVisible(false);
+            lblErrorMethode.setManaged(false);
+            lblErrorDate.setVisible(false);
+            lblErrorDate.setManaged(false);
+            return true;
+        }
+        else {
+            if (!isNomValid()){
+                lblErrorNom.setText(messageErrorNom);
+                lblErrorNom.setVisible(true);
+                lblErrorNom.setManaged(true);
+            }
+            if (!isMethodeValid()){
+                lblErrorMethode.setText(messageErrorMethode);
+                lblErrorMethode.setVisible(true);
+                lblErrorMethode.setManaged(true);
+            }
+            if (!isDateValid()){
+                lblErrorDate.setText(messageErrorDate);
+                lblErrorDate.setVisible(true);
+                lblErrorDate.setManaged(true);
+            }
+
+
+
+
+            return false;
+        }
+
+    }
+    private void resetStyles() {
+        lblErrorNom.setVisible(false);
+        lblErrorNom.setManaged(false);
+        lblErrorDate.setVisible(false);
+        lblErrorDate.setManaged(false);
+        lblErrorMethode.setVisible(false);
+        lblErrorMethode.setManaged(false);
     }
 }

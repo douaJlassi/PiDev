@@ -23,8 +23,6 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 public class VolDetailsController {
-    //user connectedUser=new user("achref","souli","user");
-    //user connectedUser=new user("achref","souli","user");
     @FXML private Button retourBtn;
     @FXML private Button btnReserver;
     @FXML private Label lblTempDepart;
@@ -77,8 +75,7 @@ btnReserver.setOnAction(e -> {handleReserver();});
             throw new RuntimeException(e);
         }
     }
-    @FXML
-    private void handleBack() {
+    @FXML private void handleBack() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/Dashboard.fxml"));
             Parent root = loader.load();
@@ -87,8 +84,7 @@ btnReserver.setOnAction(e -> {handleReserver();});
             e.printStackTrace();
         }
     }
-    @FXML
-    private void handleReserver() {
+    @FXML private void handleReserver() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/ReservationForm.fxml"));
             Parent root = loader.load();

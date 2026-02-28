@@ -14,6 +14,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.image.ImageView?>
 <AnchorPane style="-fx-background-color: transparent;" stylesheets="@style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="projet.controllers.addVolController">
 
     <children>
@@ -67,6 +68,12 @@
 
                     <Label styleClass="form-label" text="Date Arrivée :" GridPane.columnIndex="2" GridPane.rowIndex="5" />
                     <DatePicker fx:id="dpDateArrivee" maxWidth="1.7976931348623157E308" styleClass="form-input" GridPane.columnIndex="3" GridPane.rowIndex="5" />
+                    <!-- ROW 6: Photo -->
+                    <Label styleClass="form-label" text="Photo :" GridPane.columnIndex="0" GridPane.rowIndex="6" />
+                    <HBox alignment="CENTER_LEFT" spacing="10" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="6">
+                        <Button fx:id="btnChoisirPhoto" onAction="#choisirPhoto" styleClass="btn-submit" text="📁 Choisir une image" />
+                        <ImageView fx:id="imgPreview" fitHeight="60.0" fitWidth="80.0" preserveRatio="true" />
+                    </HBox>
                     <rowConstraints>
                         <RowConstraints />
                         <RowConstraints />
@@ -89,6 +96,7 @@
                     <Label fx:id="lblErrorVilleArrive" managed="false" styleClass="error-label" visible="false" wrapText="true" />
                     <Label fx:id="lblErrorDateDepart" managed="false" styleClass="error-label" visible="false" wrapText="true" />
                     <Label fx:id="lblErrorDateArrive" managed="false" styleClass="error-label" visible="false" wrapText="true" />
+                    <Label fx:id="lblErrorPhoto" managed="false" styleClass="error-label" visible="false" wrapText="true" />
                 </VBox>
 
 

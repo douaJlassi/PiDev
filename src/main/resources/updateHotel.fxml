@@ -12,6 +12,8 @@
 <?import javafx.scene.layout.VBox?>
 
 <!-- Linked to styleDash.css for the Dashboard Theme -->
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.image.ImageView?>
 <AnchorPane style="-fx-background-color: transparent;" stylesheets="@style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="projet.controllers.UpdateHotelController">
 
     <children>
@@ -65,7 +67,12 @@
                             <Insets left="10.0" />
                         </GridPane.margin>
                     </CheckBox>
-
+                    <!-- ROW 6: Photo -->
+                    <Label styleClass="form-label" text="Photo :" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                    <HBox alignment="CENTER_LEFT" spacing="10" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="4">
+                        <Button fx:id="btnChoisirPhoto" onAction="#choisirPhoto" styleClass="btn-submit" text="📁 Choisir une image" />
+                        <ImageView fx:id="imgPreview" fitHeight="60.0" fitWidth="80.0" preserveRatio="true" />
+                    </HBox>
                     <rowConstraints>
                         <RowConstraints />
                         <RowConstraints />
@@ -83,6 +90,7 @@
                     <Label fx:id="lblErrorNbEtoiles" managed="false" styleClass="error-label" visible="false" wrapText="true" />
                     <Label fx:id="lblErrorLocalisation" managed="false" styleClass="error-label" visible="false" wrapText="true" />
                     <Label fx:id="lblErrorChambre" managed="false" styleClass="error-label" visible="false" wrapText="true" />
+                    <Label fx:id="lblErrorPhoto" managed="false" styleClass="error-label" visible="false" wrapText="true" />
                 </VBox>
 
                 <!-- Action Button -->

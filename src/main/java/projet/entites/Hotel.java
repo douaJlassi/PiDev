@@ -5,12 +5,10 @@ import java.util.Objects;
 public class Hotel extends service{
     private int nbEtoiles;
     private String localisation;
-
     private String chambre;
-
     public Hotel(){}
-    public Hotel(String nom,String description,double prix,boolean disponibilite,int capacite,String type,int nbEtoiles,String localisation,String chambre){
-        super(nom,description,prix,disponibilite,capacite,type);
+    public Hotel(String nom,String description,double prix,boolean disponibilite,int capacite,String type,int nbEtoiles,String localisation,String chambre,String imgUrl){
+        super(nom,description,prix,disponibilite,capacite,type,imgUrl);
      this.nbEtoiles = nbEtoiles;
      this.localisation = localisation;
      this.chambre = chambre;

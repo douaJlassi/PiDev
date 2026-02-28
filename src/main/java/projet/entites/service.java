@@ -6,18 +6,19 @@ public class service {
     private  double prix;
     private  boolean disponibilite;
     private int capacite;
-
+    private String image;
 
 
     private String type;
     public service(){}
-    public service(String nom,String description,double prix,boolean disponibilite,int capacite,String type){
+    public service(String nom,String description,double prix,boolean disponibilite,int capacite,String type,String imgUrl){
         this.nom=nom;
         this.description=description;
         this.prix=prix;
         this.disponibilite=disponibilite;
         this.capacite=capacite;
         this.type=type;
+        this.image=imgUrl;
 }
     public String getType() {
         return type;
@@ -58,6 +59,13 @@ public class service {
     public void setPrix(double prix) {
         this.prix = prix;
     }
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
 
     @Override
     public String toString() {
@@ -79,9 +87,6 @@ public class service {
         result = 31 * result + Integer.hashCode(capacite);
         return result;
     }
-
-
-
 
 
 }

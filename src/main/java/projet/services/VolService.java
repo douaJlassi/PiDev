@@ -18,8 +18,8 @@ public class VolService implements CRUD<String,vol> {
 
     @Override
     public void insertOne(vol vol) throws SQLException {
-        String req = "INSERT INTO `services`(`nom`,`description`,`prix`,`disponibilite`,`capacite`,`numeroVol`,`villeDepart`,`villeArrivee`,`dateDepart`,`dateArrive`,`type`) VALUES " +
-                "('" + vol.getNom() + "','" + vol.getDescription() + "','" + vol.getPrix() + "','" + vol.getDisponibilite() + "','" + vol.getCapacite() + "' ,  '" + vol.getNumeroVol() + "' , '" + vol.getVilleDepart() + "' , '" + vol.getVilleArrivee() + "' , '" + vol.getDateDepart() + "' , '" + vol.getDateArrivee() + "','vol')";
+        String req = "INSERT INTO `services`(`nom`,`description`,`prix`,`disponibilite`,`capacite`,`numeroVol`,`villeDepart`,`villeArrivee`,`dateDepart`,`dateArrive`,`type`,`imgUrl`) VALUES " +
+                "('" + vol.getNom() + "','" + vol.getDescription() + "','" + vol.getPrix() + "','" + vol.getDisponibilite() + "','" + vol.getCapacite() + "' ,  '" + vol.getNumeroVol() + "' , '" + vol.getVilleDepart() + "' , '" + vol.getVilleArrivee() + "' , '" + vol.getDateDepart() + "' , '" + vol.getDateArrivee() + "','vol', '"+vol.getImage()+"')";
         NbVol = vol.getNumeroVol();
         Statement stmt = connection.createStatement();
         stmt.executeUpdate(req);
@@ -66,6 +66,7 @@ public class VolService implements CRUD<String,vol> {
                     rs.getString(12),
                     rs.getDate(13),
                     rs.getDate(14),
+                    rs.getString(16),
                     rs.getString(15)
             );
 
@@ -95,6 +96,7 @@ public class VolService implements CRUD<String,vol> {
                     rs.getString(12),
                     rs.getDate(13),
                     rs.getDate(14),
+                    rs.getString(16),
                     rs.getString(15)
             );
 
@@ -121,6 +123,7 @@ public class VolService implements CRUD<String,vol> {
                     rs.getString(12),
                     rs.getDate(13),
                     rs.getDate(14),
+                    rs.getString(16),
                     rs.getString(15)
             );
 

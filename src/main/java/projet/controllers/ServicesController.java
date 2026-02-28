@@ -19,6 +19,7 @@ import projet.entites.user;
 import projet.entites.vol;
 import projet.services.HotelService;
 import projet.services.ServiceService;
+import projet.services.SupabaseStorageService;
 import projet.services.VolService;
 
 import java.io.IOException;
@@ -88,21 +89,22 @@ public class ServicesController implements Initializable {
         ImageView imageView = new ImageView();
         imageView.setFitHeight(120);
         imageView.setFitWidth(220);
-        imageView.setPreserveRatio(false); // Fill the box
+        imageView.setPreserveRatio(false);
 
-        // Use a default image from resources if available, else a colored rect
+
         try {
-            // Put a "default_service.jpg" in your images folder
-            Image img = new Image(getClass().getResourceAsStream("/images/default_service.jpg"));
+            SupabaseStorageService storageService = new SupabaseStorageService();
+            String signedUrl = storageService.getSignedUrl(s.getImage(), 3600);
+            System.out.println(signedUrl);
+            Image img = new Image(signedUrl);
             imageView.setImage(img);
         } catch (Exception e) {
-            // If no image found, just leave empty or set style
             imgContainer.setStyle("-fx-background-color: #e0e0e0;");
         }
 
         imgContainer.getChildren().add(imageView);
 
-        // --- DETAILS ---
+
         VBox details = new VBox();
         details.setPadding(new Insets(10));
         details.setSpacing(5);
@@ -117,7 +119,7 @@ public class ServicesController implements Initializable {
         Label price = new Label(s.getPrix() + " TND");
         price.getStyleClass().add("card-price");
 
-        // --- ACTION BUTTONS ---
+
 
         HBox actions = new HBox();
         actions.setAlignment(Pos.CENTER_RIGHT);

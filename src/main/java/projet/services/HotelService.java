@@ -14,8 +14,8 @@ public class HotelService implements CRUD<String,Hotel> {
     public HotelService() {connection= MyDBConnexion.getInstance().getConnection();}
     @Override
     public void insertOne(Hotel hotel) throws SQLException {
-        String req = "INSERT INTO `services`(`nom`,`description`,`prix`,`disponibilite`,`capacite`,`nombreEtoiles`,`localisation`,`typeChambre`,`type`) VALUES " +
-                "('"+hotel.getNom()+"','"+hotel.getDescription()+"','"+hotel.getPrix()+"','"+hotel.getDisponibilite()+"','"+hotel.getCapacite()+"' ,  '"+hotel.getNbEtoiles()+"' , '"+hotel.getLocalisation()+"' , '"+hotel.getChambre() +"','hotel')";
+        String req = "INSERT INTO `services`(`nom`,`description`,`prix`,`disponibilite`,`capacite`,`nombreEtoiles`,`localisation`,`typeChambre`,`type`,`imgUrl`) VALUES " +
+                "('"+hotel.getNom()+"','"+hotel.getDescription()+"','"+hotel.getPrix()+"','"+hotel.getDisponibilite()+"','"+hotel.getCapacite()+"' ,  '"+hotel.getNbEtoiles()+"' , '"+hotel.getLocalisation()+"' , '"+hotel.getChambre() +"','hotel' , '"+hotel.getImage()+"')";
         Statement stmt = connection.createStatement();
         stmt.executeUpdate(req);
         nom=hotel.getNom();
@@ -57,7 +57,8 @@ public class HotelService implements CRUD<String,Hotel> {
                     rs.getString(15),
                     rs.getInt(7),
                     rs.getString(8),
-                    rs.getString(9)
+                    rs.getString(9),
+                    rs.getString(15)
             );
 
             hotelList.add(sr);
@@ -84,7 +85,8 @@ public class HotelService implements CRUD<String,Hotel> {
                     rs.getString(15),
                     rs.getInt(7),
                     rs.getString(8),
-                    rs.getString(9)
+                    rs.getString(9),
+                    rs.getString(15)
             );
 
         }

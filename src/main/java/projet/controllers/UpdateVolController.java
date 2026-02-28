@@ -1,16 +1,22 @@
 package projet.controllers;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
+import javafx.stage.FileChooser;
 import projet.entites.Hotel;
 import projet.entites.vol;
 import projet.services.HotelService;
+import projet.services.SupabaseStorageService;
 import projet.services.VolService;
 
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate; // If you have dates
@@ -25,66 +31,32 @@ public class UpdateVolController {
     String messageErrorVilleArrive="";
     String messageErrorDateDepart="";
     String messageErrorDateArrive="";
-    @FXML
-    private CheckBox cbDisponibilite;
+    @FXML private CheckBox cbDisponibilite;
+    @FXML private DatePicker dpDateArrivee;
+    @FXML private DatePicker dpDateDepart;
+    @FXML private TextArea taDescription;
+    @FXML private TextField tfCapacite;
+    @FXML private TextField tfNom;
+    @FXML private TextField tfNumeroVol;
+    @FXML private TextField tfPrix;
+    @FXML private TextField tfVilleArrivee;
+    @FXML private TextField tfVilleDepart;
+    @FXML private Label lblErrorCapacite;
+    @FXML private Label lblErrorDateArrive;
+    @FXML private Label lblErrorDateDepart;
+    @FXML private Label lblErrorDescription;
+    @FXML private Label lblErrorNom;
+    @FXML private Label lblErrorNumeroVol;
+    @FXML private Label lblErrorPrix;
+    @FXML private Label lblErrorVilleArrive;
+    @FXML private Label lblErrorVilleDepart;
+    @FXML private Button btnChoisirPhoto;
+    @FXML private ImageView imgPreview;
+    @FXML private Label lblErrorPhoto;
+    private File selectedImageFile;
+    String imageUrl;
 
-    @FXML
-    private DatePicker dpDateArrivee;
-
-    @FXML
-    private DatePicker dpDateDepart;
-
-    @FXML
-    private TextArea taDescription;
-
-    @FXML
-    private TextField tfCapacite;
-
-    @FXML
-    private TextField tfNom;
-
-    @FXML
-    private TextField tfNumeroVol;
-
-    @FXML
-    private TextField tfPrix;
-
-    @FXML
-    private TextField tfVilleArrivee;
-
-    @FXML
-    private TextField tfVilleDepart;
-    @FXML
-    private Label lblErrorCapacite;
-
-    @FXML
-    private Label lblErrorDateArrive;
-
-    @FXML
-    private Label lblErrorDateDepart;
-
-    @FXML
-    private Label lblErrorDescription;
-
-    @FXML
-    private Label lblErrorNom;
-
-    @FXML
-    private Label lblErrorNumeroVol;
-
-    @FXML
-    private Label lblErrorPrix;
-
-    @FXML
-    private Label lblErrorVilleArrive;
-
-    @FXML
-    private Label lblErrorVilleDepart;
-
-
-
-    private vol currentService; // To hold the ID for updating later
-
+    private vol currentService;
 
     public void setServiceData(vol service) {
         this.currentService = service;
@@ -97,15 +69,12 @@ public class UpdateVolController {
         tfNumeroVol.setText(String.valueOf(service.getNumeroVol()));
         tfVilleDepart.setText(String.valueOf(service.getVilleDepart()));
         tfVilleArrivee.setText(String.valueOf(service.getVilleArrivee()));
-
-
     }
 
     @FXML
     private void handleUpdate() {
         resetStyles();
-        if (isNomValid() && isPrixValid() && isCapaciteValid() && isDescriptionValid() && isNumeroVolValid() && isVilleDepartValid() && isVilleArriveValid()   ){
-        // 2. Get modified data from TextFields
+        if (isNomValid() && isPrixValid() && isCapaciteValid() && isDescriptionValid() && isNumeroVolValid() && isVilleDepartValid() && isVilleArriveValid() && isImage()  ){
         String newName = tfNom.getText();
         double newPrice = Double.parseDouble(tfPrix.getText());
         String newdescription=taDescription.getText();
@@ -119,7 +88,7 @@ public class UpdateVolController {
         java.sql.Date sqlDateArrive = java.sql.Date.valueOf(localDateArrivee);
         java.sql.Date sqlDateDepart = java.sql.Date.valueOf(localDateDepart);
         VolService vs=new VolService();
-        vol v = new vol(newName,newdescription,newPrice,newdisponibilite,newcapacite,newnumeroVol,newVilleDepart,newVilleArrivee,sqlDateDepart,sqlDateArrive,"vol");
+        vol v = new vol(newName,newdescription,newPrice,newdisponibilite,newcapacite,newnumeroVol,newVilleDepart,newVilleArrivee,sqlDateDepart,sqlDateArrive,"vol",imageUrl);
         try {
             vs.updateOne(currentService.getNumeroVol(),v);
             Parent dashboardView = null;
@@ -180,6 +149,7 @@ public class UpdateVolController {
             }
         }
     }
+
     private  boolean isNomValid() {
         if (tfNom.getText() == null || tfNom.getText().trim().isEmpty()) {
             tfNom.getStyleClass().add("error");
@@ -307,5 +277,44 @@ public class UpdateVolController {
         tfVilleDepart.getStyleClass().remove("error");
         tfVilleArrivee.getStyleClass().remove("error");
 
+    }
+    @FXML void choisirPhoto(ActionEvent event) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Choisir une image");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.gif")
+        );
+        selectedImageFile = fileChooser.showOpenDialog(btnChoisirPhoto.getScene().getWindow());
+        if (selectedImageFile != null) {
+            imgPreview.setImage(new Image(selectedImageFile.toURI().toString()));
+            lblErrorPhoto.setVisible(false);
+            lblErrorPhoto.setManaged(false);
+        }
+    }
+    private boolean isImage(){
+        String photoUrl;
+
+        if (selectedImageFile != null) {
+            try {
+                SupabaseStorageService storageService = new SupabaseStorageService();
+                String fileName = "vol_" + tfNumeroVol.getText() + "_" + System.currentTimeMillis()
+                        + selectedImageFile.getName().substring(selectedImageFile.getName().lastIndexOf('.'));
+                photoUrl = storageService.uploadImage(selectedImageFile.toPath(), fileName);
+                imageUrl = photoUrl;
+                if (photoUrl == null) {
+                    lblErrorPhoto.setText("Échec de l'upload de l'image.");
+                    lblErrorPhoto.setVisible(true);
+                    lblErrorPhoto.setManaged(true);
+                    return false;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                lblErrorPhoto.setText("Erreur lors de l'upload.");
+                lblErrorPhoto.setVisible(true);
+                lblErrorPhoto.setManaged(true);
+                return false;
+            }
+        }
+        return  true;
     }
 }
