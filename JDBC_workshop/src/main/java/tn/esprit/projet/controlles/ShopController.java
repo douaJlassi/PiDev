@@ -234,50 +234,67 @@ public class ShopController implements Initializable {
         }
     }
 
+
+
+
     private void showPurchaseDialog(Shop product) {
-        Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setTitle("Confirm Purchase");
-        dialog.setHeaderText("Buy " + product.getName());
+        try {
+            // Load the new purchase dialog
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/PurchaseDialog.fxml"));
+            DialogPane dialogPane = loader.load();
 
-        ButtonType confirmButton = new ButtonType("Confirm Purchase", ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(confirmButton, ButtonType.CANCEL);
+            // Get controller and set product/user details
+            PurchaseDialogController dialogController = loader.getController();
+            dialogController.setProductDetails(product.getName(), product.getPriceCoins());
+            dialogController.setUserDetails(currentUser.getUsername(), currentUser.getEmail());
 
-        GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(20, 150, 10, 10));
+            // Create and show dialog
+            Dialog<ButtonType> dialog = new Dialog<>();
+            dialog.setDialogPane(dialogPane);
+            dialog.setTitle("Complete Your Purchase");
 
-        TextField nameField = new TextField(currentUser != null ? currentUser.getUsername() : "");
-        TextField emailField = new TextField(currentUser != null ? currentUser.getEmail() : "");
-        TextArea addressArea = new TextArea();
-        addressArea.setPromptText("Enter your delivery address");
-        addressArea.setPrefRowCount(3);
+            Optional<ButtonType> result = dialog.showAndWait();
 
-        grid.add(new Label("Full Name:"), 0, 0);
-        grid.add(nameField, 1, 0);
-        grid.add(new Label("Email:"), 0, 1);
-        grid.add(emailField, 1, 1);
-        grid.add(new Label("Address:"), 0, 2);
-        grid.add(addressArea, 1, 2);
+            // Find the confirm button type from dialog pane
+            ButtonType confirmButton = dialogPane.getButtonTypes().stream()
+                    .filter(bt -> bt.getButtonData() == ButtonBar.ButtonData.OK_DONE)
+                    .findFirst()
+                    .orElse(null);
 
-        Label priceLabel = new Label("Price: " + product.getPriceCoins() + " 🪙");
-        priceLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FEC74C;");
-        grid.add(priceLabel, 0, 3, 2, 1);
+            if (result.isPresent() && result.get() == confirmButton) {
+                // Validate inputs
+                if (!dialogController.isAddressSelected()) {
+                    showAlert("Error", "Please select a delivery address on the map");
+                    return;
+                }
 
-        dialog.getDialogPane().setContent(grid);
+                if (dialogController.getBuyerAddress() == null ||
+                        dialogController.getBuyerAddress().trim().isEmpty()) {
+                    showAlert("Error", "Please select a delivery address");
+                    return;
+                }
 
-        Optional<ButtonType> result = dialog.showAndWait();
-        if (result.isPresent() && result.get() == confirmButton) {
-            if (addressArea.getText().trim().isEmpty()) {
-                showAlert("Error", "Please enter your delivery address");
-                return;
+                // Process purchase with map coordinates
+                processPurchaseWithMap(
+                        product,
+                        dialogController.getBuyerName(),
+                        dialogController.getBuyerEmail(),
+                        dialogController.getBuyerAddress(),
+                        dialogController.getDeliveryInstructions(),
+                        dialogController.getSelectedLat(),
+                        dialogController.getSelectedLng()
+                );
             }
 
-            processPurchase(product, nameField.getText(), emailField.getText(), addressArea.getText());
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to open purchase dialog: " + e.getMessage());
         }
     }
 
-    private void processPurchase(Shop product, String name, String email, String address) {
+    private void processPurchaseWithMap(Shop product, String name, String email,
+                                        String address, String instructions,
+                                        double lat, double lng) {
         try {
             if (userProfile == null) {
                 showAlert("Error", "User profile not found!");
@@ -297,6 +314,14 @@ public class ShopController implements Initializable {
                 return;
             }
 
+            // Format address with coordinates and instructions
+            StringBuilder fullAddress = new StringBuilder(address);
+            fullAddress.append("\n📍 Coordinates: ").append(String.format("%.6f, %.6f", lat, lng));
+
+            if (instructions != null && !instructions.trim().isEmpty()) {
+                fullAddress.append("\n📝 Instructions: ").append(instructions);
+            }
+
             // Deduct coins
             userProfile.setCoins(userCoins - price);
             profileService.updateOne(userProfile);
@@ -312,12 +337,13 @@ public class ShopController implements Initializable {
             purchase.setTotalCoins(price);
             purchase.setBuyerName(name);
             purchase.setBuyerEmail(email);
-            purchase.setBuyerAddress(address);
+            purchase.setBuyerAddress(fullAddress.toString());
 
             purchaseService.insertPurchase(purchase);
 
-            // Send confirmation email
-            sendPurchaseConfirmationEmail(product, name, email, address, purchase.getId());
+            // Send confirmation email with map link
+            sendPurchaseConfirmationWithMap(product, name, email, fullAddress.toString(),
+                    purchase.getId(), lat, lng, instructions);
 
             // Update UI
             coinsLabel.setText(userProfile.getCoins() + " 🪙");
@@ -326,6 +352,7 @@ public class ShopController implements Initializable {
             showAlert("Success", "Purchase completed successfully!\n\n" +
                     "Product: " + product.getName() + "\n" +
                     "Order ID: " + purchase.getId() + "\n" +
+                    "Delivery Location: Selected on map\n" +
                     "Confirmation email sent to: " + email);
 
         } catch (SQLException e) {
@@ -334,8 +361,13 @@ public class ShopController implements Initializable {
         }
     }
 
-    private void sendPurchaseConfirmationEmail(Shop product, String name, String email, String address, int orderId) {
-        String subject = "✅ Purchase Confirmation - Rehletna.tn Shop";
+    private void sendPurchaseConfirmationWithMap(Shop product, String name, String email,
+                                                 String address, int orderId,
+                                                 double lat, double lng, String instructions) {
+        String subject = "✅ Purchase Confirmation with Map - Rehletna.tn Shop";
+
+        String mapLink = String.format("https://www.openstreetmap.org/?mlat=%f&mlon=%f#map=15/%f/%f",
+                lat, lng, lat, lng);
 
         String emailContent = "<html>" +
                 "<head><style>" +
@@ -344,10 +376,12 @@ public class ShopController implements Initializable {
                 "h1 { color: #0FA5A2; }" +
                 ".details { background-color: #f8f9fa; padding: 15px; border-radius: 10px; }" +
                 ".order-id { font-size: 24px; color: #FEC74C; font-weight: bold; }" +
+                ".map-link { background-color: #1D4D7C; color: white; padding: 10px 20px; " +
+                "text-decoration: none; border-radius: 5px; display: inline-block; }" +
                 "</style></head>" +
                 "<body>" +
                 "<div class='container'>" +
-                "<h1>✨ Purchase Confirmation ✨</h1>" +
+                "<h1>✨ Purchase Confirmation with Map ✨</h1>" +
                 "<p>Dear " + name + ",</p>" +
                 "<p>Thank you for your purchase from Rehletna.tn Shop!</p>" +
                 "<div class='details'>" +
@@ -355,10 +389,11 @@ public class ShopController implements Initializable {
                 "<p><strong>Order ID:</strong> <span class='order-id'>#" + orderId + "</span></p>" +
                 "<p><strong>Product:</strong> " + product.getName() + "</p>" +
                 "<p><strong>Price:</strong> " + product.getPriceCoins() + " coins</p>" +
-                "<p><strong>Delivery Address:</strong> " + address + "</p>" +
+                "<p><strong>Delivery Address:</strong><br>" + address.replace("\n", "<br>") + "</p>" +
+                "<p><strong>Delivery Location:</strong><br>" +
+                "<a href='" + mapLink + "' class='map-link' target='_blank'>🗺️ View on Map</a></p>" +
                 "</div>" +
                 "<p>Your order has been confirmed and will be processed soon.</p>" +
-                "<p>You will receive another email when your item ships.</p>" +
                 "<hr>" +
                 "<p style='color: #999; font-size: 12px;'>© 2025 Rehletna.tn - All rights reserved</p>" +
                 "</div>" +
