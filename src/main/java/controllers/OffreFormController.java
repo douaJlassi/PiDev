@@ -17,6 +17,13 @@ import repositories.OffreServiceRepository;
 import repositories.ServiceRepository;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.util.Duration;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.util.Duration;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.paint.Color;
 
 import java.io.File;
 
@@ -308,31 +315,58 @@ public class OffreFormController {
             return;
         }
 
-        // Visual feedback
+        // 1. Visual Feedback & Disable
         descTa.setPromptText("AI is crafting your description... ✨");
         descTa.setDisable(true);
+        descTa.getStyleClass().add("ai-glow"); // Apply CSS glow
 
+        // 2. Setup the "Breathe" Animation
+        javafx.scene.effect.DropShadow glow = new javafx.scene.effect.DropShadow();
+        glow.setColor(javafx.scene.paint.Color.web("#6366F1"));
+        glow.setRadius(0);
+        descTa.setEffect(glow);
+
+        javafx.animation.Timeline pulse = new javafx.animation.Timeline(
+                new javafx.animation.KeyFrame(Duration.ZERO,
+                        new javafx.animation.KeyValue(glow.radiusProperty(), 5)),
+                new javafx.animation.KeyFrame(Duration.seconds(1),
+                        new javafx.animation.KeyValue(glow.radiusProperty(), 25))
+        );
+        pulse.setAutoReverse(true);
+        pulse.setCycleCount(javafx.animation.Animation.INDEFINITE);
+        pulse.play();
+
+        // 3. The AI Task (Your Original Logic)
         javafx.concurrent.Task<String> aiTask = new javafx.concurrent.Task<>() {
             @Override
             protected String call() throws Exception {
-                // Using the service we created
                 return services.AIService.generateDescription(title);
             }
         };
 
         aiTask.setOnSucceeded(e -> {
             descTa.setText(aiTask.getValue());
-            descTa.setDisable(false);
-            errorLbl.setText("");
+            stopAIEffects(pulse);
         });
 
         aiTask.setOnFailed(e -> {
-            descTa.setDisable(false);
             errorLbl.setText("AI Service currently unavailable.");
+            stopAIEffects(pulse);
         });
 
         new Thread(aiTask).start();
     }
+
+    // Helper to clean up the UI after AI finishes
+    private void stopAIEffects(javafx.animation.Timeline pulse) {
+        pulse.stop();
+        descTa.setDisable(false);
+        descTa.setEffect(null);
+        descTa.getStyleClass().remove("ai-glow");
+        descTa.setPromptText("");
+        errorLbl.setText("");
+    }
+
 
 
 }

@@ -784,6 +784,19 @@
     -fx-scale-x: 1.05;
     -fx-scale-y: 1.05;
 }
+/* The Glowing Effect */
+.ai-glow {
+    -fx-border-color: linear-gradient(to right, #6366F1, #1BB7B1);
+    -fx-border-width: 2px;
+    -fx-border-radius: 5;
+    -fx-effect: dropshadow(three-pass-box, rgba(99, 102, 241, 0.6), 15, 0.5, 0, 0);
+}
+
+/* Optional: Smooth transition for the glow */
+.text-area {
+    -fx-transition: all 0.5s ease-in-out;
+}
+
 
 
 
