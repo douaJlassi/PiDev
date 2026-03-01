@@ -10,9 +10,12 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -20,7 +23,10 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import services.ServiceConversation;
 import services.ServiceMessage;
 import services.ServiceParticipantConversation;
@@ -76,7 +82,7 @@ public class ChatView {
     private ObservableList<Conversation> masterData = FXCollections.observableArrayList();
     private FilteredList<Conversation> filteredData;
 
-    @FXML private TextField userSearchField; // Le nouveau champ
+    @FXML private TextField userSearchField;
     private ObservableList<Utilisateur> masterUserList = FXCollections.observableArrayList();
     private FilteredList<Utilisateur> filteredUserList;
 
@@ -106,6 +112,10 @@ public class ChatView {
 
     @FXML
     private Button btnMic;
+
+    @FXML
+    private Button btnLocation;
+
     @FXML
     public void initialize() {
         try {
@@ -551,10 +561,58 @@ public class ChatView {
             visualContent = fileBox;
         }
         else if (msg.getTypeMessage() == TypeMessage.LOCATION && msg.getUrlFichier() != null) {
-            Label lblLoc = new Label("📍 Position partagée");
-            lblLoc.setUnderline(true); lblLoc.setCursor(Cursor.HAND);
-            lblLoc.setOnMouseClicked(e -> { try { java.awt.Desktop.getDesktop().browse(new java.net.URI("https://www.google.com/maps/search/?api=1&query=" + msg.getUrlFichier())); } catch (Exception ex) {} });
-            visualContent = lblLoc;
+            String[] parts = msg.getUrlFichier().split("\\|");
+            String coords = parts[0];
+            String imageName = (parts.length > 1) ? parts[1] : null;
+
+            VBox locContainer = new VBox(8);
+            locContainer.setAlignment(Pos.CENTER);
+            locContainer.setCursor(Cursor.HAND);
+
+            if (imageName != null) {
+                try {
+                    File imgFile = new File(UPLOAD_DIR + imageName);
+                    if (imgFile.exists()) {
+                        ImageView mapView = new ImageView(new Image(imgFile.toURI().toString()));
+                        mapView.setFitWidth(250);
+                        mapView.setPreserveRatio(true);
+
+                        Rectangle clip = new Rectangle();
+                        clip.setWidth(250);
+                        clip.setHeight(150);
+                        clip.setArcHeight(20);
+                        clip.setArcWidth(20);
+                        mapView.setClip(clip);
+
+                        locContainer.getChildren().add(mapView);
+                    }
+                } catch (Exception e) {
+                    System.err.println("Erreur chargement image carte : " + e.getMessage());
+                }
+            }
+
+            Label lblLink = new Label("📍 Voir l'emplacement sur Maps");
+            lblLink.setUnderline(true);
+            lblLink.setFont(Font.font("System", FontWeight.BOLD, 12));
+
+            if (isMoi) {
+                lblLink.setStyle("-fx-text-fill: white;");
+            } else {
+                lblLink.setStyle("-fx-text-fill: #0D3B66;");
+            }
+
+            locContainer.getChildren().add(lblLink);
+
+            locContainer.setOnMouseClicked(e -> {
+                try {
+                    String url = "https://www.google.com/maps/search/?api=1&query=" + coords;
+                    java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            });
+
+            visualContent = locContainer;
         }
         else if (msg.getTypeMessage() == TypeMessage.AUDIO && msg.getUrlFichier() != null) {
             HBox audioBox = new HBox(10);
@@ -766,7 +824,7 @@ public class ChatView {
             System.err.println("Erreur chargement messages : " + e.getMessage());
         }
     }
-    //ListView
+
     private void listConversationStyle() {
         listConversations.setCellFactory(lv -> new ListCell<Conversation>() {
             @Override
@@ -1439,6 +1497,69 @@ public class ChatView {
             loadConversations();
             listConversations.getSelectionModel().select(m.getConversation());
 
+        } catch (SQLException e) { e.printStackTrace(); }
+    }
+
+    @FXML
+    private void handleSendLocation() {
+        Stage mapStage = new Stage();
+        mapStage.setTitle("Rehletna - Partager ma position");
+
+        WebView webView = new WebView();
+        WebEngine engine = webView.getEngine();
+
+        engine.load(getClass().getResource("/html/map.html").toExternalForm());
+
+        Button btnValider = new Button("📍 Envoyer ma position actuelle");
+        btnValider.setStyle("-fx-background-color: #10A5A5; -fx-text-fill: white; -fx-background-radius: 25; -fx-font-weight: bold;");
+        btnValider.setPadding(new Insets(12, 30, 12, 30));
+
+        btnValider.setOnAction(e -> {
+            Object lat = engine.executeScript("window.selectedLat");
+            Object lon = engine.executeScript("window.selectedLon");
+
+            if (lat != null && !lat.toString().equals("null")) {
+                // Snapshot pour la bulle (Style WhatsApp)
+                WritableImage snapshot = webView.snapshot(new SnapshotParameters(), null);
+                String imgName = "map_" + System.currentTimeMillis() + ".png";
+                try {
+                    File file = new File(UPLOAD_DIR + imgName);
+                    javax.imageio.ImageIO.write(javafx.embed.swing.SwingFXUtils.fromFXImage(snapshot, null), "png", file);
+                    envoyerMessageLocation(lat.toString() + "," + lon.toString() + "|" + imgName);
+                    mapStage.close();
+                } catch (Exception ex) { ex.printStackTrace(); }
+            } else {
+                new Alert(Alert.AlertType.WARNING, "GPS non prêt. Cliquez sur la carte.").show();
+            }
+        });
+
+        VBox layout = new VBox(webView, btnValider);
+        VBox.setVgrow(webView, Priority.ALWAYS);
+        layout.setAlignment(Pos.CENTER);
+        mapStage.setScene(new Scene(layout, 700, 550));
+
+        mapStage.show();
+
+        engine.getLoadWorker().stateProperty().addListener((obs, oldState, newState) -> {
+            if (newState == javafx.concurrent.Worker.State.SUCCEEDED) {
+                engine.executeScript("fixMap()");
+            }
+        });
+    }
+
+    private void envoyerMessageLocation(String coords) {
+        try {
+            Message m = new Message();
+            m.setContenu("📍 Position partagée");
+            m.setTypeMessage(TypeMessage.LOCATION);
+            m.setUrlFichier(coords);
+            m.setDateEnvoi(LocalDateTime.now());
+            m.setConversation(listConversations.getSelectionModel().getSelectedItem());
+            m.setExpediteur(userConnecte);
+
+            serMsg.insertOne(m);
+            renderMessage(m, true);
+            loadConversations();
         } catch (SQLException e) { e.printStackTrace(); }
     }
 }

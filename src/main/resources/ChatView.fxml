@@ -163,6 +163,17 @@
                                         <Insets right="5.0" />
                                     </HBox.margin>
                                 </Button>
+                                <Button fx:id="btnLocation" mnemonicParsing="false" onAction="#handleSendLocation"
+                                        prefHeight="45.0" prefWidth="45.0"
+                                        style="-fx-background-color: #F9B948; -fx-background-radius: 50; -fx-text-fill: white; -fx-font-size: 16; -fx-cursor: hand;"
+                                        text="📍">
+                                    <HBox.margin>
+                                        <Insets right="5.0" />
+                                    </HBox.margin>
+                                    <tooltip>
+                                        <Tooltip text="Partager ma position" />
+                                    </tooltip>
+                                </Button>
                                 <TextField fx:id="inputMessage" onAction="#handleSendMessage" promptText="Écrivez votre message..." style="-fx-background-radius: 20; -fx-padding: 10;" HBox.hgrow="ALWAYS" />
                                 <Button fx:id="btnSend" onAction="#handleSendMessage" style="-fx-background-color: #0077B6; -fx-text-fill: white; -fx-background-radius: 20;" text="Envoyer">
                                     <padding>
@@ -170,8 +181,8 @@
                                     </padding>
                                 </Button>
                                 <Button fx:id="btnMic" onMousePressed="#startRecording" onMouseReleased="#stopRecording"
-                                        prefHeight="35.0" prefWidth="35.0"
-                                        style="-fx-background-color: #e74c3c; -fx-background-radius: 50; -fx-text-fill: white;" text="🎙" />
+                                        prefHeight="45.0" prefWidth="45.0"
+                                        style="-fx-background-color: #e74c3c; -fx-background-radius: 50; -fx-text-fill: white; -fx-font-size: 16;" text="🎙" />
                             </children>
                             <padding>
                                 <Insets left="10.0" right="10.0" />
