@@ -52,7 +52,12 @@ public class AjouterPersonne {
     @FXML private TextField dateField;
     @FXML private PasswordField passwordField;
     @FXML private PasswordField confirmPasswordField;
-    @FXML private CheckBox guiderCheckbox;
+
+    // Role selection - Updated to RadioButtons
+    @FXML private RadioButton userRoleRadio;
+    @FXML private RadioButton guiderRoleRadio;
+    @FXML private RadioButton agenceRoleRadio;
+    @FXML private ToggleGroup roleGroup;
 
     // Login fields
     @FXML private TextField loginEmailField;
@@ -62,8 +67,7 @@ public class AjouterPersonne {
     @FXML private Button qrScanButton;
     @FXML private Label forgotPasswordLink;
 
-    // Face ID Email Verification Fields - Added to FXML
-    @FXML private VBox faceIDEmailSection;
+    // Face ID Email Verification Fields
     @FXML private TextField faceIDEmailField;
     @FXML private Label faceIDEmailError;
 
@@ -175,7 +179,7 @@ public class AjouterPersonne {
         // Add action to login button
         loginButton.setOnAction(event -> handleLogin());
 
-        // Initialize Face ID login button
+        // Initialize Face ID login
         initializeFaceIDLogin();
 
         // Subtle floating animation
@@ -186,15 +190,16 @@ public class AjouterPersonne {
             checkExistingSession();
         });
 
-        // Debug: Verify button is connected
-        System.out.println("=== FACE ID BUTTON DEBUG ===");
-        System.out.println("faceIDLoginButton injected: " + (faceIDLoginButton != null));
-        if (faceIDLoginButton != null) {
-            System.out.println("Button text: " + faceIDLoginButton.getText());
-            System.out.println("Button visible: " + faceIDLoginButton.isVisible());
-            System.out.println("Button managed: " + faceIDLoginButton.isManaged());
-            System.out.println("Button disabled: " + faceIDLoginButton.isDisabled());
-            System.out.println("Button onAction: " + faceIDLoginButton.getOnAction());
+        // Debug: Verify role selection
+        System.out.println("=== ROLE SELECTION DEBUG ===");
+        System.out.println("User Radio: " + (userRoleRadio != null));
+        System.out.println("Guider Radio: " + (guiderRoleRadio != null));
+        System.out.println("Agency Radio: " + (agenceRoleRadio != null));
+        System.out.println("Toggle Group: " + (roleGroup != null));
+
+        // Set default selection
+        if (userRoleRadio != null) {
+            userRoleRadio.setSelected(true);
         }
     }
 
@@ -499,10 +504,14 @@ public class AjouterPersonne {
         successMessage.setWrapText(true);
         successMessage.setMaxWidth(350);
 
-        // Add to signup pane (after the checkbox and before the button)
-        int index = signupPane.getChildren().indexOf(guiderCheckbox.getParent());
-        if (index >= 0) {
-            signupPane.getChildren().add(index + 1, successMessage);
+        // Add to signup pane (after the role selection and before the button)
+        int roleIndex = signupPane.getChildren().indexOf(signupPane.getChildren().stream()
+                .filter(node -> node instanceof VBox && ((VBox) node).getChildren().stream()
+                        .anyMatch(child -> child instanceof RadioButton))
+                .findFirst().orElse(null));
+
+        if (roleIndex >= 0) {
+            signupPane.getChildren().add(roleIndex + 1, successMessage);
         }
     }
 
@@ -764,8 +773,15 @@ public class AjouterPersonne {
             String sqlDateStr = dateParts[2] + "-" + dateParts[1] + "-" + dateParts[0];
             Date sqlDate = Date.valueOf(sqlDateStr);
 
-            // Determine role based on checkbox
-            String role = guiderCheckbox.isSelected() ? "GUIDER" : "USER";
+            // Determine role based on radio button selection
+            String role;
+            if (guiderRoleRadio.isSelected()) {
+                role = "GUIDER";
+            } else if (agenceRoleRadio.isSelected()) {
+                role = "AGENCY";
+            } else {
+                role = "USER";
+            }
 
             // Create Person object
             Person newPerson = new Person(
@@ -782,8 +798,11 @@ public class AjouterPersonne {
             // Save to database
             personService.insertOneUpdated(newPerson);
 
-            // Show success message
-            showSuccessMessage("✓ Account created successfully! Welcome " + firstNameField.getText() + "!");
+            // Show success message with appropriate role
+            String roleText = role.equals("GUIDER") ? "Travel Guider" :
+                    role.equals("AGENCY") ? "Agency" : "User";
+            showSuccessMessage("✓ Account created successfully! Welcome " + firstNameField.getText() +
+                    "! You are now registered as a " + roleText);
 
             // Clear form after successful registration
             clearForm();
@@ -1060,39 +1079,6 @@ public class AjouterPersonne {
         }
     }
 
-    /**
-     * Go directly to dashboard (without loading animation)
-     */
-    private void goToDashboard(Person user) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/dashboard.fxml"));
-            Parent root = loader.load();
-
-            DashboardController controller = loader.getController();
-            controller.setUserData(user);
-
-            Stage stage = getStage();
-            if (stage == null) {
-                System.err.println("Cannot get stage reference in goToDashboard");
-                // Try to get stage from the scene as last resort
-                if (loginButton != null && loginButton.getScene() != null) {
-                    stage = (Stage) loginButton.getScene().getWindow();
-                    primaryStage = stage;
-                } else {
-                    return;
-                }
-            }
-
-            stage.setScene(new Scene(root));
-            stage.setTitle("Dashboard");
-            stage.show();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            showLoginError("Error loading dashboard: " + e.getMessage());
-        }
-    }
-
     private void showSuccessMessage(String message) {
         successMessage.setText(message);
 
@@ -1163,7 +1149,9 @@ public class AjouterPersonne {
         dateField.clear();
         passwordField.clear();
         confirmPasswordField.clear();
-        guiderCheckbox.setSelected(false);
+
+        // Reset role selection to default (USER)
+        userRoleRadio.setSelected(true);
 
         fadeLine(firstNameLine, 0);
         fadeLine(lastNameLine, 0);
@@ -1569,6 +1557,4 @@ public class AjouterPersonne {
             showAlert("Error", "Failed to load forgot password page: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
-
-
 }

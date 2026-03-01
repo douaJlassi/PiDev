@@ -153,11 +153,46 @@
                                           -fx-padding: 0 18;"/>
                 </VBox>
 
-                <!-- Guider Checkbox -->
-                <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 5 0 0 0;">
-                    <CheckBox fx:id="guiderCheckbox" style="-fx-text-fill: white;"/>
-                    <Label text="Register as a Travel Guider" style="-fx-text-fill:white; -fx-font-size: 14px;"/>
-                </HBox>
+                <!-- Role Selection Section - FIXED with proper ToggleGroup definition -->
+                <VBox spacing="10" style="-fx-padding: 5 0 0 0;">
+                    <Label text="Register as:" style="-fx-text-fill:white; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+
+                    <!-- Define the ToggleGroup properly in fx:define -->
+                    <fx:define>
+                        <ToggleGroup fx:id="roleGroup"/>
+                    </fx:define>
+
+                    <!-- Regular User Option (default) -->
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <RadioButton fx:id="userRoleRadio" toggleGroup="$roleGroup" selected="true"
+                                     style="-fx-text-fill: white; -fx-mark-color: #0FA5A2;"/>
+                        <Label text="Regular User" style="-fx-text-fill:white; -fx-font-size: 14px;"/>
+                    </HBox>
+
+                    <!-- Travel Guider Option -->
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <RadioButton fx:id="guiderRoleRadio" toggleGroup="$roleGroup"
+                                     style="-fx-text-fill: white; -fx-mark-color: #FEC74C;"/>
+                        <Label text="Travel Guider" style="-fx-text-fill:white; -fx-font-size: 14px;"/>
+                        <Label text="ⓘ" style="-fx-text-fill: #FEC74C; -fx-font-size: 14px; -fx-cursor: hand;">
+                            <tooltip>
+                                <Tooltip text="Guiders can lead tours and create travel experiences"/>
+                            </tooltip>
+                        </Label>
+                    </HBox>
+
+                    <!-- Agency Option -->
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <RadioButton fx:id="agenceRoleRadio" toggleGroup="$roleGroup"
+                                     style="-fx-text-fill: white; -fx-mark-color: #1D4D7C;"/>
+                        <Label text="Agency" style="-fx-text-fill:white; -fx-font-size: 14px;"/>
+                        <Label text="ⓘ" style="-fx-text-fill: #1D4D7C; -fx-font-size: 14px; -fx-cursor: hand;">
+                            <tooltip>
+                                <Tooltip text="Agencies can create tours, manage packages, and handle multiple guider accounts"/>
+                            </tooltip>
+                        </Label>
+                    </HBox>
+                </VBox>
 
                 <!-- Sign Up Button -->
                 <Button fx:id="signupButton"
@@ -225,6 +260,23 @@
                                           -fx-padding:0 18;"/>
                 </VBox>
 
+                <!-- Face ID Email Verification Section -->
+                <VBox spacing="5" style="-fx-padding: 5 0 0 0;">
+                    <Label text="Face ID Email Verification"
+                           style="-fx-text-fill: #FEC74C; -fx-font-size: 12px; -fx-font-weight: bold;"/>
+                    <TextField fx:id="faceIDEmailField" promptText="Enter your email for Face ID" prefHeight="40"
+                               style="-fx-background-color: rgba(255,255,255,0.20);
+                                      -fx-background-radius: 20;
+                                      -fx-border-radius: 20;
+                                      -fx-border-color: rgba(255,255,255,0.35);
+                                      -fx-text-fill:white;
+                                      -fx-font-size: 13px;
+                                      -fx-prompt-text-fill: rgba(255,255,255,0.75);
+                                      -fx-padding:0 15;"/>
+                    <Label fx:id="faceIDEmailError" text="Email is required"
+                           style="-fx-text-fill: #ff5e62; -fx-font-size: 10px;" opacity="0"/>
+                </VBox>
+
                 <!-- Login Button -->
                 <Button fx:id="loginButton"
                         text="Login"
@@ -246,7 +298,7 @@
                     <Label text="Remember me" style="-fx-font-size: 14px; -fx-text-fill: #666;"/>
                 </HBox>
 
-                <!-- Face ID Login Button - FIXED with onAction -->
+                <!-- Face ID Login Button -->
                 <Button fx:id="faceIDLoginButton"
                         text="Login with Face ID"
                         onAction="#handleFaceIDLogin"
@@ -271,12 +323,12 @@
                         prefWidth="220"
                         prefHeight="48"
                         style="-fx-background-color: linear-gradient(to right,#FF8008,#FFA03A);
-               -fx-text-fill:white;
-               -fx-font-weight:bold;
-               -fx-font-size: 16px;
-               -fx-background-radius: 24;
-               -fx-cursor: hand;
-               -fx-margin: 10 0 0 0;">
+                               -fx-text-fill:white;
+                               -fx-font-weight:bold;
+                               -fx-font-size: 16px;
+                               -fx-background-radius: 24;
+                               -fx-cursor: hand;
+                               -fx-margin: 10 0 0 0;">
                     <effect>
                         <DropShadow color="#00000066" radius="8" spread="0.3" offsetX="2" offsetY="2"/>
                     </effect>
