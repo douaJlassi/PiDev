@@ -1576,3 +1576,26 @@ Light BG: #f0f2f5
     -fx-background-color: #D1D5DB;
     -fx-effect: none;
 }
+
+/* ── Unsplash "Suggest Photo" button ────────────────────────────────────── */
+.unsplash-suggest-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #17B3A6;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-padding: 6 12;
+    -fx-background-radius: 20;
+    -fx-border-color: #17B3A6;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 20;
+    -fx-cursor: hand;
+}
+.unsplash-suggest-btn:hover {
+    -fx-background-color: rgba(23,179,166,0.08);
+    -fx-effect: dropshadow(gaussian, rgba(23,179,166,0.2), 6, 0, 0, 1);
+}
+.unsplash-suggest-btn:disabled {
+    -fx-text-fill: #9CA3AF;
+    -fx-border-color: #9CA3AF;
+    -fx-opacity: 0.7;
+}

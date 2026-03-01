@@ -633,3 +633,16 @@
     -fx-background-color: #2e3250;
     -fx-border-color: #17B3A6;
 }
+
+/* ── Unsplash suggest button — dark ── */
+.unsplash-suggest-btn {
+    -fx-text-fill: #17B3A6;
+    -fx-border-color: #17B3A6;
+}
+.unsplash-suggest-btn:hover {
+    -fx-background-color: rgba(23,179,166,0.12);
+}
+.unsplash-suggest-btn:disabled {
+    -fx-text-fill: #555a72;
+    -fx-border-color: #555a72;
+}

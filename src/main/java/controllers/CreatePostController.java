@@ -16,8 +16,15 @@ import javafx.util.StringConverter;
 import services.AgencyService;
 import entities.Agency;
 
+import javafx.application.Platform;
+import services.UnsplashService;
+import services.UnsplashService.PhotoResult;
+
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -62,6 +69,10 @@ public class CreatePostController {
 
     private DashboardController dashboard;
     private File selectedImageFile;
+
+    // Unsplash integration
+    private final UnsplashService unsplashService = new UnsplashService();
+    private Button                suggestPhotoBtn; // injected programmatically
 
     // PHASE 3: Custom autocomplete field (created programmatically)
     private PlacesAutocompleteField placeField;
@@ -143,9 +154,23 @@ public class CreatePostController {
         placeField.setPromptText("Enter location (e.g., Tunis, Sahara...)");
         placeField.setPrefWidth(350); // Fill container width
 
+        // ── Unsplash "Suggest Photo" button ─────────────────────────────────
+        suggestPhotoBtn = new Button("✦ Suggest Photo");
+        suggestPhotoBtn.getStyleClass().add("unsplash-suggest-btn");
+        suggestPhotoBtn.setVisible(false);
+        suggestPhotoBtn.setManaged(false);
+        suggestPhotoBtn.setOnAction(e -> onSuggestPhoto());
+
+        // Show the button once the user has typed at least 2 chars in the location field
+        placeField.textProperty().addListener((obs, oldVal, newVal) -> {
+            boolean hasLocation = newVal != null && newVal.trim().length() >= 2;
+            suggestPhotoBtn.setVisible(hasLocation);
+            suggestPhotoBtn.setManaged(hasLocation);
+        });
+
         // Add to container (replaces what would have been <TextField fx:id="placeField"/> in FXML)
         placeFieldContainer.getChildren().clear();
-        placeFieldContainer.getChildren().add(placeField);
+        placeFieldContainer.getChildren().addAll(placeField, suggestPhotoBtn);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -175,6 +200,98 @@ public class CreatePostController {
             imagePreview.setImage(new Image(file.toURI().toString()));
             imagePreviewBox.setVisible(true);
             imagePreviewBox.setManaged(true);
+        }
+    }
+
+    /**
+     * Called when user clicks "✦ Suggest Photo".
+     * Fetches a photo from Unsplash based on the typed location,
+     * downloads it to uploads/images/, then shows it in the preview
+     * exactly as if the user had selected it manually.
+     */
+    private void onSuggestPhoto() {
+        String location = placeField.getLocationText();
+        if (location == null || location.trim().isEmpty()) return;
+
+        // Disable button and show loading state while fetching
+        suggestPhotoBtn.setDisable(true);
+        suggestPhotoBtn.setText("⟳ Fetching...");
+
+        unsplashService.fetchPhoto(location)
+                .thenAccept(result -> Platform.runLater(() -> {
+                    suggestPhotoBtn.setDisable(false);
+                    suggestPhotoBtn.setText("✦ Suggest Photo");
+
+                    if (result == null) {
+                        if (dashboard != null) {
+                            dashboard.showInfo("No photo found for \"" + location + "\". " +
+                                    "Try a more specific location or upload your own.");
+                        }
+                        return;
+                    }
+
+                    // Download the image to local uploads directory
+                    File downloaded = downloadUnsplashPhoto(result.regularUrl(), location);
+                    if (downloaded != null) {
+                        selectedImageFile = downloaded;
+                        imagePreview.setImage(new javafx.scene.image.Image(
+                                downloaded.toURI().toString(), true));
+                        imagePreviewBox.setVisible(true);
+                        imagePreviewBox.setManaged(true);
+
+                        // Show attribution as required by Unsplash TOS
+                        if (dashboard != null) {
+                            dashboard.showInfo(
+                                    "Photo by " + result.photographer() + " on Unsplash ✦\n" +
+                                            "The photo has been added to your post.");
+                        }
+                    } else {
+                        if (dashboard != null) {
+                            dashboard.showError("Could not download the photo. Please try again or upload your own.");
+                        }
+                    }
+                }))
+                .exceptionally(err -> {
+                    Platform.runLater(() -> {
+                        suggestPhotoBtn.setDisable(false);
+                        suggestPhotoBtn.setText("✦ Suggest Photo");
+                        if (dashboard != null) dashboard.showError("Photo fetch failed: " + err.getMessage());
+                    });
+                    return null;
+                });
+    }
+
+    /**
+     * Downloads a photo from Unsplash to the local uploads/images/ directory.
+     * Returns the downloaded File, or null on failure.
+     */
+    private File downloadUnsplashPhoto(String imageUrl, String location) {
+        try {
+            Files.createDirectories(Paths.get(UPLOAD_DIR));
+
+            // Sanitise location for use in filename
+            String safeName = location.replaceAll("[^a-zA-Z0-9_\\-]", "_").toLowerCase();
+            String filename  = System.currentTimeMillis() + "_unsplash_" + safeName + ".jpg";
+            java.nio.file.Path target = Paths.get(UPLOAD_DIR + filename);
+
+            // Stream from Unsplash URL directly to disk
+            URL url = new URL(imageUrl);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setConnectTimeout(15_000);
+            conn.setReadTimeout(30_000);
+            // Required by Unsplash API — identifies the download as triggered by the API
+            conn.setRequestProperty("User-Agent", "Rehletna/1.0");
+            conn.connect();
+
+            try (InputStream in = conn.getInputStream()) {
+                Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
+            }
+
+            return target.toFile();
+
+        } catch (Exception e) {
+            System.err.println("[CreatePostController] Unsplash download failed: " + e.getMessage());
+            return null;
         }
     }
 
