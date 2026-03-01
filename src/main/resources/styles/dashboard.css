@@ -1339,3 +1339,240 @@ Light BG: #f0f2f5
     -fx-translate-y: 0;
     -fx-effect: dropshadow(gaussian, rgba(23,179,166,0.3), 8, 0.2, 0, 2);
 }
+
+/* =====================================================================
+   AI CHAT PANEL — Light theme
+   ===================================================================== */
+
+/* ── Chat FAB button (bottom-left) ── */
+.chat-fab-btn {
+    -fx-background-color: #8B5CF6;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Arial";
+    -fx-padding: 14 22 14 22;
+    -fx-background-radius: 50;
+    -fx-border-radius: 50;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(139,92,246,0.45), 16, 0.3, 0, 4);
+}
+.chat-fab-btn:hover {
+    -fx-background-color: #7C3AED;
+    -fx-effect: dropshadow(gaussian, rgba(139,92,246,0.65), 22, 0.4, 0, 6);
+    -fx-translate-y: -2;
+}
+.chat-fab-btn:pressed {
+    -fx-background-color: #6D28D9;
+    -fx-translate-y: 0;
+    -fx-effect: dropshadow(gaussian, rgba(139,92,246,0.3), 8, 0.2, 0, 2);
+}
+
+/* ── Panel container (slide in from left) ── */
+.chat-panel-container {
+    -fx-pref-width: 400;
+    -fx-min-width: 400;
+    -fx-max-width: 400;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.22), 16, 0, 4, 0);
+}
+
+/* ── Panel root VBox ── */
+.chat-panel-root {
+    -fx-background-color: #ffffff;
+    -fx-pref-width: 400;
+    -fx-min-width: 400;
+    -fx-max-width: 400;
+}
+
+/* ── Header ── */
+.chat-header {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e4e6eb;
+    -fx-border-width: 0 0 1 0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 4, 0, 0, 2);
+}
+
+/* ── AI avatar circle ── */
+.chat-avatar {
+    -fx-background-color: linear-gradient(to bottom right, #8B5CF6, #17B3A6);
+    -fx-background-radius: 50;
+}
+.chat-avatar-icon {
+    -fx-text-fill: white;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+/* ── Header labels ── */
+.chat-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #1a1d27;
+}
+.chat-subtitle {
+    -fx-font-size: 12px;
+    -fx-text-fill: #65676b;
+}
+
+/* ── Icon buttons in header ── */
+.chat-icon-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #65676b;
+    -fx-font-size: 16px;
+    -fx-padding: 6 10;
+    -fx-background-radius: 50;
+    -fx-cursor: hand;
+}
+.chat-icon-btn:hover {
+    -fx-background-color: #f0f2f5;
+    -fx-text-fill: #1a1d27;
+}
+
+/* ── Close button ── */
+.chat-close-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #65676b;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 6 10;
+    -fx-background-radius: 50;
+    -fx-cursor: hand;
+}
+.chat-close-btn:hover {
+    -fx-background-color: #fee2e2;
+    -fx-text-fill: #dc2626;
+}
+
+/* ── Messages scroll pane ── */
+.chat-scroll {
+    -fx-background-color: #f8f9fb;
+    -fx-background: #f8f9fb;
+    -fx-border-color: transparent;
+}
+.chat-scroll .viewport {
+    -fx-background-color: #f8f9fb;
+}
+.chat-messages-box {
+    -fx-background-color: #f8f9fb;
+}
+
+/* ── User bubble (right, teal) ── */
+.chat-bubble-user {
+    -fx-background-color: #17B3A6;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-padding: 10 14;
+    -fx-background-radius: 18 18 4 18;
+    -fx-wrap-text: true;
+}
+
+/* ── Assistant bubble (left, white) ── */
+.chat-bubble-assistant {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #1a1d27;
+    -fx-font-size: 13px;
+    -fx-padding: 10 14;
+    -fx-background-radius: 18 18 18 4;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 4, 0, 0, 1);
+    -fx-wrap-text: true;
+}
+
+/* ── Typing indicator ── */
+.chat-bubble-typing {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #8b90a7;
+    -fx-font-size: 12px;
+    -fx-font-style: italic;
+    -fx-padding: 10 14;
+    -fx-background-radius: 18 18 18 4;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 4, 0, 0, 1);
+}
+
+/* ── Small avatar dot next to assistant bubbles ── */
+.chat-bubble-avatar {
+    -fx-background-color: linear-gradient(to bottom right, #8B5CF6, #17B3A6);
+    -fx-background-radius: 50;
+    -fx-min-width: 28;
+    -fx-min-height: 28;
+    -fx-max-width: 28;
+    -fx-max-height: 28;
+}
+.chat-bubble-avatar-icon {
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+}
+
+/* ── Suggestion chips ── */
+.chat-suggestions-box {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e4e6eb;
+    -fx-border-width: 1 0 0 0;
+    -fx-padding: 12 16 8 16;
+}
+.chat-suggestions-label {
+    -fx-font-size: 11px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #9CA3AF;
+    -fx-padding: 0 0 4 0;
+}
+.chat-suggestion-chip {
+    -fx-background-color: #f0f2f5;
+    -fx-text-fill: #374151;
+    -fx-font-size: 12px;
+    -fx-padding: 6 12;
+    -fx-background-radius: 16;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+}
+.chat-suggestion-chip:hover {
+    -fx-background-color: #e8eaf0;
+    -fx-text-fill: #8B5CF6;
+}
+
+/* ── Input bar ── */
+.chat-input-bar {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e4e6eb;
+    -fx-border-width: 1 0 0 0;
+}
+.chat-input-field {
+    -fx-background-color: #f0f2f5;
+    -fx-background-radius: 20;
+    -fx-border-color: transparent;
+    -fx-border-radius: 20;
+    -fx-padding: 10 16;
+    -fx-font-size: 13px;
+    -fx-text-fill: #1a1d27;
+    -fx-prompt-text-fill: #9CA3AF;
+    -fx-pref-row-count: 1;
+}
+.chat-input-field:focused {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #8B5CF6;
+    -fx-border-width: 1.5;
+    -fx-effect: dropshadow(gaussian, rgba(139,92,246,0.15), 6, 0, 0, 0);
+}
+.chat-send-btn {
+    -fx-background-color: #8B5CF6;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-min-width: 44;
+    -fx-min-height: 44;
+    -fx-max-width: 44;
+    -fx-max-height: 44;
+    -fx-background-radius: 50;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(139,92,246,0.3), 6, 0, 0, 2);
+}
+.chat-send-btn:hover {
+    -fx-background-color: #7C3AED;
+    -fx-effect: dropshadow(gaussian, rgba(139,92,246,0.5), 10, 0, 0, 3);
+}
+.chat-send-btn:pressed {
+    -fx-background-color: #6D28D9;
+    -fx-effect: none;
+}
+.chat-send-btn:disabled {
+    -fx-background-color: #D1D5DB;
+    -fx-effect: none;
+}

@@ -143,6 +143,21 @@
                        StackPane.alignment="CENTER">
             </StackPane>
 
+            <!-- AI Chat panel (slide-in from left) -->
+            <HBox fx:id="chatPanel" styleClass="chat-panel-container"
+                  visible="false" managed="false"
+                  StackPane.alignment="TOP_LEFT">
+                <!-- Content built programmatically by AiChatController -->
+            </HBox>
+
+            <!-- AI Chat FAB — bottom-left, opposite the map FAB -->
+            <Button fx:id="chatFab" text="✦  Ask Rihla"
+                    styleClass="chat-fab-btn"
+                    onAction="#showAiChat"
+                    StackPane.alignment="BOTTOM_LEFT">
+                <StackPane.margin><Insets bottom="32" left="32"/></StackPane.margin>
+            </Button>
+
         </StackPane>
     </center>
 

@@ -79,15 +79,22 @@ public class DashboardController {
     @FXML
     private StackPane mapOverlay;
 
+    @FXML
+    private HBox chatPanel;
+
+    @FXML
+    private Button chatFab;
+
     // Services
     private PublicationService publicationService;
     private CommentService commentService;
     private LikeService likeService;
 
     // Sub-controllers
-    private PostController postController;
+    private PostController    postController;
     private CommentController commentController;
-    private LikeController likeController;
+    private LikeController    likeController;
+    private AiChatController  aiChatController;
 
     // State
     private Client currentUser;
@@ -363,6 +370,39 @@ public class DashboardController {
             if (mapFab != null) { mapFab.setVisible(true); mapFab.setManaged(true); }
         });
         fadeOut.play();
+    }
+
+    @FXML
+    private void showAiChat() {
+        // Build the panel once; reuse on subsequent opens
+        if (aiChatController == null) {
+            aiChatController = new AiChatController();
+            aiChatController.setOnClose(this::closeAiChat);
+            VBox panelContent = aiChatController.buildPanel();
+            chatPanel.getChildren().setAll(panelContent);
+        }
+
+        // Hide the chat FAB while panel is open
+        if (chatFab != null) { chatFab.setVisible(false); chatFab.setManaged(false); }
+
+        chatPanel.setTranslateX(-400);
+        chatPanel.setVisible(true);
+        chatPanel.setManaged(true);
+
+        TranslateTransition slide = new TranslateTransition(Duration.millis(260), chatPanel);
+        slide.setToX(0);
+        slide.play();
+    }
+
+    private void closeAiChat() {
+        TranslateTransition slide = new TranslateTransition(Duration.millis(220), chatPanel);
+        slide.setToX(-400);
+        slide.setOnFinished(e -> {
+            chatPanel.setVisible(false);
+            chatPanel.setManaged(false);
+            if (chatFab != null) { chatFab.setVisible(true); chatFab.setManaged(true); }
+        });
+        slide.play();
     }
 
     @FXML
