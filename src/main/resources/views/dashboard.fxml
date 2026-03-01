@@ -122,13 +122,6 @@
                 </VBox>
             </ScrollPane>
 
-            <!-- Create/Edit panel (slide-in from right, top layer) -->
-            <HBox fx:id="createEditPanel" styleClass="create-edit-panel"
-                  visible="false" managed="false"
-                  StackPane.alignment="TOP_RIGHT">
-                <!-- Content loaded dynamically by controller -->
-            </HBox>
-
             <!-- Floating Map Button (FAB) — bottom-right of content area -->
             <Button fx:id="mapFab" text="🗺  Explore Map"
                     styleClass="map-fab-btn"
@@ -137,19 +130,6 @@
                 <StackPane.margin><Insets bottom="32" right="32"/></StackPane.margin>
             </Button>
 
-            <!-- Map overlay — fades in over the feed, full-screen -->
-            <StackPane fx:id="mapOverlay"
-                       visible="false" managed="false"
-                       StackPane.alignment="CENTER">
-            </StackPane>
-
-            <!-- AI Chat panel (slide-in from left) -->
-            <HBox fx:id="chatPanel" styleClass="chat-panel-container"
-                  visible="false" managed="false"
-                  StackPane.alignment="TOP_LEFT">
-                <!-- Content built programmatically by AiChatController -->
-            </HBox>
-
             <!-- AI Chat FAB — bottom-right, above the map FAB -->
             <Button fx:id="chatFab" text="✦  Ask Rihla"
                     styleClass="chat-fab-btn"
@@ -157,6 +137,26 @@
                     StackPane.alignment="BOTTOM_RIGHT">
                 <StackPane.margin><Insets bottom="96" right="32"/></StackPane.margin>
             </Button>
+
+            <!-- Create/Edit panel (slide-in from right) — must be AFTER FABs to render on top -->
+            <HBox fx:id="createEditPanel" styleClass="create-edit-panel"
+                  visible="false" managed="false"
+                  StackPane.alignment="TOP_RIGHT">
+                <!-- Content loaded dynamically by controller -->
+            </HBox>
+
+            <!-- AI Chat panel (slide-in from left) — must be AFTER FABs to render on top -->
+            <HBox fx:id="chatPanel" styleClass="chat-panel-container"
+                  visible="false" managed="false"
+                  StackPane.alignment="TOP_LEFT">
+                <!-- Content built programmatically by AiChatController -->
+            </HBox>
+
+            <!-- Map overlay — full-screen, must be last to cover everything -->
+            <StackPane fx:id="mapOverlay"
+                       visible="false" managed="false"
+                       StackPane.alignment="CENTER">
+            </StackPane>
 
         </StackPane>
     </center>
