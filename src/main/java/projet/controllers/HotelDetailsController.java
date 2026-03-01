@@ -24,7 +24,7 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 public class HotelDetailsController {
-    user connectedUser=new user("achref","souli","admin");
+    user connectedUser=new user("achref","souli","user");
     //user connectedUser=new user("achref","souli","user");
     // Link to FXML IDs defined in hotelDetails.fxml
     @FXML private Label lblNom;

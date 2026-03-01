@@ -55,7 +55,7 @@ public class AddReservationController {
     @FXML private Label lblErrorMethode;
     @FXML private Label lblErrorNom;
     @FXML private Label lblErrorDate;
-
+    @FXML private Label lblErrorMetier;
     private int idService;
     private String Type;
     VolService volService = new VolService();
@@ -88,8 +88,19 @@ public class AddReservationController {
             String statut = "non acceptee";
             System.out.println(idService);
             ReservationService service = new ReservationService();
-            if (Type.equals("vol")) {
-                reservation reservation = new reservation(statut, sqlDateArrive, idService, modePaiement, nom, selectedSeatNumber);
+            reservation reservation = "vol".equals(Type)
+                    ? new reservation("non acceptee", sqlDateArrive, idService, modePaiement, nom, selectedSeatNumber)
+                    : new reservation("non acceptee", sqlDateArrive, idService, modePaiement, nom, -1);
+            try {
+                service.validerReservation(reservation, Type);
+            } catch (ReservationService.ReservationException e) {
+                afficherErreurMetier(e.getMessage());
+                return;
+            } catch (SQLException e) {
+                afficherErreurMetier("Erreur base de données : " + e.getMessage());
+                return;
+            }
+
                 try {
                     service.insertOne(reservation);
                     ServiceService serviceService = new ServiceService();
@@ -98,18 +109,8 @@ public class AddReservationController {
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }
-            }
-            else {
-                reservation reservation = new reservation(statut, sqlDateArrive, idService, modePaiement, nom, -1);
-                try {
-                    service.insertOne(reservation);
-                    ServiceService serviceService = new ServiceService();
-                    serviceService.DecrementCapacite(idService);
-                    handleBack();
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-            }
+
+
 
         }
 }
@@ -255,4 +256,25 @@ public class AddReservationController {
         lblErrorMethode.setVisible(false);
         lblErrorMethode.setManaged(false);
     }
+    private void afficherErreurMetier(String message) {
+        if (lblErrorMetier != null) {
+            lblErrorMetier.setText(message);
+            lblErrorMetier.setVisible(true);
+            lblErrorMetier.setManaged(true);
+            // Style rouge bien visible
+            lblErrorMetier.setStyle(
+                    "-fx-text-fill: #c0392b; -fx-font-weight: bold; " +
+                            "-fx-background-color: #fde8e8; -fx-padding: 8px; " +
+                            "-fx-background-radius: 6px; -fx-border-color: #e74c3c; " +
+                            "-fx-border-radius: 6px; -fx-border-width: 1px;"
+            );
+        }
+    }
+    private void cacherErreurMetier() {
+        if (lblErrorMetier != null) {
+            lblErrorMetier.setVisible(false);
+            lblErrorMetier.setManaged(false);
+        }
+    }
+
 }

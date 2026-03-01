@@ -87,6 +87,7 @@
                     <Label fx:id="lblErrorNom" managed="false" styleClass="error-label" visible="false" wrapText="true" />
                     <Label fx:id="lblErrorDate" managed="false" styleClass="error-label" visible="false" wrapText="true" />
                     <Label fx:id="lblErrorMethode" managed="false" styleClass="error-label" visible="false" wrapText="true" />
+                    <Label fx:id="lblErrorMetier" visible="false" managed="false" wrapText="true" maxWidth="400"/>
                 </VBox>
             </VBox>
         </VBox>
