@@ -195,7 +195,7 @@ public class MyReservationsController {
     private void showDetails(ReservationSummary r) {
         try {
             javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
-                    getClass().getResource("/fxml/ReservationDetailsView.fxml")
+                    getClass().getResource("/fxml/ReservationsDetailsView.fxml")
             );
             javafx.scene.Parent root = loader.load();
 
