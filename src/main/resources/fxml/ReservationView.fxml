@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.text.Text?>
+
+<VBox styleClass="root-container" prefWidth="620" prefHeight="680"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.ReservationController">
+
+    <!-- Header -->
+    <StackPane styleClass="header-pane" prefHeight="76">
+        <HBox alignment="CENTER_LEFT" spacing="16" styleClass="header-inner">
+            <StackPane styleClass="header-icon-wrap">
+                <Text text="🛒" styleClass="header-icon-emoji" />
+            </StackPane>
+            <VBox spacing="2">
+                <Text text="Récapitulatif de réservation" styleClass="header-title" />
+                <Text text="Vérifiez les détails avant de confirmer" styleClass="header-subtitle" />
+            </VBox>
+
+            <Region HBox.hgrow="ALWAYS" />
+
+            <!-- Step badge -->
+
+        </HBox>
+    </StackPane>
+
+    <!-- Divider line -->
+    <Region styleClass="header-divider" prefHeight="1" />
+
+    <!-- Main Content -->
+    <VBox spacing="0" VBox.vgrow="ALWAYS" styleClass="content-area">
+
+        <!-- ─── Activity Card ─── -->
+        <HBox styleClass="activity-card">
+
+            <!-- Thumbnail -->
+            <StackPane styleClass="thumb-wrap" prefWidth="140" prefHeight="140">
+                <ImageView fx:id="activityImageView" fitWidth="140" fitHeight="140" preserveRatio="false">
+                    <clip>
+                        <Rectangle width="140" height="140" arcWidth="0" arcHeight="0" />
+                    </clip>
+                </ImageView>
+                <!-- Gradient overlay on image -->
+                <StackPane styleClass="thumb-overlay" />
+            </StackPane>
+
+            <!-- Info -->
+            <VBox spacing="8" HBox.hgrow="ALWAYS" styleClass="activity-info">
+                <!-- Category chip -->
+                <HBox>
+                    <StackPane styleClass="category-chip">
+                        <Label text="Activité" styleClass="category-chip-text" />
+                    </StackPane>
+                </HBox>
+
+                <Label fx:id="activityTitleLabel"
+                       text="Chargement..."
+                       wrapText="true"
+                       styleClass="activity-title" />
+
+                <Label fx:id="activityDescriptionLabel"
+                       text=""
+                       wrapText="true"
+                       styleClass="activity-desc" />
+
+                <Region VBox.vgrow="ALWAYS" />
+
+                <HBox spacing="12" alignment="CENTER_LEFT">
+                    <Label fx:id="priceLabel" text="— DT" styleClass="price-label" />
+                    <Region HBox.hgrow="ALWAYS" />
+                    <HBox styleClass="available-chip" spacing="5" alignment="CENTER_LEFT">
+                        <Text text="●" styleClass="available-dot" />
+                        <Label fx:id="availablePlacesLabel" text="" styleClass="available-text" />
+                    </HBox>
+                </HBox>
+            </VBox>
+        </HBox>
+
+        <!-- Spacer -->
+        <Region prefHeight="22" />
+
+        <!-- ─── Reservation Details Card ─── -->
+        <VBox spacing="0" styleClass="detail-card">
+
+            <!-- Card Header -->
+            <HBox alignment="CENTER_LEFT" spacing="10" styleClass="detail-card-header">
+                <StackPane styleClass="section-dot" />
+                <Text text="Détails de la réservation" styleClass="section-title" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Label text="Obligatoire" styleClass="required-tag" />
+            </HBox>
+
+            <Region styleClass="card-divider" prefHeight="1" />
+
+            <!-- Places Input Row -->
+            <HBox alignment="TOP_LEFT" spacing="20" styleClass="input-row">
+                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                    <HBox spacing="6" alignment="CENTER_LEFT">
+                        <Text text="👥" styleClass="field-icon" />
+                        <Label text="Nombre de places" styleClass="field-label" />
+                    </HBox>
+                    <TextField fx:id="participantsField"
+                               promptText="ex: 2"
+                               styleClass="modern-input" />
+                    <Label text="Entrez le nombre de participants" styleClass="field-hint" />
+                </VBox>
+                <VBox fx:id="guestsContainer" spacing="5" />
+            </HBox>
+
+            <Region styleClass="card-divider" prefHeight="1" />
+
+            <!-- Total Row -->
+            <HBox alignment="CENTER_LEFT" styleClass="total-row">
+                <VBox spacing="4">
+                    <Label text="MONTANT TOTAL" styleClass="total-label-small" />
+                    <HBox alignment="BASELINE_LEFT" spacing="6">
+                        <Label fx:id="totalPriceLabel" text="0" styleClass="total-amount" />
+                        <Label text="DT" styleClass="total-currency" />
+                    </HBox>
+
+                </VBox>
+                <Region HBox.hgrow="ALWAYS" />
+                <!-- Summary pill -->
+                <VBox styleClass="summary-pill" spacing="4" alignment="CENTER">
+                    <Text text="✦" styleClass="pill-star" />
+                    <Label text="Paiement sécurisé" styleClass="pill-text" />
+                </VBox>
+            </HBox>
+        </VBox>
+
+        <Region VBox.vgrow="ALWAYS" />
+
+        <!-- ─── Action Buttons ─── -->
+        <HBox spacing="14" alignment="CENTER_RIGHT" styleClass="action-row">
+            <Button fx:id="cancelButton" text="Annuler" onAction="#handleCancel"
+                    styleClass="btn-cancel" />
+            <Button fx:id="confirmButton" text="✦  Confirmer la réservation" onAction="#handleConfirm"
+                    styleClass="btn-confirm" />
+        </HBox>
+    </VBox>
+</VBox>
