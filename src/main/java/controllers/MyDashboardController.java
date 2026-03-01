@@ -14,7 +14,7 @@ import entities.Agency;
 import javafx.scene.layout.VBox;
 import services.AISearchService;
 
-public class DashboardController {
+public class MyDashboardController {
 
     @FXML private StackPane contentHost;
     @FXML private Label roleLbl;
