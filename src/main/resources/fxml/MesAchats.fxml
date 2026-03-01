@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<VBox styleClass="modern-achats-root" spacing="0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.MesAchatsController">
+<VBox styleClass="modern-achats-root" spacing="0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.MesAchatsController">
 
     <!-- Header with title and back button -->
     <HBox styleClass="modern-header" alignment="CENTER_LEFT" spacing="15">

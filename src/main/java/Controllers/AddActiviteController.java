@@ -1,7 +1,7 @@
-package Controllers;
+package controllers;
 
 import gestion_activite.Activite;
-import Services.ActiviteService;
+import services.ActiviteService;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;

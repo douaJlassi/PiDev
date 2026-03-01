@@ -63,19 +63,18 @@
             <artifactId>javafx-swing</artifactId>
             <version>21.0.2</version>
         </dependency>
-        <!-- JavaFX Controls -->
+        <!-- JavaFX Controls
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
             <version>17.0.10</version>
         </dependency>
 
-        <!-- JavaFX FXML -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
             <version>17.0.10</version>
-        </dependency>
+        </dependency> -->
 
         <!-- ZXing for QR codes -->
         <dependency>
@@ -118,7 +117,7 @@
             </plugin>
         </plugins>
     </build>
-    <build>
+    <!--<build>
         <plugins>
             <plugin>
                 <groupId>org.openjfx</groupId>
@@ -131,5 +130,5 @@
                 </configuration>
             </plugin>
         </plugins>
-    </build>
+    </build>-->
 </project>

@@ -1,10 +1,12 @@
-package Controllers;
+package controllers;
 
 
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.*;
 import javafx.scene.shape.Rectangle;
 
 import javafx.fxml.FXMLLoader;
@@ -18,14 +20,9 @@ import javafx.util.Duration;
 import javafx.scene.Node;
 import java.io.IOException;
 import gestion_activite.Activite;
-import Services.ActiviteService;
+import services.ActiviteService;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
 import java.sql.SQLException;
@@ -36,6 +33,7 @@ import java.util.stream.Collectors;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
+import services.ServiceMessage;
 import utils.EventBus;
 import utils.NotificationUtils;
 
@@ -71,7 +69,16 @@ public class DashboardController {
     private List<Activite> allActivites;
     private String currentCategory = null;
     private String currentPlacesFilter = "Tous";
-
+    @FXML
+    private VBox mainVBox;
+    @FXML
+    private Label lblBadge;
+    private ServiceMessage serMsg = new ServiceMessage();
+    private int currentUserId =0;
+    private static DashboardController instance;
+    public static DashboardController getInstance() {
+        return instance;
+    }
     public DashboardController() {
         activiteService = new ActiviteService();
 
@@ -132,6 +139,12 @@ public class DashboardController {
 
     @FXML
     public void initialize() {
+        instance = this;
+
+        Platform.runLater(() -> {
+            refreshBadge();
+        });
+
         try {
 
 
@@ -401,6 +414,35 @@ public class DashboardController {
             card.getChildren().addAll(imageStack, content);
 
             activitiesFlowPane.getChildren().add(card);
+        }
+    }
+    public void refreshBadge() {
+        int count = 0;
+        try {
+            count = serMsg.countUnreadMessages(currentUserId);
+            System.out.println("DEBUG BADGE - Nombre trouvé : " + count);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        if (count > 0) {
+            lblBadge.setText(String.valueOf(count > 99 ? "99+" : count)); // On limite à 99+
+            lblBadge.setVisible(true);
+            lblBadge.setManaged(true);
+        } else {
+            lblBadge.setVisible(false);
+            lblBadge.setManaged(false);
+        }
+
+    }
+    @FXML
+    private void showChatView() {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/ChatView.fxml"));
+            mainVBox.getChildren().setAll(root);
+            refreshBadge();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

@@ -1,4 +1,4 @@
-package Controllers;
+package controllers;
 
 import gestion_activite.ReservationDetail;
 import javafx.collections.FXCollections;

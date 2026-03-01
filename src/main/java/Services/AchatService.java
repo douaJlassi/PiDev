@@ -1,4 +1,4 @@
-package Services;
+package services;
 
 import gestion_activite.Achat;
 import utils.MyDBConnexion;

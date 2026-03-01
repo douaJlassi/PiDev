@@ -17,10 +17,12 @@ import java.util.Map;
 
 public class ServiceMessage implements CRUD<Message>{
 
-    private Connection cnx;
+    /*private Connection cnx;
     public ServiceMessage(){
         cnx = MyDBConnexion.getInstance().getConnection();
-    }
+    }*/
+
+
     private ElasticsearchClient esClient= ElasticSearchClient.getInstance();
 
     private ServiceConversation serConv = new ServiceConversation();
@@ -28,6 +30,7 @@ public class ServiceMessage implements CRUD<Message>{
 
     @Override
     public void insertOne(Message message) throws SQLException {
+        Connection cnx = MyDBConnexion.getInstance().getConnection();
         String query= "INSERT INTO `message`(`contenu`, `dateEnvoi`, `lu`, `idConversation`, `idExpediteur`, `typeMessage`, `urlFichier`) VALUES (?,?,?,?,?,?,?)";
 
         PreparedStatement pst = cnx.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
@@ -74,6 +77,7 @@ public class ServiceMessage implements CRUD<Message>{
 
     @Override
     public void updateOne(Message message) throws SQLException {
+        Connection cnx = MyDBConnexion.getInstance().getConnection();
         String query= "UPDATE `message` SET contenu=? WHERE idMessage=?";
 
         PreparedStatement pst = cnx.prepareStatement(query);
@@ -87,6 +91,7 @@ public class ServiceMessage implements CRUD<Message>{
 
     @Override
     public void deleteOne(Message m) throws SQLException {
+        Connection cnx = MyDBConnexion.getInstance().getConnection();
         String query = "UPDATE `message` SET isDeleted = 1 WHERE idMessage = ?";
         try (PreparedStatement ps = cnx.prepareStatement(query)) {
             ps.setInt(1, m.getIdMessage());
@@ -96,6 +101,7 @@ public class ServiceMessage implements CRUD<Message>{
 
     @Override
     public List<Message> selectALL() throws SQLException {
+        Connection cnx = MyDBConnexion.getInstance().getConnection();
         List<Message> messages= new ArrayList<>();
         String query= "SELECT * FROM `message` ORDER BY dateEnvoi ASC";
         PreparedStatement pst = cnx.prepareStatement(query);
@@ -121,8 +127,9 @@ public class ServiceMessage implements CRUD<Message>{
         return messages;
     }
 
-    @Override
+
     public Message selectOne(int id) throws SQLException {
+        Connection cnx = MyDBConnexion.getInstance().getConnection();
         String query= "SELECT * FROM `message` WHERE idMessage=?";
         PreparedStatement pst = cnx.prepareStatement(query);
         pst.setInt(1, id);
@@ -149,6 +156,7 @@ public class ServiceMessage implements CRUD<Message>{
     }
 
     public List<Message> selectByConversation(int idConversation) throws SQLException {
+        Connection cnx = MyDBConnexion.getInstance().getConnection();
         List<Message> messages = new ArrayList<>();
         String query = "SELECT * FROM `message` WHERE idConversation=? ORDER BY dateEnvoi ASC";
         PreparedStatement pst = cnx.prepareStatement(query);
@@ -175,7 +183,7 @@ public class ServiceMessage implements CRUD<Message>{
     }
 
     public Message selectLastMessage(int idConversation) throws SQLException {
-
+        Connection cnx = MyDBConnexion.getInstance().getConnection();
         String query = "SELECT * FROM `message` WHERE idConversation=? ORDER BY dateEnvoi Desc LIMIT 1";
         PreparedStatement pst = cnx.prepareStatement(query);
         pst.setInt(1, idConversation);
@@ -202,6 +210,7 @@ public class ServiceMessage implements CRUD<Message>{
     }
 
     public void marquerCommeLu(int idConv, int idUser) throws SQLException {
+        Connection cnx = MyDBConnexion.getInstance().getConnection();
         String query = "UPDATE `message` SET lu = 1 WHERE idConversation = ? AND idExpediteur != ? AND lu = 0";
         try (PreparedStatement ps = cnx.prepareStatement(query)) {
             ps.setInt(1, idConv);
@@ -211,6 +220,7 @@ public class ServiceMessage implements CRUD<Message>{
     }
 
     public int countUnreadMessages(int userId) throws SQLException {
+        Connection cnx = MyDBConnexion.getInstance().getConnection();
         String query = "SELECT COUNT(*) FROM message m " +
                 "JOIN participantConversation pc ON m.idConversation = pc.idConversation " +
                 "WHERE pc.idUtilisateur = ? AND m.lu = 0 AND m.idExpediteur != ?";
@@ -227,6 +237,7 @@ public class ServiceMessage implements CRUD<Message>{
     }
 
     public List<Message> getMediaHistory(int idConv) throws SQLException {
+        Connection cnx = MyDBConnexion.getInstance().getConnection();
         List<Message> medias = new ArrayList<>();
         String query = "SELECT * FROM `message` WHERE idConversation = ? AND typeMessage != 'TEXTE' ORDER BY dateEnvoi DESC";
 
@@ -256,6 +267,7 @@ public class ServiceMessage implements CRUD<Message>{
     }
 
     public void updateReaction(int idMsg, String emoji) throws SQLException {
+        Connection cnx = MyDBConnexion.getInstance().getConnection();
         String query = "UPDATE `message` SET reaction = ? WHERE idMessage = ?";
         try (PreparedStatement ps = cnx.prepareStatement(query)) {
             ps.setString(1, emoji);

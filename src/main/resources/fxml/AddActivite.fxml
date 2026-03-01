@@ -7,7 +7,7 @@
 <?import javafx.scene.text.Text?>
 <?import javafx.scene.shape.Circle?>
 
-<BorderPane prefHeight="720.0" prefWidth="1080.0" styleClass="main-container" stylesheets="@AddStyle.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.AddActiviteController">
+<BorderPane prefHeight="720.0" prefWidth="1080.0" styleClass="main-container" stylesheets="@AddStyle.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.AddActiviteController">
 
 
 

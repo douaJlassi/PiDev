@@ -87,7 +87,7 @@ public class ServiceUtilisateur implements CRUD<Utilisateur> {
         return utilisateurs;
     }
 
-    @Override
+
     public Utilisateur selectOne(int id) throws SQLException {
         String query = "SELECT * FROM `user` WHERE idUser = ?";
         PreparedStatement ps =  connection.prepareStatement(query);

@@ -17,9 +17,10 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Text?>
 
+<?import javafx.scene.text.Font?>
 <HBox prefHeight="800.0" prefWidth="1200.0" stylesheets="@style.css"
       xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="Controllers.DashboardController"
+      fx:controller="controllers.DashboardController"
       styleClass="root-panel">
 
     <VBox prefWidth="260.0" spacing="0" styleClass="sidebar-new">
@@ -72,10 +73,39 @@
             </HBox>
 
             <HBox alignment="CENTER_LEFT" spacing="14" styleClass="nav-item-pill">
-                <StackPane styleClass="nav-icon-bg">
-                    <Text text="💬" styleClass="nav-icon-text" />
-                </StackPane>
-                <Label text="Messagerie" styleClass="nav-label-pill" />
+                <Button fx:id="btnChat" alignment="CENTER_LEFT" mnemonicParsing="false" onAction="#showChatView"
+                        prefHeight="60.0" prefWidth="220.0"
+                        style="-fx-background-color: transparent; -fx-cursor: hand;">
+                    <graphic>
+                        <HBox alignment="CENTER_LEFT" spacing="15.0">
+                            <children>
+                                <StackPane alignment="CENTER" prefHeight="30.0" prefWidth="35.0">
+                                    <children>
+                                        <Label style="-fx-text-fill: white; -fx-font-size: 24;" text="💬" alignment="CENTER" />
+                                        <Label fx:id="lblBadge" alignment="CENTER" managed="false"
+                                               minHeight="18.0" minWidth="18.0" text="0" visible="false"
+                                               style="-fx-background-color: #e74c3c;
+                                      -fx-text-fill: white;
+                                      -fx-background-radius: 10;
+                                      -fx-font-size: 9;
+                                      -fx-font-weight: bold;
+                                      -fx-translate-x: 12;
+                                      -fx-translate-y: -10;" />
+                                    </children>
+                                </StackPane>
+
+                                <Label fx:id="lblChat" text="Messagerie" textFill="WHITE">
+                                    <font>
+                                        <Font name="System Bold" size="15.0" />
+                                    </font>
+                                </Label>
+                            </children>
+                        </HBox>
+                    </graphic>
+                    <padding>
+                        <Insets left="15.0" />
+                    </padding>
+                </Button>
             </HBox>
         </VBox>
 
@@ -112,7 +142,7 @@
     </VBox>
 
     <!-- ═══════════════════════════════════════════════════ RIGHT PANEL -->
-    <VBox HBox.hgrow="ALWAYS" styleClass="main-panel">
+    <VBox HBox.hgrow="ALWAYS" fx:id="mainVBox" styleClass="main-panel">
 
         <!-- TOP BAR -->
         <HBox alignment="CENTER_LEFT" spacing="20" styleClass="topbar">

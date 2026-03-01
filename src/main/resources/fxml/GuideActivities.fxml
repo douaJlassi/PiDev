@@ -13,14 +13,16 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Text?>
 
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.web.WebView?>
 <BorderPane fx:id="borderPane" prefHeight="850.0" prefWidth="1300.0"
             stylesheets="@style.css" styleClass="dash-root"
             xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="Controllers.DashboardGuideController">
+            fx:controller="controllers.DashboardGuideController">
 
     <!-- ══════════════════════════ SIDEBAR -->
     <left>
-        <VBox prefWidth="268" spacing="0" styleClass="dash-sidebar">
+        <VBox  prefWidth="268" spacing="0" styleClass="dash-sidebar">
             <padding><Insets top="32" right="20" bottom="28" left="20" /></padding>
 
             <HBox alignment="CENTER_LEFT" spacing="13" styleClass="dash-brand-row">
@@ -69,10 +71,24 @@
                     <Label text="Réservations" styleClass="dash-nav-label" />
                 </HBox>
                 <HBox alignment="CENTER_LEFT" spacing="12" styleClass="dash-nav-item">
-                    <StackPane styleClass="dash-nav-icon"><Text text="💬" styleClass="dash-nav-emoji" /></StackPane>
-                    <Label text="Messagerie" styleClass="dash-nav-label" />
-                    <Region HBox.hgrow="ALWAYS" />
-                    <StackPane styleClass="dash-notif-dot" />
+                    <Button fx:id="btnChat" alignment="CENTER_LEFT" mnemonicParsing="false" onAction="#showDashboard"
+                            prefHeight="60.0" prefWidth="220.0"
+                            style="-fx-background-color: transparent; -fx-cursor: hand;">
+                        <graphic>
+                            <HBox alignment="CENTER_LEFT" spacing="15.0">
+                                <children>
+                                    <Label fx:id="lblChat" text="Dashboard Messenger" textFill="WHITE">
+                                        <font>
+                                            <Font name="System Bold" size="15.0" />
+                                        </font>
+                                    </Label>
+                                </children>
+                            </HBox>
+                        </graphic>
+                        <padding>
+                            <Insets left="15.0" />
+                        </padding>
+                    </Button>
                 </HBox>
                 <Region prefHeight="14" />
                 <Label text="PARAMÈTRES" styleClass="dash-nav-group" />
@@ -90,7 +106,7 @@
 
     <!-- ══════════════════════════ MAIN -->
     <center>
-        <VBox spacing="0" styleClass="dash-main">
+        <VBox fx:id="mainVBox" spacing="0" styleClass="dash-main">
 
             <!-- TOP BAR -->
             <HBox alignment="CENTER_LEFT" spacing="18" styleClass="dash-topbar">

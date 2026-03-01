@@ -15,10 +15,6 @@ import java.util.stream.Collectors;
 
 public class ServiceParticipantConversation implements CRUD<ParticipantConversation> {
 
-    private Connection connection;
-    public ServiceParticipantConversation() {
-        connection= MyDBConnexion.getInstance().getConnection();
-    }
     private ElasticsearchClient esClient= ElasticSearchClient.getInstance();
 
     private ServiceConversation serCnv = new ServiceConversation();
@@ -26,8 +22,9 @@ public class ServiceParticipantConversation implements CRUD<ParticipantConversat
 
     @Override
     public void insertOne(ParticipantConversation pc) throws SQLException {
+        Connection cnx = MyDBConnexion.getInstance().getConnection();
         String query= "INSERT INTO `participantConversation` (idConversation, idUtilisateur, dateAjout, estActif) VALUES (?,?,?,?)";
-        PreparedStatement ps = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+        PreparedStatement ps = cnx.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
         ps.setInt(1, pc.getConversation().getIdConversation());
         ps.setInt(2, pc.getParticipant().getIdUtilisateur());
         ps.setTimestamp(3, Timestamp.valueOf(pc.getDateAjout()));
@@ -57,8 +54,9 @@ public class ServiceParticipantConversation implements CRUD<ParticipantConversat
 
     @Override
     public void updateOne(ParticipantConversation pc) throws SQLException {
+        Connection cnx = MyDBConnexion.getInstance().getConnection();
         String query = "UPDATE `participantConversation` SET idConversation=?, idUtilisateur=?, dateAjout=? WHERE idParticipant=?";
-        PreparedStatement ps = connection.prepareStatement(query);
+        PreparedStatement ps = cnx.prepareStatement(query);
         ps.setInt(1, pc.getConversation().getIdConversation());
         ps.setInt(2, pc.getParticipant().getIdUtilisateur());
         ps.setTimestamp(3, Timestamp.valueOf(pc.getDateAjout()));
@@ -68,8 +66,9 @@ public class ServiceParticipantConversation implements CRUD<ParticipantConversat
 
     @Override
     public void deleteOne(ParticipantConversation pc) throws SQLException {
+        Connection cnx = MyDBConnexion.getInstance().getConnection();
         String query = "DELETE FROM `participantConversation` WHERE idParticipant=?";
-        PreparedStatement ps = connection.prepareStatement(query);
+        PreparedStatement ps = cnx.prepareStatement(query);
         ps.setInt(1, pc.getIdParticipant());
         ps.executeUpdate();
 
@@ -77,9 +76,10 @@ public class ServiceParticipantConversation implements CRUD<ParticipantConversat
 
     @Override
     public List<ParticipantConversation> selectALL() throws SQLException {
+        Connection cnx = MyDBConnexion.getInstance().getConnection();
         List<ParticipantConversation> list = new ArrayList<>();
         String query = "SELECT * FROM `participantConversation`";
-        PreparedStatement ps = connection.prepareStatement(query);
+        PreparedStatement ps = cnx.prepareStatement(query);
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
             int idCnv = rs.getInt("idConversation");
@@ -97,10 +97,11 @@ public class ServiceParticipantConversation implements CRUD<ParticipantConversat
         return list;
     }
 
-    @Override
+
     public ParticipantConversation selectOne(int id) throws SQLException {
+        Connection cnx = MyDBConnexion.getInstance().getConnection();
         String query = "SELECT * FROM `participantConversation` WHERE idParticipant=?";
-        PreparedStatement ps = connection.prepareStatement(query);
+        PreparedStatement ps = cnx.prepareStatement(query);
         ps.setInt(1, id);
         ResultSet rs = ps.executeQuery();
         if (rs.next()) {
@@ -120,10 +121,11 @@ public class ServiceParticipantConversation implements CRUD<ParticipantConversat
         return null;
     }
     public List<Utilisateur> getParticipantsByConversation(int idCnv) throws SQLException {
+        Connection cnx = MyDBConnexion.getInstance().getConnection();
         List<Utilisateur> participants = new ArrayList<>();
         String query = "SELECT idUtilisateur FROM `participantConversation` WHERE idConversation = ? AND estActif = 1";
 
-        try (PreparedStatement ps = connection.prepareStatement(query)) {
+        try (PreparedStatement ps = cnx.prepareStatement(query)) {
             ps.setInt(1, idCnv);
 
             try (ResultSet rs = ps.executeQuery()) {
@@ -141,10 +143,11 @@ public class ServiceParticipantConversation implements CRUD<ParticipantConversat
     }
 
     public void quitterConversation(int idUtilisateur, int idConversation) throws SQLException {
+        Connection cnx = MyDBConnexion.getInstance().getConnection();
         String query = "UPDATE `participantConversation` SET estActif = 0 " +
                 "WHERE idUtilisateur = ? AND idConversation = ?";
 
-        try (PreparedStatement ps = connection.prepareStatement(query)) {
+        try (PreparedStatement ps = cnx.prepareStatement(query)) {
             ps.setInt(1, idUtilisateur);
             ps.setInt(2, idConversation);
 
@@ -170,8 +173,9 @@ public class ServiceParticipantConversation implements CRUD<ParticipantConversat
     }
 
     public boolean isUserActiveInConversation(int idUser, int idConv) throws SQLException {
+        Connection cnx = MyDBConnexion.getInstance().getConnection();
         String query = "SELECT estActif FROM `participantConversation` WHERE idUtilisateur = ? AND idConversation = ?";
-        try (PreparedStatement ps = connection.prepareStatement(query)) {
+        try (PreparedStatement ps = cnx.prepareStatement(query)) {
             ps.setInt(1, idUser);
             ps.setInt(2, idConv);
             ResultSet rs = ps.executeQuery();
@@ -183,6 +187,7 @@ public class ServiceParticipantConversation implements CRUD<ParticipantConversat
     }
 
     public Integer findExistingGroupWithMembers(Set<Integer> memberIds) throws SQLException {
+        Connection cnx = MyDBConnexion.getInstance().getConnection();
         String idsFormatted = memberIds.stream()
                 .map(String::valueOf)
                 .collect(java.util.stream.Collectors.joining(","));
@@ -195,7 +200,7 @@ public class ServiceParticipantConversation implements CRUD<ParticipantConversat
                 "HAVING COUNT(pc.idUtilisateur) = ? " +
                 "AND COUNT(CASE WHEN pc.idUtilisateur IN (" + idsFormatted + ") THEN 1 END) = ?";
 
-        try (PreparedStatement ps = connection.prepareStatement(query)) {
+        try (PreparedStatement ps = cnx.prepareStatement(query)) {
             ps.setInt(1, memberIds.size());
             ps.setInt(2, memberIds.size());
             ResultSet rs = ps.executeQuery();

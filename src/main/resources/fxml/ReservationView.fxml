@@ -15,7 +15,7 @@
 <VBox styleClass="root-container" prefWidth="620" prefHeight="680"
       xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="Controllers.ReservationController">
+      fx:controller="controllers.ReservationController">
 
     <!-- Header -->
     <StackPane styleClass="header-pane" prefHeight="76">

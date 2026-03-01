@@ -1,4 +1,4 @@
-package Controllers;
+package controllers;
 import javafx.scene.chart.*;
 import javafx.scene.layout.*;
 import javafx.scene.control.*;
@@ -42,7 +42,7 @@ import java.util.*;
 
 import gestion_activite.Activite;
 import gestion_activite.ReservationDetail;
-import Services.ActiviteService;
+import services.ActiviteService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -99,7 +99,8 @@ public class DashboardGuideController {
     public DashboardGuideController() {
         activiteService = new ActiviteService();
     }
-
+    @FXML
+    private VBox mainVBox;
     @FXML
     public void initialize() {
         // Initialisation des graphiques
@@ -132,6 +133,15 @@ public class DashboardGuideController {
         });
     }
 
+    @FXML
+    private void showDashboard() {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/BackofficeView.fxml"));
+            mainVBox.getChildren().setAll(root);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     private void showActivitesParMois() {
         CategoryAxis xAxis = createStyledCategoryAxis("Mois");
         NumberAxis   yAxis = createStyledNumberAxis("Activités");
@@ -1076,4 +1086,6 @@ public class DashboardGuideController {
             alert.show();
         }
     }
+
+
 }

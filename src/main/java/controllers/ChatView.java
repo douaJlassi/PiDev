@@ -90,7 +90,7 @@ public class ChatView {
     private ServiceMessage serMsg = new ServiceMessage();
     private final ServiceUtilisateur serUser = new ServiceUtilisateur();
     private final ServiceParticipantConversation spc = new ServiceParticipantConversation();
-    private int currentUserId = 11;
+    private int currentUserId = 0;
     private Utilisateur userConnecte;
     private boolean isGroupMode = false;
     private Set<Utilisateur> selectedUsers = new HashSet<>();
@@ -249,13 +249,11 @@ public class ChatView {
     }
 
     private void prepareUserSelectionList() {
-        // 1. Gestion de la visibilité des panneaux
         chatArea.setVisible(false);
         chatArea.setManaged(false);
         paneDefault.setVisible(true);
         paneDefault.setManaged(true);
 
-        // On montre les outils de recherche
         userSearchField.setVisible(true);
         userSearchField.setManaged(true);
         listAllUsers.setVisible(true);
@@ -627,16 +625,35 @@ public class ChatView {
 
             btnPlay.setOnAction(e -> {
                 try {
-                    File file = new File(UPLOAD_DIR + msg.getUrlFichier());
+                    File file = new File(UPLOAD_DIR, msg.getUrlFichier());
+
+                    if (!file.exists()) {
+                        System.err.println("ERREUR : Le fichier audio n'existe pas dans le dossier uploads !");
+                        System.err.println("Chemin tenté : " + file.getAbsolutePath());
+                        return;
+                    }
+
                     javafx.scene.media.Media hit = new javafx.scene.media.Media(file.toURI().toString());
                     javafx.scene.media.MediaPlayer mediaPlayer = new javafx.scene.media.MediaPlayer(hit);
+
                     if (btnPlay.getText().equals("▶")) {
-                        mediaPlayer.play(); btnPlay.setText("⏸");
+                        mediaPlayer.play();
+                        btnPlay.setText("⏸");
                         mediaPlayer.setOnEndOfMedia(() -> btnPlay.setText("▶"));
+
+                        mediaPlayer.setOnError(() -> {
+                            System.err.println("Erreur MediaPlayer : " + mediaPlayer.getError().getMessage());
+                            btnPlay.setText("▶");
+                        });
+
                     } else {
-                        mediaPlayer.stop(); btnPlay.setText("▶");
+                        mediaPlayer.stop();
+                        btnPlay.setText("▶");
                     }
-                } catch (Exception ex) { System.err.println("Erreur lecture audio"); }
+                } catch (Exception ex) {
+                    System.err.println("Erreur lecture audio : " + ex.getMessage());
+                    ex.printStackTrace(); // <--- C'est ça qui va te dire pourquoi ça bloque !
+                }
             });
 
             audioBox.getChildren().addAll(btnPlay, lblAudio);
@@ -1480,24 +1497,33 @@ public class ChatView {
     }
 
     @FXML
+
     private void stopRecording() {
         recorder.stop();
-        btnMic.setStyle("-fx-background-color: #0077B6; -fx-background-radius: 50;");
 
-        try {
-            Message m = new Message();
-            m.setContenu("🎤 Message Vocal");
-            m.setTypeMessage(TypeMessage.AUDIO);
-            m.setUrlFichier(currentAudioFile.getName());
-            m.setDateEnvoi(LocalDateTime.now());
-            m.setConversation(listConversations.getSelectionModel().getSelectedItem());
-            m.setExpediteur(userConnecte);
-            serMsg.insertOne(m);
+        new Thread(() -> {
+            try {
+                Thread.sleep(200);
 
-            loadConversations();
-            listConversations.getSelectionModel().select(m.getConversation());
+                Platform.runLater(() -> {
+                    try {
+                        Message m = new Message();
+                        m.setContenu("🎤 Message Vocal");
+                        m.setTypeMessage(TypeMessage.AUDIO);
+                        m.setUrlFichier(currentAudioFile.getName());
+                        m.setDateEnvoi(LocalDateTime.now());
+                        m.setConversation(listConversations.getSelectionModel().getSelectedItem());
+                        m.setExpediteur(userConnecte);
 
-        } catch (SQLException e) { e.printStackTrace(); }
+                        serMsg.insertOne(m);
+                        loadConversations();
+                        listConversations.getSelectionModel().select(m.getConversation());
+
+                        btnMic.setStyle("-fx-background-color: #0077B6; -fx-background-radius: 50;");
+                    } catch (Exception e) { e.printStackTrace(); }
+                });
+            } catch (InterruptedException e) { e.printStackTrace(); }
+        }).start();
     }
 
     @FXML

@@ -12,13 +12,14 @@ import java.util.*;
 
 public class ServiceConversation implements CRUD<Conversation>{
 
-    private Connection cnx;
+    /*private Connection cnx;
     public ServiceConversation(){
         cnx = MyDBConnexion.getInstance().getConnection();
-    }
+    }*/
     private ElasticsearchClient esClient= ElasticSearchClient.getInstance();
     @Override
     public void insertOne(Conversation conversation) throws SQLException {
+        Connection cnx = MyDBConnexion.getInstance().getConnection();
         String query= "INSERT INTO `conversation`(`type`, `dateCreation`, `titre`) VALUES (?,?,?)";
         PreparedStatement ps = cnx.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
         ps.setString(1,conversation.getTypeConversation().name());
@@ -52,6 +53,7 @@ public class ServiceConversation implements CRUD<Conversation>{
     }
 
     public String getNomAffichage(Conversation cnv, int idUserConnected){
+        Connection cnx = MyDBConnexion.getInstance().getConnection();
         if (cnv.getTypeConversation() == TypeConversation.GROUPE) {
             return (cnv.getTitre() != null && !cnv.getTitre().isEmpty()) ? cnv.getTitre() : "Groupe sans nom";
         }
@@ -74,6 +76,7 @@ public class ServiceConversation implements CRUD<Conversation>{
 
     @Override
     public void updateOne(Conversation conversation) throws SQLException {
+        Connection cnx = MyDBConnexion.getInstance().getConnection();
         String query= "UPDATE `conversation` SET type=?, titre=? WHERE idConversation=?";
         PreparedStatement ps = cnx.prepareStatement(query);
         ps.setString(1,conversation.getTypeConversation().name());
@@ -104,6 +107,7 @@ public class ServiceConversation implements CRUD<Conversation>{
 
     @Override
     public void deleteOne(Conversation conversation) throws SQLException {
+        Connection cnx = MyDBConnexion.getInstance().getConnection();
         String query= "DELETE FROM `conversation` WHERE idConversation=?";
         PreparedStatement ps = cnx.prepareStatement(query);
         ps.setInt(1,conversation.getIdConversation());
@@ -119,6 +123,7 @@ public class ServiceConversation implements CRUD<Conversation>{
 
     @Override
     public List<Conversation> selectALL() throws SQLException {
+        Connection cnx = MyDBConnexion.getInstance().getConnection();
         List<Conversation> conversations = new ArrayList<>();
         String query = "SELECT * FROM `conversation`";
         PreparedStatement ps = cnx.prepareStatement(query);
@@ -134,8 +139,8 @@ public class ServiceConversation implements CRUD<Conversation>{
         return conversations;
     }
 
-    @Override
     public Conversation selectOne(int id) throws SQLException {
+        Connection cnx = MyDBConnexion.getInstance().getConnection();
         String query= "SELECT * FROM `conversation` WHERE idConversation=?";
         PreparedStatement ps = cnx.prepareStatement(query);
         ps.setInt(1,id);
@@ -152,6 +157,7 @@ public class ServiceConversation implements CRUD<Conversation>{
     }
 
     public List<Conversation> selectByUser(int idUserConnected) throws SQLException {
+        Connection cnx = MyDBConnexion.getInstance().getConnection();
         List<Conversation> conversations = new ArrayList<>();
         String query = "SELECT c.*, MAX(m.dateEnvoi)" +
                 "FROM conversation c " +
@@ -178,6 +184,7 @@ public class ServiceConversation implements CRUD<Conversation>{
     }
 
     public Conversation findPrivateChat(int user1Id, int user2Id) throws SQLException {
+        Connection cnx = MyDBConnexion.getInstance().getConnection();
         String query = "SELECT c.* FROM conversation c " +
                 "JOIN participantConversation pc1 ON c.idConversation = pc1.idConversation " +
                 "JOIN participantConversation pc2 ON c.idConversation = pc2.idConversation " +
