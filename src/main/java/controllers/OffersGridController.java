@@ -1,5 +1,6 @@
 package controllers;
 
+import entities.OfferFilter;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -15,14 +16,21 @@ import java.io.IOException;
 import java.util.List;
 
 
-public class OffersGridController {
+public class OffersGridController implements OfferFilterAware {
 
     @FXML private TilePane tilePane;
 
     private final IOffreRepository repo = new OffreRepository();
+    private OfferFilter currentFilter = new OfferFilter();
+
 
     @FXML
     public void initialize() {
+        // default: agency should see only their offers
+        if (Session.isAgency()) {
+            currentFilter.getAgencyIds().clear();
+            currentFilter.getAgencyIds().add(Session.getUserId());
+        }
         refresh();
     }
 
@@ -40,6 +48,20 @@ public class OffersGridController {
 
         OffreFormController.openDialog(null, () -> refresh());
     }
+    @Override
+    public void applyFilter(OfferFilter f) {
+        // Dashboard will push filter here
+        currentFilter = (f == null) ? new OfferFilter() : f;
+
+        // safety: agency must always stay scoped to itself
+        if (Session.isAgency()) {
+            currentFilter.getAgencyIds().clear();
+            currentFilter.getAgencyIds().add(Session.getUserId());
+        }
+
+        refresh();
+    }
+
 
     public void refresh() {
         tilePane.getChildren().clear();
@@ -49,7 +71,7 @@ public class OffersGridController {
             return;
         }
 
-        List<Offre> offers = repo.findAllByAgency(Session.getUserId());
+        List<Offre> offers = repo.searchActiveOffers(currentFilter);
         for (Offre offer : offers) {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/OfferCard.fxml"));

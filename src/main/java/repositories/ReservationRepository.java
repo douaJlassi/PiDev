@@ -14,11 +14,12 @@ public class ReservationRepository {
     public ReservationRepository() {
         cnx = MyDBConnexion.getInstance().getConnection();
     }
+    private String agencyStatus;
 
 
     public int getOrCreateDraftCart(int idClient) {
         // 1) find existing ENATTENTE reservation for client
-        String find = "SELECT idReservation FROM reservation WHERE idClient=? AND statut='ENATTENTE' LIMIT 1";
+        String find = "SELECT idReservation FROM reservation WHERE idClient=? AND statut='PANIER'";
         try (PreparedStatement ps = cnx.prepareStatement(find)) {
             ps.setInt(1, idClient);
             try (ResultSet rs = ps.executeQuery()) {
@@ -30,8 +31,8 @@ public class ReservationRepository {
 
         // 2) create new ENATTENTE reservation
         String insert =
-                "INSERT INTO reservation(dateReservation, statut, modePaiement, montantTotal, description, idClient) " +
-                        "VALUES (NOW(), 'ENATTENTE', 'N/A', 0, 'CART', ?)";
+                "INSERT INTO reservation(dateReservation, statut, modePaiement, montantTotal, idClient) " +
+                        "VALUES (NOW(), 'PANIER', 'CASH', 0, ?)";
 
         try (PreparedStatement ps = cnx.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, idClient);
@@ -47,9 +48,8 @@ public class ReservationRepository {
 
     public Integer findDraftCartId(int idClient) {
         String sql =
-                "SELECT idReservation " +
-                        "FROM reservation " +
-                        "WHERE idClient = ? AND statut = 'ENATTENTE' " +
+                "SELECT idReservation FROM reservation " +
+                        "WHERE idClient = ? AND statut = 'PANIER' " +
                         "ORDER BY dateReservation DESC LIMIT 1";
 
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {
@@ -121,7 +121,7 @@ public class ReservationRepository {
         String sql =
                 "SELECT idReservation, dateReservation, statut, modePaiement, montantTotal " +
                         "FROM reservation " +
-                        "WHERE idClient = ? AND NOT (statut='ENATTENTE' AND description='CART') " +
+                        "WHERE idClient = ? AND statut <> 'PANIER' " +
                         "ORDER BY dateReservation DESC";
 
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {
@@ -151,11 +151,11 @@ public class ReservationRepository {
         List<entities.CartItem> list = new java.util.ArrayList<>();
 
         String sql =
-                "SELECT lp.idReservation, lp.idOffre, lp.prixUnitaire, o.titre, o.imageUrl " +
-                        "FROM lignepanier lp " +
-                        "JOIN offre o ON o.idOffre = lp.idOffre " +
-                        "JOIN reservation r ON r.idReservation = lp.idReservation " +
-                        "WHERE lp.idReservation = ? AND r.idClient = ? " +
+                "SELECT lp.idReservation, lp.idOffre, lp.prixUnitaire, lp.agencyStatus, o.titre, o.imageUrl\n" +
+                        "FROM lignepanier lp\n" +
+                        "JOIN offre o ON o.idOffre = lp.idOffre\n" +
+                        "JOIN reservation r ON r.idReservation = lp.idReservation\n" +
+                        "WHERE lp.idReservation = ? AND r.idClient = ?\n" +
                         "ORDER BY lp.idOffre DESC";
 
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {
@@ -169,6 +169,7 @@ public class ReservationRepository {
                     it.setPrixUnitaire(rs.getBigDecimal("prixUnitaire"));
                     it.setTitre(rs.getString("titre"));
                     it.setImageUrl(rs.getString("imageUrl"));
+                    it.setAgencyStatus(rs.getString("agencyStatus"));
                     list.add(it);
                 }
             }
@@ -186,6 +187,146 @@ public class ReservationRepository {
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             throw new RuntimeException("Error confirmReservation: " + e.getMessage(), e);
+        }
+    }
+    public boolean requestBooking(int idReservation, int idClient) {
+        String sql = """
+        UPDATE reservation
+        SET statut='ENATTENTE', dateReservation=NOW()
+        WHERE idReservation=? AND idClient=? AND statut='PANIER'
+    """;
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setInt(1, idReservation);
+            ps.setInt(2, idClient);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Error requestBooking: " + e.getMessage(), e);
+        }
+    }
+    public boolean isFullyApprovedByAgencies(int idReservation) {
+        String sql = """
+        SELECT COUNT(*) 
+        FROM lignepanier
+        WHERE idReservation=? AND agencyStatus <> 'APPROUVEE'
+    """;
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setInt(1, idReservation);
+            try (ResultSet rs = ps.executeQuery()) {
+                rs.next();
+                return rs.getInt(1) == 0;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error isFullyApprovedByAgencies: " + e.getMessage(), e);
+        }
+    }
+    /*public boolean finalizeBooking(int idReservation, int idClient, String modePaiement) {
+        // safety: must be request stage
+        String ensureRequest = """
+        SELECT description, statut FROM reservation
+        WHERE idReservation=? AND idClient=?
+    """;
+
+        try (PreparedStatement ps = cnx.prepareStatement(ensureRequest)) {
+            ps.setInt(1, idReservation);
+            ps.setInt(2, idClient);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return false;
+
+                String desc = rs.getString("description");
+                String st = rs.getString("statut");
+
+                if (!"ENATTENTE".equals(st)) return false;
+                if (!"REQUEST".equalsIgnoreCase(desc)) return false;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error finalizeBooking check: " + e.getMessage(), e);
+        }
+
+        if (!isFullyApprovedByAgencies(idReservation)) return false;
+
+        String sql = """
+        UPDATE reservation
+        SET statut='CONFIRME', modePaiement=?, dateReservation=NOW()
+        WHERE idReservation=? AND idClient=? AND statut='ENATTENTE' AND description='REQUEST'
+    """;
+
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setString(1, modePaiement == null ? "CASH" : modePaiement);
+            ps.setInt(2, idReservation);
+            ps.setInt(3, idClient);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Error finalizeBooking: " + e.getMessage(), e);
+        }
+    }*/
+    public boolean cancelReservation(int idReservation, int idClient) {
+        String sql = """
+        UPDATE reservation
+        SET statut='ANNULE'
+        WHERE idReservation=? AND idClient=? AND statut IN ('PANIER','ENATTENTE')
+    """;
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setInt(1, idReservation);
+            ps.setInt(2, idClient);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Error cancelReservation: " + e.getMessage(), e);
+        }
+    }
+    public boolean removeLine(int idReservation, int idClient, int idOffre) {
+        // ensure ownership via join to reservation
+        String sql = """
+        DELETE lp
+        FROM lignepanier lp
+        JOIN reservation r ON r.idReservation = lp.idReservation
+        WHERE lp.idReservation=? AND lp.idOffre=? AND r.idClient=? AND r.statut IN ('PANIER','ENATTENTE')
+    """;
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setInt(1, idReservation);
+            ps.setInt(2, idOffre);
+            ps.setInt(3, idClient);
+            boolean ok = ps.executeUpdate() > 0;
+            if (ok) recomputeTotal(idReservation);
+            return ok;
+        } catch (SQLException e) {
+            throw new RuntimeException("Error removeLine: " + e.getMessage(), e);
+        }
+    }
+    public void resetAllLineStatusesToPending(int idReservation, int idClient) {
+        String sql = """
+        UPDATE lignepanier lp
+        JOIN reservation r ON r.idReservation = lp.idReservation
+        SET lp.agencyStatus='ENATTENTE'
+        WHERE lp.idReservation=? AND r.idClient=? AND r.statut='ENATTENTE'
+    """;
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setInt(1, idReservation);
+            ps.setInt(2, idClient);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Error resetAllLineStatusesToPending: " + e.getMessage(), e);
+        }
+    }
+    public java.sql.Timestamp getEmailSentAt(int idReservation) {
+        String sql = "SELECT emailSentAt FROM reservation WHERE idReservation=?";
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setInt(1, idReservation);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return null;
+                return rs.getTimestamp(1);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error getEmailSentAt: " + e.getMessage(), e);
+        }
+    }
+
+    public void markEmailSentNow(int idReservation) {
+        String sql = "UPDATE reservation SET emailSentAt = NOW() WHERE idReservation=? AND emailSentAt IS NULL";
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setInt(1, idReservation);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Error markEmailSentNow: " + e.getMessage(), e);
         }
     }
 

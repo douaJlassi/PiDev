@@ -28,6 +28,7 @@ public interface IOffreRepository {
     List<Offre> findArchivedByAgency(int idAgence);
     boolean deleteHardAdmin(int idOffre);
     List<Offre> searchActiveOffers(entities.OfferFilter filter);
+    boolean confirmPermanentDelete(int idOffre);
 
 
 }

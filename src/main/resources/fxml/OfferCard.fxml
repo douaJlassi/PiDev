@@ -26,7 +26,13 @@
 
         <HBox spacing="10" alignment="BASELINE_LEFT">
             <Label fx:id="priceLbl" text="0.00 TND" styleClass="card-price" />
-            <Label fx:id="originalPriceLbl" text="" styleClass="price-original" />
+
+            <StackPane fx:id="promoContainer" alignment="CENTER_LEFT">
+                <Label fx:id="originalPriceLbl" styleClass="price-original" />
+                <Region mouseTransparent="true" prefHeight="1" maxHeight="1"
+                        style="-fx-background-color: #FF0000;"
+                        StackPane.alignment="CENTER" />
+            </StackPane>
         </HBox>
 
         <Label fx:id="datesLbl" text="Dates" styleClass="card-muted" />
@@ -49,7 +55,17 @@
                          fill="#1BB7B1" scaleX="0.7" scaleY="0.7"/>
             </graphic>
         </Button>
-
+        <Button fx:id="genBannerBtn" onAction="#onGenerateBanner" styleClass="btn-icon-only">
+        <graphic>
+            <SVGPath content="M12,2L14.4,9.6L22,12L14.4,14.4L12,22L9.6,14.4L2,12L9.6,9.6Z"
+                     fill="#1BB7B1"
+                     scaleX="0.8"
+                     scaleY="0.8"/>
+        </graphic>
+        <tooltip>
+            <Tooltip text="Generate marketing banner"/>
+        </tooltip>
+    </Button>
         <Button fx:id="deleteBtn" onAction="#onDelete" styleClass="btn-action-danger">
             <graphic>
                 <SVGPath content="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"

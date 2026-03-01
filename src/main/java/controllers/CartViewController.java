@@ -153,36 +153,13 @@ public class CartViewController {
     private void onCheckout() {
         if (cartId == 0) return;
 
-        boolean ok = reservationRepo.checkout(cartId, Session.getUserId(), "CASH");
+        boolean ok = reservationRepo.requestBooking(cartId, Session.getUserId());
         if (!ok) {
             showError("Checkout", "Checkout failed (cart might be empty or already confirmed).");
             return;
         }
 
-        // ✅ send email after confirmation
-        try {
-            String to = userRepo.findEmailByUserId(Session.getUserId());
-            if (to != null && !to.isBlank()) {
-                var total = reservationRepo.getTotal(cartId); // you already have getTotal()
-                String subject = "Rehletna - Reservation Confirmed ✅";
-                String body =
-                        "Hello,\n\n" +
-                                "Your reservation has been confirmed.\n\n" +
-                                "Reservation ID: " + cartId + "\n" +
-                                "Payment: CASH\n" +
-                                "Total: " + total + " TND\n\n" +
-                                "Thank you for using Rehletna!";
 
-                emailService.send(to, subject, body);
-            }
-        } catch (Exception e) {
-            // don't block checkout if email fails
-            System.out.println("Email failed: " + e.getMessage());
-        }
-
-        cartId = 0;
-        showInfo("Success", "Reservation confirmed ✅ (Email sent if configured)");
-        refresh();
     }
 
     private void showInfo(String title, String msg) {

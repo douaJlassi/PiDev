@@ -9,7 +9,6 @@ public class Reservation {
     private ReservationStatut statut;
     private String modePaiement;
     private BigDecimal montantTotal;
-    private String description;
     private int idClient;
 
     public Reservation() {}
@@ -28,9 +27,6 @@ public class Reservation {
 
     public BigDecimal getMontantTotal() { return montantTotal; }
     public void setMontantTotal(BigDecimal montantTotal) { this.montantTotal = montantTotal; }
-
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
 
     public int getIdClient() { return idClient; }
     public void setIdClient(int idClient) { this.idClient = idClient; }

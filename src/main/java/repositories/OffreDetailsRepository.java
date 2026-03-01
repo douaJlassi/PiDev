@@ -90,4 +90,5 @@ public class OffreDetailsRepository {
 
         return list;
     }
+
 }

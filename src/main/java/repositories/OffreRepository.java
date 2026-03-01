@@ -115,36 +115,66 @@ public class OffreRepository implements IOffreRepository {
     }
 
 
-    /**
-     * Safe delete: refuse delete if offer is used in lignepanier.
-     */
+
     @Override
     public boolean deleteSafe(int idOffre) {
-        if (isUsedInLignePanier(idOffre)) return false;
+    /* NEW LOGIC:
+       When the user clicks 'Delete/Archive' in the main grid,
+       we ALWAYS just move it to the Archive.
+    */
+        return archiveOffre(idOffre);
+    }
 
-        String sql = "DELETE FROM offre WHERE idOffre = ?";
-
+    public boolean archiveOffre(int idOffre) {
+        String sql = "UPDATE offre SET status = 'ARCHIVED' WHERE idOffre = ?";
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, idOffre);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            throw new RuntimeException("Error delete offre: " + e.getMessage(), e);
+            throw new RuntimeException("Error archiving offer: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Call THIS method from your ArchivedOfferCardController (The Hard Delete button)
+     * This follows your logic: Delete if unused, block if used.
+     */
+    public boolean confirmPermanentDelete(int idOffre) {
+        // 1. If it IS used in history, we REFUSE to delete it (keep it archived)
+        if (isUsedInLignePanier(idOffre)) {
+            System.out.println("Cannot delete: Offer is linked to existing transactions.");
+            return false;
+        }
+
+        // 2. If it's NOT used, we wipe it from the DB
+        String sql = "DELETE FROM offre WHERE idOffre = ?";
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setInt(1, idOffre);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Error during permanent deletion: " + e.getMessage(), e);
         }
     }
 
     @Override
     public boolean isUsedInLignePanier(int idOffre) {
+
         String sql = "SELECT COUNT(*) FROM lignepanier WHERE idOffre = ?";
 
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, idOffre);
+
             try (ResultSet rs = ps.executeQuery()) {
-                rs.next();
-                return rs.getInt(1) > 0;
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
             }
+
         } catch (SQLException e) {
-            throw new RuntimeException("Error checking lignepanier: " + e.getMessage(), e);
+            throw new RuntimeException("Error checking usage: " + e.getMessage(), e);
         }
+
+        return false;
     }
 
     @Override

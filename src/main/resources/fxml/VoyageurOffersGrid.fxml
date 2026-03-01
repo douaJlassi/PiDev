@@ -13,6 +13,34 @@
     <padding>
         <Insets top="30" right="30" bottom="30" left="30"/>
     </padding>
+    <VBox   fx:id="actualitesContainer"
+            spacing="12"
+          prefHeight="250"
+          style="-fx-background-color: white; -fx-padding: 18 20; -fx-background-radius: 15; -fx-border-color: #E7ECF3; -fx-border-radius: 15;">
+
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <VBox HBox.hgrow="ALWAYS" spacing="2">
+                <Label text="Actualités" styleClass="h1" style="-fx-font-size: 18px;"/>
+                <Label text="Top deals AND new collections you shouldn't miss" styleClass="dash-muted"/>
+            </VBox>
+        </HBox>
+
+        <ScrollPane fitToHeight="true"
+                    prefHeight="190"
+                    minHeight="190"
+                    hbarPolicy="AS_NEEDED"
+                    vbarPolicy="NEVER"
+                    styleClass="scroll-pane"
+                    style="-fx-background-color: transparent;">
+            <content>
+                <HBox fx:id="actualitiesBox" spacing="16" style="-fx-background-color: transparent;">
+                    <padding>
+                        <Insets top="8" right="8" bottom="8" left="8"/>
+                    </padding>
+                </HBox>
+            </content>
+        </ScrollPane>
+    </VBox>
 
     <HBox alignment="CENTER_LEFT" spacing="20"
           style="-fx-background-color: white; -fx-padding: 15 25; -fx-background-radius: 15; -fx-border-color: #E7ECF3; -fx-border-radius: 15;">
@@ -40,8 +68,7 @@
         </HBox>
     </HBox>
 
-    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="scroll-pane">
-        <content>
+    <ScrollPane fx:id="offersScroll" fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="scroll-pane">        <content>
             <TilePane fx:id="tilePane"
                       prefColumns="3"
                       hgap="20"
