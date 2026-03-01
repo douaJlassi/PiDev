@@ -1315,3 +1315,27 @@ Light BG: #f0f2f5
     -fx-font-style: italic;
     -fx-text-fill: #65676b;
 }
+
+/* ── Floating Map Button (FAB) ─────────────────────────────────────────── */
+.map-fab-btn {
+    -fx-background-color: #17B3A6;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Arial";
+    -fx-padding: 14 22 14 22;
+    -fx-background-radius: 50;
+    -fx-border-radius: 50;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(23,179,166,0.45), 16, 0.3, 0, 4);
+}
+.map-fab-btn:hover {
+    -fx-background-color: #0D8F85;
+    -fx-effect: dropshadow(gaussian, rgba(23,179,166,0.65), 22, 0.4, 0, 6);
+    -fx-translate-y: -2;
+}
+.map-fab-btn:pressed {
+    -fx-background-color: #0A7A72;
+    -fx-translate-y: 0;
+    -fx-effect: dropshadow(gaussian, rgba(23,179,166,0.3), 8, 0.2, 0, 2);
+}

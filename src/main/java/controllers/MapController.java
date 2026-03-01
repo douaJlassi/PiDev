@@ -90,6 +90,12 @@ public class MapController {
     private DashboardController dashboard;
     private BorderPane          rootPane;
 
+    // ── Close callback (set by DashboardController for overlay mode) ─────────
+    private Runnable onCloseCallback = null;
+
+    /** Called by DashboardController so the map can trigger its own fade-out. */
+    public void setOnClose(Runnable callback) { this.onCloseCallback = callback; }
+
     // ── Services ──────────────────────────────────────────────────────────────
     private final PublicationService publicationService = new PublicationService();
     private final GeocodingService   geocodingService   = new GeocodingService();
@@ -150,8 +156,29 @@ public class MapController {
         }
     }
 
+    /**
+     * Overlay entry point — used by DashboardController.showMapView().
+     * Loads map_view.fxml with this as controller (same as show() did),
+     * kicks off map building, and returns the root node for the caller
+     * to place in whatever container it wants.
+     */
+    public javafx.scene.Parent loadForOverlay() throws java.io.IOException {
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/views/map_view.fxml"));
+        loader.setController(this);
+        rootPane = loader.load();
+        buildMap();
+        return rootPane;
+    }
+
     @FXML private void onClose() {
-        dashboard.getContentContainer().getChildren().remove(rootPane);
+        if (onCloseCallback != null) {
+            // Overlay mode — delegate fade-out to DashboardController
+            onCloseCallback.run();
+        } else if (dashboard != null) {
+            // Legacy full-panel mode
+            dashboard.getContentContainer().getChildren().remove(rootPane);
+        }
     }
 
     @FXML private void onZoomIn() {

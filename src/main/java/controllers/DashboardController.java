@@ -8,6 +8,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.animation.FadeTransition;
 import javafx.animation.TranslateTransition;
 import javafx.util.Duration;
 import javafx.fxml.FXMLLoader;
@@ -62,9 +63,6 @@ public class DashboardController {
     @FXML
     private Button postsNavBtn;
 
-    @FXML
-    private Button mapNavBtn;
-
     // Sidebar labels (optional — populated in initialize)
     @FXML
     private Label sidebarUsername;
@@ -74,6 +72,12 @@ public class DashboardController {
 
     @FXML
     private Button themeToggleBtn;
+
+    @FXML
+    private Button mapFab;
+
+    @FXML
+    private StackPane mapOverlay;
 
     // Services
     private PublicationService publicationService;
@@ -320,28 +324,50 @@ public class DashboardController {
     }
 
     @FXML
-    private void refreshPosts() {
-        loadPosts();
+    private void showMapView() {
+        try {
+            // MapController loads its own FXML via setController — same pattern
+            // as PostDetailController. We instantiate it, let it load the FXML,
+            // then grab the root node it produced.
+            controllers.MapController mapCtrl = new controllers.MapController();
+            mapCtrl.setOnClose(() -> closeMapView());
+            javafx.scene.Parent mapRoot = mapCtrl.loadForOverlay();
+
+            // Fill the overlay pane with the map view
+            mapOverlay.getChildren().setAll(mapRoot);
+            mapOverlay.setOpacity(0);
+            mapOverlay.setVisible(true);
+            mapOverlay.setManaged(true);
+
+            // Hide the FAB while map is showing
+            if (mapFab != null) { mapFab.setVisible(false); mapFab.setManaged(false); }
+
+            // Fade in
+            FadeTransition fadeIn = new FadeTransition(javafx.util.Duration.millis(280), mapOverlay);
+            fadeIn.setFromValue(0); fadeIn.setToValue(1);
+            fadeIn.play();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Could not open map: " + e.getMessage());
+        }
     }
 
-    /**
-     * Opens the interactive Leaflet map view as an overlay on the feed.
-     *
-     * Called when the user clicks "🗺 Explore Map" in the sidebar.
-     *
-     * The MapController handles:
-     *  - Loading map_view.fxml + map.html (Leaflet)
-     *  - Geocoding all place-tagged posts via Nominatim
-     *  - Injecting pins into the map
-     *  - Routing popup "Open Post" clicks back to PostDetailController
-     */
-    @FXML
-    public void showMapView() {
-        // Update sidebar active state
-        if (postsNavBtn != null) postsNavBtn.getStyleClass().remove("sidebar-nav-active");
-        if (mapNavBtn   != null) mapNavBtn.getStyleClass().add("sidebar-nav-active");
+    private void closeMapView() {
+        FadeTransition fadeOut = new FadeTransition(javafx.util.Duration.millis(220), mapOverlay);
+        fadeOut.setFromValue(1); fadeOut.setToValue(0);
+        fadeOut.setOnFinished(e -> {
+            mapOverlay.setVisible(false);
+            mapOverlay.setManaged(false);
+            mapOverlay.getChildren().clear();
+            if (mapFab != null) { mapFab.setVisible(true); mapFab.setManaged(true); }
+        });
+        fadeOut.play();
+    }
 
-        new MapController().show(this);
+    @FXML
+    private void refreshPosts() {
+        loadPosts();
     }
 
     @FXML

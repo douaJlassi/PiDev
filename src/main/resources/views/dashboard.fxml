@@ -37,9 +37,7 @@
                 <Button fx:id="postsNavBtn" text="Posts"
                         styleClass="sidebar-nav-btn, sidebar-nav-active"
                         maxWidth="Infinity"/>
-                <Button fx:id="mapNavBtn" text="🗺  Explore Map"
-                        styleClass="sidebar-nav-btn"
-                        maxWidth="Infinity" onAction="#showMapView"/>
+
                 <Button text="My Profile" styleClass="sidebar-nav-btn" maxWidth="Infinity"/>
                 <Button text="Favourites" styleClass="sidebar-nav-btn" maxWidth="Infinity"/>
                 <Button text="Bookings" styleClass="sidebar-nav-btn" maxWidth="Infinity"/>
@@ -130,6 +128,20 @@
                   StackPane.alignment="TOP_RIGHT">
                 <!-- Content loaded dynamically by controller -->
             </HBox>
+
+            <!-- Floating Map Button (FAB) — bottom-right of content area -->
+            <Button fx:id="mapFab" text="🗺  Explore Map"
+                    styleClass="map-fab-btn"
+                    onAction="#showMapView"
+                    StackPane.alignment="BOTTOM_RIGHT">
+                <StackPane.margin><Insets bottom="32" right="32"/></StackPane.margin>
+            </Button>
+
+            <!-- Map overlay — fades in over the feed, full-screen -->
+            <StackPane fx:id="mapOverlay"
+                       visible="false" managed="false"
+                       StackPane.alignment="CENTER">
+            </StackPane>
 
         </StackPane>
     </center>
