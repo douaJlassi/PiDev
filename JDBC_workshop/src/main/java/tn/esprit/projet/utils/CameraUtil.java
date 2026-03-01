@@ -26,6 +26,10 @@ public class CameraUtil {
     private static List<Webcam> webcams = null;
     private static String[] cameraNames = null;
 
+    // Current resolution
+    private int currentWidth = 640;
+    private int currentHeight = 480;
+
     public CameraUtil() {
         this(0); // Default to first camera (index 0)
     }
@@ -40,38 +44,79 @@ public class CameraUtil {
             webcam = webcams.get(cameraIndex);
             System.out.println("📷 Selected camera: " + webcam.getName());
 
-            // Use HIGHER resolution for better face recognition
-            Dimension[] resolutions = new Dimension[] {
-                    new Dimension(1280, 720),  // HD - best quality
-                    WebcamResolution.VGA.getSize(),      // 640x480 - good
-                    WebcamResolution.QVGA.getSize(),     // 320x240 - fallback
-            };
-            webcam.setCustomViewSizes(resolutions);
+            // Try to use the best available resolution
+            setBestResolution();
 
-            // Try to use the highest available resolution
-            Dimension bestSize = null;
-            for (Dimension size : webcam.getViewSizes()) {
-                System.out.println("   Available size: " + size.width + "x" + size.height);
-                if (size.width >= 1280 && bestSize == null) {
-                    bestSize = size;
-                } else if (size.width >= 640 && bestSize == null) {
-                    bestSize = size;
-                }
-            }
-
-            if (bestSize != null) {
-                webcam.setViewSize(bestSize);
-                System.out.println("📐 Using resolution: " + bestSize.width + "x" + bestSize.height);
-            } else {
-                webcam.setViewSize(WebcamResolution.VGA.getSize());
-                System.out.println("📐 Using VGA resolution");
-            }
         } else {
             System.out.println("⚠️ No camera found at index " + cameraIndex);
             webcam = Webcam.getDefault();
         }
     }
 
+    /**
+     * Set the best available camera resolution
+     */
+    private void setBestResolution() {
+        if (webcam == null) return;
+
+        // Define preferred resolutions in order of preference
+        Dimension[] preferredResolutions = {
+                new Dimension(1280, 720),  // HD
+                new Dimension(1024, 768),  // XGA
+                new Dimension(800, 600),   // SVGA
+                WebcamResolution.VGA.getSize(),      // 640x480
+                WebcamResolution.QVGA.getSize(),     // 320x240
+        };
+
+        // Log available resolutions
+        System.out.println("📐 Available resolutions:");
+        Dimension[] viewSizes = webcam.getViewSizes();
+        if (viewSizes.length > 0) {
+            for (Dimension size : viewSizes) {
+                System.out.println("   - " + size.width + "x" + size.height);
+            }
+        } else {
+            System.out.println("   No custom resolutions available, using default");
+        }
+
+        // Try to find the best matching resolution
+        Dimension bestSize = null;
+        for (Dimension preferred : preferredResolutions) {
+            for (Dimension available : viewSizes) {
+                if (available.width == preferred.width && available.height == preferred.height) {
+                    bestSize = available;
+                    break;
+                }
+            }
+            if (bestSize != null) break;
+        }
+
+        // If no preferred resolution found, use the highest available
+        if (bestSize == null && viewSizes.length > 0) {
+            int maxPixels = 0;
+            for (Dimension size : viewSizes) {
+                int pixels = size.width * size.height;
+                if (pixels > maxPixels) {
+                    maxPixels = pixels;
+                    bestSize = size;
+                }
+            }
+        }
+
+        // Set the resolution
+        if (bestSize != null) {
+            webcam.setViewSize(bestSize);
+            currentWidth = bestSize.width;
+            currentHeight = bestSize.height;
+            System.out.println("✅ Using resolution: " + currentWidth + "x" + currentHeight);
+        } else {
+            // Default to VGA
+            webcam.setViewSize(WebcamResolution.VGA.getSize());
+            currentWidth = WebcamResolution.VGA.getSize().width;
+            currentHeight = WebcamResolution.VGA.getSize().height;
+            System.out.println("✅ Using default VGA resolution: " + currentWidth + "x" + currentHeight);
+        }
+    }
 
     /**
      * Get list of available camera names
@@ -228,5 +273,27 @@ public class CameraUtil {
 
     public boolean isOpen() {
         return isCameraOpen;
+    }
+
+    /**
+     * Get the best available camera resolution
+     * @return array with [width, height] of best resolution
+     */
+    public int[] getBestResolution() {
+        return new int[]{currentWidth, currentHeight};
+    }
+
+    /**
+     * Get current camera width
+     */
+    public int getCurrentWidth() {
+        return currentWidth;
+    }
+
+    /**
+     * Get current camera height
+     */
+    public int getCurrentHeight() {
+        return currentHeight;
     }
 }

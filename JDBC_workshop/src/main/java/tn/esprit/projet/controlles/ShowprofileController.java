@@ -918,16 +918,21 @@ public class ShowprofileController {
                 cameraIndex = selectedCamera;
             }
 
+            System.out.println("Opening Face Capture Dialog with camera: " + cameraIndex);
             EnhancedFaceCaptureDialog dialog = new EnhancedFaceCaptureDialog(cameraIndex);
             byte[] faceData = dialog.showAndWait("setup");
 
-            if (faceData != null) {
+            System.out.println("Face capture result: " + (faceData != null ? "Success (" + faceData.length + " bytes)" : "Failed/Null"));
+
+            if (faceData != null && faceData.length > 0) {
                 // Save to database
                 personService.saveFaceData(currentUser.getId(), faceData);
+                System.out.println("Face data saved to database");
 
                 // Train the recognizer
                 FaceRecognitionUtil faceUtil = new FaceRecognitionUtil();
                 faceUtil.trainFace(currentUser.getId(), faceData);
+                System.out.println("Face recognizer trained");
 
                 // Update UI
                 faceIDEnabled = true;
@@ -937,6 +942,9 @@ public class ShowprofileController {
                 faceIDSetup.setManaged(true);
 
                 showAlert("Success", "Face ID has been set up successfully!", Alert.AlertType.INFORMATION);
+            } else {
+                System.out.println("No face data captured or data is empty");
+                showAlert("Info", "Face capture was cancelled or failed.", Alert.AlertType.INFORMATION);
             }
         } catch (SQLException e) {
             e.printStackTrace();

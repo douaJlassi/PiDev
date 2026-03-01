@@ -26,20 +26,18 @@ import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.opencv.opencv_core.*;
 import org.bytedeco.opencv.opencv_imgproc.*;
 import org.bytedeco.opencv.opencv_objdetect.*;
+
 import static org.bytedeco.opencv.global.opencv_core.*;
 import static org.bytedeco.opencv.global.opencv_imgcodecs.*;
 import static org.bytedeco.opencv.global.opencv_imgproc.*;
 import static org.bytedeco.opencv.global.opencv_objdetect.*;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-
-import javax.imageio.ImageIO;
 
 public class EnhancedFaceCaptureDialog {
 
@@ -52,7 +50,7 @@ public class EnhancedFaceCaptureDialog {
     private AnimationTimer animationTimer;
     private int cameraIndex;
 
-    // OpenCV detectors (JavaCV version)
+    // OpenCV detectors
     private CascadeClassifier faceDetector;
     private CascadeClassifier eyeDetector;
     private boolean detectorsLoaded = false;
@@ -65,6 +63,10 @@ public class EnhancedFaceCaptureDialog {
     // For image processing
     private Mat currentFrame = new Mat();
 
+    // Camera frame dimensions
+    private int frameWidth = 640;
+    private int frameHeight = 480;
+
     public EnhancedFaceCaptureDialog() {
         this(0);
     }
@@ -72,11 +74,26 @@ public class EnhancedFaceCaptureDialog {
     public EnhancedFaceCaptureDialog(int cameraIndex) {
         this.cameraIndex = cameraIndex;
         this.cameraUtil = new CameraUtil(cameraIndex);
+
+        // Get the best available resolution
+        int[] bestResolution = cameraUtil.getBestResolution();
+        if (bestResolution != null && bestResolution.length >= 2) {
+            this.frameWidth = bestResolution[0];
+            this.frameHeight = bestResolution[1];
+            System.out.println("📷 Using camera resolution: " + frameWidth + "x" + frameHeight);
+        }
+
         loadDetectors();
     }
 
     private void loadDetectors() {
         try {
+            // Create resources directory if it doesn't exist
+            File resourcesDir = new File("src/main/resources");
+            if (!resourcesDir.exists()) {
+                resourcesDir.mkdirs();
+            }
+
             // Load face detection classifier
             String faceCascadePath = "src/main/resources/haarcascade_frontalface_default.xml";
             String eyeCascadePath = "src/main/resources/haarcascade_eye.xml";
@@ -95,11 +112,18 @@ public class EnhancedFaceCaptureDialog {
 
             faceDetector = new CascadeClassifier(faceCascadePath);
             eyeDetector = new CascadeClassifier(eyeCascadePath);
-            detectorsLoaded = true;
-            System.out.println("✅ Face and eye detectors loaded successfully");
+
+            if (faceDetector.empty() || eyeDetector.empty()) {
+                System.err.println("❌ Failed to load detectors");
+                detectorsLoaded = false;
+            } else {
+                detectorsLoaded = true;
+                System.out.println("✅ Face and eye detectors loaded successfully");
+            }
         } catch (Exception e) {
             System.err.println("❌ Failed to load detectors: " + e.getMessage());
             e.printStackTrace();
+            detectorsLoaded = false;
         }
     }
 
@@ -107,6 +131,7 @@ public class EnhancedFaceCaptureDialog {
         System.out.println("📥 Downloading cascade: " + savePath);
         try (java.io.InputStream in = new URL(url).openStream()) {
             Files.copy(in, Paths.get(savePath));
+            System.out.println("✅ Cascade downloaded successfully");
         }
     }
 
@@ -132,8 +157,12 @@ public class EnhancedFaceCaptureDialog {
                         "-fx-border-radius: 30;"
         );
         root.setAlignment(Pos.CENTER);
-        root.setPrefWidth(800);
-        root.setPrefHeight(700);
+
+        // Adjust size based on frame dimensions
+        int containerWidth = Math.min(frameWidth + 100, 1000);
+        int containerHeight = Math.min(frameHeight + 250, 800);
+        root.setPrefWidth(containerWidth);
+        root.setPrefHeight(containerHeight);
         root.setPadding(new Insets(25));
 
         // Title with gradient
@@ -157,12 +186,12 @@ public class EnhancedFaceCaptureDialog {
         Circle cameraDot = new Circle(5, Color.rgb(15, 165, 162));
         cameraDot.setStyle("-fx-effect: dropshadow(gaussian, #0FA5A2, 10, 0, 0, 0);");
 
-        Label cameraInfoLabel = new Label(cameraUtil.getCameraName());
+        Label cameraInfoLabel = new Label(cameraUtil.getCameraName() + " | " + frameWidth + "x" + frameHeight);
         cameraInfoLabel.setStyle("-fx-text-fill: #FEC74C; -fx-font-size: 14px; -fx-font-weight: bold;");
 
         cameraInfoBox.getChildren().addAll(cameraDot, cameraInfoLabel);
 
-        // Camera view with overlay
+        // Camera view with overlay - use full frame size
         StackPane cameraContainer = new StackPane();
         cameraContainer.setStyle(
                 "-fx-background-color: #16213e;" +
@@ -175,11 +204,11 @@ public class EnhancedFaceCaptureDialog {
         cameraContainer.setPadding(new Insets(10));
 
         cameraView = new ImageView();
-        cameraView.setFitWidth(700);
-        cameraView.setFitHeight(500);
+        cameraView.setFitWidth(frameWidth);
+        cameraView.setFitHeight(frameHeight);
         cameraView.setPreserveRatio(true);
 
-        overlayCanvas = new Canvas(700, 500);
+        overlayCanvas = new Canvas(frameWidth, frameHeight);
         overlayCanvas.setMouseTransparent(true);
 
         cameraContainer.getChildren().addAll(cameraView, overlayCanvas);
@@ -224,7 +253,7 @@ public class EnhancedFaceCaptureDialog {
                         "-fx-effect: dropshadow(gaussian, #0FA5A2, 10, 0, 0, 0);"
         );
 
-        // Buttons with cool effects
+        // Buttons
         HBox buttonBox = new HBox(20);
         buttonBox.setAlignment(Pos.CENTER);
 
@@ -342,7 +371,7 @@ public class EnhancedFaceCaptureDialog {
                 return;
             }
 
-            // Convert BufferedImage to Mat (JavaCV version)
+            // Convert BufferedImage to Mat
             int width = awtImage.getWidth();
             int height = awtImage.getHeight();
 
@@ -362,7 +391,7 @@ public class EnhancedFaceCaptureDialog {
 
             dataPointer.put(data);
 
-            // Release previous frame (check if not null)
+            // Release previous frame
             if (currentFrame != null && !currentFrame.isNull()) {
                 currentFrame.release();
             }
@@ -374,8 +403,10 @@ public class EnhancedFaceCaptureDialog {
             equalizeHist(gray, gray);
 
             // Detect faces
+            int minFaceSize = Math.min(width, height) / 8;
             RectVector faceDetections = new RectVector();
-            faceDetector.detectMultiScale(gray, faceDetections, 1.1, 3, 0, new Size(100, 100), new Size(500, 500));
+            faceDetector.detectMultiScale(gray, faceDetections, 1.1, 3, 0,
+                    new Size(minFaceSize, minFaceSize), new Size(width, height));
 
             // Clear previous drawings
             GraphicsContext gc = overlayCanvas.getGraphicsContext2D();
@@ -387,7 +418,7 @@ public class EnhancedFaceCaptureDialog {
                 // Calculate confidence based on face size and position
                 double frameArea = overlayCanvas.getWidth() * overlayCanvas.getHeight();
                 double faceArea = detectedFace.width() * detectedFace.height();
-                double sizeScore = Math.min(faceArea / (frameArea * 0.2), 1.0);
+                double sizeScore = Math.min(faceArea / (frameArea * 0.25), 1.0);
 
                 double centerX = overlayCanvas.getWidth() / 2;
                 double centerY = overlayCanvas.getHeight() / 2;
@@ -396,21 +427,17 @@ public class EnhancedFaceCaptureDialog {
                 double distanceFromCenter = Math.sqrt(
                         Math.pow(faceCenterX - centerX, 2) +
                                 Math.pow(faceCenterY - centerY, 2)
-                ) / (Math.min(overlayCanvas.getWidth(), overlayCanvas.getHeight()) / 2);
+                ) / (Math.min(overlayCanvas.getWidth(), overlayCanvas.getHeight()) / 3);
                 double positionScore = 1.0 - Math.min(distanceFromCenter, 1.0);
 
                 detectionConfidence = (sizeScore * 0.6 + positionScore * 0.4) * 100;
 
-                // Scale factor for drawing
-                double scaleX = overlayCanvas.getWidth() / frame.getWidth();
-                double scaleY = overlayCanvas.getHeight() / frame.getHeight();
-
-                int scaledX = (int)(detectedFace.x() * scaleX);
-                int scaledY = (int)(detectedFace.y() * scaleY);
-                int scaledWidth = (int)(detectedFace.width() * scaleX);
-                int scaledHeight = (int)(detectedFace.height() * scaleY);
-
                 // Draw face rectangle
+                int scaledX = detectedFace.x();
+                int scaledY = detectedFace.y();
+                int scaledWidth = detectedFace.width();
+                int scaledHeight = detectedFace.height();
+
                 gc.setStroke(Color.rgb(15, 165, 162, 0.8));
                 gc.setLineWidth(3);
                 gc.strokeRect(scaledX, scaledY, scaledWidth, scaledHeight);
@@ -418,7 +445,8 @@ public class EnhancedFaceCaptureDialog {
                 // Draw corners
                 gc.setStroke(Color.rgb(254, 199, 76, 0.9));
                 gc.setLineWidth(2);
-                int cornerSize = 30;
+                int cornerSize = Math.min(30, scaledWidth / 4);
+
                 // Top-left
                 gc.strokeLine(scaledX, scaledY, scaledX + cornerSize, scaledY);
                 gc.strokeLine(scaledX, scaledY, scaledX, scaledY + cornerSize);
@@ -438,7 +466,7 @@ public class EnhancedFaceCaptureDialog {
                 gc.strokeLine(scaledX + scaledWidth, scaledY + scaledHeight,
                         scaledX + scaledWidth, scaledY + scaledHeight - cornerSize);
 
-                // Detect eyes within face region
+                // Detect eyes within face region - FIXED with more tolerant parameters
                 Rect faceRect = new Rect(detectedFace.x(), detectedFace.y(),
                         detectedFace.width(), detectedFace.height());
                 Mat faceROI = new Mat(gray, faceRect);
@@ -447,22 +475,24 @@ public class EnhancedFaceCaptureDialog {
                 eyeDetector.detectMultiScale(
                         faceROI,
                         eyeDetections,
-                        1.05,
-                        5,
+                        1.1,      // scale factor
+                        3,        // min neighbors
                         0,
-                        new Size(30, 30),
-                        new Size(80, 80)
+                        new Size(15, 15),  // smaller min size
+                        new Size(60, 60)   // max size
                 );
 
-                // Filter eyes
+                // Filter eyes - more tolerant
                 ArrayList<Rect> validEyes = new ArrayList<>();
                 int faceMidY = detectedFace.height() / 2;
 
                 for (int i = 0; i < eyeDetections.size(); i++) {
                     Rect eye = eyeDetections.get(i);
-                    if (eye.y() + eye.height()/2 < faceMidY) {
+                    // Eyes should be in upper half of face (more tolerant)
+                    if (eye.y() + eye.height()/2 < faceMidY * 1.3) {
                         double aspectRatio = (double) eye.width() / eye.height();
-                        if (aspectRatio > 0.8 && aspectRatio < 1.5) {
+                        // More tolerant aspect ratio
+                        if (aspectRatio > 0.3 && aspectRatio < 2.5) {
                             validEyes.add(eye);
                         }
                     }
@@ -470,46 +500,44 @@ public class EnhancedFaceCaptureDialog {
 
                 // Take only the two most likely eyes
                 validEyes.sort((a, b) -> Integer.compare(b.width() * b.height(), a.width() * a.height()));
-                Rect[] filteredEyes = validEyes.size() > 2 ?
+                detectedEyes = validEyes.size() > 2 ?
                         new Rect[]{validEyes.get(0), validEyes.get(1)} :
                         validEyes.toArray(new Rect[0]);
 
-                detectedEyes = filteredEyes;
-
                 // Draw eyes
-                for (Rect eye : filteredEyes) {
-                    int eyeX = scaledX + (int)(eye.x() * scaleX);
-                    int eyeY = scaledY + (int)(eye.y() * scaleY);
-                    int eyeWidth = (int)(eye.width() * scaleX);
-                    int eyeHeight = (int)(eye.height() * scaleY);
+                for (Rect eye : detectedEyes) {
+                    int eyeX = scaledX + eye.x();
+                    int eyeY = scaledY + eye.y();
+                    int eyeWidth = eye.width();
+                    int eyeHeight = eye.height();
 
-                    if (eyeWidth > 10 && eyeHeight > 10) {
+                    if (eyeWidth > 5 && eyeHeight > 5) {
                         gc.setFill(Color.rgb(254, 199, 76, 0.3));
-                        gc.fillOval(eyeX - 5, eyeY - 5, eyeWidth + 10, eyeHeight + 10);
+                        gc.fillOval(eyeX - 3, eyeY - 3, eyeWidth + 6, eyeHeight + 6);
 
                         gc.setStroke(Color.rgb(254, 199, 76, 0.9));
                         gc.setLineWidth(2);
                         gc.strokeOval(eyeX, eyeY, eyeWidth, eyeHeight);
 
                         gc.setFill(Color.rgb(254, 199, 76, 0.8));
-                        gc.fillOval(eyeX + eyeWidth/2 - 3, eyeY + eyeHeight/2 - 3, 6, 6);
+                        gc.fillOval(eyeX + eyeWidth/2 - 2, eyeY + eyeHeight/2 - 2, 4, 4);
                     }
                 }
 
                 // Update status labels
                 double finalConfidence = detectionConfidence;
-                int eyeCount = filteredEyes.length;
+                int eyeCount = detectedEyes.length;
                 javafx.application.Platform.runLater(() -> {
                     faceStatus.setText("👤 Face: Detected");
                     faceStatus.setStyle("-fx-text-fill: #2ecc71; -fx-font-size: 14px; -fx-font-weight: bold;");
 
                     eyesStatus.setText("👀 Eyes: " + eyeCount + " detected");
-                    eyesStatus.setStyle(eyeCount >= 2 ?
+                    eyesStatus.setStyle(eyeCount >= 1 ?
                             "-fx-text-fill: #2ecc71; -fx-font-size: 14px; -fx-font-weight: bold;" :
                             "-fx-text-fill: #FEC74C; -fx-font-size: 14px; -fx-font-weight: bold;");
 
                     confidenceStatus.setText("📊 Confidence: " + String.format("%.1f%%", finalConfidence));
-                    confidenceStatus.setStyle(finalConfidence > 70 ?
+                    confidenceStatus.setStyle(finalConfidence > 50 ?
                             "-fx-text-fill: #2ecc71; -fx-font-size: 14px; -fx-font-weight: bold;" :
                             "-fx-text-fill: #FEC74C; -fx-font-size: 14px; -fx-font-weight: bold;");
                 });
@@ -529,13 +557,13 @@ public class EnhancedFaceCaptureDialog {
 
                 double centerX = overlayCanvas.getWidth() / 2;
                 double centerY = overlayCanvas.getHeight() / 2;
-                double size = 200;
+                double size = Math.min(overlayCanvas.getWidth(), overlayCanvas.getHeight()) / 3;
 
                 gc.strokeOval(centerX - size/2, centerY - size/2, size, size);
 
                 gc.setLineDashes(5);
-                gc.strokeLine(centerX - 50, centerY, centerX + 50, centerY);
-                gc.strokeLine(centerX, centerY - 50, centerX, centerY + 50);
+                gc.strokeLine(centerX - 40, centerY, centerX + 40, centerY);
+                gc.strokeLine(centerX, centerY - 40, centerX, centerY + 40);
 
                 javafx.application.Platform.runLater(() -> {
                     faceStatus.setText("👤 Face: Not detected");
@@ -570,55 +598,77 @@ public class EnhancedFaceCaptureDialog {
 
         new Thread(() -> {
             try {
+                // Wait a moment for the current frame to be ready
+                Thread.sleep(500);
+
                 if (currentFrame != null && !currentFrame.isNull()) {
-                    // FIXED: Use imencode with correct JavaCV signature
-                    // Create a MatVector to store the encoded image
+                    System.out.println("Current frame size: " + currentFrame.cols() + "x" + currentFrame.rows());
+
+                    // Convert Mat to byte array using JavaCV
                     MatVector buf = new MatVector();
+                    boolean success = imencode(".jpg", currentFrame, buf.asByteBuffer());
 
-                    // Call imencode - it returns a boolean and stores result in buf
-                    imencode(".jpg", currentFrame, buf.asByteBuffer());
-
-                    if (!buf.empty() && buf.get(0) != null) {
+                    if (success && !buf.empty()) {
                         Mat encoded = buf.get(0);
-                        long total = encoded.total();
-                        int channels = encoded.channels();
-                        int size = (int) (total * channels);
+                        if (encoded != null && !encoded.empty()) {
+                            long total = encoded.total();
+                            int channels = encoded.channels();
+                            int size = (int) (total * channels);
 
-                        if (size > 0) {
-                            byte[] imageBytes = new byte[size];
-                            encoded.data().get(imageBytes);
+                            if (size > 0) {
+                                byte[] imageBytes = new byte[size];
+                                encoded.data().get(imageBytes);
+                                System.out.println("Captured image size: " + imageBytes.length + " bytes");
 
-                            FaceRecognitionUtil faceUtil = new FaceRecognitionUtil();
-                            byte[] faceFeatures = faceUtil.extractFaceFeatures(imageBytes);
+                                // Extract face features
+                                FaceRecognitionUtil faceUtil = new FaceRecognitionUtil();
+                                byte[] faceFeatures = faceUtil.extractFaceFeatures(imageBytes);
 
-                            javafx.application.Platform.runLater(() -> {
-                                progressIndicator.setVisible(false);
-                                captureBtn.setDisable(false);
-                                cancelBtn.setDisable(false);
+                                javafx.application.Platform.runLater(() -> {
+                                    progressIndicator.setVisible(false);
+                                    captureBtn.setDisable(false);
+                                    cancelBtn.setDisable(false);
 
-                                if (faceFeatures != null) {
-                                    capturedFace = faceFeatures;
-                                    statusLabel.setText("✅ Face captured successfully!");
-                                    statusLabel.setStyle("-fx-text-fill: #2ecc71; -fx-font-size: 16px; -fx-font-weight: bold;");
+                                    if (faceFeatures != null && faceFeatures.length > 0) {
+                                        capturedFace = faceFeatures;
+                                        statusLabel.setText("✅ Face captured successfully!");
+                                        statusLabel.setStyle("-fx-text-fill: #2ecc71; -fx-font-size: 16px; -fx-font-weight: bold;");
 
-                                    new Thread(() -> {
-                                        try {
-                                            Thread.sleep(1500);
-                                            javafx.application.Platform.runLater(() -> {
-                                                stopCamera();
-                                                dialogStage.close();
-                                            });
-                                        } catch (InterruptedException ex) {
-                                            ex.printStackTrace();
-                                        }
-                                    }).start();
-                                } else {
-                                    statusLabel.setText("❌ No face detected! Please try again.");
-                                    statusLabel.setStyle("-fx-text-fill: #ff5e62; -fx-font-size: 16px; -fx-font-weight: bold;");
-                                }
-                            });
+                                        // Close dialog after successful capture
+                                        new Thread(() -> {
+                                            try {
+                                                Thread.sleep(1500);
+                                                javafx.application.Platform.runLater(() -> {
+                                                    stopCamera();
+                                                    dialogStage.close();
+                                                });
+                                            } catch (InterruptedException ex) {
+                                                ex.printStackTrace();
+                                            }
+                                        }).start();
+                                    } else {
+                                        statusLabel.setText("❌ No face detected! Please ensure your face is clearly visible.");
+                                        statusLabel.setStyle("-fx-text-fill: #ff5e62; -fx-font-size: 16px; -fx-font-weight: bold;");
+                                        System.out.println("Face features extraction failed - returned null or empty");
+                                    }
+                                });
+                            } else {
+                                javafx.application.Platform.runLater(() -> {
+                                    progressIndicator.setVisible(false);
+                                    captureBtn.setDisable(false);
+                                    cancelBtn.setDisable(false);
+                                    statusLabel.setText("❌ Failed to capture image");
+                                });
+                            }
                         }
                     }
+                } else {
+                    javafx.application.Platform.runLater(() -> {
+                        progressIndicator.setVisible(false);
+                        captureBtn.setDisable(false);
+                        cancelBtn.setDisable(false);
+                        statusLabel.setText("❌ No camera frame available");
+                    });
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -652,7 +702,6 @@ public class EnhancedFaceCaptureDialog {
                         meanStdDev(laplacian, meanMat, stddevMat);
 
                         double sharpness = stddevMat.ptr(0, 0).getDouble();
-
                         int currentConfidence = (int) detectionConfidence;
 
                         if (sharpness > bestSharpness && currentConfidence > 50) {
@@ -670,8 +719,8 @@ public class EnhancedFaceCaptureDialog {
                 }
 
                 if (bestImage != null) {
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    ImageIO.write(bestImage, "jpg", baos);
+                    java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+                    javax.imageio.ImageIO.write(bestImage, "jpg", baos);
                     capturedFace = baos.toByteArray();
 
                     System.out.println("✅ Best image selected - Sharpness: " + bestSharpness +

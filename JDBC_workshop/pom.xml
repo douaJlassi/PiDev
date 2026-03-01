@@ -15,6 +15,7 @@
         <javafx.version>21.0.2</javafx.version>
         <slf4j.version>2.0.9</slf4j.version>
         <javacv.version>1.5.9</javacv.version>
+        <zxing.version>3.5.2</zxing.version>
     </properties>
 
     <dependencies>
@@ -49,6 +50,11 @@
             <artifactId>javafx-swing</artifactId>
             <version>${javafx.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-web</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
 
         <!-- JavaMail API for sending emails -->
         <dependency>
@@ -64,11 +70,18 @@
             <version>0.3.12</version>
         </dependency>
 
-        <!-- JavaCV (includes OpenCV with contrib modules) - REPLACES openpnp -->
+        <!-- JavaCV (includes OpenCV with contrib modules) -->
         <dependency>
             <groupId>org.bytedeco</groupId>
             <artifactId>javacv-platform</artifactId>
             <version>${javacv.version}</version>
+        </dependency>
+
+        <!-- OpenCV Java bindings (alternative/fallback) -->
+        <dependency>
+            <groupId>org.openpnp</groupId>
+            <artifactId>opencv</artifactId>
+            <version>4.7.0-0</version>
         </dependency>
 
         <!-- SLF4J Simple for logging -->
@@ -78,32 +91,27 @@
             <version>${slf4j.version}</version>
         </dependency>
 
-        <!-- Optional: Webcam driver for better performance -->
-
-        <!-- ZXing for QR Code generation -->
+        <!-- ZXing for QR Code (single declaration) -->
         <dependency>
             <groupId>com.google.zxing</groupId>
             <artifactId>core</artifactId>
-            <version>3.5.2</version>
+            <version>${zxing.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.zxing</groupId>
             <artifactId>javase</artifactId>
-            <version>3.5.2</version>
-        </dependency>
-        <!-- ZXing for QR Code scanning -->
-        <dependency>
-            <groupId>com.google.zxing</groupId>
-            <artifactId>core</artifactId>
-            <version>3.5.2</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.zxing</groupId>
-            <artifactId>javase</artifactId>
-            <version>3.5.2</version>
+            <version>${zxing.version}</version>
         </dependency>
 
-        <!-- Deep Learning for Java (DL4J) -->
+        <!-- For geocoding -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.10.1</version>
+        </dependency>
+
+        <!-- Deep Learning for Java (DL4J) - Optional, remove if not needed -->
+        <!--
         <dependency>
             <groupId>org.deeplearning4j</groupId>
             <artifactId>deeplearning4j-core</artifactId>
@@ -114,29 +122,12 @@
             <artifactId>nd4j-native-platform</artifactId>
             <version>1.0.0-M2.1</version>
         </dependency>
-
-        <!-- For image processing -->
         <dependency>
             <groupId>org.datavec</groupId>
             <artifactId>datavec-data-image</artifactId>
             <version>1.0.0-M2.1</version>
         </dependency>
-
-
-            <!-- JavaFX WebView for maps -->
-            <dependency>
-                <groupId>org.openjfx</groupId>
-                <artifactId>javafx-web</artifactId>
-                <version>21</version>
-            </dependency>
-
-            <!-- For geocoding (optional) -->
-            <dependency>
-                <groupId>com.google.code.gson</groupId>
-                <artifactId>gson</artifactId>
-                <version>2.10.1</version>
-            </dependency>
-
+        -->
     </dependencies>
 
     <build>
@@ -152,6 +143,26 @@
                 </configuration>
             </plugin>
 
+            <!-- Copy dependencies to lib folder for native libraries -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                            <includeScope>runtime</includeScope>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <!-- JavaFX Maven Plugin -->
             <plugin>
                 <groupId>org.openjfx</groupId>
@@ -161,10 +172,14 @@
                     <mainClass>tn.esprit.projet.test.MainFX</mainClass>
                     <options>
                         <option>--enable-native-access=ALL-UNNAMED</option>
-                        <option>-Djava.library.path=${project.basedir}/lib</option>
+                        <option>--add-exports=javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED</option>
+                        <option>--add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED</option>
+                        <option>-Djava.library.path=${project.basedir}/lib:${project.build.directory}/lib</option>
                     </options>
                 </configuration>
             </plugin>
+
+            <!-- Exec Maven Plugin -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
@@ -173,11 +188,39 @@
                     <executable>java</executable>
                     <arguments>
                         <argument>--add-exports=java.base/sun.misc=ALL-UNNAMED</argument>
+                        <argument>--add-exports=javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED</argument>
+                        <argument>--add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED</argument>
+                        <argument>--enable-native-access=ALL-UNNAMED</argument>
+                        <argument>-Djava.library.path=${project.basedir}/lib:${project.build.directory}/lib</argument>
                         <argument>-classpath</argument>
                         <classpath/>
                         <argument>tn.esprit.projet.test.MainFX</argument>
                     </arguments>
                 </configuration>
+            </plugin>
+
+            <!-- Resources plugin to ensure native libraries are included -->
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+                <executions>
+                    <execution>
+                        <id>copy-native-libs</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.outputDirectory}/lib</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}/lib</directory>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

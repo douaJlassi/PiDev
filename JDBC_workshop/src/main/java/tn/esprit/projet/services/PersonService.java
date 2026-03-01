@@ -368,6 +368,9 @@ public class PersonService implements CRUD<Person> {
     /**
      * Find user by face data
      */
+    /**
+     * Find user by face data
+     */
     public Person findUserByFaceData(byte[] capturedFace) throws SQLException {
         // First check if face_data column exists
         DatabaseMetaData metaData = cnx.getMetaData();
@@ -385,21 +388,38 @@ public class PersonService implements CRUD<Person> {
              ResultSet rs = st.executeQuery(query)) {
 
             FaceRecognitionUtil faceUtil = new FaceRecognitionUtil();
+            Person bestMatch = null;
+            double bestSimilarity = 0;
 
             while (rs.next()) {
                 byte[] storedFace = rs.getBytes("face_data");
                 if (storedFace != null && storedFace.length > 0) {
-                    // Compare faces
-                    double similarity = faceUtil.compareFaces(capturedFace, storedFace);
-                    System.out.println("Face similarity: " + similarity);
+                    try {
+                        // Compare faces using the compareFaces method
+                        double similarity = faceUtil.compareFaces(capturedFace, storedFace);
+                        System.out.println("Face similarity with user ID " + rs.getInt("id") + ": " + similarity);
 
-                    if (similarity > 0.51) { // Threshold for match
-                        return mapPerson(rs);
+                        if (similarity > 0.51) { // Threshold for match
+                            System.out.println("✅ Face match found for user ID: " + rs.getInt("id"));
+                            return mapPerson(rs);
+                        } else if (similarity > bestSimilarity) {
+                            bestSimilarity = similarity;
+                            bestMatch = mapPerson(rs);
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Error comparing faces for user ID " + rs.getInt("id") + ": " + e.getMessage());
                     }
                 }
             }
+
+            if (bestSimilarity > 0.4) {
+                System.out.println("⚠️ Best match has similarity " + bestSimilarity + " (below threshold 0.51)");
+                return bestMatch;
+            }
+
+            System.out.println("❌ No face match found");
+            return null;
         }
-        return null;
     }
 
     /**
@@ -487,5 +507,5 @@ public class PersonService implements CRUD<Person> {
         return false;
     }
 
-  
+
 }

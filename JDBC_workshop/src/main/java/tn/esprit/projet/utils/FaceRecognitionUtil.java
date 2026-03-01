@@ -8,7 +8,7 @@ import org.bytedeco.opencv.opencv_imgproc.*;
 import org.bytedeco.opencv.opencv_objdetect.*;
 import org.bytedeco.opencv.opencv_face.*;
 
-import static org.bytedeco.opencv.global.opencv_core.minMaxLoc;
+import static org.bytedeco.opencv.global.opencv_core.*;
 import static org.bytedeco.opencv.global.opencv_imgcodecs.*;
 import static org.bytedeco.opencv.global.opencv_imgproc.*;
 import static org.bytedeco.opencv.global.opencv_objdetect.*;
@@ -22,8 +22,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.HashMap;
-import java.util.Map;
 
 public class FaceRecognitionUtil {
 
@@ -35,16 +33,12 @@ public class FaceRecognitionUtil {
     // Store training data
     private List<Mat> trainingImages = new ArrayList<>();
     private List<Integer> trainingLabels = new ArrayList<>();
-    private Map<Integer, Integer> userLabelMap = new HashMap<>();
     private boolean modelTrained = false;
 
     static {
         System.out.println("=== OpenCV Initialization Debug ===");
         System.out.println("Java version: " + System.getProperty("java.version"));
-        System.out.println("Java home: " + System.getProperty("java.home"));
         System.out.println("OS: " + System.getProperty("os.name"));
-        System.out.println("java.library.path: " + System.getProperty("java.library.path"));
-        System.out.println("user.dir: " + System.getProperty("user.dir"));
 
         try {
             // JavaCV automatically loads native libraries
@@ -55,7 +49,7 @@ public class FaceRecognitionUtil {
             // Test if face module is available
             try {
                 LBPHFaceRecognizer test = LBPHFaceRecognizer.create();
-                test.setThreshold(80.0);
+                test.setThreshold(120.0);
                 faceModuleAvailable = true;
                 System.out.println("✅ Face module is available!");
             } catch (Throwable e) {
@@ -78,23 +72,18 @@ public class FaceRecognitionUtil {
         }
 
         try {
+            // Create resources directory if it doesn't exist
+            File resourcesDir = new File("src/main/resources");
+            if (!resourcesDir.exists()) {
+                resourcesDir.mkdirs();
+            }
+
             // Load face detection classifier
             String classifierPath = "src/main/resources/haarcascade_frontalface_default.xml";
             File classifierFile = new File(classifierPath);
 
             if (!classifierFile.exists()) {
-                URL resourceUrl = getClass().getResource("/haarcascade_frontalface_default.xml");
-                if (resourceUrl != null) {
-                    classifierPath = resourceUrl.getPath();
-                    classifierFile = new File(classifierPath);
-                } else {
-                    try {
-                        downloadHaarCascade();
-                    } catch (IOException e) {
-                        System.err.println("Failed to download Haar cascade: " + e.getMessage());
-                        e.printStackTrace();
-                    }
-                }
+                downloadHaarCascade(classifierPath);
             }
 
             faceDetector = new CascadeClassifier(classifierPath);
@@ -108,7 +97,7 @@ public class FaceRecognitionUtil {
             if (faceModuleAvailable) {
                 try {
                     faceRecognizer = LBPHFaceRecognizer.create();
-                    faceRecognizer.setThreshold(120.0); // Higher = more tolerant (80-120 is good range)
+                    faceRecognizer.setThreshold(120.0); // Higher = more tolerant
                     System.out.println("✅ LBPH Face Recognizer created with threshold: 120.0");
                 } catch (Throwable e) {
                     System.err.println("❌ Failed to create face recognizer: " + e.getMessage());
@@ -122,14 +111,9 @@ public class FaceRecognitionUtil {
         }
     }
 
-    private void downloadHaarCascade() throws IOException {
+    private void downloadHaarCascade(String savePath) throws IOException {
         String url = "https://raw.githubusercontent.com/opencv/opencv/master/data/haarcascades/haarcascade_frontalface_default.xml";
-        String savePath = "src/main/resources/haarcascade_frontalface_default.xml";
-
-        File saveFile = new File(savePath);
-        saveFile.getParentFile().mkdirs();
-
-        System.out.println("Downloading Haar cascade to: " + savePath);
+        System.out.println("📥 Downloading Haar cascade to: " + savePath);
         try (InputStream in = new URL(url).openStream()) {
             Files.copy(in, Paths.get(savePath));
             System.out.println("✅ Haar cascade downloaded successfully");
@@ -166,7 +150,8 @@ public class FaceRecognitionUtil {
 
             Rect face = faceDetections.get(0);
 
-            int margin = 20;
+            // Add margin for better capture
+            int margin = 30;
             int x = Math.max(0, face.x() - margin);
             int y = Math.max(0, face.y() - margin);
             int w = Math.min(gray.cols() - x, face.width() + 2 * margin);
@@ -188,7 +173,7 @@ public class FaceRecognitionUtil {
     }
 
     /**
-     * Train the recognizer with a face and user ID (LBPH method)
+     * Train the recognizer with a face and user ID
      */
     public void trainFace(int userId, byte[] faceImage) {
         if (!faceModuleAvailable || faceRecognizer == null) {
@@ -198,19 +183,18 @@ public class FaceRecognitionUtil {
 
         Mat face = detectFace(faceImage);
         if (face != null) {
-            trainingImages.add(face);
+            trainingImages.add(face.clone());
             trainingLabels.add(userId);
-            userLabelMap.put(userId, userId);
             modelTrained = false;
             System.out.println("✅ Added face for user " + userId + " to training set");
+
+            // Build model immediately
+            buildModel();
         }
     }
 
     /**
-     * Build the recognition model from all training images (LBPH method)
-     */
-    /**
-     * Build the recognition model from all training images (LBPH method)
+     * Build the recognition model from all training images
      */
     private void buildModel() {
         if (!faceModuleAvailable || faceRecognizer == null) {
@@ -223,40 +207,29 @@ public class FaceRecognitionUtil {
         }
 
         try {
-            // Create a new recognizer to avoid memory issues
+            // Create a new recognizer
             if (faceRecognizer != null) {
                 faceRecognizer.close();
             }
             faceRecognizer = LBPHFaceRecognizer.create();
-            faceRecognizer.setThreshold(120.0); // Higher threshold = more tolerant
+            faceRecognizer.setThreshold(120.0);
 
             MatVector images = new MatVector(trainingImages.size());
             Mat labels = new Mat(trainingLabels.size(), 1, opencv_core.CV_32SC1);
 
-            for (int i = 0; i < trainingLabels.size(); i++) {
+            for (int i = 0; i < trainingImages.size(); i++) {
                 labels.ptr(i, 0).putInt(trainingLabels.get(i));
-                // Make a clone to ensure we own the data
-                images.put(i, trainingImages.get(i).clone());
+                images.put(i, trainingImages.get(i));
             }
 
             faceRecognizer.train(images, labels);
             modelTrained = true;
             System.out.println("✅ Model trained with " + trainingLabels.size() + " faces");
 
-            // Clean up
-            images.close();
-            labels.close();
-
         } catch (Exception e) {
             System.err.println("❌ Error building model: " + e.getMessage());
             e.printStackTrace();
         }
-    }
-    /**
-     * Compare faces using LBPH (if available) or fallback to template matching
-     */
-    public double compareFaces(byte[] capturedFace, byte[] storedFace) {
-        return compareFacesWithUser(capturedFace, storedFace, -1);
     }
 
     /**
@@ -269,45 +242,85 @@ public class FaceRecognitionUtil {
         }
 
         try {
-            // If face module is available, use LBPH
+            // First, detect face in captured image
+            Mat capturedMat = detectFace(capturedFace);
+            if (capturedMat == null || capturedMat.empty()) {
+                System.out.println("❌ No face detected in captured image");
+                return 0;
+            }
+
+            // If userId is -1, we're just comparing two faces without training
+            if (userId == -1) {
+                // Try LBPH if available, otherwise template matching
+                if (faceModuleAvailable && faceRecognizer != null) {
+                    // For simple comparison, we need to train temporarily
+                    Mat storedMat = detectFace(storedFace);
+                    if (storedMat != null && !storedMat.empty()) {
+                        // Create a temporary recognizer
+                        LBPHFaceRecognizer tempRecognizer = LBPHFaceRecognizer.create();
+                        tempRecognizer.setThreshold(120.0);
+
+                        MatVector tempImages = new MatVector(1);
+                        Mat tempLabels = new Mat(1, 1, opencv_core.CV_32SC1);
+                        tempLabels.ptr(0, 0).putInt(1);
+                        tempImages.put(0, storedMat);
+
+                        tempRecognizer.train(tempImages, tempLabels);
+
+                        IntPointer labelPtr = new IntPointer(1);
+                        DoublePointer confidencePtr = new DoublePointer(1);
+                        tempRecognizer.predict(capturedMat, labelPtr, confidencePtr);
+
+                        double confidence = confidencePtr.get();
+                        double similarity = Math.max(0, 1.0 - (confidence / 100.0));
+                        similarity = Math.min(1.0, Math.max(0, similarity));
+
+                        tempRecognizer.close();
+                        return similarity;
+                    }
+                }
+                // Fallback to template matching
+                return compareFacesTemplate(capturedMat, storedFace);
+            }
+
+            // If face module is available, use LBPH with existing model
             if (faceModuleAvailable && faceRecognizer != null) {
-                return compareFacesLBPH(capturedFace, storedFace, userId);
+                return compareFacesLBPH(capturedMat, storedFace, userId);
             } else {
                 // Fallback to template matching
                 System.out.println("⚠️ Using template matching fallback");
-                return compareFacesTemplate(capturedFace, storedFace);
+                return compareFacesTemplate(capturedMat, storedFace);
             }
         } catch (Exception e) {
             System.err.println("❌ Error in face comparison: " + e.getMessage());
             e.printStackTrace();
             return 0;
         }
-
     }
+
+    /**
+     * Compare two face images without user ID
+     * @param capturedFace captured face image bytes
+     * @param storedFace stored face image bytes
+     * @return similarity score (0-1)
+     */
+    public double compareFaces(byte[] capturedFace, byte[] storedFace) {
+        return compareFacesWithUser(capturedFace, storedFace, -1);
+    }
+
     /**
      * LBPH-based face comparison
      */
-    /**
-     * LBPH-based face comparison - FIXED VERSION
-     */
-    private double compareFacesLBPH(byte[] capturedFace, byte[] storedFace, int userId) {
+    private double compareFacesLBPH(Mat capturedMat, byte[] storedFace, int userId) {
         try {
-            // Only add to training if we have a valid stored face and it's not already trained
+            // Add stored face to training if not already present
             if (userId > 0 && storedFace != null && storedFace.length > 0) {
-                boolean alreadyTrained = false;
-                for (Integer label : trainingLabels) {
-                    if (label == userId) {
-                        alreadyTrained = true;
-                        break;
-                    }
-                }
-
+                boolean alreadyTrained = trainingLabels.contains(userId);
                 if (!alreadyTrained) {
                     Mat storedMat = detectFace(storedFace);
-                    if (storedMat != null && !storedMat.isNull()) {
+                    if (storedMat != null && !storedMat.empty()) {
                         trainingImages.add(storedMat.clone());
                         trainingLabels.add(userId);
-                        userLabelMap.put(userId, userId);
                         modelTrained = false;
                         System.out.println("✅ Added user " + userId + " to training set");
                     }
@@ -317,13 +330,6 @@ public class FaceRecognitionUtil {
             // Build model if needed
             if (!modelTrained && !trainingImages.isEmpty()) {
                 buildModel();
-            }
-
-            // Detect face in captured image
-            Mat capturedMat = detectFace(capturedFace);
-            if (capturedMat == null || capturedMat.isNull()) {
-                System.out.println("❌ No face detected in captured image");
-                return 0;
             }
 
             // Use trained model for prediction
@@ -340,9 +346,9 @@ public class FaceRecognitionUtil {
                     System.out.println("📊 LBPH Prediction - Label: " + predictedLabel +
                             ", Confidence: " + confidence);
 
-                    // Check if we got a valid prediction (not -1)
-                    if (predictedLabel == -1 || confidence > 100.0) {
-                        System.out.println("⚠️ No valid match found in database");
+                    // Check if we got a valid prediction
+                    if (predictedLabel == -1 || confidence > 120.0) {
+                        System.out.println("⚠️ No valid match found");
                         return 0;
                     }
 
@@ -350,7 +356,6 @@ public class FaceRecognitionUtil {
                     if (userId > 0) {
                         if (predictedLabel == userId) {
                             // Convert confidence to similarity (lower confidence = better match)
-                            // LBPH confidence: 0 = perfect match, higher = worse match
                             double similarity = Math.max(0, 1.0 - (confidence / 100.0));
                             similarity = Math.min(1.0, Math.max(0, similarity));
                             System.out.println("✅ Match found! Similarity: " + String.format("%.3f", similarity));
@@ -363,11 +368,9 @@ public class FaceRecognitionUtil {
                         // No specific user, return confidence-based similarity
                         double similarity = Math.max(0, 1.0 - (confidence / 100.0));
                         similarity = Math.min(1.0, Math.max(0, similarity));
-                        System.out.println("📊 Similarity score: " + String.format("%.3f", similarity));
                         return similarity;
                     }
                 } finally {
-                    // Clean up pointers
                     labelPtr.close();
                     confidencePtr.close();
                 }
@@ -381,32 +384,34 @@ public class FaceRecognitionUtil {
             return 0;
         }
     }
+
     /**
      * Template matching fallback method
      */
-    private double compareFacesTemplate(byte[] face1, byte[] face2) {
+    private double compareFacesTemplate(Mat capturedMat, byte[] storedFace) {
         try {
-            Mat mat1 = imdecode(new Mat(face1), IMREAD_GRAYSCALE);
-            Mat mat2 = imdecode(new Mat(face2), IMREAD_GRAYSCALE);
-
-            if (mat1 == null || mat2 == null || mat1.empty() || mat2.empty()) {
-                System.out.println("❌ One or both face images are empty");
+            Mat storedMat = imdecode(new Mat(storedFace), IMREAD_GRAYSCALE);
+            if (storedMat == null || storedMat.empty()) {
+                System.out.println("❌ Stored face image is empty");
                 return 0;
             }
 
-            Mat resized1 = new Mat();
-            Mat resized2 = new Mat();
+            // Resize both to same size
+            Mat resizedCaptured = new Mat();
+            Mat resizedStored = new Mat();
             Size sz = new Size(200, 200);
-            resize(mat1, resized1, sz);
-            resize(mat2, resized2, sz);
+            resize(capturedMat, resizedCaptured, sz);
+            resize(storedMat, resizedStored, sz);
 
-            Mat equalized1 = new Mat();
-            Mat equalized2 = new Mat();
-            equalizeHist(resized1, equalized1);
-            equalizeHist(resized2, equalized2);
+            // Equalize histograms
+            Mat equalizedCaptured = new Mat();
+            Mat equalizedStored = new Mat();
+            equalizeHist(resizedCaptured, equalizedCaptured);
+            equalizeHist(resizedStored, equalizedStored);
 
+            // Template matching
             Mat result = new Mat();
-            matchTemplate(equalized1, equalized2, result, TM_CCOEFF_NORMED);
+            matchTemplate(equalizedCaptured, equalizedStored, result, TM_CCOEFF_NORMED);
 
             DoublePointer minVal = new DoublePointer(1);
             DoublePointer maxVal = new DoublePointer(1);
@@ -428,31 +433,45 @@ public class FaceRecognitionUtil {
     }
 
     /**
-     * Extract face features for database storage - FIXED VERSION
+     * Extract face features for database storage
      */
     public byte[] extractFaceFeatures(byte[] imageData) {
+        if (!opencvLoaded) {
+            System.err.println("OpenCV not loaded");
+            return null;
+        }
+
         Mat face = detectFace(imageData);
-        if (face == null) {
+        if (face == null || face.empty()) {
             System.out.println("❌ No face detected, cannot extract features");
             return null;
         }
 
         try {
-            // Create a MatOfByte to store the encoded image
+            System.out.println("Face detected, size: " + face.cols() + "x" + face.rows());
+
+            // Resize face to standard size
+            Mat resized = new Mat();
+            resize(face, resized, new Size(200, 200));
+
+            // Equalize histogram to improve quality
+            Mat equalized = new Mat();
+            equalizeHist(resized, equalized);
+
+            // Create MatVector for encoding
             MatVector buf = new MatVector();
 
-            // Encode the face as JPEG - FIXED: correct imencode signature
-            boolean success = imencode(".jpg", face, buf.asByteBuffer());
+            // Encode the face as JPEG
+            boolean success = imencode(".jpg", equalized, buf.asByteBuffer());
 
             if (success && !buf.empty()) {
-                // Get the encoded data
                 Mat encoded = buf.get(0);
                 if (encoded != null && !encoded.empty()) {
                     // Get the data pointer
                     BytePointer dataPointer = encoded.data();
                     int size = (int) (encoded.total() * encoded.channels());
 
-                    if (dataPointer != null && !dataPointer.isNull()) {
+                    if (dataPointer != null && !dataPointer.isNull() && size > 0) {
                         byte[] result = new byte[size];
                         dataPointer.get(result);
 
@@ -462,8 +481,8 @@ public class FaceRecognitionUtil {
                 }
             }
 
-            System.err.println("❌ Failed to encode face image");
-            return null;
+            // Fallback: try ImageIO method
+            return extractFaceFeaturesImageIO(imageData);
 
         } catch (Exception e) {
             System.err.println("❌ Error extracting face features: " + e.getMessage());
@@ -477,8 +496,7 @@ public class FaceRecognitionUtil {
      */
     public byte[] extractFaceFeaturesImageIO(byte[] imageData) {
         Mat face = detectFace(imageData);
-        if (face == null) {
-            System.out.println("❌ No face detected, cannot extract features");
+        if (face == null || face.empty()) {
             return null;
         }
 
