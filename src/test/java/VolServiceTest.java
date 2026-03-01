@@ -1,5 +1,5 @@
-import projet.entites.vol;
-import projet.services.VolService;
+import entites.vol;
+import services.VolService;
 import org.junit.jupiter.api.*;
 import java.sql.SQLException;
 import java.util.List;

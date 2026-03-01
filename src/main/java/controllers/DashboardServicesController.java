@@ -1,5 +1,6 @@
-package projet.controllers;
+package controllers;
 
+import entites.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -12,10 +13,10 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import projet.entites.*;
-import projet.services.HotelService;
-import projet.services.ReservationService;
-import projet.services.ServiceService;
-import projet.services.VolService;
+import services.HotelService;
+import services.ReservationService;
+import services.ServiceService;
+import services.VolService;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;

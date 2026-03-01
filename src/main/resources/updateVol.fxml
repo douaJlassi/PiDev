@@ -16,7 +16,7 @@
 <!-- Linked to styleDash.css for the Dashboard Theme -->
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.image.ImageView?>
-<AnchorPane style="-fx-background-color: transparent;" stylesheets="@style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="projet.controllers.UpdateVolController">
+<AnchorPane style="-fx-background-color: transparent;" stylesheets="@style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.UpdateVolController">
 
     <children>
         <VBox alignment="CENTER" fillWidth="false" spacing="20" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">

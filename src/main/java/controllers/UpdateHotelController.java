@@ -1,4 +1,4 @@
-package projet.controllers;
+package controllers;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -8,9 +8,9 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
-import projet.entites.Hotel;
-import projet.services.HotelService;
-import projet.services.SupabaseStorageService;
+import entites.Hotel;
+import services.HotelService;
+import services.SupabaseStorageService;
 
 import java.io.File;
 import java.io.IOException;

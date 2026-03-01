@@ -1,11 +1,11 @@
-package projet.Main;
+package Main;
 
-import projet.entites.Hotel;
-import projet.services.HotelService;
-import projet.utils.MyDBConnexion;
+import entites.Hotel;
+import services.HotelService;
+import utils.MyDBConnexion;
 
-import  projet.entites.vol;
-import projet.services.VolService;
+import entites.vol;
+import services.VolService;
 
 import java.sql.SQLException;
 

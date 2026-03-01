@@ -1,8 +1,7 @@
-package projet.services;
+package services;
 
-import projet.entites.Hotel;
-import projet.entites.user;
-import projet.utils.MyDBConnexion;
+import entites.user;
+import utils.MyDBConnexion;
 
 import java.sql.*;
 import java.util.ArrayList;

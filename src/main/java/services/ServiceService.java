@@ -1,7 +1,6 @@
-package projet.services;
-import  projet.entites.service;
-import projet.entites.vol;
-import projet.utils.MyDBConnexion;
+package services;
+import entites.service;
+import utils.MyDBConnexion;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;

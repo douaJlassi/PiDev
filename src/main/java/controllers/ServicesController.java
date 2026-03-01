@@ -1,4 +1,4 @@
-package projet.controllers;
+package controllers;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -13,14 +13,14 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 
-import projet.entites.Hotel;
-import projet.entites.service;
-import projet.entites.user;
-import projet.entites.vol;
-import projet.services.HotelService;
-import projet.services.ServiceService;
-import projet.services.SupabaseStorageService;
-import projet.services.VolService;
+import entites.Hotel;
+import entites.service;
+import entites.user;
+import entites.vol;
+import services.HotelService;
+import services.ServiceService;
+import services.SupabaseStorageService;
+import services.VolService;
 
 import java.io.IOException;
 import java.net.URL;

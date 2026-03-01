@@ -1,4 +1,4 @@
-package projet.services;
+package services;
 
 import java.io.IOException;
 import java.net.URI;

@@ -1,4 +1,4 @@
-package projet.entites;
+package entites;
 import java.util.Objects;
 public class service {
 

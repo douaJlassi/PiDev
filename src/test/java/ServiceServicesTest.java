@@ -1,12 +1,9 @@
-import projet.entites.Hotel;
-import projet.services.HotelService;
-import projet.services.ServiceService;
-import projet.entites.service;
+import services.ServiceService;
+import entites.service;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.*;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Objects;
 
 public class ServiceServicesTest {
     static ServiceService Service;

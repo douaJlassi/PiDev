@@ -1,4 +1,4 @@
-package projet.controllers;
+package controllers;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -7,12 +7,12 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
-import projet.entites.reservation;
-import projet.entites.user;
-import projet.entites.vol;
-import projet.services.ReservationService;
-import projet.services.ServiceService;
-import projet.services.VolService;
+import entites.reservation;
+import entites.user;
+import entites.vol;
+import services.ReservationService;
+import services.ServiceService;
+import services.VolService;
 
 import java.io.IOException;
 import java.sql.SQLException;

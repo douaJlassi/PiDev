@@ -1,4 +1,4 @@
-package projet.controllers;
+package controllers;
 
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -12,9 +12,9 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import projet.entites.vol;
-import projet.services.SupabaseStorageService;
-import projet.services.VolService;
+import entites.vol;
+import services.SupabaseStorageService;
+import services.VolService;
 
 import java.io.File;
 import java.io.IOException;

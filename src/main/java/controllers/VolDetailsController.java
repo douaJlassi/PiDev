@@ -1,4 +1,4 @@
-package projet.controllers;
+package controllers;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -7,9 +7,9 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import org.json.JSONObject;
-import projet.entites.user;
-import projet.entites.vol;
-import projet.services.ServiceService;
+import entites.user;
+import entites.vol;
+import services.ServiceService;
 
 import java.io.BufferedReader;
 import java.io.IOException;

@@ -1,7 +1,7 @@
-package projet.services;
+package services;
 
-import projet.entites.reservation;
-import projet.utils.MyDBConnexion;// Assurez-vous d'importer votre classe de connexion
+import entites.reservation;
+import utils.MyDBConnexion;// Assurez-vous d'importer votre classe de connexion
 
 import java.sql.*;
 import java.util.ArrayList;

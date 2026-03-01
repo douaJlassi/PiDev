@@ -1,4 +1,4 @@
-package projet.controllers;
+package controllers;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -7,9 +7,9 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import org.json.JSONObject;
-import projet.entites.Hotel;
-import projet.entites.user;
-import projet.services.ServiceService;
+import entites.Hotel;
+import entites.user;
+import services.ServiceService;
 // Ensure this matches your package structure
 
 import java.io.BufferedReader;

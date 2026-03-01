@@ -1,4 +1,4 @@
-package projet.controllers;
+package controllers;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -9,9 +9,9 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
-import projet.entites.vol;
-import projet.services.SupabaseStorageService;
-import projet.services.VolService;
+import entites.vol;
+import services.SupabaseStorageService;
+import services.VolService;
 
 
 import java.io.File;

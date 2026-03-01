@@ -1,6 +1,4 @@
-package projet.services;
-
-import projet.entites.service;
+package services;
 
 import java.sql.SQLException;
 import java.util.List;
