@@ -49,6 +49,15 @@ public class CartItem {
     public void setPrixUnitaire(BigDecimal prixUnitaire) {
         this.prixUnitaire = prixUnitaire;
     }
+    private String agencyStatus;
+
+    public void setAgencyStatus(String agencyStatus) {
+        this.agencyStatus = agencyStatus;
+    }
+
+    public String getAgencyStatus() {
+        return agencyStatus;
+    }
 
     // getters/setters
 }

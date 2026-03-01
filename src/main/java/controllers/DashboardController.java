@@ -1,17 +1,18 @@
 package controllers;
 
 import app.Session;
+import entities.SearchCriteria;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import entities.Agency;
+import javafx.scene.layout.VBox;
+import services.AISearchService;
 
 public class DashboardController {
 
@@ -30,6 +31,11 @@ public class DashboardController {
     @FXML private ListView<Agency> agenciesLv;
     @FXML private javafx.scene.layout.VBox rightPanel;
     @FXML private Button filtersBtn;
+    @FXML private Button bannersBtn;
+    @FXML private Button agencyResBtn;
+    @FXML private VBox aiAgentBox;
+    @FXML private TextArea aiSearchArea;
+    @FXML private Button aiSearchBtn;
 
     private final repositories.AgencyRepository agencyRepo = new repositories.AgencyRepository();
     private final entities.OfferFilter offerFilter = new entities.OfferFilter();
@@ -38,11 +44,22 @@ public class DashboardController {
 
     @FXML
     public void initialize() {
+        initAISection();
+        if (Session.isAgency()) {
+            offerFilter.getAgencyIds().clear();
+            offerFilter.getAgencyIds().add(Session.getUserId()); // agency idUser = idAgence
+            if (aiAgentBox != null) {
+                boolean isClient = Session.isClient();
+                aiAgentBox.setVisible(isClient);
+                aiAgentBox.setManaged(isClient);
+            }
+        }
         // logo
         try {
             var stream = getClass().getResourceAsStream("/images/logo.png"); // put your logo here
             if (stream != null) logoImg.setImage(new Image(stream));
         } catch (Exception ignored) {}
+        setNavVisible(agencyResBtn, Session.isAgency());
 
         roleLbl.setText("Role: " + Session.getRole());
         userLbl.setText("User #" + Session.getUserId());
@@ -125,6 +142,7 @@ public class DashboardController {
                 pushFilterToCurrentView();
             });
         }
+        setNavVisible(bannersBtn, Session.isAgency());
 
 
 
@@ -134,6 +152,74 @@ public class DashboardController {
         // default page
 
         loadOffersView();
+    }
+    private void initAISection() {
+        boolean isClient = Session.isClient();
+        if (aiAgentBox != null) {
+            aiAgentBox.setVisible(isClient);
+            aiAgentBox.setManaged(isClient);
+        }
+    }
+
+    @FXML
+    private void onAISmartSearch() {
+        String query = aiSearchArea.getText();
+        if (query == null || query.isBlank()) return;
+
+        // Loading State
+        aiSearchBtn.setDisable(true);
+        aiSearchBtn.setText("Gemini is thinking...");
+
+        Task<SearchCriteria> task = new Task<>() {
+            @Override
+            protected SearchCriteria call() throws Exception {
+                return AISearchService.parseDeepQuery(query);
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            SearchCriteria result = task.getValue();
+            applyAICriteria(result);
+
+            aiSearchBtn.setDisable(false);
+            aiSearchBtn.setText("Search with Gemini");
+        });
+
+        task.setOnFailed(e -> {
+            aiSearchBtn.setDisable(false);
+            aiSearchBtn.setText("Search with Gemini");
+            System.err.println("AI Search Failed: " + task.getException().getMessage());
+        });
+
+        new Thread(task).start();
+    }
+
+    private void applyAICriteria(SearchCriteria sc) {
+        if (sc == null) return;
+
+        // 1. Clear current filters first for a "fresh" AI search
+        onClearFilters();
+
+        // 2. Map AI results to your OfferFilter object
+        if (sc.destination != null) {
+            offerFilter.setKeyword(sc.destination);
+            if (searchTf != null) searchTf.setText(sc.destination);
+        }
+
+        if (sc.maxPrice != null) {
+            java.math.BigDecimal price = java.math.BigDecimal.valueOf(sc.maxPrice);
+            offerFilter.setMaxPrice(price);
+            if (maxPriceTf != null) maxPriceTf.setText(price.toString());
+        }
+
+        // 3. Push to the Grid View
+        pushFilterToCurrentView();
+    }
+    @FXML
+    private void onGoAgencyReservations() {
+        if (!Session.isAgency()) return;
+        setActive(agencyResBtn);
+        loadIntoContent("/fxml/AgencyReservations.fxml");
     }
 
     @FXML
@@ -148,6 +234,12 @@ public class DashboardController {
         if (filtersBtn != null) {
             filtersBtn.setText(rightPanelVisible ? "Filters ◂" : "Filters ▸");
         }
+    }
+    @FXML
+    private void onGoBanners() {
+        if (!Session.isAgency()) return;
+        setActive(bannersBtn);
+        loadIntoContent("/fxml/AgencyActualites.fxml");
     }
 
     private java.math.BigDecimal parseBigDecimalOrNull(String s) {
@@ -274,6 +366,8 @@ public class DashboardController {
         if (cartBtn != null) cartBtn.getStyleClass().remove("active");
         if (reservationsBtn != null) reservationsBtn.getStyleClass().remove("active");
         if (archiveBtn != null) archiveBtn.getStyleClass().remove("active"); // ✅ add this
+        if (bannersBtn != null) bannersBtn.getStyleClass().remove("active");
+        if (agencyResBtn != null) agencyResBtn.getStyleClass().remove("active");
 
         if (activeBtn != null && !activeBtn.getStyleClass().contains("active")) {
             activeBtn.getStyleClass().add("active");
@@ -285,6 +379,10 @@ public class DashboardController {
         offerFilter.setMinPrice(null);
         offerFilter.setMaxPrice(null);
         offerFilter.setSelectedDate(null);
+        offerFilter.getAgencyIds().clear();
+        if (Session.isAgency()) {
+            offerFilter.getAgencyIds().add(Session.getUserId());
+        }
         offerFilter.getAgencyIds().clear();
 
         if (searchTf != null) searchTf.clear();
