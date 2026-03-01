@@ -3,90 +3,107 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.shape.SVGPath?>
 
 <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;" xmlns:fx="http://javafx.com/fxml" fx:controller="controllers.OffreFormController">
     <VBox alignment="TOP_CENTER" spacing="20" style="-fx-background-color: -bg;">
         <padding>
-            <Insets top="40" right="20" bottom="40" left="20"/>
+            <Insets top="30" right="30" bottom="30" left="30"/>
         </padding>
 
-        <VBox maxWidth="550" spacing="25" styleClass="card">
+        <VBox maxWidth="1050" spacing="0" styleClass="card" style="-fx-padding: 0; -fx-overflow: hidden;">
 
-            <VBox spacing="5">
-                <Label fx:id="formTitleLbl" styleClass="h1" text="Create New Offer"/>
-                <Label text="Fill in the details below to publish a new promotion." styleClass="muted"/>
-            </VBox>
-
-            <Separator opacity="0.5"/>
-
-            <VBox spacing="15">
-
-                <VBox spacing="5">
-                    <Label text="Offer Title" styleClass="h2"/>
-                    <TextField fx:id="titleTf" promptText="e.g. Summer Escape to Djerba" prefHeight="40"/>
+            <HBox alignment="CENTER_LEFT" style="-fx-padding: 20; -fx-background-color: rgba(255,255,255,0.03); -fx-border-color: transparent transparent rgba(255,255,255,0.1) transparent;">
+                <VBox spacing="2">
+                    <Label fx:id="formTitleLbl" styleClass="h1" text="Offer Configuration" style="-fx-font-size: 22px;"/>
+                    <Label text="Configure your promotion and select included services." styleClass="muted"/>
                 </VBox>
-
-                <HBox spacing="15">
-                    <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="Original Price (TND)" styleClass="h2"/>
-                        <TextField fx:id="originalPriceTf" promptText="300" prefHeight="40"/>
-                    </VBox>
-                    <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="Discount (%)" styleClass="h2"/>
-                        <TextField fx:id="discountTf" promptText="20" prefHeight="40"/>
-                    </VBox>
-                    <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="Final Price" styleClass="h2"/>
-                        <TextField fx:id="priceTf" editable="false" styleClass="price-field" text="0.000" prefHeight="40"
-                                   style="-fx-background-color: #f3f4f6; -fx-text-fill: -brand-orange; -fx-font-weight: bold;"/>
-                    </VBox>
-                </HBox>
-
-                <HBox spacing="15">
-                    <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="Start Date" styleClass="h2"/>
-                        <DatePicker fx:id="startDp" maxWidth="Infinity" prefHeight="40"/>
-                    </VBox>
-                    <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label text="End Date" styleClass="h2"/>
-                        <DatePicker fx:id="endDp" maxWidth="Infinity" prefHeight="40"/>
-                    </VBox>
-                </HBox>
-
-                <VBox spacing="5">
-                    <Label text="Promotion Image" styleClass="h2"/>
-                    <HBox spacing="10">
-                        <TextField fx:id="imageTf" editable="false" promptText="No file selected" HBox.hgrow="ALWAYS" prefHeight="40"/>
-                        <Button text="Browse" onAction="#onBrowseImage" styleClass="btn-ghost" prefHeight="40"/>
-                    </HBox>
-                </VBox>
-
-                <VBox spacing="5">
-                    <HBox alignment="CENTER_LEFT">
-                        <Label text="Description" styleClass="form-label" />
-                        <Region HBox.hgrow="ALWAYS" />
-                        <Button onAction="#onGenerateAIDescription" text="AI Writer ✨"
-                                style="-fx-background-color: linear-gradient(to right, #6366F1, #1BB7B1);
-                       -fx-text-fill: white; -fx-font-size: 10px; -fx-background-radius: 15;
-                       -fx-cursor: hand; -fx-font-weight: bold;" />
-                    </HBox>
-                    <TextArea fx:id="descTa" prefHeight="100" wrapText="true" />
-                </VBox>
-
-                <VBox spacing="5">
-                    <Label text="Included Services" styleClass="h2"/>
-                    <ListView fx:id="servicesLv" prefHeight="120" styleClass="modern-list-view"/>
-                </VBox>
-            </VBox>
-
-            <Label fx:id="errorLbl" styleClass="error" wrapText="true"/>
-
-            <HBox spacing="15" alignment="CENTER_RIGHT">
-                <Button text="Cancel" onAction="#onCancel" styleClass="btn-ghost" prefWidth="100" prefHeight="40"/>
-                <Button text="Save Offer" onAction="#onSave" styleClass="btn-primary" prefWidth="150" prefHeight="40"/>
+                <Region HBox.hgrow="ALWAYS" />
+                <Button text="Cancel" onAction="#onCancel" styleClass="btn-ghost" />
+                <Separator orientation="VERTICAL" prefHeight="20" style="-fx-padding: 0 10;"/>
+                <Button text="Save Offer" onAction="#onSave" styleClass="btn-primary" prefWidth="140" />
             </HBox>
 
+            <HBox spacing="0" VBox.vgrow="ALWAYS">
+
+
+                <VBox spacing="15" prefWidth="420" style="-fx-padding: 25; -fx-border-color: transparent rgba(255,255,255,0.1) transparent transparent;">
+
+                    <VBox spacing="5">
+                        <Label text="Offer Title" styleClass="h2"/>
+                        <TextField fx:id="titleTf" promptText="e.g. Summer Escape to Djerba" prefHeight="35"/>
+                    </VBox>
+
+                    <HBox spacing="10">
+                        <VBox spacing="5" HBox.hgrow="ALWAYS">
+                            <Label text="Original (TND)" styleClass="h2"/>
+                            <TextField fx:id="originalPriceTf" prefHeight="35"/>
+                        </VBox>
+                        <VBox spacing="5" HBox.hgrow="ALWAYS">
+                            <Label text="Discount %" styleClass="h2"/>
+                            <TextField fx:id="discountTf" prefHeight="35"/>
+                        </VBox>
+                    </HBox>
+
+                    <VBox spacing="5">
+                        <Label text="Final Price" styleClass="h2"/>
+                        <TextField fx:id="priceTf" editable="false" prefHeight="35"
+                                   style="-fx-background-color: #f3f4f6; -fx-text-fill: -brand-orange; -fx-font-weight: bold;"/>
+                    </VBox>
+
+                    <VBox spacing="5">
+                        <Label text="Validity Period" styleClass="h2"/>
+                        <HBox spacing="5" alignment="CENTER">
+                            <DatePicker fx:id="startDp" HBox.hgrow="ALWAYS" prefHeight="35"/>
+                            <Label text="to" styleClass="muted"/>
+                            <DatePicker fx:id="endDp" HBox.hgrow="ALWAYS" prefHeight="35"/>
+                        </HBox>
+                    </VBox>
+
+                    <VBox spacing="5">
+                        <Label text="Promotion Image" styleClass="h2"/>
+                        <HBox spacing="8">
+                            <TextField fx:id="imageTf" editable="false" promptText="No file selected" HBox.hgrow="ALWAYS" prefHeight="35"/>
+                            <Button text="Browse" onAction="#onBrowseImage" styleClass="btn-ghost" prefHeight="35" style="-fx-font-size: 11px;"/>
+                        </HBox>
+                    </VBox>
+
+                    <VBox spacing="5">
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="Description" styleClass="h2" />
+                            <Region HBox.hgrow="ALWAYS" />
+                            <Button fx:id="aiBtn" onAction="#onGenerateAIDescription" text="AI Writer ✨"
+                                    style="-fx-background-color: linear-gradient(to right, #6366F1, #1BB7B1); -fx-text-fill: white; -fx-font-size: 10px; -fx-background-radius: 10; -fx-cursor: hand;"/>
+                        </HBox>
+                        <TextArea fx:id="descTa" prefHeight="100" wrapText="true" />
+                    </VBox>
+                </VBox>
+
+                <VBox spacing="15" HBox.hgrow="ALWAYS" style="-fx-padding: 25; -fx-background-color: rgba(0,0,0,0.01);">
+
+                    <VBox spacing="10">
+                        <Label text="Select Services" styleClass="h2" style="-fx-font-size: 18px;"/>
+
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <TextField promptText="🔍 Search services..." HBox.hgrow="ALWAYS" prefHeight="35" style="-fx-background-radius: 20;"/>
+                            <ComboBox promptText="Category" prefHeight="35" prefWidth="120" style="-fx-background-radius: 20;"/>
+                        </HBox>
+                    </VBox>
+
+                    <VBox VBox.vgrow="ALWAYS" spacing="8">
+                        <ListView fx:id="servicesLv" VBox.vgrow="ALWAYS" styleClass="modern-list-view"
+                                  style="-fx-background-radius: 10; -fx-border-radius: 10;"/>
+                        <Label text="Tip: Hold Ctrl to select multiple services." styleClass="muted" style="-fx-font-size: 10px;"/>
+                    </VBox>
+
+                    <HBox style="-fx-padding: 10; -fx-background-color: rgba(99,102,241,0.1); -fx-background-radius: 10;" alignment="CENTER">
+                        <Label text="Services Selected: " style="-fx-text-fill: #6366F1; -fx-font-weight: bold;"/>
+                        <Label text="0" style="-fx-text-fill: #6366F1; -fx-font-weight: bold;"/>
+                    </HBox>
+                </VBox>
+
+            </HBox>
         </VBox>
+
+        <Label fx:id="errorLbl" styleClass="error" wrapText="true"/>
     </VBox>
 </ScrollPane>

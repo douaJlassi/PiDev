@@ -42,15 +42,25 @@ public class ArchivedOfferCardController {
     @FXML
     private void onDeleteHard() {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Delete permanently");
-        confirm.setHeaderText(null);
-        confirm.setContentText("Delete permanently? This cannot be undone.");
+        confirm.setTitle("Permanent Deletion");
+        confirm.setContentText("Permanently delete from database?");
 
         if (confirm.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) return;
 
-        boolean ok = repo.deleteHardAdmin(offer.getIdOffre()); // or create deleteHardForAgency
-        if (!ok) warn("Delete failed", "Could not delete this offer.");
-        else if (onChanged != null) onChanged.run();
+        // Use our new permanent delete logic
+        boolean deleted = repo.confirmPermanentDelete(offer.getIdOffre());
+
+        if (deleted) {
+            if (onChanged != null) onChanged.run(); // Refresh list
+        } else {
+            // Show the user WHY it wasn't deleted
+            Alert warn = new Alert(Alert.AlertType.WARNING);
+            warn.setTitle("Action Restricted");
+            warn.setHeaderText("Cannot delete this offer");
+            warn.setContentText("This offer is tied to customer history (Reservations/Carts). " +
+                    "It will remain in your Archive to keep your records accurate.");
+            warn.showAndWait();
+        }
     }
 
     private void warn(String title, String msg) {
