@@ -140,7 +140,8 @@ public class PremiumSubscriptionController {
 
     @FXML
     private void handlePremiumPlan() {
-        showBeautifulPaymentDialog("Premium", PREMIUM_PRICE, PREMIUM_BONUS_COINS, 1, 0);
+        showBeautifulPaymentDialog("Premium", PREMIUM_PRICE,
+                PREMIUM_BONUS_COINS, 1, 0);
     }
 
     @FXML

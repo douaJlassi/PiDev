@@ -29,8 +29,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 public class ShopController implements Initializable {
 
@@ -51,6 +53,8 @@ public class ShopController implements Initializable {
     @FXML
     private Button backBtn;
     @FXML
+    private Button historyBtn;
+    @FXML
     private Label statusLabel;
 
     private Person currentUser;
@@ -68,6 +72,7 @@ public class ShopController implements Initializable {
 
         setupCategoryFilter();
         setupSearch();
+        setupHistoryButton();
     }
 
     public void setUserData(Person user) {
@@ -85,6 +90,7 @@ public class ShopController implements Initializable {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            showAlert("Error", "Failed to load user profile: " + e.getMessage());
         }
     }
 
@@ -93,7 +99,7 @@ public class ShopController implements Initializable {
             List<Shop> products = shopService.getAvailableProducts();
             productsList = FXCollections.observableArrayList(products);
             displayProducts(productsList);
-            setupCategoryFilter();
+            setupCategoryFilter(); // Refresh categories when products load
         } catch (SQLException e) {
             e.printStackTrace();
             showAlert("Error", "Failed to load products: " + e.getMessage());
@@ -107,13 +113,15 @@ public class ShopController implements Initializable {
         int row = 0;
 
         for (Shop product : products) {
-            VBox productCard = createProductCard(product);
-            productsGrid.add(productCard, column, row);
+            if (product != null) {
+                VBox productCard = createProductCard(product);
+                productsGrid.add(productCard, column, row);
 
-            column++;
-            if (column >= 3) {
-                column = 0;
-                row++;
+                column++;
+                if (column >= 3) {
+                    column = 0;
+                    row++;
+                }
             }
         }
     }
@@ -138,19 +146,24 @@ public class ShopController implements Initializable {
         imageView.setPreserveRatio(true);
 
         if (product.getImage() != null && product.getImage().length > 0) {
-            Image image = new Image(new ByteArrayInputStream(product.getImage()));
-            imageView.setImage(image);
+            try {
+                Image image = new Image(new ByteArrayInputStream(product.getImage()));
+                imageView.setImage(image);
+            } catch (Exception e) {
+                // If image fails to load, use placeholder
+                setPlaceholderImage(imageView);
+            }
         } else {
-            // Placeholder
-            imageView.setImage(new Image(getClass().getResourceAsStream("/image/placeholder.png")));
+            setPlaceholderImage(imageView);
         }
 
         // Product Name
-        Label nameLabel = new Label(product.getName());
+        Label nameLabel = new Label(product.getName() != null ? product.getName() : "Unknown Product");
         nameLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C;");
+        nameLabel.setWrapText(true);
 
         // Product Description
-        Label descLabel = new Label(product.getDescription());
+        Label descLabel = new Label(product.getDescription() != null ? product.getDescription() : "No description available");
         descLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #666;");
         descLabel.setWrapText(true);
         descLabel.setMaxHeight(40);
@@ -181,9 +194,20 @@ public class ShopController implements Initializable {
         buyBtn.setMaxWidth(Double.MAX_VALUE);
 
         // Check if user can afford
-        if (userProfile.getCoins() < product.getPriceCoins()) {
+        if (userProfile != null && userProfile.getCoins() < product.getPriceCoins()) {
             buyBtn.setDisable(true);
             buyBtn.setText("INSUFFICIENT COINS");
+            buyBtn.setStyle(
+                    "-fx-background-color: #ccc;" +
+                            "-fx-text-fill: #666;" +
+                            "-fx-font-size: 12px;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-padding: 10 20;" +
+                            "-fx-background-radius: 25;"
+            );
+        } else if (product.getQuantity() <= 0) {
+            buyBtn.setDisable(true);
+            buyBtn.setText("OUT OF STOCK");
             buyBtn.setStyle(
                     "-fx-background-color: #ccc;" +
                             "-fx-text-fill: #666;" +
@@ -201,6 +225,15 @@ public class ShopController implements Initializable {
         return card;
     }
 
+    private void setPlaceholderImage(ImageView imageView) {
+        try {
+            imageView.setImage(new Image(getClass().getResourceAsStream("/image/placeholder.png")));
+        } catch (Exception e) {
+            // If placeholder not found, leave image empty
+            imageView.setImage(null);
+        }
+    }
+
     private void showPurchaseDialog(Shop product) {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Confirm Purchase");
@@ -214,8 +247,8 @@ public class ShopController implements Initializable {
         grid.setVgap(10);
         grid.setPadding(new Insets(20, 150, 10, 10));
 
-        TextField nameField = new TextField(currentUser.getUsername());
-        TextField emailField = new TextField(currentUser.getEmail());
+        TextField nameField = new TextField(currentUser != null ? currentUser.getUsername() : "");
+        TextField emailField = new TextField(currentUser != null ? currentUser.getEmail() : "");
         TextArea addressArea = new TextArea();
         addressArea.setPromptText("Enter your delivery address");
         addressArea.setPrefRowCount(3);
@@ -246,11 +279,21 @@ public class ShopController implements Initializable {
 
     private void processPurchase(Shop product, String name, String email, String address) {
         try {
+            if (userProfile == null) {
+                showAlert("Error", "User profile not found!");
+                return;
+            }
+
             int userCoins = userProfile.getCoins();
             int price = product.getPriceCoins();
 
             if (userCoins < price) {
                 showAlert("Error", "Insufficient coins!");
+                return;
+            }
+
+            if (product.getQuantity() <= 0) {
+                showAlert("Error", "Product out of stock!");
                 return;
             }
 
@@ -326,55 +369,116 @@ public class ShopController implements Initializable {
     }
 
     private void setupCategoryFilter() {
+        if (categoryFilter == null) return;
+
         categoryFilter.getItems().clear();
         categoryFilter.getItems().add("All Categories");
 
         try {
             List<Shop> products = shopService.getAvailableProducts();
-            products.stream()
-                    .map(Shop::getCategory)
-                    .distinct()
-                    .forEach(cat -> categoryFilter.getItems().add(cat));
+            if (products != null) {
+                products.stream()
+                        .map(Shop::getCategory)
+                        .filter(Objects::nonNull)
+                        .filter(cat -> !cat.trim().isEmpty())
+                        .distinct()
+                        .forEach(cat -> categoryFilter.getItems().add(cat));
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
+        // Set default value safely
         categoryFilter.setValue("All Categories");
-        categoryFilter.setOnAction(e -> filterProducts());
+
+        // Add event handler with null check
+        categoryFilter.setOnAction(e -> {
+            if (categoryFilter.getValue() != null) {
+                filterProducts();
+            }
+        });
     }
 
     private void setupSearch() {
-        searchBtn.setOnAction(e -> filterProducts());
-        refreshBtn.setOnAction(e -> {
-            searchField.clear();
-            categoryFilter.setValue("All Categories");
-            loadProducts();
-        });
-        backBtn.setOnAction(e -> goBackToMain());
+        if (searchBtn != null) {
+            searchBtn.setOnAction(e -> filterProducts());
+        }
+
+        if (refreshBtn != null) {
+            refreshBtn.setOnAction(e -> {
+                searchField.clear();
+                categoryFilter.setValue("All Categories");
+                loadProducts();
+            });
+        }
+
+        if (backBtn != null) {
+            backBtn.setOnAction(e -> goBackToMain());
+        }
+    }
+
+    private void setupHistoryButton() {
+        if (historyBtn != null) {
+            historyBtn.setOnAction(e -> viewPurchaseHistory());
+        }
     }
 
     private void filterProducts() {
-        String searchText = searchField.getText().toLowerCase().trim();
+        String searchText = searchField.getText();
+        final String finalSearchText = searchText != null ? searchText.toLowerCase().trim() : "";
+
         String selectedCategory = categoryFilter.getValue();
+        // Safety check for null category
+        final String finalSelectedCategory = selectedCategory != null ? selectedCategory : "All Categories";
 
         try {
             List<Shop> allProducts = shopService.getAvailableProducts();
+            if (allProducts == null) {
+                allProducts = List.of();
+            }
 
             List<Shop> filtered = allProducts.stream()
+                    .filter(Objects::nonNull)
                     .filter(p -> {
-                        boolean matchCategory = selectedCategory.equals("All Categories") ||
-                                selectedCategory.equals(p.getCategory());
-                        boolean matchSearch = searchText.isEmpty() ||
-                                p.getName().toLowerCase().contains(searchText) ||
-                                p.getDescription().toLowerCase().contains(searchText);
+                        // Category filter with null safety
+                        String productCategory = p.getCategory();
+                        boolean matchCategory = finalSelectedCategory.equals("All Categories") ||
+                                (productCategory != null && finalSelectedCategory.equals(productCategory));
+
+                        // Search filter with null safety
+                        boolean matchSearch = finalSearchText.isEmpty() ||
+                                (p.getName() != null && p.getName().toLowerCase().contains(finalSearchText)) ||
+                                (p.getDescription() != null && p.getDescription().toLowerCase().contains(finalSearchText));
+
                         return matchCategory && matchSearch;
                     })
-                    .toList();
+                    .collect(Collectors.toList());
 
             displayProducts(FXCollections.observableArrayList(filtered));
 
         } catch (SQLException e) {
             e.printStackTrace();
+            showAlert("Error", "Failed to filter products: " + e.getMessage());
+        }
+    }
+
+    private void viewPurchaseHistory() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/PurchaseHistory.fxml"));
+            Parent root = loader.load();
+
+            PurchaseHistoryController historyController = loader.getController();
+            historyController.setUserData(currentUser);
+            historyController.setAdminView(false); // false for user view, true for admin
+
+            Stage stage = (Stage) historyBtn.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Purchase History - " + currentUser.getUsername());
+            stage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to open purchase history: " + e.getMessage());
         }
     }
 

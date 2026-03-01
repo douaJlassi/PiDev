@@ -20,6 +20,8 @@
                 <Region HBox.hgrow="ALWAYS"/>
                 <Button fx:id="backBtn" text="← Back to Main"
                         style="-fx-background-color: rgba(255,255,255,0.2); -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 25; -fx-cursor: hand;"/>
+                <Button fx:id="historyBtn" text="📜 History"
+                        style="-fx-background-color: #FEC74C; -fx-text-fill: #333; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 25; -fx-cursor: hand;"/>
             </HBox>
 
             <!-- User Info Bar -->
@@ -66,4 +68,5 @@
             <Label text="© 2025 Rehletna.tn - Spend your coins wisely!" style="-fx-font-size: 12px; -fx-text-fill: #999;"/>
         </HBox>
     </bottom>
+
 </BorderPane>

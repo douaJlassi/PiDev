@@ -1,11 +1,8 @@
 package tn.esprit.projet.entities;
 
-import java.io.Serializable;
 import java.sql.Timestamp;
 
-public class Purchase implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class Purchase {
     private int id;
     private int userId;
     private int shopId;
@@ -17,11 +14,26 @@ public class Purchase implements Serializable {
     private String status;
     private Timestamp purchaseDate;
 
-    // For joined queries
-    private String shopName;
-    private String userName;
+    // Additional fields for history display
+    private String productName;
+    private String buyerUsername;
 
-    public Purchase() {}
+    // Constructors
+    public Purchase() {
+        this.status = "pending";
+    }
+
+    public Purchase(int userId, int shopId, int quantity, int totalCoins,
+                    String buyerName, String buyerEmail, String buyerAddress) {
+        this.userId = userId;
+        this.shopId = shopId;
+        this.quantity = quantity;
+        this.totalCoins = totalCoins;
+        this.buyerName = buyerName;
+        this.buyerEmail = buyerEmail;
+        this.buyerAddress = buyerAddress;
+        this.status = "pending";
+    }
 
     // Getters and Setters
     public int getId() { return id; }
@@ -54,9 +66,9 @@ public class Purchase implements Serializable {
     public Timestamp getPurchaseDate() { return purchaseDate; }
     public void setPurchaseDate(Timestamp purchaseDate) { this.purchaseDate = purchaseDate; }
 
-    public String getShopName() { return shopName; }
-    public void setShopName(String shopName) { this.shopName = shopName; }
+    public String getProductName() { return productName; }
+    public void setProductName(String productName) { this.productName = productName; }
 
-    public String getUserName() { return userName; }
-    public void setUserName(String userName) { this.userName = userName; }
+    public String getBuyerUsername() { return buyerUsername; }
+    public void setBuyerUsername(String buyerUsername) { this.buyerUsername = buyerUsername; }
 }

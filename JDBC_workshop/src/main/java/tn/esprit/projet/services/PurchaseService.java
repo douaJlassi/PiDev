@@ -57,7 +57,7 @@ public class PurchaseService {
             purchase.setBuyerAddress(rs.getString("buyer_address"));
             purchase.setStatus(rs.getString("status"));
             purchase.setPurchaseDate(rs.getTimestamp("purchase_date"));
-            purchase.setShopName(rs.getString("shop_name"));
+            purchase.setProductName(rs.getString("product_name"));
             purchaseList.add(purchase);
         }
         return purchaseList;
@@ -84,8 +84,9 @@ public class PurchaseService {
             purchase.setBuyerAddress(rs.getString("buyer_address"));
             purchase.setStatus(rs.getString("status"));
             purchase.setPurchaseDate(rs.getTimestamp("purchase_date"));
-            purchase.setShopName(rs.getString("shop_name"));
-            purchase.setUserName(rs.getString("user_name"));
+            purchase.setProductName(rs.getString("product_name"));
+            purchase.setBuyerUsername(rs.getString("buyer_username")); // Changed from setUserName
+
             purchaseList.add(purchase);
         }
         return purchaseList;
