@@ -17,6 +17,7 @@ public class Activite {
     private int placesDisponibles;
 
     private String categorie;
+    private int participantsActuels;
 
 
     public Activite() {}
@@ -90,6 +91,10 @@ public class Activite {
     public void setPlacesDisponibles(int placesDisponibles) { this.placesDisponibles = placesDisponibles; }
 
 
+    public int getParticipantsActuels() { return participantsActuels; }
+    public void setParticipantsActuels(int participantsActuels) { this.participantsActuels = participantsActuels; }
+
+
     public String getCategorie() { return categorie; }          // NEW
     public void setCategorie(String categorie) { this.categorie = categorie; }
 
@@ -102,6 +107,7 @@ public class Activite {
                 ", statut='" + statut + '\'' +
                 ", placesDisponibles=" + placesDisponibles +
                 ", categorie='" + categorie + '\'' +
+                ", participantsActuels=" + participantsActuels +
                 '}';
     }
 }

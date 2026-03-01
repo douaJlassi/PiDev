@@ -1,0 +1,27 @@
+plugins
+        {
+    id 'java'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.0.13'   // if you use JavaFX
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.sun.mail:javax.mail:1.6.2'
+    implementation 'com.google.zxing:core:3.5.3'
+    implementation 'com.google.zxing:javase:3.5.3'
+
+    implementation 'com.sun.mail:javax.mail:1.6.2'
+
+    // Add any other dependencies your project needs (e.g., MySQL connector)
+}
+
+javafx {
+    modules = [ 'javafx.controls', 'javafx.fxml' ]
+    version = '17.0.2'
+}
+
+mainClassName = 'App'   // replace with your actual main class

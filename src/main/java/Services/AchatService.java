@@ -9,16 +9,16 @@ import java.util.List;
 
 public class AchatService {
 
-    private Connection cnx;
+    // ❌ Remove: private Connection cnx;
+    // ✅ Always get a fresh (validated) connection per method
 
-    public AchatService() {
-        cnx = MyDBConnexion.getInstance().getConnection();
+    private Connection getConn() {
+        return MyDBConnexion.getInstance().getConnection();
     }
 
-    // Insert a single achat (reservation)
     public void insert(Achat achat) throws SQLException {
         String sql = "INSERT INTO achat (dateAchat, montantTotal, statut, idClient, nbPlaces, idActivite) VALUES (?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (PreparedStatement ps = getConn().prepareStatement(sql)) {
             ps.setTimestamp(1, achat.getDateAchat());
             ps.setDouble(2, achat.getMontantTotal());
             ps.setString(3, achat.getStatut());
@@ -32,23 +32,19 @@ public class AchatService {
     public List<Achat> selectAll() throws SQLException {
         List<Achat> list = new ArrayList<>();
         String sql = "SELECT * FROM achat";
-        try (Statement st = cnx.createStatement();
+        try (Statement st = getConn().createStatement();
              ResultSet rs = st.executeQuery(sql)) {
-            while (rs.next()) {
-                list.add(mapResultSetToAchat(rs));
-            }
+            while (rs.next()) list.add(mapResultSetToAchat(rs));
         }
         return list;
     }
 
     public Achat selectById(int id) throws SQLException {
         String sql = "SELECT * FROM achat WHERE idAchat = ?";
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (PreparedStatement ps = getConn().prepareStatement(sql)) {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return mapResultSetToAchat(rs);
-                }
+                if (rs.next()) return mapResultSetToAchat(rs);
             }
         }
         return null;
@@ -56,7 +52,7 @@ public class AchatService {
 
     public void update(Achat achat) throws SQLException {
         String sql = "UPDATE achat SET dateAchat=?, montantTotal=?, statut=?, idClient=?, nbPlaces=?, idActivite=? WHERE idAchat=?";
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (PreparedStatement ps = getConn().prepareStatement(sql)) {
             ps.setTimestamp(1, achat.getDateAchat());
             ps.setDouble(2, achat.getMontantTotal());
             ps.setString(3, achat.getStatut());
@@ -70,7 +66,7 @@ public class AchatService {
 
     public void delete(int id) throws SQLException {
         String sql = "DELETE FROM achat WHERE idAchat = ?";
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (PreparedStatement ps = getConn().prepareStatement(sql)) {
             ps.setInt(1, id);
             ps.executeUpdate();
         }
@@ -79,18 +75,15 @@ public class AchatService {
     public List<Achat> selectByClient(int idClient) throws SQLException {
         List<Achat> list = new ArrayList<>();
         String sql = "SELECT * FROM achat WHERE idClient = ?";
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (PreparedStatement ps = getConn().prepareStatement(sql)) {
             ps.setInt(1, idClient);
             try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapResultSetToAchat(rs));
-                }
+                while (rs.next()) list.add(mapResultSetToAchat(rs));
             }
         }
         return list;
     }
 
-    // Helper to map ResultSet to Achat object
     private Achat mapResultSetToAchat(ResultSet rs) throws SQLException {
         return new Achat(
                 rs.getInt("idAchat"),

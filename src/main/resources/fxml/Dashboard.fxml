@@ -2,113 +2,184 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Text?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.control.ComboBox?>
 
+<HBox prefHeight="800.0" prefWidth="1200.0" stylesheets="@style.css"
+      xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.DashboardController"
+      styleClass="root-panel">
 
-<?import javafx.scene.control.TextField?>
-<HBox prefHeight="800.0" prefWidth="1200.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.DashboardController">
-
-    <!-- 1. SIDEBAR (Full Height) - refined with softer gradient -->
-    <VBox prefWidth="280.0" spacing="20" styleClass="sidebar-modern">
+    <VBox prefWidth="260.0" spacing="0" styleClass="sidebar-new">
         <padding>
-            <Insets top="30" right="20" bottom="30" left="20" />
+            <Insets top="36" right="24" bottom="32" left="24" />
         </padding>
-        <ImageView fitHeight="130" fitWidth="130" preserveRatio="true" styleClass="sidebar-logo">
-            <image>
-                <Image url="@/images/image2.png" />
-            </image>
-        </ImageView>
 
-        <VBox spacing="5">
-            <Label styleClass="nav-section-label" text="NAVIGATION" />
-            <Button maxWidth="1.7976931348623157E308" styleClass="nav-button-modern, nav-button-active-modern" text="Activités" />
-            <Button maxWidth="1.7976931348623157E308" styleClass="nav-button-modern" text="📊 Gestion des Activités" />
-            <Button maxWidth="1.7976931348623157E308" styleClass="nav-button-modern" text="others" />
-            <Button maxWidth="1.7976931348623157E308" styleClass="nav-button-modern" text="💬 Messagerie" />
+        <!-- Brand / Logo -->
+        <VBox alignment="CENTER" spacing="12" styleClass="brand-block">
+            <StackPane styleClass="">
+                <ImageView fitHeight="150" fitWidth="150" preserveRatio="true">
+                    <image><Image url="@/images/image2.png" /></image>
+                </ImageView>
+            </StackPane>
+        </VBox>
+
+        <!-- Divider -->
+        <Region prefHeight="1" maxWidth="1.7976931348623157E308" styleClass="sidebar-divider-new" />
+        <Region prefHeight="28" />
+
+        <!-- Navigation section label -->
+        <Label text="NAVIGATION" styleClass="nav-group-label" />
+        <Region prefHeight="8" />
+
+        <!-- Nav items -->
+        <VBox spacing="4">
+            <HBox alignment="CENTER_LEFT" spacing="14" styleClass="nav-item-pill-active">
+                <StackPane styleClass="nav-icon-bg-active">
+                    <Text text="🏖" styleClass="nav-icon-text" />
+                </StackPane>
+                <Label text="Activités" styleClass="nav-label-pill-active" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Label text="●" styleClass="nav-active-dot" />
+            </HBox>
+
+            <HBox alignment="CENTER_LEFT" spacing="14" styleClass="nav-item-pill">
+                <StackPane styleClass="nav-icon-bg">
+                    <Text text="🎫" styleClass="nav-icon-text" />
+                </StackPane>
+                <Button fx:id="mesReservationsButton" text="Mes Réservations"
+                        styleClass="nav-label-pill" maxWidth="1.7976931348623157E308"
+                        HBox.hgrow="ALWAYS" />
+            </HBox>
+
+            <HBox alignment="CENTER_LEFT" spacing="14" styleClass="nav-item-pill">
+                <StackPane styleClass="nav-icon-bg">
+                    <Text text="🗺" styleClass="nav-icon-text" />
+                </StackPane>
+                <Label text="Découvrir" styleClass="nav-label-pill" />
+            </HBox>
+
+            <HBox alignment="CENTER_LEFT" spacing="14" styleClass="nav-item-pill">
+                <StackPane styleClass="nav-icon-bg">
+                    <Text text="💬" styleClass="nav-icon-text" />
+                </StackPane>
+                <Label text="Messagerie" styleClass="nav-label-pill" />
+            </HBox>
+        </VBox>
+
+        <Region prefHeight="24" />
+        <Label text="COMPTE" styleClass="nav-group-label" />
+        <Region prefHeight="8" />
+
+        <VBox spacing="4">
+            <HBox alignment="CENTER_LEFT" spacing="14" styleClass="nav-item-pill">
+                <StackPane styleClass="nav-icon-bg">
+                    <Text text="⚙" styleClass="nav-icon-text" />
+                </StackPane>
+                <Label text="Paramètres" styleClass="nav-label-pill" />
+            </HBox>
         </VBox>
 
         <Region VBox.vgrow="ALWAYS" />
 
-        <VBox spacing="10" alignment="CENTER">
-            <Button maxWidth="1.7976931348623157E308" styleClass="logout-button-modern" text="🔒 Déconnexion" />
+        <!-- User card -->
+        <VBox styleClass="sidebar-user-card" spacing="12">
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <StackPane>
+                    <Circle radius="20" styleClass="user-avatar-circle" />
+                    <Label text="A" styleClass="user-avatar-letter" />
+                </StackPane>
+                <VBox spacing="2" HBox.hgrow="ALWAYS">
+                    <Label text="Alexandre V." styleClass="sidebar-user-name" />
+                    <Label text="Client Premium ✦" styleClass="sidebar-user-badge" />
+                </VBox>
+            </HBox>
+            <Button maxWidth="1.7976931348623157E308" text="Déconnexion"
+                    styleClass="sidebar-logout-btn" />
         </VBox>
     </VBox>
 
-    <!-- 2. RIGHT COLUMN (Navbar + Content) -->
-    <VBox HBox.hgrow="ALWAYS" styleClass="right-panel">
+    <!-- ═══════════════════════════════════════════════════ RIGHT PANEL -->
+    <VBox HBox.hgrow="ALWAYS" styleClass="main-panel">
 
-        <!-- TOP NAVIGATION BAR - lighter, more elegant -->
-        <HBox alignment="CENTER_LEFT" spacing="20" styleClass="top-nav-modern">
-            <padding>
-                <Insets top="15" right="40" bottom="15" left="40" />
-            </padding>
-
-            <!-- Welcome Message -->
-            <VBox spacing="2" HBox.hgrow="ALWAYS">
-                <Text styleClass="welcome-title-modern" text="Bonjour, Alexandre !" />
-                <Label styleClass="welcome-subtitle-modern" text="Prêt pour votre prochaine aventure ?" />
+        <!-- TOP BAR -->
+        <HBox alignment="CENTER_LEFT" spacing="20" styleClass="topbar">
+            <VBox spacing="3" HBox.hgrow="ALWAYS">
+                <Text text="Bonjour, Alexandre ! 👋" styleClass="topbar-greeting" />
+                <Label text="Prêt pour votre prochaine aventure ?" styleClass="topbar-sub" />
             </VBox>
 
-            <!-- Profile Section -->
-            <HBox spacing="15" alignment="CENTER_RIGHT">
-                <VBox spacing="2" alignment="CENTER_RIGHT">
-                    <Text styleClass="user-name-modern" text="Alexandre Voyageur" />
-                    <Label styleClass="user-badge-modern" text="Client Premium" />
-                </VBox>
-                <Circle fill="linear-gradient(to bottom, #4a90e2, #2c6fb0)" radius="25.0" stroke="WHITE" strokeType="INSIDE" strokeWidth="2" styleClass="profile-avatar" />
-            </HBox>
+
+
+            <!-- Notification bell -->
+            <StackPane styleClass="notif-btn">
+                <Text text="🔔" style="-fx-font-size:18px;" />
+                <Label text="3" styleClass="notif-badge" StackPane.alignment="TOP_RIGHT" />
+            </StackPane>
+
+            <!-- Avatar -->
+            <StackPane>
+                <Circle radius="22" styleClass="topbar-avatar" />
+                <Label text="A" styleClass="topbar-avatar-letter" />
+            </StackPane>
         </HBox>
 
+        <!-- NOTIFICATION PANE -->
+        <StackPane fx:id="notificationPane" prefHeight="50" style="-fx-background-color: transparent;" />
 
-        <ScrollPane fx:id="contentScrollPane" fitToWidth="true" styleClass="content-scroll-modern" VBox.vgrow="ALWAYS">
-            <VBox spacing="30" style="-fx-padding: 40;">
-                <Button fx:id="mesReservationsButton"  styleClass="nav-button-modern" text="🎫 Mes Réservations" />
 
-                    <HBox styleClass="filter-bar" alignment="CENTER_LEFT" spacing="15">
-                        <Label styleClass="filter-label-modern" text="🔍 Filtrer :" />
-                        <Button fx:id="btnTous" styleClass="filter-chip-modern" text="Tous" />
-                        <Button fx:id="btnAventure" styleClass="filter-chip-modern" text="Aventure" />
-                        <Button fx:id="btnSport" styleClass="filter-chip-modern" text="Sport" />
-                        <ComboBox fx:id="placesFilterCombo" styleClass="filter-combo" promptText="Filtrer par places" />
-                        <TextField fx:id="customCategoryField" promptText="Catégorie personnalisée" styleClass="filter-textfield" />
-                        <Button fx:id="searchCategoryButton" text="Rechercher" styleClass="filter-button" />
+        <!-- SCROLLABLE CONTENT -->
+        <ScrollPane fx:id="contentScrollPane" fitToWidth="true"
+                    styleClass="content-scroll-pane" VBox.vgrow="ALWAYS">
+            <VBox spacing="28" styleClass="content-body">
+
+
+                <!-- Filter Bar -->
+                <VBox styleClass="filter-section" spacing="16">
+                    <HBox alignment="CENTER_LEFT" spacing="0">
+                        <Region prefWidth="4" prefHeight="20" styleClass="section-accent-bar" />
+                        <Region prefWidth="10" />
+                        <Text text="Filtres &amp; Recherche" styleClass="section-heading" />
                     </HBox>
 
-                <Text styleClass="section-title-modern" text="✨ Activités et Offres Recommandées" />
-                <FlowPane fx:id="activitiesFlowPane" hgap="25" vgap="25" prefWrapLength="950" styleClass="cards-grid" />
+                    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="filter-row">
+                        <Button fx:id="btnTous" text="Tous" styleClass="chip chip-active" />
+                        <Button fx:id="btnAventure" text="🏔 Aventure" styleClass="chip" />
+                        <Button fx:id="btnSport" text="⚽ Sport" styleClass="chip" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <ComboBox fx:id="placesFilterCombo" promptText="Disponibilité"
+                                  styleClass="modern-combo" prefWidth="160" />
+                        <TextField fx:id="customCategoryField"
+                                   promptText="🔍  Catégorie personnalisée..."
+                                   styleClass="modern-search-tf" prefWidth="220" />
+                        <Button fx:id="searchCategoryButton" text="Rechercher"
+                                styleClass="btn-search" />
+                    </HBox>
+                </VBox>
 
-                <FlowPane hgap="25" vgap="25" prefWrapLength="950">
-                    <VBox prefWidth="300.0" styleClass="card-modern">
-                        <StackPane prefHeight="160.0" styleClass="card-image-modern">
-                            <Label styleClass="badge-category-modern" text="Statistiques" StackPane.alignment="TOP_LEFT">
-                                <StackPane.margin><Insets left="10" top="10" /></StackPane.margin>
-                            </Label>
-                        </StackPane>
-                        <VBox spacing="8" styleClass="card-content-modern">
-                            <Text styleClass="card-title-modern" text="Statistiques du mois" />
-                            <Label styleClass="card-meta-modern" text="📊 5 Réservations" />
-                            <Label styleClass="card-meta-modern" text="💰 723 DT de Gains" />
-                            <HBox alignment="CENTER_LEFT">
-                                <Label styleClass="card-rating-modern" text="★ 4.8 (121)">
-                                    <padding><Insets left="5" /></padding>
-                                </Label>
-                                <Region HBox.hgrow="ALWAYS" />
-                                <Button styleClass="btn-details-modern" text="Voir Plus" />
-                            </HBox>
-                        </VBox>
-                    </VBox>
-                </FlowPane>
+                <!-- Section heading -->
+                <HBox alignment="CENTER_LEFT" spacing="12">
+                    <Region prefWidth="4" prefHeight="24" styleClass="section-accent-bar" />
+                    <Text text="Activités Recommandées" styleClass="section-heading" />
+                    <Region HBox.hgrow="ALWAYS" />
+                </HBox>
+
+                <!-- Activities Grid -->
+                <FlowPane fx:id="activitiesFlowPane" hgap="20" vgap="20"
+                          prefWrapLength="900" styleClass="activities-flow" />
+
                 <Region prefHeight="20" />
             </VBox>
         </ScrollPane>

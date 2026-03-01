@@ -79,8 +79,7 @@ public class MesAchatsController {
             info.setStyle("-fx-font-size: 12;");
             cell.getChildren().addAll(titreText, info);
 
-            // Add click to open ticket
-            cell.setOnMouseClicked(e -> ouvrirTicket(achat));
+
 
             return cell;
         } catch (SQLException e) {
@@ -89,32 +88,7 @@ public class MesAchatsController {
         }
     }
 
-    private void ouvrirTicket(Achat achat) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Ticket.fxml"));
-            Node ticketView = loader.load();
-            TicketController controller = loader.getController();
-            controller.setAchat(achat);
-            controller.setDashboardController(dashboardController);
 
-            // Transition in the dashboard's scroll pane
-            Node current = dashboardController.getContentScrollPane().getContent();
-            FadeTransition fadeOut = new FadeTransition(Duration.millis(300), current);
-            fadeOut.setFromValue(1.0);
-            fadeOut.setToValue(0.0);
-            fadeOut.setOnFinished(e -> {
-                dashboardController.getContentScrollPane().setContent(ticketView);
-                FadeTransition fadeIn = new FadeTransition(Duration.millis(300), ticketView);
-                fadeIn.setFromValue(0.0);
-                fadeIn.setToValue(1.0);
-                fadeIn.play();
-            });
-            fadeOut.play();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     @FXML
     private void handleBack() {

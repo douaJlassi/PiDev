@@ -8,10 +8,18 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+
+import Services.EmailService;
+import utils.EventBus;
+import utils.MyDBConnexion;
+import java.sql.*;
 
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ReservationController {
 
@@ -25,11 +33,18 @@ public class ReservationController {
     @FXML private Button cancelButton;
     @FXML private Button confirmButton;
 
+    @FXML private VBox guestsContainer;
+
     private Stage stage;
     private Activite activite;
     private int clientId;
     private ActiviteService activiteService = new ActiviteService();
     private AchatService achatService = new AchatService();
+    private String clientEmail;
+    private String clientNom;
+
+
+    private List<TextField> guestFields = new ArrayList<>();
 
     public void setStage(Stage stage) {
         this.stage = stage;
@@ -37,12 +52,18 @@ public class ReservationController {
 
     public void setClientId(int clientId) {
         this.clientId = clientId;
+        loadClientInfo();
     }
 
     public void setActivite(Activite activite) {
         this.activite = activite;
         afficherDetails();
         chargerImage();
+
+        participantsField.textProperty().addListener((obs, oldVal, newVal) -> {
+            calculerPrixTotal();
+            updateGuestFields();
+        });
     }
 
     private void afficherDetails() {
@@ -51,8 +72,6 @@ public class ReservationController {
             activityDescriptionLabel.setText(activite.getDescription());
             priceLabel.setText(String.format("%.0f DT", activite.getPrix()));
             availablePlacesLabel.setText(activite.getPlacesDisponibles() + " places disponibles");
-
-            participantsField.textProperty().addListener((obs, oldVal, newVal) -> calculerPrixTotal());
         }
     }
 
@@ -94,14 +113,66 @@ public class ReservationController {
         }
     }
 
+
+    private void updateGuestFields() {
+
+        guestsContainer.getChildren().clear();
+        guestFields.clear();
+
+        int nbGuests;
+        try {
+            nbGuests = Integer.parseInt(participantsField.getText().trim());
+            if (nbGuests <= 0) return;
+            if (nbGuests > activite.getPlacesDisponibles()) {
+
+                nbGuests = activite.getPlacesDisponibles();
+
+
+            }
+        } catch (NumberFormatException e) {
+            return;
+        }
+        /*
+        for (int i = 1; i <= nbGuests; i++) {
+            TextField guestField = new TextField();
+            guestField.setPromptText("Nom du participant " + i);
+            guestField.getStyleClass().add("guest-field");
+            guestsContainer.getChildren().add(guestField);
+            guestFields.add(guestField);
+        }*/
+    }
+
     @FXML
     private void handleCancel() {
         if (stage != null) stage.close();
     }
 
+    private void loadClientInfo() {
+        String query = "SELECT email, nom, prenom FROM clients1 WHERE idUser = ?";
+        try (Connection conn = MyDBConnexion.getInstance().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, clientId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                clientEmail = rs.getString("email");
+                String nom = rs.getString("nom");
+                String prenom = rs.getString("prenom");
+                clientNom = (nom != null ? nom : "") + " " + (prenom != null ? prenom : "");
+                if (clientNom.trim().isEmpty()) clientNom = "Client #" + clientId;
+            } else {
+                clientEmail = null;
+                clientNom = "Client #" + clientId;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            clientEmail = null;
+            clientNom = "Client #" + clientId;
+        }
+    }
+
     @FXML
+
     private void handleConfirm() {
-        // Check if field is empty
         if (participantsField.getText().isEmpty()) {
             showAlert(Alert.AlertType.WARNING, "Veuillez indiquer le nombre de places.");
             return;
@@ -117,10 +188,9 @@ public class ReservationController {
                 return;
             }
 
-            // Calculate total
             double montantTotal = nbPlaces * activite.getPrix();
 
-            // Create Achat object
+            // Save reservation
             Achat achat = new Achat(
                     new Timestamp(System.currentTimeMillis()),
                     montantTotal,
@@ -129,25 +199,59 @@ public class ReservationController {
                     nbPlaces,
                     activite.getIdActivite()
             );
-
-            // Save to database
             achatService.insert(achat);
+            activiteService.updatePlaces(activite.getIdActivite(),
+                    activite.getPlacesDisponibles() - nbPlaces);
+            EventBus.getInstance().publish();
 
-            // Update available places in the activity
-            int remainingPlaces = activite.getPlacesDisponibles() - nbPlaces;
-            activiteService.updatePlaces(activite.getIdActivite(), remainingPlaces);
+            final String emailToSend = clientEmail;
+            final String nomToSend = (clientNom != null && !clientNom.isBlank())
+                    ? clientNom : "Client #" + clientId;
+            final String activiteTitre = activite.getTitre();
+            final int finalNbPlaces = nbPlaces;
+            final double finalMontant = montantTotal;
 
-            // Show success message
+            final String qrContent = String.format(
+                    "RESERVATION\nActivite: %s\nClient: %s\nPlaces: %d\nMontant: %.0f DT\nDate: %s",
+                    activiteTitre,
+                    nomToSend,
+                    finalNbPlaces,
+                    finalMontant,
+                    new java.util.Date()
+            );
+
+            if (emailToSend != null && !emailToSend.isEmpty()) {
+                new Thread(() -> {
+                    try {
+                        byte[] qrCodeBytes = utils.QRCodeGenerator.generateQRCode(qrContent, 300, 300);
+                        EmailService.envoyerConfirmation(
+                                emailToSend,
+                                nomToSend,
+                                activiteTitre,
+                                finalNbPlaces,
+                                finalMontant,
+                                qrCodeBytes
+                        );
+                    } catch (Exception e) {
+                        System.err.println("❌ Erreur génération QR / envoi email : " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                }).start();
+            } else {
+                System.out.println("⚠️ Aucun email client trouvé pour l'ID " + clientId);
+            }
+
             showAlert(Alert.AlertType.INFORMATION,
-                    "Réservation confirmée pour " + nbPlaces + " personne(s) !\nMontant total : " + montantTotal + " DT");
-
+                    "Réservation confirmée pour " + nbPlaces + " personne(s) !\n"
+                            + "Montant total : " + String.format("%.0f", montantTotal) + " DT\n"
+                            + (emailToSend != null ? "Un email avec QR code a été envoyé." : "Aucun email n'a pu être envoyé."));
             stage.close();
 
         } catch (NumberFormatException e) {
             showAlert(Alert.AlertType.ERROR, "Le nombre de participants doit être un entier positif.");
         } catch (SQLException e) {
             e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Erreur lors de l'enregistrement de la réservation.");
+            showAlert(Alert.AlertType.ERROR, "Erreur lors de l'enregistrement : " + e.getMessage());
         }
     }
 

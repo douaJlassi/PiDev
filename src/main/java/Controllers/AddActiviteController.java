@@ -10,6 +10,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
+import utils.EventBus;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,6 +37,8 @@ public class AddActiviteController {
     @FXML private TextArea longDescField;
     @FXML private CheckBox publicToggle;
     @FXML private ImageView imagePreview;
+
+    private DashboardGuideController dashboardController;
 
     private BorderPane mainBorderPane;
     private Node previousView;
@@ -74,6 +78,13 @@ public class AddActiviteController {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Erreur de navigation", ButtonType.OK);
             alert.show();
         }
+    }
+
+
+
+
+    public void setDashboardController(DashboardGuideController dashboardController) {
+        this.dashboardController = dashboardController;
     }
 
     // Helper to show alerts
@@ -120,6 +131,8 @@ public class AddActiviteController {
 
         selectedImageName = activite.getImage();
         loadImage(selectedImageName);
+
+        publicToggle.setSelected("Actif".equals(activite.getStatut()));
     }
 
     private void loadImage(String imageName) {
@@ -196,15 +209,10 @@ public class AddActiviteController {
             }
 
             int idGuide = 1; // TODO: replace with actual logged-in guide ID
-            String statut = "Actif";
+            String statut = publicToggle.isSelected() ? "Actif" : "Privé";
             String image = (selectedImageName != null) ? selectedImageName : "default.jpg";
+            String categorie = categoryCombo.getValue();
 
-            // ✅ Get selected category
-            String categorie = categoryCombo.getValue(); // may be null if nothing selected
-
-            // Create Activite object with the new category field
-            // Ensure your Activite class has a constructor that accepts 11 parameters,
-            // with category as the last parameter. If not, use setters.
             Activite a = new Activite(
                     titre,
                     description,
@@ -216,18 +224,37 @@ public class AddActiviteController {
                     image,
                     statut,
                     places,
-                    categorie // new category parameter
+                    categorie
             );
 
             if (currentActivite != null) {
                 a.setIdActivite(currentActivite.getIdActivite());
                 service.updateOne(a);
                 System.out.println("✅ Activité '" + a.getTitre() + "' mise à jour avec succès !");
-                handleReturn(); // optionally return after update
             } else {
                 service.insertOne(a);
                 System.out.println("✅ Activité '" + a.getTitre() + "' ajoutée avec succès !");
-                handleReturn();
+            }
+
+            // Après la sauvegarde réussie
+            if (dashboardController != null) {
+                dashboardController.refreshActivites();
+            }
+
+            EventBus.getInstance().publish();
+
+            // 🔁 Refresh the guide dashboard
+            if (dashboardController != null) {
+                dashboardController.refreshActivites();
+            }
+
+            // 🔙 Return to previous view
+            if (mainBorderPane != null && previousView != null) {
+                mainBorderPane.setCenter(previousView);
+            } else {
+                System.err.println("Impossible de revenir en arrière : références manquantes.");
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Erreur de navigation", ButtonType.OK);
+                alert.show();
             }
 
         } catch (NumberFormatException e) {

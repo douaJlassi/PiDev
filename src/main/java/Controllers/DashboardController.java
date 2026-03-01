@@ -36,6 +36,8 @@ import java.util.stream.Collectors;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
+import utils.EventBus;
+import utils.NotificationUtils;
 
 
 public class DashboardController {
@@ -56,11 +58,14 @@ public class DashboardController {
     private ActiviteService activiteService;
 
     @FXML
+    private StackPane notificationPane;
+
+    @FXML
     private TextField customCategoryField;
     @FXML
     private Button searchCategoryButton;
 
-    private int clientId = 2;
+    private int clientId = 5;
     private Node dashboardContent;
 
     private List<Activite> allActivites;
@@ -77,7 +82,7 @@ public class DashboardController {
     }
 
 
-    public void showDashboardView() {                // ADDED (if not already present)
+    public void showDashboardView() {
         if (dashboardContent != null) {
             Node currentContent = contentScrollPane.getContent();
             FadeTransition fadeOut = new FadeTransition(Duration.millis(300), currentContent);
@@ -99,7 +104,7 @@ public class DashboardController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/MesAchats.fxml"));
             Node view = loader.load();
             MesAchatsController controller = loader.getController();
-            controller.setClientId(clientId);           // now clientId is defined
+            controller.setClientId(clientId);
             controller.setDashboardController(this);
 
             if (dashboardContent == null) {
@@ -128,7 +133,15 @@ public class DashboardController {
     @FXML
     public void initialize() {
         try {
-            allActivites = activiteService.selectALL();
+
+
+            dashboardContent = contentScrollPane.getContent();
+            EventBus.getInstance().addListener(this::refreshActivities);
+            List<Activite> all = activiteService.selectALL();
+            allActivites = all.stream()
+                    .filter(a -> "Actif".equals(a.getStatut()))
+                    .collect(Collectors.toList());
+
             afficherActivites(allActivites);
 
             placesFilterCombo.getItems().addAll("Tous", "Disponible");
@@ -142,7 +155,6 @@ public class DashboardController {
                 customCategoryField.clear();
                 setCategoryFilter(null);
             });
-            btnTous.setOnAction(e -> setCategoryFilter(null));
             btnAventure.setOnAction(e -> setCategoryFilter("Aventure"));
             btnSport.setOnAction(e -> setCategoryFilter("Sport"));
             updateCategoryButtonStyles(null);
@@ -161,7 +173,10 @@ public class DashboardController {
 
             mesReservationsButton.setOnAction(e -> showMesAchats());
 
-            dashboardContent = contentScrollPane.getContent();
+
+            EventBus.getInstance().addListener(() -> {
+                javafx.application.Platform.runLater(this::refreshActivities);
+            });
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -171,9 +186,18 @@ public class DashboardController {
 
 
 
-
-
-
+    public void refreshActivities() {
+        try {
+            List<Activite> all = activiteService.selectALL();
+            allActivites = all.stream()
+                    .filter(a -> "Actif".equals(a.getStatut()))
+                    .collect(Collectors.toList());
+            afficherActivites(allActivites);
+            applyFilters();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
 
     private void openReservationWindow(Activite activite) {
@@ -185,22 +209,23 @@ public class DashboardController {
             ReservationController controller = loader.getController();
             controller.setActivite(activite);
             controller.setStage(stage);
+            controller.setClientId(clientId);
 
             Scene scene = new Scene(root);
             scene.getStylesheets().add(getClass().getResource("/fxml/style.css").toExternalForm());
 
-            controller.setClientId(clientId);           // use the field instead of hardcoded 2
             stage.setTitle("Réserver - " + activite.getTitre());
             stage.setScene(scene);
             stage.initModality(Modality.APPLICATION_MODAL);
-            stage.showAndWait();
+            stage.showAndWait();   // ← bloque jusqu'à la fermeture
+
+            // Après fermeture de la fenêtre de réservation, on rafraîchit
+            refreshActivities();
 
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
-
 
 
 
