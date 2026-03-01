@@ -53,6 +53,7 @@ public class UpdateVolController {
     @FXML private Button btnChoisirPhoto;
     @FXML private ImageView imgPreview;
     @FXML private Label lblErrorPhoto;
+    @FXML private Button retourBtn;
     private File selectedImageFile;
     String imageUrl;
 
@@ -316,5 +317,14 @@ public class UpdateVolController {
             }
         }
         return  true;
+    }
+    @FXML private void handleBack() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Dashboard.fxml"));
+            Parent root = loader.load();
+            retourBtn.getScene().setRoot(root);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

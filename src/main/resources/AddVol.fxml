@@ -102,6 +102,8 @@
 
                 <Button onAction="#ajouterVol" styleClass="btn-submit" text="✔ Ajouter le Vol" />
                 <Button  onAction="#chercherVolAPI" styleClass="btn-submit" text="auto remplissage" />
+                <Button fx:id="retourBtn" onAction="#handleBack" styleClass="btn-back" text="← Retour" />
+
             </VBox>
         </VBox>
     </children>

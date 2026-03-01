@@ -95,6 +95,7 @@
 
                 <!-- Action Button -->
                 <Button onAction="#handleUpdate" styleClass="btn-submit" text="✔ Modifier" />
+                <Button fx:id="retourBtn" onAction="#handleBack"  styleClass="btn-back" text="← Retour" />
 
             </VBox>
         </VBox>

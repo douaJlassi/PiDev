@@ -130,9 +130,9 @@
                                                         <Button onAction="#handleShowHotelForm" mnemonicParsing="false" styleClass="btn-add" text="+ Add Hotel" />
 
                                                         <ComboBox fx:id="cbFilter"
-                                                                  promptText="ᯤ Filter By"
-                                                                  styleClass="filter-combo"
-
+                                                                  promptText="Filter By"
+                                                                  styleClass="btn-add"
+onAction="#handleFilterAction"
                                                                   prefWidth="150.0" />
                                                     </children>
                                                 </HBox>
@@ -158,6 +158,7 @@
                                                         <Label minWidth="150.0" text="Payment Method" />
                                                         <Label minWidth="150.0" text="Service Name" />
                                                         <Label minWidth="100.0" text="Status" />
+
                                                     </children>
                                                 </HBox>
                                                 <!-- Items Container -->

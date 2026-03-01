@@ -77,7 +77,7 @@ public class AddReservationController {
     public void setIdService(int id){this.idService = id;}
 
 
-    user connectedUser=new user("achref","souli","user");
+    user connectedUser=new user("achref","souli","admin");
     @FXML
     void AddReservation(ActionEvent event) {
         if (isInputValid()) {
@@ -88,15 +88,29 @@ public class AddReservationController {
             String statut = "non acceptee";
             System.out.println(idService);
             ReservationService service = new ReservationService();
-            reservation reservation = new reservation(statut, sqlDateArrive, idService, modePaiement, nom, selectedSeatNumber);
-            try {
-                service.insertOne(reservation);
-                ServiceService serviceService = new ServiceService();
-                serviceService.DecrementCapacite(idService);
-                handleBack();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+            if (Type.equals("vol")) {
+                reservation reservation = new reservation(statut, sqlDateArrive, idService, modePaiement, nom, selectedSeatNumber);
+                try {
+                    service.insertOne(reservation);
+                    ServiceService serviceService = new ServiceService();
+                    serviceService.DecrementCapacite(idService);
+                    handleBack();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
             }
+            else {
+                reservation reservation = new reservation(statut, sqlDateArrive, idService, modePaiement, nom, -1);
+                try {
+                    service.insertOne(reservation);
+                    ServiceService serviceService = new ServiceService();
+                    serviceService.DecrementCapacite(idService);
+                    handleBack();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
         }
 }
     @FXML

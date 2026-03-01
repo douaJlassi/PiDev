@@ -69,7 +69,6 @@ public class ServicesController implements Initializable {
             cardsContainer.getChildren().add(card);
         }
     }
-
     private VBox createServiceCard(service s) {
         ServiceService Service = new ServiceService();
 

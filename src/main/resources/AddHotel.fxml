@@ -94,6 +94,8 @@
 
                 <!-- Submit Button -->
                 <Button onAction="#addHotel" styleClass="btn-submit" text="✔ Ajouter Hôtel" />
+                <Button fx:id="retourBtn" onAction="#handleBack"  styleClass="btn-back" text="← Retour" />
+
 
             </VBox>
         </VBox>

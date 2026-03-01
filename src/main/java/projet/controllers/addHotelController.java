@@ -69,12 +69,12 @@ public class addHotelController {
 
     @FXML
     private Label lblErrorNom;
-
     @FXML
     private Label lblErrorPrix;
     @FXML private Button btnChoisirPhoto;
     @FXML private ImageView imgPreview;
     @FXML private Label lblErrorPhoto;
+    @FXML private Button retourBtn;
     private File selectedImageFile;
     String imageUrl;
     @FXML
@@ -323,5 +323,13 @@ public class addHotelController {
         tfLocalisation.getStyleClass().remove("error");
         tfDescription.getStyleClass().remove("error");
     }
-
+    @FXML private void handleBack() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Dashboard.fxml"));
+            Parent root = loader.load();
+            retourBtn.getScene().setRoot(root);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

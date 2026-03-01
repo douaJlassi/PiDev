@@ -82,6 +82,7 @@
 
                 <!-- Bouton d'action -->
                 <Button  styleClass="btn-submit" onAction="#AddReservation" text="✔ Créer la Réservation" />
+                <Button fx:id="retourBtn" onAction="#handleBack"  styleClass="btn-back" text="← Retour" />
                 <VBox alignment="CENTER_LEFT" spacing="2">
                     <Label fx:id="lblErrorNom" managed="false" styleClass="error-label" visible="false" wrapText="true" />
                     <Label fx:id="lblErrorDate" managed="false" styleClass="error-label" visible="false" wrapText="true" />

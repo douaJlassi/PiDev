@@ -54,7 +54,7 @@ public class DashboardController implements Initializable {
     private Label Hotels;
     @FXML
     private Label ReservationNb;
-
+    ServiceService Service = new ServiceService();
 
 
     @Override
@@ -74,8 +74,9 @@ public class DashboardController implements Initializable {
             pnItems.getChildren().add(row);
         }
         for (reservation r : recentReservations) {
-            HBox row = createReservationRow(r);
-            pnItemsReservation.getChildren().add(row);
+
+                HBox row = createReservationRow(r,"test");
+                pnItemsReservation.getChildren().add(row);
         }
     }
     private void refreshData() {
@@ -154,8 +155,7 @@ public class DashboardController implements Initializable {
 
         return row;
     }
-    private HBox createReservationRow(reservation reservation) {
-        ServiceService Service = new ServiceService();
+    private HBox createReservationRow(reservation reservation,String serviceName) {
 
         HBox row = new HBox();
         row.setAlignment(Pos.CENTER_LEFT);
@@ -176,10 +176,9 @@ public class DashboardController implements Initializable {
         PaymentLbl.setMinWidth(150);
         PaymentLbl.setStyle("-fx-font-weight:bold; -fx-text-fill: #4ba3a1;");
 
-        Label ServiceLbl = new Label();
+
+        Label ServiceLbl = new Label(serviceName);
         ServiceLbl.setMinWidth(150);
-
-
         if (reservation.getStatut().equals("acceptee")){
             Label statusLbl = new Label("Accepted");
             statusLbl.setMinWidth(100);
@@ -193,13 +192,7 @@ public class DashboardController implements Initializable {
             row.getChildren().addAll(nameLbl, DateLbl, PaymentLbl, ServiceLbl, statusLbl);
 
         }
-       // row.setOnMouseClicked(e -> {showDetailsReservation(reservation);});
         searchServiceBtn.setOnMouseClicked(e -> {});
-
-
-        // Add all to row
-
-
         return row;
     }
     @FXML
@@ -288,7 +281,30 @@ public class DashboardController implements Initializable {
     @FXML
     private void handleFilterAction() {
         String selected = cbFilter.getValue();
+        if (selected == null) return;
 
+        List<service> allServices = getAllServices();
+        List<service> sorted = new ArrayList<>(allServices);
+
+        switch (selected) {
+            case "Price":
+                sorted.sort((a, b) -> Double.compare(a.getPrix(), b.getPrix()));
+                break;
+            case "Capacity":
+                sorted.sort((a, b) -> Integer.compare(b.getCapacite(), a.getCapacite()));
+                break;
+            case "Availability":
+                sorted.sort((a, b) -> Boolean.compare(b.getDisponibilite(), a.getDisponibilite()));
+                break;
+            default:
+                return;
+        }
+
+        pnItems.getChildren().clear();
+        for (service s : sorted) {
+            HBox row = createServiceRow(s);
+            pnItems.getChildren().add(row);
+        }
     }
     @FXML
     private void handleSearchAction() {
@@ -304,7 +320,6 @@ public class DashboardController implements Initializable {
                 found = true;
             }
         }
-        // Optional: Show a "No Results" label if nothing found
         if (!found) {
             Label noResult = new Label("No services found for: " + searchText);
             noResult.setStyle("-fx-text-fill: #555; -fx-padding: 20;");
@@ -314,17 +329,8 @@ public class DashboardController implements Initializable {
     }
     private void setupUserView() {
         searchBox.setVisible(false);
-        // 1. Cacher les boutons et panneaux non autorisés
         Dashboard.setVisible(false);
-        Dashboard.setManaged(false); // Très important: retire le bouton du layout
-
-       /* btnAddVol.setVisible(false);
-        btnAddVol.setManaged(false);
-
-        btnAddHotel.setVisible(false);
-        btnAddHotel.setManaged(false);*/
-
-        // 2. Afficher directement la page des services
+        Dashboard.setManaged(false);
         try {
             Parent servicesView = FXMLLoader.load(getClass().getResource("/Services.fxml"));
             contentArea.getChildren().setAll(servicesView);

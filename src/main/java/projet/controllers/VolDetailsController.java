@@ -27,7 +27,7 @@ public class VolDetailsController {
     @FXML private Button btnReserver;
     @FXML private Label lblTempDepart;
     @FXML private Label lblTempArrive;
-    user connectedUser=new user("achref","souli","user");
+    user connectedUser=new user("achref","souli","admin");
     @FXML private Label lblNom, lblNumeroVol, lblPrix, lblVilleDepart, lblVilleArrivee,
             lblDateDepart, lblDateArrivee, lblCapacite, lblStatus, lblDescription;
     int id;

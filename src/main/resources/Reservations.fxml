@@ -23,7 +23,7 @@
                         <Pane HBox.hgrow="ALWAYS" />
 
                         <TextField fx:id="txtSearch" promptText="Search services..." styleClass="search-box" prefWidth="250.0" />
-                        <Button mnemonicParsing="false"  styleClass="action-btn" text="🔍 Search" />
+                        <Button mnemonicParsing="false" onAction="#handleSearch"  styleClass="action-btn" text="🔍 Search" />
 
                     </children>
                     <padding>

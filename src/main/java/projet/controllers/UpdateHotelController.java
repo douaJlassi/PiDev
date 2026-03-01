@@ -60,6 +60,8 @@ public class UpdateHotelController {
     @FXML private Button btnChoisirPhoto;
     @FXML private ImageView imgPreview;
     @FXML private Label lblErrorPhoto;
+    @FXML private Button retourBtn;
+
     private File selectedImageFile;
     String imageUrl;
     private Hotel currentService;
@@ -301,6 +303,15 @@ public class UpdateHotelController {
             imgPreview.setImage(new Image(selectedImageFile.toURI().toString()));
             lblErrorPhoto.setVisible(false);
             lblErrorPhoto.setManaged(false);
+        }
+    }
+    @FXML private void handleBack() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Dashboard.fxml"));
+            Parent root = loader.load();
+            retourBtn.getScene().setRoot(root);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
