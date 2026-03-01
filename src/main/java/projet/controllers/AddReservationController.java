@@ -17,7 +17,6 @@ import projet.services.VolService;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 public class AddReservationController {
@@ -117,7 +116,7 @@ public class AddReservationController {
     @FXML
     private void handleBack() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Dashboard.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/DashboardServices.fxml"));
             Parent root = loader.load();
             tfModePaiement.getScene().setRoot(root);
         } catch (IOException e) {

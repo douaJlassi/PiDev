@@ -94,7 +94,7 @@ public class addHotelController {
         try {
             hs.insertOne(hotel);
 
-            Parent dashboardView = FXMLLoader.load(getClass().getResource("/Dashboard.fxml"));
+            Parent dashboardView = FXMLLoader.load(getClass().getResource("/DashboardServices.fxml"));
             StackPane contentArea = (StackPane) tfNom.getScene().lookup("#contentArea");
             tfNom.getScene().setRoot(dashboardView);
         } catch (SQLException | IOException e) {
@@ -325,7 +325,7 @@ public class addHotelController {
     }
     @FXML private void handleBack() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Dashboard.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/DashboardServices.fxml"));
             Parent root = loader.load();
             retourBtn.getScene().setRoot(root);
         } catch (IOException e) {

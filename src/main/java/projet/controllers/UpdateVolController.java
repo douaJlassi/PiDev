@@ -9,9 +9,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
-import projet.entites.Hotel;
 import projet.entites.vol;
-import projet.services.HotelService;
 import projet.services.SupabaseStorageService;
 import projet.services.VolService;
 
@@ -94,7 +92,7 @@ public class UpdateVolController {
             vs.updateOne(currentService.getNumeroVol(),v);
             Parent dashboardView = null;
             try {
-                dashboardView = FXMLLoader.load(getClass().getResource("/Dashboard.fxml"));
+                dashboardView = FXMLLoader.load(getClass().getResource("/DashboardServices.fxml"));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -320,7 +318,7 @@ public class UpdateVolController {
     }
     @FXML private void handleBack() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Dashboard.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/DashboardServices.fxml"));
             Parent root = loader.load();
             retourBtn.getScene().setRoot(root);
         } catch (IOException e) {

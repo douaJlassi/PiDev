@@ -9,15 +9,12 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import projet.entites.Hotel;
-import projet.entites.vol;
 import projet.services.HotelService;
 import projet.services.SupabaseStorageService;
-import projet.services.VolService;
 
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.time.LocalDate;
 
 public class UpdateHotelController {
     String messageErrorNom = "";
@@ -193,7 +190,7 @@ public class UpdateHotelController {
             Hotel v = new Hotel(newName, newdescription, newPrice, newdisponibilite, newcapacite, "hotel", newnbetoiles, newlocalisation, newtypechambre,imageUrl);
             try {
                 vs.updateOne(currentService.getNom(), v);
-                Parent dashboardView = FXMLLoader.load(getClass().getResource("/Dashboard.fxml"));
+                Parent dashboardView = FXMLLoader.load(getClass().getResource("/DashboardServices.fxml"));
                 StackPane contentArea = (StackPane) tfNom.getScene().lookup("#contentArea");
                 if (contentArea != null) {
                     contentArea.getChildren().setAll(dashboardView);
@@ -307,7 +304,7 @@ public class UpdateHotelController {
     }
     @FXML private void handleBack() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Dashboard.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/DashboardServices.fxml"));
             Parent root = loader.load();
             retourBtn.getScene().setRoot(root);
         } catch (IOException e) {

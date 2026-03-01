@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class DashboardController implements Initializable {
+public class DashboardServicesController implements Initializable {
   //  user connectedUser=new user("achref","souli","admin");
     user connectedUser=new user("achref","souli","admin");
     @FXML
