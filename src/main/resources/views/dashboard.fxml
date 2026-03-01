@@ -150,12 +150,12 @@
                 <!-- Content built programmatically by AiChatController -->
             </HBox>
 
-            <!-- AI Chat FAB — bottom-left, opposite the map FAB -->
+            <!-- AI Chat FAB — bottom-right, above the map FAB -->
             <Button fx:id="chatFab" text="✦  Ask Rihla"
                     styleClass="chat-fab-btn"
                     onAction="#showAiChat"
-                    StackPane.alignment="BOTTOM_LEFT">
-                <StackPane.margin><Insets bottom="32" left="32"/></StackPane.margin>
+                    StackPane.alignment="BOTTOM_RIGHT">
+                <StackPane.margin><Insets bottom="96" right="32"/></StackPane.margin>
             </Button>
 
         </StackPane>

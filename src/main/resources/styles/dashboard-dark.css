@@ -617,7 +617,7 @@
 }
 .chat-suggestion-chip:hover {
     -fx-background-color: #2e3250;
-    -fx-text-fill: #a78bfa;
+    -fx-text-fill: #17B3A6;
 }
 
 .chat-input-bar {
@@ -631,5 +631,5 @@
 }
 .chat-input-field:focused {
     -fx-background-color: #2e3250;
-    -fx-border-color: #8B5CF6;
+    -fx-border-color: #17B3A6;
 }
