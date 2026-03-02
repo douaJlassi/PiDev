@@ -555,20 +555,41 @@ public class EnhancedFaceCaptureDialog {
                 if (currentFrame != null && !currentFrame.isNull() && detectedFace != null) {
                     System.out.println("Auto-capturing face region...");
 
-                    // Use the face that was already detected by the dialog
-                    int margin = 30;
-                    int x = Math.max(0, detectedFace.x() - margin);
-                    int y = Math.max(0, detectedFace.y() - margin);
-                    int w = Math.min(currentFrame.cols() - x, detectedFace.width() + 2 * margin);
-                    int h = Math.min(currentFrame.rows() - y, detectedFace.height() + 2 * margin);
+                    // Instead of cropping tight, we want to capture more of the head
+                    // Expand the detected face region by 50% in all directions to capture full head
+                    int expansionFactor = 50; // 50% expansion
 
-                    System.out.println("Face region: x=" + x + " y=" + y + " w=" + w + " h=" + h);
+                    int expandedWidth = detectedFace.width() + (detectedFace.width() * expansionFactor / 100);
+                    int expandedHeight = detectedFace.height() + (detectedFace.height() * expansionFactor / 100);
+
+                    // Center the expanded rectangle on the detected face
+                    int x = detectedFace.x() - (expandedWidth - detectedFace.width()) / 2;
+                    int y = detectedFace.y() - (expandedHeight - detectedFace.height()) / 2;
+                    int w = expandedWidth;
+                    int h = expandedHeight;
+
+                    // Ensure we don't go out of bounds
+                    x = Math.max(0, x);
+                    y = Math.max(0, y);
+                    w = Math.min(currentFrame.cols() - x, w);
+                    h = Math.min(currentFrame.rows() - y, h);
+
+                    // Ensure minimum size
+                    w = Math.max(w, 200);
+                    h = Math.max(h, 200);
+
+                    System.out.println("Face region (expanded): x=" + x + " y=" + y + " w=" + w + " h=" + h);
 
                     Rect faceRect = new Rect(x, y, w, h);
                     Mat faceROI = new Mat(currentFrame, faceRect);
 
-                    // Convert the face ROI directly to bytes - THIS IS THE FACE, no need to re-detect
-                    byte[] imageBytes = matToByteArray(faceROI);
+                    // Resize to a consistent size for database storage
+                    Mat resizedFace = new Mat();
+                    Size targetSize = new Size(400, 400); // Slightly larger for better detail
+                    resize(faceROI, resizedFace, targetSize);
+
+                    // Convert to byte array
+                    byte[] imageBytes = matToByteArray(resizedFace);
 
                     if (imageBytes != null && imageBytes.length > 0) {
                         System.out.println("Face captured: " + imageBytes.length + " bytes");
@@ -598,6 +619,7 @@ public class EnhancedFaceCaptureDialog {
                         resetAfterFailedCapture(progressIndicator);
                     }
                     faceROI.close();
+                    if (resizedFace != null) resizedFace.close();
                 } else {
                     System.out.println("❌ No face detected in current frame");
                     resetAfterFailedCapture(progressIndicator);

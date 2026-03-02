@@ -67,10 +67,6 @@ public class AjouterPersonne {
     @FXML private Button qrScanButton;
     @FXML private Label forgotPasswordLink;
 
-    // Face ID Email Verification Fields
-    @FXML private TextField faceIDEmailField;
-    @FXML private Label faceIDEmailError;
-
     // Validation lines and error messages
     private Line firstNameLine;
     private Line lastNameLine;
@@ -102,9 +98,6 @@ public class AjouterPersonne {
     private final BooleanProperty dateValid = new SimpleBooleanProperty(false);
     private final BooleanProperty passwordValid = new SimpleBooleanProperty(false);
     private final BooleanProperty confirmPasswordValid = new SimpleBooleanProperty(false);
-
-    // Face ID email validation property
-    private final BooleanProperty faceIDEmailValid = new SimpleBooleanProperty(false);
 
     // Store user after email validation
     private Person currentFaceIDUser;
@@ -156,9 +149,6 @@ public class AjouterPersonne {
         // Setup validation listeners
         setupValidation();
 
-        // Setup Face ID email validation
-        setupFaceIDEmailValidation();
-
         // Disable signup button initially
         signupButton.setDisable(true);
 
@@ -201,157 +191,6 @@ public class AjouterPersonne {
         if (userRoleRadio != null) {
             userRoleRadio.setSelected(true);
         }
-    }
-
-    /**
-     * Setup Face ID email validation
-     */
-    private void setupFaceIDEmailValidation() {
-        if (faceIDEmailField == null) return;
-
-        // Initially disable Face ID button until email is validated
-        faceIDLoginButton.setDisable(true);
-        faceIDLoginButton.setOpacity(0.5);
-
-        // Add validation listener
-        faceIDEmailField.textProperty().addListener((obs, old, val) -> {
-            validateFaceIDEmail(val);
-        });
-
-        // Add focus listener to validate on focus lost too
-        faceIDEmailField.focusedProperty().addListener((obs, old, isFocused) -> {
-            if (!isFocused) {
-                validateFaceIDEmail(faceIDEmailField.getText());
-            }
-        });
-    }
-
-    /**
-     * Validate Face ID email
-     */
-    private void validateFaceIDEmail(String email) {
-        if (email == null || email.trim().isEmpty()) {
-            faceIDEmailValid.set(false);
-            faceIDEmailError.setText("Email is required");
-            faceIDEmailError.setOpacity(1);
-            faceIDEmailError.setStyle("-fx-text-fill: #ff5e62;");
-            faceIDEmailField.setStyle("-fx-background-color: rgba(255,255,255,0.20); -fx-background-radius: 24; " +
-                    "-fx-border-radius: 24; -fx-border-color: #ff5e62; -fx-border-width: 2; " +
-                    "-fx-text-fill: white;");
-            faceIDLoginButton.setDisable(true);
-            faceIDLoginButton.setOpacity(0.5);
-            return;
-        }
-
-        // Check email format
-        if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
-            faceIDEmailValid.set(false);
-            faceIDEmailError.setText("Please enter a valid email address");
-            faceIDEmailError.setOpacity(1);
-            faceIDEmailError.setStyle("-fx-text-fill: #ff5e62;");
-            faceIDEmailField.setStyle("-fx-background-color: rgba(255,255,255,0.20); -fx-background-radius: 24; " +
-                    "-fx-border-radius: 24; -fx-border-color: #ff5e62; -fx-border-width: 2; " +
-                    "-fx-text-fill: white;");
-            faceIDLoginButton.setDisable(true);
-            faceIDLoginButton.setOpacity(0.5);
-            return;
-        }
-
-        // Check if email exists in database (async)
-        checkEmailExistsForFaceID(email);
-    }
-
-    /**
-     * Check if email exists in database for Face ID
-     */
-    private void checkEmailExistsForFaceID(String email) {
-        // Show loading state
-        faceIDEmailField.setDisable(true);
-        faceIDEmailField.setPromptText("Checking...");
-        faceIDEmailError.setText("Checking...");
-        faceIDEmailError.setOpacity(1);
-        faceIDEmailError.setStyle("-fx-text-fill: #FEC74C;");
-
-        // Run in background thread
-        new Thread(() -> {
-            try {
-                boolean exists = personService.emailExists(email);
-                javafx.application.Platform.runLater(() -> {
-                    faceIDEmailField.setDisable(false);
-                    faceIDEmailField.setPromptText("Enter your email for Face ID");
-
-                    if (exists) {
-                        // Check if user has face data registered
-                        try {
-                            Person user = personService.getUserByEmail(email);
-                            if (user != null && user.getFaceData() != null && user.getFaceData().length > 0) {
-                                // Email exists and has face data
-                                faceIDEmailValid.set(true);
-                                faceIDEmailError.setOpacity(0);
-                                faceIDEmailField.setStyle("-fx-background-color: rgba(255,255,255,0.20); -fx-background-radius: 24; " +
-                                        "-fx-border-radius: 24; -fx-border-color: #2ecc71; -fx-border-width: 2; " +
-                                        "-fx-text-fill: white;");
-                                faceIDLoginButton.setDisable(false);
-                                faceIDLoginButton.setOpacity(1.0);
-
-                                // Store user for later use
-                                currentFaceIDUser = user;
-                            } else {
-                                // Email exists but no face data
-                                faceIDEmailValid.set(false);
-                                faceIDEmailError.setText("No Face ID registered for this email");
-                                faceIDEmailError.setOpacity(1);
-                                faceIDEmailError.setStyle("-fx-text-fill: #ff5e62;");
-                                faceIDEmailField.setStyle("-fx-background-color: rgba(255,255,255,0.20); -fx-background-radius: 24; " +
-                                        "-fx-border-radius: 24; -fx-border-color: #ff5e62; -fx-border-width: 2; " +
-                                        "-fx-text-fill: white;");
-                                faceIDLoginButton.setDisable(true);
-                                faceIDLoginButton.setOpacity(0.5);
-                                currentFaceIDUser = null;
-                            }
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                            handleFaceIDEmailError("Database error");
-                        }
-                    } else {
-                        // Email not found
-                        faceIDEmailValid.set(false);
-                        faceIDEmailError.setText("Email not found in database");
-                        faceIDEmailError.setOpacity(1);
-                        faceIDEmailError.setStyle("-fx-text-fill: #ff5e62;");
-                        faceIDEmailField.setStyle("-fx-background-color: rgba(255,255,255,0.20); -fx-background-radius: 24; " +
-                                "-fx-border-radius: 24; -fx-border-color: #ff5e62; -fx-border-width: 2; " +
-                                "-fx-text-fill: white;");
-                        faceIDLoginButton.setDisable(true);
-                        faceIDLoginButton.setOpacity(0.5);
-                        currentFaceIDUser = null;
-                    }
-                });
-            } catch (SQLException e) {
-                e.printStackTrace();
-                javafx.application.Platform.runLater(() -> {
-                    handleFaceIDEmailError("Database error");
-                });
-            }
-        }).start();
-    }
-
-    /**
-     * Handle Face ID email error
-     */
-    private void handleFaceIDEmailError(String errorMessage) {
-        faceIDEmailField.setDisable(false);
-        faceIDEmailField.setPromptText("Enter your email for Face ID");
-        faceIDEmailValid.set(false);
-        faceIDEmailError.setText(errorMessage);
-        faceIDEmailError.setOpacity(1);
-        faceIDEmailError.setStyle("-fx-text-fill: #ff5e62;");
-        faceIDEmailField.setStyle("-fx-background-color: rgba(255,255,255,0.20); -fx-background-radius: 24; " +
-                "-fx-border-radius: 24; -fx-border-color: #ff5e62; -fx-border-width: 2; " +
-                "-fx-text-fill: white;");
-        faceIDLoginButton.setDisable(true);
-        faceIDLoginButton.setOpacity(0.5);
-        currentFaceIDUser = null;
     }
 
     private void initializeFaceIDLogin() {
@@ -1253,47 +1092,109 @@ public class AjouterPersonne {
         }
     }
 
+    /**
+     * Handle Face ID Login with popup email dialog
+     */
     @FXML
     public void handleFaceIDLogin() {
         System.out.println("==========================================");
         System.out.println("🔵 FACE ID LOGIN BUTTON CLICKED!");
         System.out.println("==========================================");
 
-        // Validate email first
-        String email = faceIDEmailField.getText().trim();
-        if (email.isEmpty()) {
-            showAlert("Email Required", "Please enter your email address for verification.", Alert.AlertType.WARNING);
-            faceIDEmailField.requestFocus();
-            return;
-        }
+        // Create a custom dialog for email input
+        Dialog<String> emailDialog = new Dialog<>();
+        emailDialog.setTitle("Face ID Login");
+        emailDialog.setHeaderText("Enter your email for Face ID verification");
 
-        if (!faceIDEmailValid.get() || currentFaceIDUser == null) {
-            showAlert("Invalid Email", "Please enter a valid email address that exists in our database with Face ID registered.", Alert.AlertType.WARNING);
-            faceIDEmailField.requestFocus();
-            return;
-        }
+        // Set the button types
+        ButtonType loginButtonType = new ButtonType("Continue", ButtonBar.ButtonData.OK_DONE);
+        emailDialog.getDialogPane().getButtonTypes().addAll(loginButtonType, ButtonType.CANCEL);
 
-        // Check if multiple cameras are available
-        if (CameraUtil.hasMultipleCameras()) {
-            System.out.println("📷 Multiple cameras detected: " + CameraUtil.getCameraCount());
+        // Create the email input field
+        TextField emailField = new TextField();
+        emailField.setPromptText("Email");
+        emailField.setStyle("-fx-padding: 10; -fx-font-size: 14px;");
 
-            // Show camera selection dialog
-            CameraSelectionDialog selectionDialog = new CameraSelectionDialog();
-            int selectedCamera = selectionDialog.showAndWait();
+        // Create error label
+        Label errorLabel = new Label();
+        errorLabel.setStyle("-fx-text-fill: #ff5e62; -fx-font-size: 12px;");
+        errorLabel.setVisible(false);
 
-            if (selectedCamera == -1) {
-                System.out.println("⚠️ Camera selection cancelled");
+        VBox content = new VBox(10);
+        content.setPadding(new Insets(20));
+        content.getChildren().addAll(new Label("Please enter your email address:"), emailField, errorLabel);
+
+        emailDialog.getDialogPane().setContent(content);
+
+        // Request focus on the email field by default
+        javafx.application.Platform.runLater(emailField::requestFocus);
+
+        // Convert the result to a string when the login button is clicked
+        emailDialog.setResultConverter(dialogButton -> {
+            if (dialogButton == loginButtonType) {
+                return emailField.getText();
+            }
+            return null;
+        });
+
+        // Show the dialog and wait for result
+        Optional<String> result = emailDialog.showAndWait();
+
+        result.ifPresent(email -> {
+            // Validate email
+            if (email == null || email.trim().isEmpty()) {
+                showAlert("Email Required", "Please enter your email address.", Alert.AlertType.WARNING);
                 return;
             }
 
-            System.out.println("📷 Selected camera index: " + selectedCamera);
+            if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+                showAlert("Invalid Email", "Please enter a valid email address.", Alert.AlertType.WARNING);
+                return;
+            }
 
-            // Use selected camera with LBPH
-            processFaceIDWithLBPH(selectedCamera, currentFaceIDUser);
-        } else {
-            System.out.println("📷 Single camera detected, using default");
-            processFaceIDWithLBPH(0, currentFaceIDUser);
-        }
+            // Check if email exists in database and has face data
+            try {
+                Person user = personService.getUserByEmail(email);
+
+                if (user == null) {
+                    showAlert("Email Not Found", "No account found with this email address.", Alert.AlertType.ERROR);
+                    return;
+                }
+
+                byte[] faceData = user.getFaceData();
+                if (faceData == null || faceData.length == 0) {
+                    showAlert("Face ID Not Set Up", "This account doesn't have Face ID set up. Please use password login or set up Face ID in your profile.", Alert.AlertType.WARNING);
+                    return;
+                }
+
+                // Proceed with Face ID login
+                currentFaceIDUser = user;
+
+                // Check if multiple cameras are available
+                if (CameraUtil.hasMultipleCameras()) {
+                    System.out.println("📷 Multiple cameras detected: " + CameraUtil.getCameraCount());
+
+                    // Show camera selection dialog
+                    CameraSelectionDialog selectionDialog = new CameraSelectionDialog();
+                    int selectedCamera = selectionDialog.showAndWait();
+
+                    if (selectedCamera == -1) {
+                        System.out.println("⚠️ Camera selection cancelled");
+                        return;
+                    }
+
+                    System.out.println("📷 Selected camera index: " + selectedCamera);
+                    processFaceIDWithLBPH(selectedCamera, currentFaceIDUser);
+                } else {
+                    System.out.println("📷 Single camera detected, using default");
+                    processFaceIDWithLBPH(0, currentFaceIDUser);
+                }
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+                showAlert("Database Error", "Error checking email: " + e.getMessage(), Alert.AlertType.ERROR);
+            }
+        });
     }
 
     /**
