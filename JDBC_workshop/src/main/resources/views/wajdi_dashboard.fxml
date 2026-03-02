@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.shape.Circle?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controllers.WajdiDashboardController"
+            styleClass="dashboard-root"
+            stylesheets="@../styles/dashboard.css">
+
+    <!-- ═══ LEFT SIDEBAR ═══ -->
+    <left>
+        <VBox styleClass="sidebar" prefWidth="220" minWidth="220" maxWidth="220" spacing="0">
+
+            <!-- User info (logo removed, user moved to top) -->
+            <VBox styleClass="sidebar-user-area" alignment="CENTER" spacing="8">
+                <padding><Insets top="24" right="16" bottom="20" left="16"/></padding>
+                <StackPane>
+                    <Circle styleClass="sidebar-avatar" radius="32"/>
+                    <Label text="W" styleClass="sidebar-avatar-letter"/>
+                </StackPane>
+                <Label fx:id="sidebarUsername" text="Username" styleClass="sidebar-username"/>
+                <Label fx:id="sidebarRole" text="USER" styleClass="sidebar-role"/>
+            </VBox>
+
+            <Separator styleClass="sidebar-separator"/>
+
+            <!-- Navigation items — Posts is now active by default -->
+            <VBox styleClass="sidebar-nav" spacing="4">
+                <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
+
+                <Button text="Home" styleClass="sidebar-nav-btn" maxWidth="Infinity"/>
+                <Button fx:id="postsNavBtn" text="Posts"
+                        styleClass="sidebar-nav-btn, sidebar-nav-active"
+                        maxWidth="Infinity"/>
+
+                <Button text="My Profile" styleClass="sidebar-nav-btn" maxWidth="Infinity"/>
+                <Button text="Favourites" styleClass="sidebar-nav-btn" maxWidth="Infinity"/>
+                <Button text="Bookings" styleClass="sidebar-nav-btn" maxWidth="Infinity"/>
+                <Button text="Messages" styleClass="sidebar-nav-btn" maxWidth="Infinity"/>
+                <Button text="Settings" styleClass="sidebar-nav-btn" maxWidth="Infinity"/>
+            </VBox>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <!-- Theme toggle + Logout -->
+            <VBox spacing="8">
+                <padding><Insets top="0" right="12" bottom="20" left="12"/></padding>
+                <Button fx:id="themeToggleBtn" text="Dark Mode"
+                        styleClass="theme-toggle-btn" maxWidth="Infinity"
+                        onAction="#toggleTheme"/>
+                <Button text="Logout" styleClass="sidebar-logout-btn" maxWidth="Infinity"/>
+            </VBox>
+
+        </VBox>
+    </left>
+
+    <!-- ═══ TOP NAV BAR ═══ -->
+    <top>
+        <HBox styleClass="nav-bar" alignment="CENTER_LEFT" spacing="16">
+            <padding><Insets top="12" right="24" bottom="12" left="24"/></padding>
+
+            <ImageView fx:id="topLogoImage" fitHeight="32" preserveRatio="true">
+                <image><Image url="@../images/logo.png"/></image>
+            </ImageView>
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <HBox spacing="12" alignment="CENTER">
+                <HBox spacing="6" alignment="CENTER" styleClass="view-toggle-container">
+                    <Button fx:id="gridViewBtn" text="Grid"
+                            styleClass="view-toggle-btn, active-view"
+                            onAction="#switchToGridView"/>
+                    <Button fx:id="listViewBtn" text="Feed"
+                            styleClass="view-toggle-btn"
+                            onAction="#switchToListView"/>
+                </HBox>
+
+                <TextField fx:id="searchField" promptText="Search posts..."
+                           styleClass="search-field" prefWidth="280"/>
+            </HBox>
+
+            <Button fx:id="createPostBtn" text="+ New Post"
+                    styleClass="primary-btn" onAction="#showCreatePostPanel"/>
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <Button fx:id="refreshBtn" text="⟳" styleClass="icon-btn"
+                    onAction="#refreshPosts"/>
+        </HBox>
+    </top>
+
+    <!-- ═══ MAIN CONTENT AREA ═══ -->
+    <center>
+        <!-- StackPane lets detail view + create/edit panel overlay -->
+        <StackPane fx:id="contentContainer" styleClass="dashboard-root">
+
+            <!-- Feed scroll pane (bottom layer) -->
+            <ScrollPane fx:id="postsScrollPane" styleClass="posts-scroll-pane"
+                        fitToWidth="true" fitToHeight="false">
+                <VBox alignment="TOP_CENTER">
+
+                    <!-- Grid View — 2-column masonry -->
+                    <HBox fx:id="masonryGrid" styleClass="posts-grid"
+                          spacing="24" alignment="TOP_CENTER"
+                          visible="true" managed="true">
+                        <padding><Insets top="30" right="30" bottom="30" left="30"/></padding>
+                        <VBox fx:id="masonryCol1" spacing="24" alignment="TOP_CENTER"/>
+                        <VBox fx:id="masonryCol2" spacing="24" alignment="TOP_CENTER"/>
+                    </HBox>
+
+                    <!-- List View -->
+                    <VBox fx:id="postsList" styleClass="posts-list"
+                          spacing="20" alignment="TOP_CENTER"
+                          visible="false" managed="false">
+                        <padding><Insets top="30" right="60" bottom="30" left="60"/></padding>
+                    </VBox>
+
+                </VBox>
+            </ScrollPane>
+
+            <!-- Floating Map Button (FAB) — bottom-right of content area -->
+            <Button fx:id="mapFab" text="🗺  Explore Map"
+                    styleClass="map-fab-btn"
+                    onAction="#showMapView"
+                    StackPane.alignment="BOTTOM_RIGHT">
+                <StackPane.margin><Insets bottom="32" right="32"/></StackPane.margin>
+            </Button>
+
+            <!-- AI Chat FAB — bottom-right, above the map FAB -->
+            <Button fx:id="chatFab" text="✦  Ask Rihla"
+                    styleClass="chat-fab-btn"
+                    onAction="#showAiChat"
+                    StackPane.alignment="BOTTOM_RIGHT">
+                <StackPane.margin><Insets bottom="96" right="32"/></StackPane.margin>
+            </Button>
+
+            <!-- Create/Edit panel (slide-in from right) — must be AFTER FABs to render on top -->
+            <HBox fx:id="createEditPanel" styleClass="create-edit-panel"
+                  visible="false" managed="false"
+                  StackPane.alignment="TOP_RIGHT">
+                <!-- Content loaded dynamically by controller -->
+            </HBox>
+
+            <!-- AI Chat panel (slide-in from left) — must be AFTER FABs to render on top -->
+            <HBox fx:id="chatPanel" styleClass="chat-panel-container"
+                  visible="false" managed="false"
+                  StackPane.alignment="TOP_LEFT">
+                <!-- Content built programmatically by AiChatController -->
+            </HBox>
+
+            <!-- Map overlay — full-screen, must be last to cover everything -->
+            <StackPane fx:id="mapOverlay"
+                       visible="false" managed="false"
+                       StackPane.alignment="CENTER">
+            </StackPane>
+
+        </StackPane>
+    </center>
+
+</BorderPane>

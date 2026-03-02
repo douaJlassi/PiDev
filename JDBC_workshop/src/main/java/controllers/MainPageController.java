@@ -274,7 +274,7 @@ public class MainPageController {
             // Stop timers when leaving main page
             stopAllTimers();
 
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Showprofile.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/Showprofile.fxml"));
             Parent profileRoot = loader.load();
 
             ShowprofileController profileController = loader.getController();
@@ -299,7 +299,7 @@ public class MainPageController {
                 messageCheckTimeline.stop();
             }
 
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/chat_popup.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/chat_popup.fxml"));
             Parent chatRoot = loader.load();
 
             chatPopup = new Popup();
@@ -411,7 +411,7 @@ public class MainPageController {
         try {
             stopAllTimers();
 
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/AIClassifier.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/AIClassifier.fxml"));
             Parent aiRoot = loader.load();
 
             AIClassifierController aiController = loader.getController();
@@ -431,7 +431,7 @@ public class MainPageController {
         try {
             stopAllTimers();
 
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Shop.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/Shop.fxml"));
             Parent shopRoot = loader.load();
 
             ShopController shopController = loader.getController();
@@ -959,7 +959,7 @@ public class MainPageController {
 
             stopAllTimers();
 
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/PremiumSubscription.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/PremiumSubscription.fxml"));
             Parent subscriptionRoot = loader.load();
 
             PremiumSubscriptionController subscriptionController = loader.getController();
@@ -1051,7 +1051,7 @@ public class MainPageController {
 
             Stage stage = (Stage) logoutBtn.getScene().getWindow();
 
-            FXMLLoader loadingLoader = new FXMLLoader(getClass().getResource("/loading.fxml"));
+            FXMLLoader loadingLoader = new FXMLLoader(getClass().getResource("/views/loading.fxml"));
             Parent loadingRoot = loadingLoader.load();
 
             stage.setScene(new Scene(loadingRoot));
@@ -1065,7 +1065,7 @@ public class MainPageController {
                 try {
                     System.out.println("4 seconds passed, loading login page");
 
-                    FXMLLoader loginLoader = new FXMLLoader(getClass().getResource("/AjouterPersonne.fxml"));
+                    FXMLLoader loginLoader = new FXMLLoader(getClass().getResource("/views/AjouterPersonne.fxml"));
                     Parent loginRoot = loginLoader.load();
 
                     AjouterPersonne loginController = loginLoader.getController();

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Rectangle?>
+
+<StackPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="controllers.AgencyLoginController"
+           stylesheets="@../styles/dashboard.css"
+           styleClass="login-root">
+
+    <!-- ── SPLIT: left brand panel + right form ── -->
+    <HBox>
+
+        <!-- LEFT: brand panel -->
+        <VBox styleClass="login-brand-panel" alignment="CENTER" spacing="16" prefWidth="400">
+            <padding><Insets top="60" right="48" bottom="60" left="48"/></padding>
+
+            <Label text="Rehletna.tn" styleClass="login-brand-name"/>
+            <Label text="Agency Portal" styleClass="login-brand-sub"/>
+
+            <Separator styleClass="login-brand-sep"/>
+
+            <Label wrapText="true" styleClass="login-brand-desc" textAlignment="CENTER"
+                   text="Manage posts submitted to your agency. Review, approve or reject traveller experiences before they go live."/>
+        </VBox>
+
+        <!-- RIGHT: login form -->
+        <VBox styleClass="login-form-panel" alignment="CENTER"
+              spacing="0" HBox.hgrow="ALWAYS">
+            <padding><Insets top="60" right="80" bottom="60" left="80"/></padding>
+
+            <Label text="Agency Sign In" styleClass="login-form-title"/>
+            <Label text="Enter your agency credentials to access the moderation panel."
+                   styleClass="login-form-subtitle" wrapText="true"/>
+
+            <!-- Email field -->
+            <VBox spacing="6" styleClass="login-field-group">
+                <padding><Insets top="32" bottom="0"/></padding>
+                <Label text="Email address" styleClass="login-field-label"/>
+                <TextField fx:id="emailField"
+                           promptText="agency@example.com"
+                           styleClass="login-field"
+                           onAction="#onLogin"/>
+            </VBox>
+
+            <!-- Password field -->
+            <VBox spacing="6" styleClass="login-field-group">
+                <padding><Insets top="20" bottom="0"/></padding>
+                <Label text="Password" styleClass="login-field-label"/>
+                <PasswordField fx:id="passwordField"
+                               promptText="Enter your password"
+                               styleClass="login-field"
+                               onAction="#onLogin"/>
+            </VBox>
+
+            <!-- Error label (hidden until login fails) -->
+            <Label fx:id="errorLabel" text="" styleClass="login-error-label"
+                   wrapText="true" visible="false" managed="false">
+                <VBox.margin><Insets top="12"/></VBox.margin>
+            </Label>
+
+            <!-- Sign In button -->
+            <Button fx:id="loginBtn" text="Sign In"
+                    styleClass="primary-btn" maxWidth="Infinity"
+                    onAction="#onLogin">
+                <VBox.margin><Insets top="28"/></VBox.margin>
+            </Button>
+
+            <!-- Footer note -->
+            <Label styleClass="login-footer-note" wrapText="true" textAlignment="CENTER"
+                   text="Not an agency? Return to the traveller app.">
+                <VBox.margin><Insets top="20"/></VBox.margin>
+            </Label>
+
+        </VBox>
+
+    </HBox>
+
+</StackPane>

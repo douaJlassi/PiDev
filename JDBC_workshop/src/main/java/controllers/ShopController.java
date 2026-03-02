@@ -239,7 +239,7 @@ public class ShopController implements Initializable {
     private void showPurchaseDialog(Shop product) {
         try {
             // Load the new purchase dialog
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/PurchaseDialog.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/PurchaseDialog.fxml"));
             DialogPane dialogPane = loader.load();
 
             // Get controller and set product/user details
@@ -498,7 +498,7 @@ public class ShopController implements Initializable {
 
     private void viewPurchaseHistory() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/PurchaseHistory.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/PurchaseHistory.fxml"));
             Parent root = loader.load();
 
             PurchaseHistoryController historyController = loader.getController();

@@ -26,7 +26,6 @@ import entities.Profile;
 import services.PersonService;
 import services.ProfileService;
 import utils.*;
-import utils.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -745,7 +744,7 @@ public class AjouterPersonne {
 
     private void goTo2FAVerification(Person user) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/twofa_verification.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/twofa_verification.fxml"));
             Parent verificationRoot = loader.load();
 
             TwoFAVerificationController controller = loader.getController();
@@ -845,7 +844,7 @@ public class AjouterPersonne {
             }
 
             // ===== LOAD LOADING SCREEN =====
-            FXMLLoader loadingLoader = new FXMLLoader(getClass().getResource("/loading.fxml"));
+            FXMLLoader loadingLoader = new FXMLLoader(getClass().getResource("/views/loading.fxml"));
             Parent loadingRoot = loadingLoader.load();
 
             stage.setScene(new Scene(loadingRoot));
@@ -872,7 +871,7 @@ public class AjouterPersonne {
             System.out.println("goToMainPage called with user: " + (user != null ? user.getUsername() : "null"));
 
             // Debug: Check if the file exists
-            java.net.URL resource = getClass().getResource("/mainpage.fxml");
+            java.net.URL resource = getClass().getResource("/views/mainpage.fxml");
             System.out.println("Loading mainpage.fxml from: " + resource);
 
             if (resource == null) {
@@ -1316,7 +1315,7 @@ public class AjouterPersonne {
 
     private void goToTwoFAVerification(Person user) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/twofa_verification.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/twofa_verification.fxml"));
             Parent root = loader.load();
 
             TwoFAVerificationController controller = loader.getController();
@@ -1441,7 +1440,7 @@ public class AjouterPersonne {
     @FXML
     private void handleForgotPassword() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/forgot_password.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/forgot_password.fxml"));
             Parent forgotRoot = loader.load();
 
             Stage stage = getStage();

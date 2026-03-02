@@ -19,6 +19,16 @@
     </properties>
 
     <dependencies>
+
+
+
+
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20231013</version>
+        </dependency>
+
         <!-- MySQL Connector -->
         <dependency>
             <groupId>mysql</groupId>
@@ -103,6 +113,8 @@
             <version>${zxing.version}</version>
         </dependency>
 
+
+
         <!-- For geocoding -->
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -147,7 +159,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.6.0</version>
+                <version>3.7.0</version>
                 <executions>
                     <execution>
                         <id>copy-dependencies</id>
@@ -179,25 +191,6 @@
                 </configuration>
             </plugin>
 
-            <!-- Exec Maven Plugin -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.1.0</version>
-                <configuration>
-                    <executable>java</executable>
-                    <arguments>
-                        <argument>--add-exports=java.base/sun.misc=ALL-UNNAMED</argument>
-                        <argument>--add-exports=javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED</argument>
-                        <argument>--add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED</argument>
-                        <argument>--enable-native-access=ALL-UNNAMED</argument>
-                        <argument>-Djava.library.path=${project.basedir}/lib:${project.build.directory}/lib</argument>
-                        <argument>-classpath</argument>
-                        <classpath/>
-                        <argument>test.MainFX</argument>
-                    </arguments>
-                </configuration>
-            </plugin>
 
             <!-- Resources plugin to ensure native libraries are included -->
             <plugin>

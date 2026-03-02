@@ -503,7 +503,7 @@ public class PurchaseHistoryController implements Initializable {
 
     private void goBack() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Shop.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/Shop.fxml"));
             Parent root = loader.load();
 
             ShopController shopController = loader.getController();

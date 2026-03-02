@@ -212,7 +212,7 @@ public class DashboardController {
     @FXML
     private void handleBackToMain() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/mainpage.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/mainpage.fxml"));
             Parent mainRoot = loader.load();
 
             MainPageController mainController = loader.getController();
@@ -3135,7 +3135,7 @@ public class DashboardController {
                 new File(filename).delete();
             }
 
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/AjouterPersonne.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/AjouterPersonne.fxml"));
             Parent loginRoot = loader.load();
 
             Stage stage = (Stage) timerContainer.getScene().getWindow();
@@ -3162,7 +3162,7 @@ public class DashboardController {
                 new File(filename).delete();
             }
 
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/AjouterPersonne.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/AjouterPersonne.fxml"));
             Parent loginRoot = loader.load();
 
             Stage stage = (Stage) logoutMenuItem.getScene().getWindow();
@@ -3502,7 +3502,7 @@ public class DashboardController {
 
     private void showShopManagement() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ShopManagement.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/ShopManagement.fxml"));
             Parent shopRoot = loader.load();
 
             ShopManagementController shopController = loader.getController();

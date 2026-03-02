@@ -58,7 +58,7 @@ public class MainFX extends Application {
     public void start(Stage primaryStage) {
         try {
             System.out.println("Loading FXML...");
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/AjouterPersonne.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/AjouterPersonne.fxml"));
 
             Parent root = loader.load();
             System.out.println("FXML loaded successfully");

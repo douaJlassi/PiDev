@@ -16,7 +16,6 @@ import entities.Person;
 import entities.Profile;
 import services.PersonService;
 import services.ProfileService;
-import utils.*;
 
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageOutputStream;
@@ -848,7 +847,7 @@ public class ShowprofileController {
     public void handleBack() {
         System.out.println("Back button clicked");
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/mainpage.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/mainpage.fxml"));
             Parent mainRoot = loader.load();
 
             MainPageController mainController = loader.getController();

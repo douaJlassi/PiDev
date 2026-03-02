@@ -313,7 +313,7 @@ public class ForgotPasswordController {
 
     private void goBackToLogin() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/AjouterPersonne.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/AjouterPersonne.fxml"));
             Parent loginRoot = loader.load();
 
             Stage stage = (Stage) forgotPasswordContainer.getScene().getWindow();

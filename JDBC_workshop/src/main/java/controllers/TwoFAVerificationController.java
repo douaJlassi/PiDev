@@ -322,7 +322,7 @@ public class TwoFAVerificationController {
 
             // Load the login FXML
             System.out.println("Loading AjouterPersonne.fxml...");
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/AjouterPersonne.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/AjouterPersonne.fxml"));
 
             if (loader.getLocation() == null) {
                 System.err.println("ERROR: Could not find AjouterPersonne.fxml");
@@ -361,7 +361,7 @@ public class TwoFAVerificationController {
     private void navigateToLoading() {
         try {
             System.out.println("Loading loading.fxml...");
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/loading.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/loading.fxml"));
 
             if (loader.getLocation() == null) {
                 System.err.println("ERROR: Could not find loading.fxml");
@@ -407,7 +407,7 @@ public class TwoFAVerificationController {
     private void goToMainPage() {
         try {
             System.out.println("Loading mainpage.fxml...");
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/mainpage.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/mainpage.fxml"));
 
             if (loader.getLocation() == null) {
                 System.err.println("ERROR: Could not find mainpage.fxml");
