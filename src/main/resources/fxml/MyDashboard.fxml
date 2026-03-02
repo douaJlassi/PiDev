@@ -8,7 +8,7 @@
 
 <BorderPane xmlns:fx="http://javafx.com/fxml/1"
             xmlns="http://javafx.com/javafx/17"
-            fx:controller="controllers.MyDashboardController"
+            fx:controller="Controllers.MyDashboardController"
             styleClass="dash-root">
 
     <left>
@@ -72,6 +72,14 @@
                     <graphic>
                         <SVGPath content="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"
                                  fill="#1BB7B1"/>
+                    </graphic>
+                </Button>
+                <Button fx:id="analyticsBtn" text="Analytics" onAction="#onGoAnalytics"
+                        styleClass="dash-nav-btn" maxWidth="Infinity">
+                    <graphic>
+                        <!-- Bar chart icon -->
+                        <SVGPath fill="#1BB7B1"
+                                 content="M4 19h16v2H2V3h2v16zm4-8h2v8H8v-8zm4-6h2v14h-2V5zm4 4h2v10h-2V9z"/>
                     </graphic>
                 </Button>
             </VBox>

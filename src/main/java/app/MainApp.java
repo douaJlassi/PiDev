@@ -11,7 +11,7 @@ public class MainApp extends Application {
     public void start(Stage stage) throws Exception {
         Session.loginAs(2, "AGENCE"); // test
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Dashboard.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/MyDashboard.fxml"));
         Scene scene = new Scene(loader.load(), 1200, 750);
 
 //existing styles for cards, etc.
