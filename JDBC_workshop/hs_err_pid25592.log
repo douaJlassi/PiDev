@@ -27,7 +27,7 @@
 
 ---------------  S U M M A R Y ------------
 
-Command Line: --enable-native-access=ALL-UNNAMED --module-path=C:\Users\pyrox\.m2\repository\org\openjfx\javafx-base\21.0.2\javafx-base-21.0.2-win.jar;C:\Users\pyrox\.m2\repository\org\openjfx\javafx-base\21.0.2\javafx-base-21.0.2.jar;C:\Users\pyrox\.m2\repository\org\openjfx\javafx-controls\21.0.2\javafx-controls-21.0.2-win.jar;C:\Users\pyrox\.m2\repository\org\openjfx\javafx-controls\21.0.2\javafx-controls-21.0.2.jar;C:\Users\pyrox\.m2\repository\org\openjfx\javafx-fxml\21.0.2\javafx-fxml-21.0.2-win.jar;C:\Users\pyrox\.m2\repository\org\openjfx\javafx-fxml\21.0.2\javafx-fxml-21.0.2.jar;C:\Users\pyrox\.m2\repository\org\openjfx\javafx-graphics\21.0.2\javafx-graphics-21.0.2-win.jar;C:\Users\pyrox\.m2\repository\org\openjfx\javafx-graphics\21.0.2\javafx-graphics-21.0.2.jar;C:\Users\pyrox\.m2\repository\org\openjfx\javafx-swing\21.0.2\javafx-swing-21.0.2-win.jar;C:\Users\pyrox\.m2\repository\org\openjfx\javafx-swing\21.0.2\javafx-swing-21.0.2.jar --add-modules=javafx.base,javafx.controls,javafx.fxml,javafx.graphics,javafx.swing tn.esprit.projet.test.MainFX
+Command Line: --enable-native-access=ALL-UNNAMED --module-path=C:\Users\pyrox\.m2\repository\org\openjfx\javafx-base\21.0.2\javafx-base-21.0.2-win.jar;C:\Users\pyrox\.m2\repository\org\openjfx\javafx-base\21.0.2\javafx-base-21.0.2.jar;C:\Users\pyrox\.m2\repository\org\openjfx\javafx-controls\21.0.2\javafx-controls-21.0.2-win.jar;C:\Users\pyrox\.m2\repository\org\openjfx\javafx-controls\21.0.2\javafx-controls-21.0.2.jar;C:\Users\pyrox\.m2\repository\org\openjfx\javafx-fxml\21.0.2\javafx-fxml-21.0.2-win.jar;C:\Users\pyrox\.m2\repository\org\openjfx\javafx-fxml\21.0.2\javafx-fxml-21.0.2.jar;C:\Users\pyrox\.m2\repository\org\openjfx\javafx-graphics\21.0.2\javafx-graphics-21.0.2-win.jar;C:\Users\pyrox\.m2\repository\org\openjfx\javafx-graphics\21.0.2\javafx-graphics-21.0.2.jar;C:\Users\pyrox\.m2\repository\org\openjfx\javafx-swing\21.0.2\javafx-swing-21.0.2-win.jar;C:\Users\pyrox\.m2\repository\org\openjfx\javafx-swing\21.0.2\javafx-swing-21.0.2.jar --add-modules=javafx.base,javafx.controls,javafx.fxml,javafx.graphics,javafx.swing test.MainFX
 
 Host: AMD Ryzen 7 5800H with Radeon Graphics         , 16 cores, 15G,  Windows 11 , 64 bit Build 26100 (10.0.26100.7705)
 Time: Sat Feb 21 19:53:31 2026 W. Central Africa Standard Time elapsed time: 19.675477 seconds (0d 0h 0m 19s)
@@ -66,8 +66,8 @@ j  java.awt.image.Raster.createPackedRaster(III[ILjava/awt/Point;)Ljava/awt/imag
 j  java.awt.image.DirectColorModel.createCompatibleWritableRaster(II)Ljava/awt/image/WritableRaster;+83 java.desktop@25.0.2
 j  java.awt.image.BufferedImage.<init>(III)V+173 java.desktop@25.0.2
 j  javafx.embed.swing.SwingFXUtils.toFXImage(Ljava/awt/image/BufferedImage;Ljavafx/scene/image/WritableImage;)Ljavafx/scene/image/WritableImage;+50 javafx.swing@21.0.2
-j  tn.esprit.projet.utils.CameraUtil.captureJavaFXImage()Ljavafx/scene/image/Image;+11
-j  tn.esprit.projet.utils.FaceCaptureDialog$1.handle(J)V+7
+j  utils.CameraUtil.captureJavaFXImage()Ljavafx/scene/image/Image;+11
+j  utils.FaceCaptureDialog$1.handle(J)V+7
 j  javafx.animation.AnimationTimer$AnimationTimerReceiver.lambda$handle$0(J)Ljava/lang/Void;+5 javafx.graphics@21.0.2
 j  javafx.animation.AnimationTimer$AnimationTimerReceiver$$Lambda+0x000000000f3af068.run()Ljava/lang/Object;+8 javafx.graphics@21.0.2
 J 5190 c2 java.security.AccessController.doPrivileged(Ljava/security/PrivilegedAction;Ljava/security/AccessControlContext;)Ljava/lang/Object; java.base@25.0.2 (9 bytes) @ 0x0000025e9055e92c [0x0000025e9055e900+0x000000000000002c]
@@ -84,9 +84,9 @@ j  com.sun.glass.ui.Application.enterNestedEventLoop()Ljava/lang/Object;+14 java
 j  com.sun.glass.ui.EventLoop.enter()Ljava/lang/Object;+42 javafx.graphics@21.0.2
 j  com.sun.javafx.tk.quantum.QuantumToolkit.enterNestedEventLoop(Ljava/lang/Object;)Ljava/lang/Object;+98 javafx.graphics@21.0.2
 j  javafx.stage.Stage.showAndWait()V+93 javafx.graphics@21.0.2
-j  tn.esprit.projet.utils.FaceCaptureDialog.showAndWait(Ljava/lang/String;)[B+9
-j  tn.esprit.projet.controlles.AjouterPersonne.processFaceIDWithCamera(ILjava/lang/String;)V+147
-j  tn.esprit.projet.controlles.AjouterPersonne.handleFaceIDLogin()V+160
+j  utils.FaceCaptureDialog.showAndWait(Ljava/lang/String;)[B+9
+j  controllers.AjouterPersonne.processFaceIDWithCamera(ILjava/lang/String;)V+147
+j  controllers.AjouterPersonne.handleFaceIDLogin()V+160
 j  java.lang.invoke.LambdaForm$DMH+0x000000000f160400.invokeVirtual(Ljava/lang/Object;Ljava/lang/Object;)V+10 java.base@25.0.2
 j  java.lang.invoke.LambdaForm$MH+0x000000000f160c00.invoke(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;+31 java.base@25.0.2
 J 1611 c1 jdk.internal.reflect.DirectMethodHandleAccessor.invoke(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object; java.base@25.0.2 (92 bytes) @ 0x0000025e88a02c34 [0x0000025e88a01280+0x00000000000019b4]
@@ -1498,7 +1498,7 @@ symbol engine: initialized successfully - sym options: 0x614 - pdb path: .;C:\Us
 
 VM Arguments:
 jvm_args: --enable-native-access=ALL-UNNAMED --module-path=C:\Users\pyrox\.m2\repository\org\openjfx\javafx-base\21.0.2\javafx-base-21.0.2-win.jar;C:\Users\pyrox\.m2\repository\org\openjfx\javafx-base\21.0.2\javafx-base-21.0.2.jar;C:\Users\pyrox\.m2\repository\org\openjfx\javafx-controls\21.0.2\javafx-controls-21.0.2-win.jar;C:\Users\pyrox\.m2\repository\org\openjfx\javafx-controls\21.0.2\javafx-controls-21.0.2.jar;C:\Users\pyrox\.m2\repository\org\openjfx\javafx-fxml\21.0.2\javafx-fxml-21.0.2-win.jar;C:\Users\pyrox\.m2\repository\org\openjfx\javafx-fxml\21.0.2\javafx-fxml-21.0.2.jar;C:\Users\pyrox\.m2\repository\org\openjfx\javafx-graphics\21.0.2\javafx-graphics-21.0.2-win.jar;C:\Users\pyrox\.m2\repository\org\openjfx\javafx-graphics\21.0.2\javafx-graphics-21.0.2.jar;C:\Users\pyrox\.m2\repository\org\openjfx\javafx-swing\21.0.2\javafx-swing-21.0.2-win.jar;C:\Users\pyrox\.m2\repository\org\openjfx\javafx-swing\21.0.2\javafx-swing-21.0.2.jar --add-modules=javafx.base,javafx.controls,javafx.fxml,javafx.graphics,javafx.swing 
-java_command: tn.esprit.projet.test.MainFX
+java_command: test.MainFX
 java_class_path (initial): C:\Users\pyrox\Downloads\JDBC_workshop\JDBC_workshop\target\classes;C:\Users\pyrox\.m2\repository\com\apple\AppleJavaExtensions\1.4\AppleJavaExtensions-1.4.jar;C:\Users\pyrox\.m2\repository\com\github\sarxos\webcam-capture\0.3.12\webcam-capture-0.3.12.jar;C:\Users\pyrox\.m2\repository\com\github\sarxos\webcam-capture-driver-gstreamer\0.3.12\webcam-capture-driver-gstreamer-0.3.12.jar;C:\Users\pyrox\.m2\repository\com\google\protobuf\protobuf-java\3.21.9\protobuf-java-3.21.9.jar;C:\Users\pyrox\.m2\repository\com\googlecode\gstreamer-java\gstreamer-java\1.5\gstreamer-java-1.5.jar;C:\Users\pyrox\.m2\repository\com\mysql\mysql-connector-j\8.0.33\mysql-connector-j-8.0.33.jar;C:\Users\pyrox\.m2\repository\com\nativelibs4java\bridj\0.7.0\bridj-0.7.0.jar;C:\Users\pyrox\.m2\repository\com\sun\mail\javax.mail\1.6.2\javax.mail-1.6.2.jar;C:\Users\pyrox\.m2\repository\javax\activation\activation\1.1\activation-1.1.jar;C:\Users\pyrox\.m2\repository\net\java\dev\jna\jna\3.4.0\jna-3.4.0.jar;C:\Users\pyrox\.m2\repository\net\java\dev\jna\platform\3.4.0\platform-3.4.0.jar;C:\Users\pyrox\.m2\repository\org\eclipse\swt\win32\win32\x86\3.3.0-v3346\x86-3.3.0-v3346.jar;C:\Users\pyrox\.m2\repository\org\openpnp\opencv\4.5.1-2\opencv-4.5.1-2.jar;C:\Users\pyrox\.m2\repository\org\slf4j\slf4j-api\1.7.2\slf4j-api-1.7.2.jar;C:\Users\pyrox\.m2\repository\org\slf4j\slf4j-simple\2.0.9\slf4j-simple-2.0.9.jar
 Launcher Type: SUN_STANDARD
 

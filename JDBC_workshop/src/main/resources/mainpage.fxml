@@ -9,7 +9,7 @@
 <?import javafx.geometry.*?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="tn.esprit.projet.controlles.MainPageController"
+            fx:controller="controllers.MainPageController"
             prefWidth="1300"
             prefHeight="800"
             style="-fx-background-color: #f8faff;">

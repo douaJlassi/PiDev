@@ -8,7 +8,7 @@
 
 <?import javafx.scene.effect.DropShadow?>
 <StackPane xmlns:fx="http://javafx.com/fxml"
-           fx:controller="tn.esprit.projet.controlles.AjouterPersonne"
+           fx:controller="controllers.AjouterPersonne"
            prefWidth="1000" prefHeight="787">
 
     <!-- Background -->

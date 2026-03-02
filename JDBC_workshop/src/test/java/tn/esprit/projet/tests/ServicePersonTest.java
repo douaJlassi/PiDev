@@ -1,8 +1,8 @@
-package tn.esprit.projet.tests;
+package tests;
 
 import org.junit.jupiter.api.*;
-import tn.esprit.projet.entities.Person;
-import tn.esprit.projet.services.PersonService;
+import entities.Person;
+import services.PersonService;
 
 import java.sql.Date;
 import java.sql.SQLException;

@@ -8,7 +8,7 @@
 <?import javafx.scene.text.*?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="tn.esprit.projet.controlles.AIClassifierController"
+            fx:controller="controllers.AIClassifierController"
             prefWidth="1200"
             prefHeight="800"
             style="-fx-background-color: linear-gradient(to bottom right, #1a2a3a, #0d1a26);">
