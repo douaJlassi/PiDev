@@ -121,7 +121,7 @@ public class FaceRecognitionUtil {
     }
 
     /**
-     * Detect face in image and return face region
+     * ULTRA-TOLERANT face detection - matches the successful parameters from EnhancedFaceCaptureDialog
      */
     public Mat detectFace(byte[] imageData) {
         if (!opencvLoaded || faceDetector == null || faceDetector.empty()) {
@@ -136,21 +136,86 @@ public class FaceRecognitionUtil {
                 return null;
             }
 
+            int originalWidth = image.cols();
+            int originalHeight = image.rows();
+            System.out.println("📸 Processing image: " + originalWidth + "x" + originalHeight);
+
+            // Convert to grayscale
             Mat gray = new Mat();
             cvtColor(image, gray, COLOR_BGR2GRAY);
+
+            // Enhance contrast
             equalizeHist(gray, gray);
 
-            RectVector faceDetections = new RectVector();
-            faceDetector.detectMultiScale(gray, faceDetections, 1.1, 3, 0, new Size(100, 100), new Size(500, 500));
+            // EXACTLY the same parameter sets that worked in EnhancedFaceCaptureDialog
+            int[][] paramSets = {
+                    {3, 100, 1},  // min neighbors 3, min size 100, scale 1.1
+                    {2, 80, 1},   // min neighbors 2, min size 80, scale 1.1
+                    {1, 60, 1},   // min neighbors 1, min size 60, scale 1.1
+                    {2, 60, 2},   // min neighbors 2, min size 60, scale 1.05
+                    {1, 40, 2},   // min neighbors 1, min size 40, scale 1.05
+                    {1, 30, 2},   // Even smaller
+                    {1, 20, 2},   // Very small
+                    {1, 15, 3}    // Minimum size
+            };
 
-            if (faceDetections.empty()) {
-                System.out.println("❌ No face detected");
-                return null;
+            RectVector faceDetections = new RectVector();
+            boolean found = false;
+
+            for (int[] params : paramSets) {
+                double scaleFactor = params[2] == 1 ? 1.1 : (params[2] == 2 ? 1.05 : 1.03);
+
+                faceDetector.detectMultiScale(
+                        gray,
+                        faceDetections,
+                        scaleFactor,
+                        params[0],
+                        0,
+                        new Size(params[1], params[1]),
+                        new Size(gray.cols(), gray.rows())
+                );
+
+                if (!faceDetections.empty()) {
+                    System.out.println("✅ Face detected with parameters: minNeighbors=" + params[0] +
+                            ", minSize=" + params[1] + ", scale=" + scaleFactor);
+                    found = true;
+                    break;
+                }
             }
 
-            Rect face = faceDetections.get(0);
+            if (!found) {
+                // Last resort: extremely tolerant detection
+                System.out.println("⚠️ Trying extremely tolerant detection...");
+                faceDetector.detectMultiScale(
+                        gray,
+                        faceDetections,
+                        1.01,  // very small scale factor
+                        1,     // min neighbors = 1
+                        0,
+                        new Size(15, 15),
+                        new Size(gray.cols(), gray.rows())
+                );
 
-            // Add margin for better capture
+                if (faceDetections.empty()) {
+                    System.out.println("❌ No face detected after all attempts");
+                    return null;
+                }
+                System.out.println("✅ Face detected with extremely tolerant parameters");
+            }
+
+            // Get the largest face
+            Rect face = faceDetections.get(0);
+            for (int i = 1; i < faceDetections.size(); i++) {
+                Rect r = faceDetections.get(i);
+                if (r.width() * r.height() > face.width() * face.height()) {
+                    face = r;
+                }
+            }
+
+            System.out.println("✅ Face found at: x=" + face.x() + " y=" + face.y() +
+                    " w=" + face.width() + " h=" + face.height());
+
+            // Add margin
             int margin = 30;
             int x = Math.max(0, face.x() - margin);
             int y = Math.max(0, face.y() - margin);
@@ -159,10 +224,11 @@ public class FaceRecognitionUtil {
 
             Mat faceROI = new Mat(gray, new Rect(x, y, w, h));
 
+            // Resize to standard size
             Mat resized = new Mat();
             resize(faceROI, resized, new Size(200, 200));
 
-            System.out.println("✅ Face detected and extracted, size: " + resized.size());
+            System.out.println("✅ Face extracted and resized to 200x200");
             return resized;
 
         } catch (Exception e) {
@@ -190,6 +256,8 @@ public class FaceRecognitionUtil {
 
             // Build model immediately
             buildModel();
+        } else {
+            System.out.println("❌ Could not detect face in training image");
         }
     }
 
@@ -441,6 +509,8 @@ public class FaceRecognitionUtil {
             return null;
         }
 
+        System.out.println("Extracting face features from image: " + (imageData != null ? imageData.length + " bytes" : "null"));
+
         Mat face = detectFace(imageData);
         if (face == null || face.empty()) {
             System.out.println("❌ No face detected, cannot extract features");
@@ -477,12 +547,21 @@ public class FaceRecognitionUtil {
 
                         System.out.println("✅ Face features extracted, size: " + result.length + " bytes");
                         return result;
+                    } else {
+                        System.out.println("❌ Data pointer is null or size is 0");
                     }
+                } else {
+                    System.out.println("❌ Encoded mat is null or empty");
                 }
+            } else {
+                System.out.println("❌ imencode failed or buf is empty");
+
+                // Fallback: try ImageIO method
+                System.out.println("Trying ImageIO fallback...");
+                return extractFaceFeaturesImageIO(imageData);
             }
 
-            // Fallback: try ImageIO method
-            return extractFaceFeaturesImageIO(imageData);
+            return null;
 
         } catch (Exception e) {
             System.err.println("❌ Error extracting face features: " + e.getMessage());

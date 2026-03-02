@@ -887,7 +887,7 @@ public class ShowprofileController {
             Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
             confirm.setTitle("Enable Face ID");
             confirm.setHeaderText("Set up Face ID");
-            confirm.setContentText("This will open your camera to capture your face. Continue?");
+            confirm.setContentText("This will open your camera to capture your face. Make sure your face is clearly visible and well-lit.\n\nContinue?");
 
             Optional<ButtonType> result = confirm.showAndWait();
             if (result.isPresent() && result.get() == ButtonType.OK) {
@@ -902,8 +902,21 @@ public class ShowprofileController {
             faceIDButton.setText("OFF");
             faceIDButton.setStyle("-fx-background-color: #ff5e62; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: hand;");
 
-            // Disable Face ID
-            disableFaceID();
+            // Confirm before disabling
+            Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+            confirm.setTitle("Disable Face ID");
+            confirm.setHeaderText("Disable Face ID");
+            confirm.setContentText("Are you sure you want to disable Face ID?");
+
+            Optional<ButtonType> result = confirm.showAndWait();
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                disableFaceID();
+            } else {
+                // Revert UI
+                faceIDEnabled = true;
+                faceIDButton.setText("ON");
+                faceIDButton.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: hand;");
+            }
         }
     }
 
@@ -918,21 +931,29 @@ public class ShowprofileController {
                 cameraIndex = selectedCamera;
             }
 
-            System.out.println("Opening Face Capture Dialog with camera: " + cameraIndex);
+            System.out.println("🎥 Opening Face Capture Dialog with camera: " + cameraIndex);
+
+            // Show loading indicator
+            ProgressIndicator loadingIndicator = new ProgressIndicator();
+            loadingIndicator.setMaxSize(30, 30);
+            faceIDSetup.getChildren().add(loadingIndicator);
+
             EnhancedFaceCaptureDialog dialog = new EnhancedFaceCaptureDialog(cameraIndex);
             byte[] faceData = dialog.showAndWait("setup");
+
+            faceIDSetup.getChildren().remove(loadingIndicator);
 
             System.out.println("Face capture result: " + (faceData != null ? "Success (" + faceData.length + " bytes)" : "Failed/Null"));
 
             if (faceData != null && faceData.length > 0) {
-                // Save to database
+                // Save to database - this is raw face image, not features
                 personService.saveFaceData(currentUser.getId(), faceData);
-                System.out.println("Face data saved to database");
+                System.out.println("✅ Face data saved to database");
 
-                // Train the recognizer
+                // Optional: train the recognizer if you want LBPH
                 FaceRecognitionUtil faceUtil = new FaceRecognitionUtil();
                 faceUtil.trainFace(currentUser.getId(), faceData);
-                System.out.println("Face recognizer trained");
+                System.out.println("✅ Face recognizer trained");
 
                 // Update UI
                 faceIDEnabled = true;
@@ -943,12 +964,22 @@ public class ShowprofileController {
 
                 showAlert("Success", "Face ID has been set up successfully!", Alert.AlertType.INFORMATION);
             } else {
-                System.out.println("No face data captured or data is empty");
-                showAlert("Info", "Face capture was cancelled or failed.", Alert.AlertType.INFORMATION);
+                System.out.println("❌ No face data captured or data is empty");
+                showAlert("Info", "Face capture was cancelled or failed. Please ensure your face is clearly visible and try again.", Alert.AlertType.WARNING);
+
+                // Revert UI
+                faceIDEnabled = false;
+                faceIDButton.setText("OFF");
+                faceIDButton.setStyle("-fx-background-color: #ff5e62; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: hand;");
             }
         } catch (SQLException e) {
             e.printStackTrace();
             showAlert("Error", "Failed to save face data: " + e.getMessage(), Alert.AlertType.ERROR);
+
+            // Revert UI
+            faceIDEnabled = false;
+            faceIDButton.setText("OFF");
+            faceIDButton.setStyle("-fx-background-color: #ff5e62; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: hand;");
         }
     }
     private void disableFaceID() {

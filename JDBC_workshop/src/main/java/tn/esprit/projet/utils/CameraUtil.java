@@ -100,6 +100,7 @@ public class CameraUtil {
                     maxPixels = pixels;
                     bestSize = size;
                 }
+
             }
         }
 
@@ -295,5 +296,40 @@ public class CameraUtil {
      */
     public int getCurrentHeight() {
         return currentHeight;
+    }
+
+
+    /**
+     * Force a specific resolution for better face detection
+     */
+    public boolean setFixedResolution(int width, int height) {
+        if (webcam == null) return false;
+
+        try {
+            Dimension targetSize = new Dimension(width, height);
+
+            // Check if this resolution is supported
+            boolean supported = false;
+            for (Dimension size : webcam.getViewSizes()) {
+                if (size.width == width && size.height == height) {
+                    supported = true;
+                    break;
+                }
+            }
+
+            if (supported) {
+                webcam.setViewSize(targetSize);
+                currentWidth = width;
+                currentHeight = height;
+                System.out.println("✅ Fixed resolution set to: " + width + "x" + height);
+                return true;
+            } else {
+                System.out.println("⚠️ Resolution " + width + "x" + height + " not supported");
+                return false;
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to set fixed resolution: " + e.getMessage());
+            return false;
+        }
     }
 }

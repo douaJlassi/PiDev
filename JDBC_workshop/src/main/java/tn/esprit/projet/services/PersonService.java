@@ -340,13 +340,49 @@ public class PersonService implements CRUD<Person> {
     /**
      * Save face data for a user
      */
+    /**
+     * Save face data for a user with better error handling
+     */
+    /**
+     * Save face data for a user - simplified version
+     */
     public void saveFaceData(int userId, byte[] faceData) throws SQLException {
         String query = "UPDATE `user` SET face_data = ? WHERE id = ?";
         try (PreparedStatement ps = cnx.prepareStatement(query)) {
-            ps.setBytes(1, faceData);
+            if (faceData != null && faceData.length > 0) {
+                ps.setBytes(1, faceData);
+                System.out.println("📸 Saving face data for user ID: " + userId + ", size: " + faceData.length + " bytes");
+            } else {
+                ps.setNull(1, Types.BLOB);
+                System.out.println("❌ No face data to save or data is empty");
+            }
             ps.setInt(2, userId);
-            ps.executeUpdate();
-            System.out.println("Face data saved for user ID: " + userId);
+
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("✅ Face data saved successfully for user ID: " + userId);
+            } else {
+                System.err.println("❌ Failed to save face data - user ID " + userId + " not found");
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ SQL Error saving face data: " + e.getMessage());
+            throw e;
+        }
+    }
+
+    /**
+     * Add face_data column to user table if it doesn't exist
+     */
+    private void addFaceDataColumn() throws SQLException {
+        try {
+            String sql = "ALTER TABLE `user` ADD COLUMN face_data LONGBLOB NULL";
+            try (Statement st = cnx.createStatement()) {
+                st.execute(sql);
+                System.out.println("✅ face_data column added to user table");
+            }
+        } catch (SQLException e) {
+            System.err.println("Failed to add face_data column: " + e.getMessage());
+            // Column might already exist
         }
     }
 

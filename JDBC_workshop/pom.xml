@@ -110,7 +110,7 @@
             <version>2.10.1</version>
         </dependency>
 
-        <!-- Deep Learning for Java (DL4J) - Optional, remove if not needed -->
+        <!-- deep learning  -->
         <!--
         <dependency>
             <groupId>org.deeplearning4j</groupId>
