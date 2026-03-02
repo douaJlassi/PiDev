@@ -7,7 +7,7 @@
 <?import javafx.scene.shape.Circle?>
 
 <VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="Controllers.PostCardController"
+      fx:controller="controllers.PostCardController"
       styleClass="post-card-grid">
 
     <!-- ===== HEADER ===== -->

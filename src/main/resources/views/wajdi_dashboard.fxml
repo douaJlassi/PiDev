@@ -8,7 +8,7 @@
 <?import javafx.scene.shape.Circle?>
 
 <BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="Controllers.WajdiDashboardController"
+            fx:controller="controllers.WajdiDashboardController"
             styleClass="dashboard-root"
             stylesheets="@../styles/dashboard.css">
 

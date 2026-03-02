@@ -1,4 +1,4 @@
-package Controllers;
+package controllers;
 
 import entities.Comment;
 import entities.Publication;

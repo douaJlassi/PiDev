@@ -1,4 +1,4 @@
-package Controllers;
+package controllers;
 
 import javafx.scene.Scene;
 import javafx.scene.control.DialogPane;
@@ -20,7 +20,7 @@ import java.util.Set;
  *
  * 2. WajdiDashboardController.showPostFormPanel() sets hardcoded inline styles like
  *    setStyle("-fx-background-color: white"). Inline styles always beat CSS rules.
- *    FIX: addChangeListener() lets Controllers update their inline-styled nodes
+ *    FIX: addChangeListener() lets controllers update their inline-styled nodes
  *    whenever the theme toggles.
  */
 public class ThemeManager {

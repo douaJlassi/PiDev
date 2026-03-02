@@ -6,7 +6,7 @@
 <?import javafx.scene.shape.Rectangle?>
 
 <StackPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="Controllers.AgencyLoginController"
+           fx:controller="controllers.AgencyLoginController"
            stylesheets="@../styles/dashboard.css"
            styleClass="login-root">
 

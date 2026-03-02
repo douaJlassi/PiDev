@@ -1,4 +1,4 @@
-package Controllers;
+package controllers;
 
 import entities.Client;
 import entities.Publication;
@@ -85,7 +85,7 @@ public class WajdiDashboardController {
     private CommentService commentService;
     private LikeService likeService;
 
-    // Sub-Controllers
+    // Sub-controllers
     private PostController postController;
     private CommentController commentController;
     private LikeController likeController;
@@ -119,7 +119,7 @@ public class WajdiDashboardController {
             sidebarRole.setText("USER");
         }
 
-        // Initialize sub-Controllers
+        // Initialize sub-controllers
         postController    = new PostController(publicationService, currentUser, this);
         commentController = new CommentController(commentService, currentUser, this);
         likeController    = new LikeController(likeService, currentUser, this);
@@ -461,7 +461,7 @@ public class WajdiDashboardController {
         }
     }
 
-    // Utility methods for sub-Controllers
+    // Utility methods for sub-controllers
     public void showSuccess(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Success");
@@ -489,7 +489,7 @@ public class WajdiDashboardController {
         alert.showAndWait();
     }
 
-    // Getters for sub-Controllers
+    // Getters for sub-controllers
     public Client getCurrentUser()               { return currentUser; }
     public StackPane getContentContainer()        { return contentContainer; }
     public PostController getPostController()     { return postController; }

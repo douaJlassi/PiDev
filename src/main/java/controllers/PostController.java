@@ -1,4 +1,4 @@
-package Controllers;
+package controllers;
 
 import entities.Client;
 import entities.Publication;
