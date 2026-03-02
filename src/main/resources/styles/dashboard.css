@@ -1304,6 +1304,19 @@ Light BG: #f0f2f5
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 4, 0, 0, 1);
 }
 
+/* Close button on white map header — override default white-on-white */
+.map-header .close-detail-btn {
+    -fx-background-color: #f0f2f5;
+    -fx-text-fill: #1a1d27;
+    -fx-border-color: #d0d3db;
+    -fx-border-width: 1;
+    -fx-border-radius: 50;
+}
+.map-header .close-detail-btn:hover {
+    -fx-background-color: #e4e6eb;
+    -fx-text-fill: #1a1d27;
+}
+
 .map-header-title {
     -fx-font-size: 17px;
     -fx-font-weight: 700;

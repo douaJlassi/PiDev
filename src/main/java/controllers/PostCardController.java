@@ -33,15 +33,17 @@ public class PostCardController {
     @FXML private Circle   avatarCircle;
     @FXML private Label    authorNameLabel;
     @FXML private Label    dateLabel;
-    @FXML private Label    placeDot;
     @FXML private Label    placeLabel;
     @FXML private Button   menuBtn;
+    @FXML private HBox     metaBox;      // second-row container for place+weather
 
     // ── PHASE 4B: Weather badge ─────────────────────────────────────────────
     @FXML private HBox     weatherBadge;
-    @FXML private HBox     metaBox;
     @FXML private ImageView weatherIcon;
     @FXML private Label    weatherText;
+
+    // ── Stats bar ────────────────────────────────────────────────────────────
+    @FXML private HBox     statsBar;     // hidden when no likes or comments
 
     // ── Content ──────────────────────────────────────────────────────────────
     @FXML private Label    contentLabel;
@@ -95,11 +97,11 @@ public class PostCardController {
         // Date
         dateLabel.setText(DATE_FMT.format(publication.getDatePublication()));
 
-        // Place — show second-row metaBox containing place tag + weather
+        // Place — show second row (metaBox) containing place tag + weather
         if (publication.getPlace() != null && !publication.getPlace().isEmpty()) {
-            metaBox.setVisible(true);  metaBox.setManaged(true);
             placeLabel.setVisible(true); placeLabel.setManaged(true);
             placeLabel.setText("📍 " + publication.getPlace());
+            metaBox.setVisible(true);    metaBox.setManaged(true);
         }
 
         // Content
@@ -117,8 +119,8 @@ public class PostCardController {
             }
         }
 
-        // Stats
-        int likesCount = publication.getLikes() != null ? publication.getLikes().size() : 0;
+        // Stats — only show the bar when there is something to display
+        int likesCount    = publication.getLikes()    != null ? publication.getLikes().size()    : 0;
         int commentsCount = publication.getComments() != null ? publication.getComments().size() : 0;
 
         if (likesCount > 0) {
@@ -130,6 +132,11 @@ public class PostCardController {
             commentsStatLabel.setText("💬 " + commentsCount);
             commentsStatLabel.setVisible(true);
             commentsStatLabel.setManaged(true);
+        }
+        // Show the bar itself only when at least one stat is populated
+        if (likesCount > 0 || commentsCount > 0) {
+            statsBar.setVisible(true);
+            statsBar.setManaged(true);
         }
 
         // Like button (delegated)
@@ -157,7 +164,7 @@ public class PostCardController {
         // Weather from a week ago is not relevant/accurate
         long postAgeHours = (System.currentTimeMillis() -
                 publication.getDatePublication().getTime()) / (1000 * 60 * 60);
-        if (postAgeHours > 720) { // 168 hours = 7 days
+        if (postAgeHours > 720) { // 720 hours = 30 days (matches PostDetailController)
             return; // Old post = skip weather
         }
 

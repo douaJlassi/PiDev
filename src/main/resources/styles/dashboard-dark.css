@@ -505,6 +505,20 @@
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 4, 0, 0, 1);
 }
 
+/* Close button on dark map header */
+.map-header .close-detail-btn {
+    -fx-background-color: #22263a;
+    -fx-text-fill: #e8eaf0;
+    -fx-border-color: #2e3250;
+    -fx-border-width: 1;
+    -fx-border-radius: 50;
+}
+.map-header .close-detail-btn:hover {
+    -fx-background-color: rgba(220,38,38,0.15);
+    -fx-text-fill: #f87171;
+    -fx-border-color: rgba(220,38,38,0.3);
+}
+
 .map-header-title {
     -fx-text-fill: #e8eaf0;
 }

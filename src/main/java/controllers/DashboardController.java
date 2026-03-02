@@ -511,14 +511,7 @@ public class DashboardController {
             try {
                 MapController mapCtrl = new MapController();
                 mapCtrl.setOnClose(this::hideMapView);
-                // Pass 'this' so MapController.dashboard is set — required for
-                // the "Open →" popup button to open PostDetailController correctly.
                 Parent mapContent = mapCtrl.loadForOverlay(this);
-                // Make the BorderPane fill the entire overlay StackPane so the
-                // header (with the close button) is always fully visible.
-                javafx.scene.layout.Region mapRegion = (javafx.scene.layout.Region) mapContent;
-                mapRegion.setMaxWidth(Double.MAX_VALUE);
-                mapRegion.setMaxHeight(Double.MAX_VALUE);
                 mapOverlay.getChildren().setAll(mapContent);
                 mapLoaded = true;
             } catch (IOException e) {
