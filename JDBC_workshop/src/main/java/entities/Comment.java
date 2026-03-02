@@ -1,9 +1,13 @@
 package entities;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 
-public class Comment {
+public class Comment implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     private int commentID;
     private int publicationID;
     private String content;
@@ -15,57 +19,36 @@ public class Comment {
     public Comment() {}
 
     // Full constructor
-    public Comment(Client client, Publication publication, int commentID, int publicationID, String content, Date commentDate) {
-        this.commentID = commentID;
+    public Comment(Client client, Publication publication, int commentID, int publicationID,
+                   String content, Date commentDate) {
+        this.commentID     = commentID;
         this.publicationID = publicationID;
-        this.content = content;
-        this.commentDate = commentDate;
-        this.client = client;
-        this.publication = publication;
+        this.content       = content;
+        this.commentDate   = commentDate;
+        this.client        = client;
+        this.publication   = publication;
     }
 
     // Constructor for new comment (without ID)
     public Comment(Client client, Publication publication, String content, Date commentDate) {
-        this.client = client;
-        this.publication = publication;
+        this.client        = client;
+        this.publication   = publication;
         this.publicationID = publication != null ? publication.getPublicationID() : 0;
-        this.content = content;
-        this.commentDate = commentDate;
+        this.content       = content;
+        this.commentDate   = commentDate;
     }
 
     // Getters
-    public int getCommentID() {
-        return commentID;
-    }
-
-    public int getPublicationID() {
-        return publicationID;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public Date getCommentDate() {
-        return commentDate;
-    }
-
-    public Client getClient() {
-        return client;
-    }
-
-    public Publication getPublication() {
-        return publication;
-    }
+    public int    getCommentID()     { return commentID; }
+    public int    getPublicationID() { return publicationID; }
+    public String getContent()       { return content; }
+    public Date   getCommentDate()   { return commentDate; }
+    public Client getClient()        { return client; }
+    public Publication getPublication() { return publication; }
 
     // Setters
-    public void setCommentID(int commentID) {
-        this.commentID = commentID;
-    }
-
-    public void setPublicationID(int publicationID) {
-        this.publicationID = publicationID;
-    }
+    public void setCommentID(int commentID)         { this.commentID = commentID; }
+    public void setPublicationID(int publicationID) { this.publicationID = publicationID; }
 
     public void setContent(String content) {
         if (content == null || content.trim().isEmpty()) {
@@ -74,13 +57,8 @@ public class Comment {
         this.content = content;
     }
 
-    public void setCommentDate(Date commentDate) {
-        this.commentDate = commentDate;
-    }
-
-    public void setClient(Client client) {
-        this.client = client;
-    }
+    public void setCommentDate(Date commentDate) { this.commentDate = commentDate; }
+    public void setClient(Client client)         { this.client = client; }
 
     public void setPublication(Publication publication) {
         this.publication = publication;
@@ -98,21 +76,16 @@ public class Comment {
     public String getTimeAgo() {
         if (commentDate == null) return "";
 
-        long diff = new Date().getTime() - commentDate.getTime();
+        long diff    = new Date().getTime() - commentDate.getTime();
         long seconds = diff / 1000;
         long minutes = seconds / 60;
-        long hours = minutes / 60;
-        long days = hours / 24;
+        long hours   = minutes / 60;
+        long days    = hours / 24;
 
-        if (days > 0) {
-            return days + " day" + (days > 1 ? "s" : "") + " ago";
-        } else if (hours > 0) {
-            return hours + " hour" + (hours > 1 ? "s" : "") + " ago";
-        } else if (minutes > 0) {
-            return minutes + " minute" + (minutes > 1 ? "s" : "") + " ago";
-        } else {
-            return "Just now";
-        }
+        if (days > 0)    return days    + " day"    + (days    > 1 ? "s" : "") + " ago";
+        if (hours > 0)   return hours   + " hour"   + (hours   > 1 ? "s" : "") + " ago";
+        if (minutes > 0) return minutes + " minute" + (minutes > 1 ? "s" : "") + " ago";
+        return "Just now";
     }
 
     @Override
@@ -124,9 +97,7 @@ public class Comment {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(commentID);
-    }
+    public int hashCode() { return Objects.hash(commentID); }
 
     @Override
     public String toString() {

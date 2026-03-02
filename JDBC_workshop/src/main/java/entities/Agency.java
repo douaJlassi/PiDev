@@ -1,12 +1,16 @@
 package entities;
 
+import java.io.Serializable;
+
 /**
  * Agency — a travel agency registered on the Rehletna platform.
  *
  * Agencies have their own login (email + password) and can moderate
  * posts that travellers tag them in.
  */
-public class Agency {
+public class Agency implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private int    agencyID;
     private String name;
