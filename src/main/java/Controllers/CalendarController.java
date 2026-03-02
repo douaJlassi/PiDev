@@ -1,4 +1,4 @@
-package controllers;
+package Controllers;
 
 import services.ActiviteService;
 import gestion_activite.Activite;

@@ -6,7 +6,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.web.WebView?>
 
-<VBox prefHeight="630.0" prefWidth="800.0" spacing="10.0" style="-fx-background-color: #F4F7F6;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.BackofficeController">
+<VBox prefHeight="630.0" prefWidth="800.0" spacing="10.0" style="-fx-background-color: #F4F7F6;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.BackofficeController">
     <children>
         <Label text="Messaging Intelligence Dashboard" textFill="#0d3b66">
             <font>

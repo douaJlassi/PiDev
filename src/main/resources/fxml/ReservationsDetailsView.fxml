@@ -8,7 +8,7 @@
 <VBox spacing="20" styleClass="dash-content"
       xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="controllers.ReservationDetailsController">
+      fx:controller="Controllers.ReservationDetailsController">
 
     <padding>
         <Insets top="25" right="25" bottom="25" left="25"/>

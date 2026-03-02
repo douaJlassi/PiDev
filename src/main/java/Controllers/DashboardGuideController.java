@@ -1,4 +1,4 @@
-package controllers;
+package Controllers;
 import javafx.scene.chart.*;
 import javafx.scene.layout.*;
 import javafx.scene.control.*;
@@ -948,7 +948,7 @@ public class DashboardGuideController {
             List<ReservationDetail> details = getReservationsForActivity(activite.getIdActivite());
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ReservationDetailsView.fxml"));
             Parent root = loader.load();
-            ReservationDetailsController controller = loader.getController();
+            Controllers.ReservationDetailsController controller = loader.getController();
             controller.setReservations(details);
 
             Stage stage = new Stage();

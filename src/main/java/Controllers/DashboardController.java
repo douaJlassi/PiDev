@@ -1,4 +1,4 @@
-package controllers;
+package Controllers;
 
 
 import javafx.application.Platform;
@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
-import services.ServiceMessage;
+import Services.ServiceMessage;
 import utils.EventBus;
 import utils.NotificationUtils;
 
@@ -110,7 +110,7 @@ public class DashboardController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/MesAchats.fxml"));
             Node view = loader.load();
-            MesAchatsController controller = loader.getController();
+            Controllers.MesAchatsController controller = loader.getController();
             controller.setClientId(clientId);
             controller.setDashboardController(this);
 
@@ -219,7 +219,7 @@ public class DashboardController {
             Parent root = loader.load();
 
             Stage stage = new Stage();
-            ReservationController controller = loader.getController();
+            Controllers.ReservationController controller = loader.getController();
             controller.setActivite(activite);
             controller.setStage(stage);
             controller.setClientId(clientId);

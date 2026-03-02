@@ -1,4 +1,4 @@
-package controllers;
+package Controllers;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -8,7 +8,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
-import services.ServiceMessage;
+import Services.ServiceMessage;
 
 import java.io.IOException;
 import java.sql.SQLException;

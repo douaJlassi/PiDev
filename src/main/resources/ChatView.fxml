@@ -7,7 +7,7 @@
 
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.effect.DropShadow?>
-<HBox prefHeight="630.0" prefWidth="800.0" style="-fx-background-color: #F4F7F6;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.ChatView">
+<HBox prefHeight="630.0" prefWidth="800.0" style="-fx-background-color: #F4F7F6;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.ChatView">
     <children>
 
         <VBox prefWidth="280.0" style="-fx-background-color: white; -fx-border-color: #E0E0E0; -fx-border-width: 0 1 0 0;">

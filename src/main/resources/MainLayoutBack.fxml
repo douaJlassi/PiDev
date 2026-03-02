@@ -8,7 +8,7 @@
 <?import javafx.scene.image.Image?>
 <BorderPane fx:id="mainBorderPane" prefHeight="700.0" prefWidth="1000.0"
             xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="controllers.MainLayoutBack">
+            fx:controller="Controllers.MainLayoutBack">
 
     <left>
         <VBox fx:id="sideBar" prefWidth="200" spacing="10.0" style="-fx-background-color: #0077B6;" BorderPane.alignment="CENTER">

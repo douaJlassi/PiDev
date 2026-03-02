@@ -20,7 +20,7 @@
 <?import javafx.scene.text.Font?>
 <HBox prefHeight="800.0" prefWidth="1200.0" stylesheets="@style.css"
       xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="controllers.DashboardController"
+      fx:controller="Controllers.DashboardController"
       styleClass="root-panel">
 
     <VBox prefWidth="260.0" spacing="0" styleClass="sidebar-new">

@@ -1,5 +1,6 @@
-package controllers;
+package Controllers;
 
+import Controllers.DashboardGuideController;
 import gestion_activite.Activite;
 import services.ActiviteService;
 import javafx.fxml.FXML;

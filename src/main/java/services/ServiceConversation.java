@@ -1,4 +1,4 @@
-package services;
+package Services;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import entities.Conversation;
@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.sql.*;
 import java.util.*;
 
-public class ServiceConversation implements CRUD<Conversation>{
+public class ServiceConversation implements services.CRUD<Conversation> {
 
     /*private Connection cnx;
     public ServiceConversation(){

@@ -1,4 +1,4 @@
-package controllers;
+package Controllers;
 
 import entities.*;
 import javafx.application.Platform;
@@ -27,9 +27,9 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import services.ServiceConversation;
-import services.ServiceMessage;
-import services.ServiceParticipantConversation;
+import Services.ServiceConversation;
+import Services.ServiceMessage;
+import Services.ServiceParticipantConversation;
 import services.ServiceUtilisateur;
 import utils.AudioRecorder;
 

@@ -1,4 +1,4 @@
-package controllers;
+package Controllers;
 
 import entities.ServiceDetails;
 import javafx.fxml.FXML;

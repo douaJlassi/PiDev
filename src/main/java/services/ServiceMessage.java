@@ -1,5 +1,6 @@
-package services;
+package Services;
 
+import Services.ServiceConversation;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import entities.Conversation;
 import entities.Message;
@@ -15,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ServiceMessage implements CRUD<Message>{
+public class ServiceMessage implements services.CRUD<Message> {
 
     /*private Connection cnx;
     public ServiceMessage(){
@@ -26,7 +27,7 @@ public class ServiceMessage implements CRUD<Message>{
     private ElasticsearchClient esClient= ElasticSearchClient.getInstance();
 
     private ServiceConversation serConv = new ServiceConversation();
-    private ServiceUtilisateur serUtilisateur = new ServiceUtilisateur();
+    private services.ServiceUtilisateur serUtilisateur = new services.ServiceUtilisateur();
 
     @Override
     public void insertOne(Message message) throws SQLException {

@@ -1,4 +1,4 @@
-package controllers;
+package Controllers;
 
 import services.AchatService;
 import services.ActiviteService;

@@ -6,7 +6,7 @@
 <?import javafx.scene.shape.SVGPath?>
 
 <VBox xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="controllers.ServiceCardController"
+      fx:controller="Controllers.ServiceCardController"
       spacing="10"
       styleClass="card"
       style="-fx-padding: 15; -fx-border-color: #F1F5F9; -fx-border-width: 0 0 0 4; -fx-border-color: -brand-teal;">

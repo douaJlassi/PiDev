@@ -1,5 +1,7 @@
-package controllers;
+package Controllers;
 
+import Controllers.CartViewController;
+import Controllers.MyReservationsController;
 import app.Session;
 import entities.SearchCriteria;
 import javafx.concurrent.Task;
@@ -12,7 +14,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import entities.Agency;
 import javafx.scene.layout.VBox;
-import services.AISearchService;
+import Services.AISearchService;
 
 public class MyDashboardController {
 
@@ -335,7 +337,7 @@ public class MyDashboardController {
             pushFilterToCurrentView();
 
             // cart needs manual load
-            if (currentController instanceof controllers.CartViewController c) {
+            if (currentController instanceof CartViewController c) {
                 c.loadCart();
             }
             if (currentController instanceof MyReservationsController r) {
@@ -357,7 +359,7 @@ public class MyDashboardController {
         }
     }
     private void pushFilterToCurrentView() {
-        if (currentController instanceof controllers.OfferFilterAware aware) {
+        if (currentController instanceof Controllers.OfferFilterAware aware) {
             aware.applyFilter(offerFilter);
         }
     }

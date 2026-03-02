@@ -1,8 +1,11 @@
 package utils;
 
+import Services.ServiceConversation;
+import Services.ServiceMessage;
+import Services.ServiceParticipantConversation;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import entities.*;
-import services.*;
+import Services.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +18,7 @@ public class MigrationTool {
         ServiceConversation serConv = new ServiceConversation();
         ServiceMessage serMsg = new ServiceMessage();
         ServiceParticipantConversation serPart = new ServiceParticipantConversation();
-        ServiceUtilisateur serUser = new ServiceUtilisateur();
+        services.ServiceUtilisateur serUser = new services.ServiceUtilisateur();
 
         System.out.println("🚀 DÉBUT DE LA MIGRATION VERS ELASTICSEARCH...");
 

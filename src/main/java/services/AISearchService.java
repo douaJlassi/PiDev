@@ -1,4 +1,4 @@
-package services;
+package Services;
 
 import com.google.genai.Client;
 import com.google.genai.types.*;
@@ -9,6 +9,7 @@ import entities.SearchCriteria;
 public class AISearchService {
 
     // Initialize the Gemini Client
+    private static String API_KEY="";
     private static final Client client = Client.builder()
             .apiKey(API_KEY)
             .build();

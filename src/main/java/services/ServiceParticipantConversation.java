@@ -1,5 +1,6 @@
-package services;
+package Services;
 
+import Services.ServiceConversation;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import entities.Conversation;
 import entities.Message;
@@ -13,12 +14,12 @@ import java.sql.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ServiceParticipantConversation implements CRUD<ParticipantConversation> {
+public class ServiceParticipantConversation implements services.CRUD<ParticipantConversation> {
 
     private ElasticsearchClient esClient= ElasticSearchClient.getInstance();
 
     private ServiceConversation serCnv = new ServiceConversation();
-    private ServiceUtilisateur serUser = new ServiceUtilisateur();
+    private services.ServiceUtilisateur serUser = new services.ServiceUtilisateur();
 
     @Override
     public void insertOne(ParticipantConversation pc) throws SQLException {
