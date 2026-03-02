@@ -39,6 +39,7 @@ public class PostCardController {
 
     // ── PHASE 4B: Weather badge ─────────────────────────────────────────────
     @FXML private HBox     weatherBadge;
+    @FXML private HBox     metaBox;
     @FXML private ImageView weatherIcon;
     @FXML private Label    weatherText;
 
@@ -94,9 +95,9 @@ public class PostCardController {
         // Date
         dateLabel.setText(DATE_FMT.format(publication.getDatePublication()));
 
-        // Place
+        // Place — show second-row metaBox containing place tag + weather
         if (publication.getPlace() != null && !publication.getPlace().isEmpty()) {
-            placeDot.setVisible(true);  placeDot.setManaged(true);
+            metaBox.setVisible(true);  metaBox.setManaged(true);
             placeLabel.setVisible(true); placeLabel.setManaged(true);
             placeLabel.setText("📍 " + publication.getPlace());
         }

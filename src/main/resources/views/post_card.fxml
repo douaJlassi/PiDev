@@ -16,11 +16,14 @@
 
         <Circle fx:id="avatarCircle" styleClass="avatar" radius="20"/>
 
-        <VBox spacing="2" HBox.hgrow="ALWAYS">
+        <VBox spacing="3" HBox.hgrow="ALWAYS">
             <Label fx:id="authorNameLabel" styleClass="post-author-name" text="Author"/>
-            <HBox fx:id="metaBox" spacing="8" alignment="CENTER_LEFT">
-                <Label fx:id="dateLabel" styleClass="post-meta" text="Date"/>
-                <Label fx:id="placeDot" styleClass="post-meta" text="•" visible="false" managed="false"/>
+            <!-- Row 1: date only -->
+            <Label fx:id="dateLabel" styleClass="post-meta" text="Date"/>
+            <!-- Row 2: place tag + weather — hidden when no location -->
+            <HBox fx:id="metaBox" spacing="8" alignment="CENTER_LEFT"
+                  visible="false" managed="false">
+                <Label fx:id="placeDot" styleClass="post-meta" text="" visible="false" managed="false"/>
                 <Label fx:id="placeLabel" styleClass="post-place-tag" text="" visible="false" managed="false"/>
                 <!-- PHASE 4B: Weather badge (populated programmatically) -->
                 <HBox fx:id="weatherBadge" styleClass="weather-badge" spacing="6" alignment="CENTER_LEFT"
