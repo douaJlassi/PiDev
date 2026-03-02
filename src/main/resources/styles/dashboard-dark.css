@@ -204,75 +204,60 @@
 }
 
 /* ===== POST DETAIL VIEW ===== */
+/* ===== POST DETAIL — dark ===== */
 .post-detail-view {
     -fx-background-color: #1a1d27;
 }
-
 .split-view {
     -fx-background-color: #1a1d27;
 }
-
 .detail-top-bar {
-    -fx-background-color: #1a1d27;
+    -fx-background-color: #0D9E92;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 4, 0, 0, 1);
 }
-
-.close-detail-btn {
-    -fx-background-color: #22263a;
-    -fx-text-fill: #e8eaf0;
-}
-
-.close-detail-btn:hover {
-    -fx-background-color: #2e3250;
-}
-
 .detail-title {
-    -fx-text-fill: #e8eaf0;
+    -fx-text-fill: white;
 }
-
+.close-detail-btn {
+    -fx-background-color: rgba(255,255,255,0.15);
+    -fx-text-fill: white;
+}
+.close-detail-btn:hover {
+    -fx-background-color: rgba(255,255,255,0.25);
+}
 .detail-author-name {
     -fx-text-fill: #e8eaf0;
 }
-
 .detail-post-text {
     -fx-text-fill: #c8cad8;
 }
-
 .post-content-panel {
     -fx-background-color: #1a1d27;
     -fx-border-color: #2e3250;
 }
-
-/* ===== COMMENTS PANEL ===== */
 .comments-panel {
     -fx-background-color: #13161f;
 }
-
 .comments-panel-header {
     -fx-background-color: #1a1d27;
     -fx-border-color: #2e3250;
 }
-
 .comments-panel-title {
     -fx-text-fill: #e8eaf0;
 }
-
 .comments-count-label {
     -fx-text-fill: #555a72;
 }
-
 .comment-input-row {
     -fx-background-color: #13161f;
     -fx-border-color: #2e3250;
 }
-
 .comment-text-field {
     -fx-background-color: #22263a;
     -fx-border-color: #2e3250;
     -fx-text-fill: #e8eaf0;
     -fx-prompt-text-fill: #555a72;
 }
-
 .comments-list {
     -fx-background-color: #13161f;
 }

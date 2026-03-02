@@ -158,11 +158,13 @@ public class MapController {
 
     /**
      * Overlay entry point — used by DashboardController.showMapView().
-     * Loads map_view.fxml with this as controller (same as show() did),
+     * Loads map_view.fxml with this as controller, stores the dashboard
+     * reference so the "Open →" popup button can open PostDetailController,
      * kicks off map building, and returns the root node for the caller
      * to place in whatever container it wants.
      */
-    public javafx.scene.Parent loadForOverlay() throws java.io.IOException {
+    public javafx.scene.Parent loadForOverlay(DashboardController dash) throws java.io.IOException {
+        this.dashboard = dash;  // FIX: store dashboard so "Open →" popup button works
         FXMLLoader loader = new FXMLLoader(
                 getClass().getResource("/views/map_view.fxml"));
         loader.setController(this);

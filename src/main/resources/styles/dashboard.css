@@ -372,19 +372,16 @@ Light BG: #f0f2f5
 /* ===== POST IMAGE ===== */
 .post-image-container {
     -fx-padding: 0;
-    -fx-background-color: #f0f2f5;
-    -fx-max-width: 420;
+    -fx-background-color: transparent;
     -fx-alignment: CENTER;
 }
 
 .post-image-grid {
-    -fx-fit-width: 420;
     -fx-preserve-ratio: true;
     -fx-smooth: true;
 }
 
 .post-image-list {
-    -fx-fit-width: 680;
     -fx-preserve-ratio: true;
     -fx-smooth: true;
 }
@@ -393,7 +390,7 @@ Light BG: #f0f2f5
 .post-stats {
     -fx-padding: 8 16 8 16;
     -fx-border-color: #e4e6eb;
-    -fx-border-width: 1 0 1 0;
+    -fx-border-width: 1 0 0 0;
 }
 
 .post-stats-text {
@@ -577,36 +574,93 @@ Light BG: #f0f2f5
     -fx-pref-height: infinity;
 }
 
+/* ── Top bar — teal accent ── */
 .detail-top-bar {
-    -fx-background-color: white;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 4, 0, 0, 1);
+    -fx-background-color: #17B3A6;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 4, 0, 0, 2);
+}
+
+.detail-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill: white;
 }
 
 .close-detail-btn {
-    -fx-background-color: #f0f2f5;
-    -fx-text-fill: #050505;
-    -fx-font-size: 20px;
+    -fx-background-color: rgba(255,255,255,0.18);
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
     -fx-font-weight: bold;
-    -fx-padding: 8 14 8 14;
-    -fx-background-radius: 50%;
+    -fx-padding: 7 13;
+    -fx-background-radius: 50;
     -fx-cursor: hand;
 }
-
 .close-detail-btn:hover {
-    -fx-background-color: #e4e6eb;
+    -fx-background-color: rgba(255,255,255,0.30);
 }
 
-.split-view {
-    -fx-background-color: white;
-}
-
+/* ── Left panel ── */
 .post-content-panel {
     -fx-background-color: white;
     -fx-border-color: #e4e6eb;
     -fx-border-width: 0 1 0 0;
 }
 
+/* ── Author ── */
+.detail-author-name {
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #1a1d27;
+}
+
+/* ── Post text ── */
+.detail-post-text {
+    -fx-font-size: 15px;
+    -fx-text-fill: #050505;
+    -fx-line-spacing: 4;
+}
+
+/* ── Comments panel ── */
 .comments-panel {
+    -fx-background-color: #f7f8fa;
+}
+
+.comments-panel-header {
+    -fx-background-color: white;
+    -fx-border-color: #e4e6eb;
+    -fx-border-width: 0 0 1 0;
+}
+
+.comments-panel-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #050505;
+}
+
+.comments-count-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #65676b;
+}
+
+/* ── Comment input ── */
+.comment-input-row {
+    -fx-background-color: #f0f2f5;
+    -fx-border-color: #e4e6eb;
+    -fx-border-width: 0 0 1 0;
+}
+
+.comment-text-field {
+    -fx-background-color: white;
+    -fx-border-color: #e4e6eb;
+    -fx-border-radius: 20;
+    -fx-background-radius: 20;
+    -fx-padding: 8 14;
+    -fx-font-size: 13px;
+    -fx-text-fill: #050505;
+}
+
+/* ── Comments list ── */
+.comments-list {
     -fx-background-color: #f7f8fa;
 }
 
@@ -750,61 +804,7 @@ Light BG: #f0f2f5
     -fx-font-size: 14px;
 }
 
-/* ===== POST DETAIL (post_detail.fxml) ===== */
-.detail-title {
-    -fx-font-size: 17px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #050505;
-}
-
-.detail-author-name {
-    -fx-font-size: 16px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #050505;
-}
-
-.detail-post-text {
-    -fx-font-size: 15px;
-    -fx-text-fill: #050505;
-    -fx-line-spacing: 3;
-}
-
-.comments-panel-header {
-    -fx-background-color: white;
-    -fx-border-color: #e4e6eb;
-    -fx-border-width: 0 0 1 0;
-}
-
-.comments-panel-title {
-    -fx-font-size: 15px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #050505;
-}
-
-.comments-count-label {
-    -fx-font-size: 14px;
-    -fx-text-fill: #65676b;
-}
-
-.comment-input-row {
-    -fx-background-color: #f0f2f5;
-    -fx-border-color: #e4e6eb;
-    -fx-border-width: 0 0 1 0;
-}
-
-.comment-text-field {
-    -fx-background-color: white;
-    -fx-border-color: #e4e6eb;
-    -fx-border-radius: 20;
-    -fx-background-radius: 20;
-    -fx-padding: 8 14;
-    -fx-font-size: 13px;
-    -fx-text-fill: #050505;
-}
-
-.comments-list {
-    -fx-background-color: #f7f8fa;
-}
+/* ===== POST DETAIL styles moved to top of section above ===== */
 
 
 /* =====================================================================

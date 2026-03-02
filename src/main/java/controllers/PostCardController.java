@@ -12,8 +12,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
-import services.LikeService;
-import services.CommentService;
 import services.WeatherService;
 
 import java.io.File;
@@ -52,9 +50,6 @@ public class PostCardController {
     @FXML private ImageView postImage;
 
     // ── Stats ────────────────────────────────────────────────────────────────
-    @FXML private HBox     statsBar;
-    private final LikeService    likeService    = new LikeService();
-    private final CommentService commentService = new CommentService();
     @FXML private Label    likesStatLabel;
     @FXML private Label    commentsStatLabel;
 
@@ -116,10 +111,8 @@ public class PostCardController {
                 postImage.setImage(new Image(img.toURI().toString()));
                 imageContainer.setVisible(true);
                 imageContainer.setManaged(true);
-                // Grid view clip
-                if (isGridView) {
-                    postImage.setFitWidth(420);
-                }
+                // Fit image to card width (grid=420, list=680)
+                postImage.setFitWidth(isGridView ? 420 : 680);
             }
         }
 
@@ -127,20 +120,16 @@ public class PostCardController {
         int likesCount = publication.getLikes() != null ? publication.getLikes().size() : 0;
         int commentsCount = publication.getComments() != null ? publication.getComments().size() : 0;
 
-        // Fetch real counts from DB via services (collection on entity may not be loaded)
-        int realLikes = likesCount;
-        int realComments = commentsCount;
-        try { realLikes    = likeService.getLikeCount(publication.getPublicationID()); } catch (Exception ignored) {}
-        try { realComments = commentService.getCommentCount(publication.getPublicationID()); } catch (Exception ignored) {}
-
-        likesStatLabel.setText("♥  " + realLikes);
-        likesStatLabel.setVisible(true);
-        likesStatLabel.setManaged(true);
-        commentsStatLabel.setText("💬  " + realComments);
-        commentsStatLabel.setVisible(true);
-        commentsStatLabel.setManaged(true);
-        statsBar.setVisible(true);
-        statsBar.setManaged(true);
+        if (likesCount > 0) {
+            likesStatLabel.setText("♥ " + likesCount);
+            likesStatLabel.setVisible(true);
+            likesStatLabel.setManaged(true);
+        }
+        if (commentsCount > 0) {
+            commentsStatLabel.setText("💬 " + commentsCount);
+            commentsStatLabel.setVisible(true);
+            commentsStatLabel.setManaged(true);
+        }
 
         // Like button (delegated)
         dashboard.getLikeController().initButton(likeBtn, publication);
@@ -167,7 +156,7 @@ public class PostCardController {
         // Weather from a week ago is not relevant/accurate
         long postAgeHours = (System.currentTimeMillis() -
                 publication.getDatePublication().getTime()) / (1000 * 60 * 60);
-        if (postAgeHours > 168) { // 168 hours = 7 days
+        if (postAgeHours > 720) { // 168 hours = 7 days
             return; // Old post = skip weather
         }
 

@@ -36,6 +36,7 @@ public class PostController {
 
             card.getStyleClass().clear();
             card.getStyleClass().add(isGridView ? "post-card-grid" : "post-card-list");
+            card.setMaxHeight(javafx.scene.layout.Region.USE_PREF_SIZE);
 
             Rectangle clip = new Rectangle(isGridView ? 420 : 680, 0);
             clip.setArcWidth(12); clip.setArcHeight(12);

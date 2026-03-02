@@ -7,7 +7,8 @@
 <?import javafx.scene.shape.Circle?>
 
 <BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-            styleClass="post-detail-view">
+            styleClass="post-detail-view"
+            stylesheets="@../styles/dashboard.css">
 
     <!-- ===== TOP BAR ===== -->
     <top>
@@ -44,11 +45,10 @@
                             </VBox>
                         </HBox>
 
-                        <!-- Place tag + Weather badge on the SAME row (hidden when no place) -->
+                        <!-- Place + weather row (hidden until place set) -->
                         <HBox fx:id="placeWeatherRow" spacing="10" alignment="CENTER_LEFT"
                               visible="false" managed="false">
                             <Label fx:id="placeLabel" styleClass="post-place-tag" text=""/>
-                            <!-- PHASE 4C: Weather badge sits right beside the place label -->
                             <HBox fx:id="weatherBadge" styleClass="weather-badge" spacing="6"
                                   alignment="CENTER_LEFT" visible="false" managed="false" maxWidth="-Infinity">
                                 <ImageView fx:id="weatherIcon" styleClass="weather-icon"
@@ -70,11 +70,9 @@
                                        fitWidth="580" preserveRatio="true" smooth="true"/>
                         </VBox>
 
-                        <!-- Stats row — hidden by default, shown only when counts > 0 -->
-                        <HBox fx:id="statsBar" styleClass="post-stats" alignment="CENTER_LEFT" spacing="16"
-                              visible="false" managed="false">
+                        <!-- Stats row -->
+                        <HBox styleClass="post-stats" alignment="CENTER_LEFT" spacing="16">
                             <Label fx:id="likesStatLabel"    styleClass="post-stats-text" text="" visible="false" managed="false"/>
-                            <Region HBox.hgrow="ALWAYS"/>
                             <Label fx:id="commentsStatLabel" styleClass="post-stats-text" text="" visible="false" managed="false"/>
                         </HBox>
 

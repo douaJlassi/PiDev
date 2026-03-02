@@ -8,7 +8,6 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.animation.FadeTransition;
 import javafx.animation.TranslateTransition;
 import javafx.util.Duration;
 import javafx.fxml.FXMLLoader;
@@ -17,6 +16,7 @@ import services.CommentService;
 import services.LikeService;
 import services.PublicationService;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,8 +27,15 @@ import java.util.stream.Collectors;
  */
 public class DashboardController {
 
-    @FXML
-    private FlowPane postsGrid;
+    @FXML private HBox     masonryGrid;
+    @FXML private VBox     masonryCol1;
+    @FXML private VBox     masonryCol2;
+
+    // FAB + overlay fields (map & chat)
+    @FXML private Button     mapFab;
+    @FXML private Button     chatFab;
+    @FXML private StackPane  mapOverlay;
+    @FXML private HBox       chatPanel;
 
     @FXML
     private VBox postsList;
@@ -73,33 +80,24 @@ public class DashboardController {
     @FXML
     private Button themeToggleBtn;
 
-    @FXML
-    private Button mapFab;
-
-    @FXML
-    private StackPane mapOverlay;
-
-    @FXML
-    private HBox chatPanel;
-
-    @FXML
-    private Button chatFab;
-
     // Services
     private PublicationService publicationService;
     private CommentService commentService;
     private LikeService likeService;
 
     // Sub-controllers
-    private PostController    postController;
+    private PostController postController;
     private CommentController commentController;
-    private LikeController    likeController;
-    private AiChatController  aiChatController;
+    private LikeController likeController;
 
     // State
     private Client currentUser;
     private List<Publication> allPosts;
     private boolean isGridView = true;
+
+    // Track whether overlay content has been built (lazy init)
+    private boolean mapLoaded  = false;
+    private boolean chatBuilt  = false;
 
     @FXML
     public void initialize() {
@@ -122,16 +120,15 @@ public class DashboardController {
         }
 
         // Initialize sub-controllers
-        postController = new PostController(publicationService, currentUser, this);
+        postController    = new PostController(publicationService, currentUser, this);
         commentController = new CommentController(commentService, currentUser, this);
-        likeController = new LikeController(likeService, currentUser, this);
+        likeController    = new LikeController(likeService, currentUser, this);
 
         setupSearchFilter();
         loadPosts();
         postsScrollPane.setVvalue(0);
 
-        // Register scene with ThemeManager. Handle both cases: scene already
-        // attached (some loaders) and scene attached later (normal lifecycle).
+        // Register scene with ThemeManager.
         javafx.application.Platform.runLater(() -> {
             javafx.scene.Scene s = contentContainer.getScene();
             if (s != null) {
@@ -181,8 +178,8 @@ public class DashboardController {
         gridViewBtn.getStyleClass().add("active-view");
         listViewBtn.getStyleClass().remove("active-view");
 
-        postsGrid.setVisible(true);
-        postsGrid.setManaged(true);
+        masonryGrid.setVisible(true);
+        masonryGrid.setManaged(true);
         postsList.setVisible(false);
         postsList.setManaged(false);
 
@@ -201,8 +198,8 @@ public class DashboardController {
 
         postsList.setVisible(true);
         postsList.setManaged(true);
-        postsGrid.setVisible(false);
-        postsGrid.setManaged(false);
+        masonryGrid.setVisible(false);
+        masonryGrid.setManaged(false);
 
         if (allPosts != null) {
             displayPosts(allPosts);
@@ -226,29 +223,20 @@ public class DashboardController {
             CreatePostController ctrl = loader.getController();
             ctrl.init(this, existing);
 
-            // ── FIX 1: Wrap the form in a ScrollPane ─────────────────────────────
-            // This ensures if the image is big, the middle scrolls, but buttons stay fixed.
             ScrollPane scrollWrapper = new ScrollPane(form);
             scrollWrapper.setFitToWidth(true);
-            // Remove border and make background white
             scrollWrapper.setStyle("-fx-background-color: white; -fx-background: white; -fx-border-color: transparent;");
-
-            // IMPORTANT: Allow the scroll pane to grow and fill empty space
             VBox.setVgrow(scrollWrapper, javafx.scene.layout.Priority.ALWAYS);
-            // ─────────────────────────────────────────────────────────────────────
 
-            // Build panel container: Fixed Header + Scrollable Form + Fixed Footer
             VBox wrapper = new VBox(0);
             wrapper.setStyle("-fx-background-color: white;");
             wrapper.setPrefWidth(480); wrapper.setMinWidth(480); wrapper.setMaxWidth(480);
 
-            // ── HEADER: Close button bar ──
             HBox closeBar = new HBox();
             closeBar.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
             closeBar.setPadding(new javafx.geometry.Insets(14, 16, 14, 16));
             closeBar.setStyle("-fx-background-color: white; -fx-border-color: #e4e6eb; -fx-border-width: 0 0 1 0;");
 
-            // ── FIX 2: Professional "✕" Button ──
             Button closeBtn = new Button("✕");
             closeBtn.setStyle("-fx-background-color: transparent; -fx-text-fill: #65676b; -fx-font-size: 18px; -fx-font-weight: bold; -fx-padding: 6 12; -fx-background-radius: 50%; -fx-cursor: hand;");
             closeBtn.setOnAction(e -> hidePostFormPanel());
@@ -263,11 +251,10 @@ public class DashboardController {
             HBox.setHgrow(spacer2, javafx.scene.layout.Priority.ALWAYS);
 
             javafx.scene.layout.Region placeholder = new javafx.scene.layout.Region();
-            placeholder.setPrefWidth(36); // Balances the width of the close button
+            placeholder.setPrefWidth(36);
 
             closeBar.getChildren().addAll(closeBtn, spacer1, title, spacer2, placeholder);
 
-            // ── FOOTER: Action bar ──
             HBox actionBar = new HBox(10);
             actionBar.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
             actionBar.setPadding(new javafx.geometry.Insets(14, 20, 14, 20));
@@ -302,11 +289,9 @@ public class DashboardController {
             });
             actionBar.getChildren().addAll(cancelBtn, submitBtn);
 
-            // ── FIX 3: Add the SCROLLABLE wrapper instead of raw form ──
             wrapper.getChildren().addAll(closeBar, scrollWrapper, actionBar);
             createEditPanel.getChildren().setAll(wrapper);
 
-            // Slide in from right
             createEditPanel.setVisible(true);
             createEditPanel.setManaged(true);
             createEditPanel.setTranslateX(480);
@@ -326,81 +311,6 @@ public class DashboardController {
         slide.setOnFinished(e -> {
             createEditPanel.setVisible(false);
             createEditPanel.setManaged(false);
-        });
-        slide.play();
-    }
-
-    @FXML
-    private void showMapView() {
-        try {
-            // MapController loads its own FXML via setController — same pattern
-            // as PostDetailController. We instantiate it, let it load the FXML,
-            // then grab the root node it produced.
-            controllers.MapController mapCtrl = new controllers.MapController();
-            mapCtrl.setOnClose(() -> closeMapView());
-            javafx.scene.Parent mapRoot = mapCtrl.loadForOverlay();
-
-            // Fill the overlay pane with the map view
-            mapOverlay.getChildren().setAll(mapRoot);
-            mapOverlay.setOpacity(0);
-            mapOverlay.setVisible(true);
-            mapOverlay.setManaged(true);
-
-            // Hide the FAB while map is showing
-            if (mapFab != null) { mapFab.setVisible(false); mapFab.setManaged(false); }
-
-            // Fade in
-            FadeTransition fadeIn = new FadeTransition(javafx.util.Duration.millis(280), mapOverlay);
-            fadeIn.setFromValue(0); fadeIn.setToValue(1);
-            fadeIn.play();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            showError("Could not open map: " + e.getMessage());
-        }
-    }
-
-    private void closeMapView() {
-        FadeTransition fadeOut = new FadeTransition(javafx.util.Duration.millis(220), mapOverlay);
-        fadeOut.setFromValue(1); fadeOut.setToValue(0);
-        fadeOut.setOnFinished(e -> {
-            mapOverlay.setVisible(false);
-            mapOverlay.setManaged(false);
-            mapOverlay.getChildren().clear();
-            if (mapFab != null) { mapFab.setVisible(true); mapFab.setManaged(true); }
-        });
-        fadeOut.play();
-    }
-
-    @FXML
-    private void showAiChat() {
-        // Build the panel once; reuse on subsequent opens
-        if (aiChatController == null) {
-            aiChatController = new AiChatController();
-            aiChatController.setOnClose(this::closeAiChat);
-            VBox panelContent = aiChatController.buildPanel();
-            chatPanel.getChildren().setAll(panelContent);
-        }
-
-        // Hide the chat FAB while panel is open
-        if (chatFab != null) { chatFab.setVisible(false); chatFab.setManaged(false); }
-
-        chatPanel.setTranslateX(-400);
-        chatPanel.setVisible(true);
-        chatPanel.setManaged(true);
-
-        TranslateTransition slide = new TranslateTransition(Duration.millis(260), chatPanel);
-        slide.setToX(0);
-        slide.play();
-    }
-
-    private void closeAiChat() {
-        TranslateTransition slide = new TranslateTransition(Duration.millis(220), chatPanel);
-        slide.setToX(-400);
-        slide.setOnFinished(e -> {
-            chatPanel.setVisible(false);
-            chatPanel.setManaged(false);
-            if (chatFab != null) { chatFab.setVisible(true); chatFab.setManaged(true); }
         });
         slide.play();
     }
@@ -434,7 +344,7 @@ public class DashboardController {
         loadingBox.getChildren().addAll(progressIndicator, loadingText);
 
         if (isGridView) {
-            postsGrid.getChildren().add(loadingBox);
+            masonryCol1.getChildren().add(loadingBox);
         } else {
             postsList.getChildren().add(loadingBox);
         }
@@ -468,7 +378,8 @@ public class DashboardController {
     }
 
     private void clearCurrentView() {
-        postsGrid.getChildren().clear();
+        masonryCol1.getChildren().clear();
+        masonryCol2.getChildren().clear();
         postsList.getChildren().clear();
     }
 
@@ -479,11 +390,17 @@ public class DashboardController {
             VBox postCard = postController.createPostCard(publication, isGridView);
 
             if (isGridView) {
-                postsGrid.getChildren().add(postCard);
+                getMasonryColumn().getChildren().add(postCard);
             } else {
                 postsList.getChildren().add(postCard);
             }
         }
+    }
+
+    private VBox getMasonryColumn() {
+        double h1 = masonryCol1.getChildren().stream().mapToDouble(n -> n.prefHeight(-1)).sum();
+        double h2 = masonryCol2.getChildren().stream().mapToDouble(n -> n.prefHeight(-1)).sum();
+        return h1 <= h2 ? masonryCol1 : masonryCol2;
     }
 
     private void showEmptyState() {
@@ -507,7 +424,7 @@ public class DashboardController {
         emptyState.getChildren().addAll(icon, emptyText, emptySubtext, createFirstPost);
 
         if (isGridView) {
-            postsGrid.getChildren().add(emptyState);
+            masonryCol1.getChildren().add(emptyState);
         } else {
             postsList.getChildren().add(emptyState);
         }
@@ -538,7 +455,7 @@ public class DashboardController {
         noResults.getChildren().addAll(icon, noResultsText, noResultsSubtext, clearSearch);
 
         if (isGridView) {
-            postsGrid.getChildren().add(noResults);
+            masonryCol1.getChildren().add(noResults);
         } else {
             postsList.getChildren().add(noResults);
         }
@@ -573,31 +490,98 @@ public class DashboardController {
     }
 
     // Getters for sub-controllers
-    public Client getCurrentUser() {
-        return currentUser;
+    public Client getCurrentUser()               { return currentUser; }
+    public StackPane getContentContainer()        { return contentContainer; }
+    public PostController getPostController()     { return postController; }
+    public CommentController getCommentController() { return commentController; }
+    public LikeController getLikeController()     { return likeController; }
+    public CommentService getCommentService()     { return commentService; }
+    public LikeService getLikeService()           { return likeService; }
+    public StackPane getMapOverlay()              { return mapOverlay; }
+    public HBox      getChatPanel()               { return chatPanel; }
+
+    // ── Map FAB ──────────────────────────────────────────────────────────────
+
+    @FXML
+    private void showMapView() {
+        // Lazy-load the map FXML into the overlay only on first open.
+        // MapController.loadForOverlay() sets itself as the FXML controller,
+        // builds the canvas map, and returns the root node.
+        if (!mapLoaded) {
+            try {
+                MapController mapCtrl = new MapController();
+                mapCtrl.setOnClose(this::hideMapView);
+                // Pass 'this' so MapController.dashboard is set — required for
+                // the "Open →" popup button to open PostDetailController correctly.
+                Parent mapContent = mapCtrl.loadForOverlay(this);
+                // Make the BorderPane fill the entire overlay StackPane so the
+                // header (with the close button) is always fully visible.
+                javafx.scene.layout.Region mapRegion = (javafx.scene.layout.Region) mapContent;
+                mapRegion.setMaxWidth(Double.MAX_VALUE);
+                mapRegion.setMaxHeight(Double.MAX_VALUE);
+                mapOverlay.getChildren().setAll(mapContent);
+                mapLoaded = true;
+            } catch (IOException e) {
+                showError("Could not load map: " + e.getMessage());
+                return;
+            }
+        }
+
+        mapOverlay.setVisible(true);
+        mapOverlay.setManaged(true);
+
+        javafx.animation.FadeTransition ft = new javafx.animation.FadeTransition(
+                Duration.millis(220), mapOverlay);
+        ft.setFromValue(0); ft.setToValue(1);
+        ft.play();
     }
 
-    public StackPane getContentContainer() {
-        return contentContainer;
+    public void hideMapView() {
+        javafx.animation.FadeTransition ft = new javafx.animation.FadeTransition(
+                Duration.millis(180), mapOverlay);
+        ft.setFromValue(1); ft.setToValue(0);
+        ft.setOnFinished(e -> {
+            mapOverlay.setVisible(false);
+            mapOverlay.setManaged(false);
+        });
+        ft.play();
     }
 
-    public PostController getPostController() {
-        return postController;
+    // ── AI Chat FAB ───────────────────────────────────────────────────────────
+
+    @FXML
+    private void showAiChat() {
+        // Lazy-build the chat panel content only on first open.
+        // AiChatController builds its UI entirely in Java (no FXML), so we
+        // just call buildPanel() and drop the result into the HBox.
+        if (!chatBuilt) {
+            AiChatController aiCtrl = new AiChatController();
+            aiCtrl.setOnClose(this::hideAiChat);
+            chatPanel.getChildren().setAll(aiCtrl.buildPanel());
+            chatBuilt = true;
+        }
+
+        chatPanel.setVisible(true);
+        chatPanel.setManaged(true);
+
+        // Slide in from the LEFT. We use a fixed offset of 400px (the panel's
+        // declared prefWidth) instead of chatPanel.getWidth(), because getWidth()
+        // returns 0 while the panel is hidden — which would make fromX == toX
+        // and leave the panel invisibly open, blocking all mouse events beneath it.
+        chatPanel.setTranslateX(-400);
+        TranslateTransition tt = new TranslateTransition(Duration.millis(280), chatPanel);
+        tt.setToX(0);
+        tt.play();
     }
 
-    public CommentController getCommentController() {
-        return commentController;
-    }
-
-    public LikeController getLikeController() {
-        return likeController;
-    }
-
-    public CommentService getCommentService() {
-        return commentService;
-    }
-
-    public LikeService getLikeService() {
-        return likeService;
+    public void hideAiChat() {
+        TranslateTransition tt = new TranslateTransition(Duration.millis(220), chatPanel);
+        tt.setFromX(0);
+        tt.setToX(-400);
+        tt.setOnFinished(e -> {
+            chatPanel.setVisible(false);
+            chatPanel.setManaged(false);
+        });
+        tt.play();
     }
 }
