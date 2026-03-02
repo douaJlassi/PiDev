@@ -1,4 +1,4 @@
-package controllers;
+package Controllers;
 
 import entities.Client;
 import entities.Publication;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  * Main Dashboard Controller - Coordinates all UI components
  * Delegates specific functionality to PostController, CommentController, and LikeController
  */
-public class DashboardController {
+public class WajdiDashboardController {
 
     @FXML private HBox     masonryGrid;
     @FXML private VBox     masonryCol1;
@@ -85,7 +85,7 @@ public class DashboardController {
     private CommentService commentService;
     private LikeService likeService;
 
-    // Sub-controllers
+    // Sub-Controllers
     private PostController postController;
     private CommentController commentController;
     private LikeController likeController;
@@ -119,7 +119,7 @@ public class DashboardController {
             sidebarRole.setText("USER");
         }
 
-        // Initialize sub-controllers
+        // Initialize sub-Controllers
         postController    = new PostController(publicationService, currentUser, this);
         commentController = new CommentController(commentService, currentUser, this);
         likeController    = new LikeController(likeService, currentUser, this);
@@ -461,7 +461,7 @@ public class DashboardController {
         }
     }
 
-    // Utility methods for sub-controllers
+    // Utility methods for sub-Controllers
     public void showSuccess(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Success");
@@ -489,7 +489,7 @@ public class DashboardController {
         alert.showAndWait();
     }
 
-    // Getters for sub-controllers
+    // Getters for sub-Controllers
     public Client getCurrentUser()               { return currentUser; }
     public StackPane getContentContainer()        { return contentContainer; }
     public PostController getPostController()     { return postController; }

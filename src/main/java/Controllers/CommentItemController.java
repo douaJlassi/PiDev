@@ -1,4 +1,4 @@
-package controllers;
+package Controllers;
 
 import entities.Comment;
 import entities.Publication;
@@ -9,7 +9,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.shape.Circle;
 
 import java.sql.SQLException;
-import java.util.Optional;
+
 /**
  * CommentItemController — bound to comment_item.fxml.
  * Receives a Comment and wires it; edit/delete handled here.
@@ -26,14 +26,14 @@ public class CommentItemController {
 
     private Comment             comment;
     private Publication         publication;
-    private DashboardController dashboard;
+    private WajdiDashboardController dashboard;
     private Runnable            onChanged; // callback to reload the list
 
     // ────────────────────────────────────────────────────────────────────────
     // Called by CommentController after FXMLLoader.load()
     // ────────────────────────────────────────────────────────────────────────
     public void init(Comment c, Publication pub,
-                     DashboardController dash, Runnable onChanged) {
+                     WajdiDashboardController dash, Runnable onChanged) {
         this.comment     = c;
         this.publication = pub;
         this.dashboard   = dash;

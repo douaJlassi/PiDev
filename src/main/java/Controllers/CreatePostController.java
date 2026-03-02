@@ -1,4 +1,4 @@
-package controllers;
+package Controllers;
 
 import entities.Publication;
 import javafx.collections.FXCollections;
@@ -18,7 +18,6 @@ import entities.Agency;
 
 import javafx.application.Platform;
 import services.UnsplashService;
-import services.UnsplashService.PhotoResult;
 
 import java.io.File;
 import java.io.IOException;
@@ -67,7 +66,7 @@ public class CreatePostController {
     /** Loaded from DB in init(). Key = agencyID, Value = agency name. */
     private final Map<Integer,String> AGENCIES = new LinkedHashMap<>();
 
-    private DashboardController dashboard;
+    private WajdiDashboardController dashboard;
     private File selectedImageFile;
 
     // Unsplash integration
@@ -80,7 +79,7 @@ public class CreatePostController {
     // ─────────────────────────────────────────────────────────────────────────
     // Initialise — called by PostController after FXMLLoader.load()
     // ─────────────────────────────────────────────────────────────────────────
-    public void init(DashboardController dash, Publication existing) {
+    public void init(WajdiDashboardController dash, Publication existing) {
         this.dashboard = dash;
 
         // PHASE 3: Create and configure autocomplete field
@@ -304,7 +303,7 @@ public class CreatePostController {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // Called by DashboardController (slide-in panel)
+    // Called by WajdiDashboardController (slide-in panel)
     // ─────────────────────────────────────────────────────────────────────────
     public TextArea getContentArea() { return contentArea; }
 

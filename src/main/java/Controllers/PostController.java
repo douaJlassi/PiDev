@@ -1,4 +1,4 @@
-package controllers;
+package Controllers;
 
 import entities.Client;
 import entities.Publication;
@@ -20,9 +20,9 @@ public class PostController {
 
     private final PublicationService  publicationService;
     private final Client              currentUser;
-    private final DashboardController dashboard;
+    private final WajdiDashboardController dashboard;
 
-    public PostController(PublicationService svc, Client user, DashboardController dash) {
+    public PostController(PublicationService svc, Client user, WajdiDashboardController dash) {
         this.publicationService = svc;
         this.currentUser        = user;
         this.dashboard          = dash;

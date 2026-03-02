@@ -1,4 +1,4 @@
-package controllers;
+package Controllers;
 
 import entities.Publication;
 import entities.WeatherData;
@@ -69,7 +69,7 @@ public class PostDetailController {
 
     // ── Injected state ────────────────────────────────────────────────────────
     private Publication         publication;
-    private DashboardController dashboard;
+    private WajdiDashboardController dashboard;
     private BorderPane          detailView; // root node of the loaded FXML
 
     // PHASE 4C: Weather service (shared instance for caching)
@@ -81,7 +81,7 @@ public class PostDetailController {
     // ── Constructor ── used by PostController (programmatic entry) ────────────
     public PostDetailController() {}
 
-    public PostDetailController(Publication pub, DashboardController dash) {
+    public PostDetailController(Publication pub, WajdiDashboardController dash) {
         this.publication = pub;
         this.dashboard   = dash;
     }

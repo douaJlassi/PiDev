@@ -1,4 +1,4 @@
-package controllers;
+package Controllers;
 
 import entities.Client;
 import entities.Publication;
@@ -17,9 +17,9 @@ public class LikeController {
 
     private final LikeService         likeService;
     private final Client              currentUser;
-    private final DashboardController dashboard;
+    private final WajdiDashboardController dashboard;
 
-    public LikeController(LikeService svc, Client user, DashboardController dash) {
+    public LikeController(LikeService svc, Client user, WajdiDashboardController dash) {
         this.likeService = svc;
         this.currentUser = user;
         this.dashboard   = dash;

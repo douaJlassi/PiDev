@@ -1,4 +1,4 @@
-package controllers;
+package Controllers;
 
 import entities.Publication;
 import entities.WeatherData;
@@ -63,7 +63,7 @@ public class PostCardController {
     // ── Injected by PostController after load ────────────────────────────────
     private Publication         publication;
     private boolean             isGridView;
-    private DashboardController dashboard;
+    private WajdiDashboardController dashboard;
 
     // PHASE 4B: Weather service (shared instance for caching)
     private static final WeatherService weatherService = new WeatherService();
@@ -74,7 +74,7 @@ public class PostCardController {
     // ────────────────────────────────────────────────────────────────────────
     // Called by PostController after FXMLLoader.load()
     // ────────────────────────────────────────────────────────────────────────
-    public void init(Publication pub, boolean gridView, DashboardController dash) {
+    public void init(Publication pub, boolean gridView, WajdiDashboardController dash) {
         this.publication = pub;
         this.isGridView  = gridView;
         this.dashboard   = dash;

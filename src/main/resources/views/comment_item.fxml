@@ -6,7 +6,7 @@
 <?import javafx.scene.shape.Circle?>
 
 <VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="controllers.CommentItemController"
+      fx:controller="Controllers.CommentItemController"
       spacing="6" styleClass="comment-item"
       stylesheets="@../styles/dashboard.css">
 

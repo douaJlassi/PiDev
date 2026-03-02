@@ -1,4 +1,4 @@
-package controllers;
+package Controllers;
 
 import entities.Publication;
 import javafx.animation.FadeTransition;
@@ -87,13 +87,13 @@ public class MapController {
     @FXML private StackPane mapContainer;
 
     // ── Injected ──────────────────────────────────────────────────────────────
-    private DashboardController dashboard;
+    private WajdiDashboardController dashboard;
     private BorderPane          rootPane;
 
-    // ── Close callback (set by DashboardController for overlay mode) ─────────
+    // ── Close callback (set by WajdiDashboardController for overlay mode) ─────────
     private Runnable onCloseCallback = null;
 
-    /** Called by DashboardController so the map can trigger its own fade-out. */
+    /** Called by WajdiDashboardController so the map can trigger its own fade-out. */
     public void setOnClose(Runnable callback) { this.onCloseCallback = callback; }
 
     // ── Services ──────────────────────────────────────────────────────────────
@@ -141,7 +141,7 @@ public class MapController {
 
     // ── Entry point ───────────────────────────────────────────────────────────
 
-    public void show(DashboardController dash) {
+    public void show(WajdiDashboardController dash) {
         this.dashboard = dash;
         try {
             FXMLLoader loader = new FXMLLoader(
@@ -157,13 +157,13 @@ public class MapController {
     }
 
     /**
-     * Overlay entry point — used by DashboardController.showMapView().
+     * Overlay entry point — used by WajdiDashboardController.showMapView().
      * Loads map_view.fxml with this as controller, stores the dashboard
      * reference so the "Open →" popup button can open PostDetailController,
      * kicks off map building, and returns the root node for the caller
      * to place in whatever container it wants.
      */
-    public javafx.scene.Parent loadForOverlay(DashboardController dash) throws java.io.IOException {
+    public javafx.scene.Parent loadForOverlay(WajdiDashboardController dash) throws java.io.IOException {
         this.dashboard = dash;  // FIX: store dashboard so "Open →" popup button works
         FXMLLoader loader = new FXMLLoader(
                 getClass().getResource("/views/map_view.fxml"));
@@ -175,7 +175,7 @@ public class MapController {
 
     @FXML private void onClose() {
         if (onCloseCallback != null) {
-            // Overlay mode — delegate fade-out to DashboardController
+            // Overlay mode — delegate fade-out to WajdiDashboardController
             onCloseCallback.run();
         } else if (dashboard != null) {
             // Legacy full-panel mode

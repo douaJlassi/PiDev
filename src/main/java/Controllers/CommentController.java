@@ -1,4 +1,4 @@
-package controllers;
+package Controllers;
 
 import entities.Client;
 import entities.Comment;
@@ -22,9 +22,9 @@ public class CommentController {
 
     private final CommentService      commentService;
     private final Client              currentUser;
-    private final DashboardController dashboard;
+    private final WajdiDashboardController dashboard;
 
-    public CommentController(CommentService svc, Client user, DashboardController dash) {
+    public CommentController(CommentService svc, Client user, WajdiDashboardController dash) {
         this.commentService = svc;
         this.currentUser    = user;
         this.dashboard      = dash;

@@ -1,4 +1,4 @@
-package controllers;
+package Controllers;
 
 import entities.PlaceAutocomplete;
 import javafx.application.Platform;

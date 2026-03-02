@@ -1,4 +1,4 @@
-package controllers;
+package Controllers;
 
 import entities.Publication;
 import javafx.application.Platform;

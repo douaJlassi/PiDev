@@ -8,7 +8,7 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("/views/dashboard.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/views/wajdi_dashboard.fxml"));
         Scene scene = new Scene(root, 1100, 720);
         scene.getStylesheets().add(getClass().getResource("/styles/dashboard.css").toExternalForm());
         stage.setTitle("Rehletna — Dashboard");
