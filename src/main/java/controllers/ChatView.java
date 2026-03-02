@@ -30,7 +30,7 @@ import javafx.stage.Stage;
 import Services.ServiceConversation;
 import Services.ServiceMessage;
 import Services.ServiceParticipantConversation;
-import services.ServiceUtilisateur;
+import Services.ServiceUtilisateur;
 import utils.AudioRecorder;
 
 import java.io.File;

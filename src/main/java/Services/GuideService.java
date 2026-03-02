@@ -1,5 +1,6 @@
-package services;
+package Services;
 
+import Services.CRUD;
 import gestion_activite.Guide;
 import utils.MyDBConnexion;
 

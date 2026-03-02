@@ -18,7 +18,7 @@ public class MigrationTool {
         ServiceConversation serConv = new ServiceConversation();
         ServiceMessage serMsg = new ServiceMessage();
         ServiceParticipantConversation serPart = new ServiceParticipantConversation();
-        services.ServiceUtilisateur serUser = new services.ServiceUtilisateur();
+        Services.ServiceUtilisateur serUser = new Services.ServiceUtilisateur();
 
         System.out.println("🚀 DÉBUT DE LA MIGRATION VERS ELASTICSEARCH...");
 

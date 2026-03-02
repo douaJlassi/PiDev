@@ -1,6 +1,6 @@
 package Controllers;
 
-import services.ActiviteService;
+import Services.ActiviteService;
 import services.AchatService;
 import gestion_activite.Achat;
 import gestion_activite.Activite;

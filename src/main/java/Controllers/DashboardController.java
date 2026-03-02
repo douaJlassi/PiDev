@@ -20,7 +20,7 @@ import javafx.util.Duration;
 import javafx.scene.Node;
 import java.io.IOException;
 import gestion_activite.Activite;
-import services.ActiviteService;
+import Services.ActiviteService;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.text.Text;

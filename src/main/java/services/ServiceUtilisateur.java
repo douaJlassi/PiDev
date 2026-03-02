@@ -1,5 +1,6 @@
-package services;
+package Services;
 
+import Services.CRUD;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import entities.Role;
 import entities.Utilisateur;

@@ -1,7 +1,5 @@
 package Controllers;
 
-import Controllers.CartViewController;
-import Controllers.MyReservationsController;
 import app.Session;
 import entities.SearchCriteria;
 import javafx.concurrent.Task;
@@ -38,6 +36,7 @@ public class MyDashboardController {
     @FXML private VBox aiAgentBox;
     @FXML private TextArea aiSearchArea;
     @FXML private Button aiSearchBtn;
+    @FXML private Button analyticsBtn;
 
     private final repositories.AgencyRepository agencyRepo = new repositories.AgencyRepository();
     private final entities.OfferFilter offerFilter = new entities.OfferFilter();
@@ -56,6 +55,7 @@ public class MyDashboardController {
                 aiAgentBox.setManaged(isClient);
             }
         }
+        setNavVisible(analyticsBtn, Session.isAgency());
         // logo
         try {
             var stream = getClass().getResourceAsStream("/images/logo.png"); // put your logo here
@@ -154,6 +154,12 @@ public class MyDashboardController {
         // default page
 
         loadOffersView();
+    }
+    @FXML
+    private void onGoAnalytics() {
+        if (!Session.isAgency()) return;
+        setActive(analyticsBtn);
+        loadIntoContent("/fxml/AgencyAnalytics.fxml");
     }
     private void initAISection() {
         boolean isClient = Session.isClient();
@@ -337,7 +343,7 @@ public class MyDashboardController {
             pushFilterToCurrentView();
 
             // cart needs manual load
-            if (currentController instanceof CartViewController c) {
+            if (currentController instanceof Controllers.CartViewController c) {
                 c.loadCart();
             }
             if (currentController instanceof MyReservationsController r) {
@@ -359,7 +365,7 @@ public class MyDashboardController {
         }
     }
     private void pushFilterToCurrentView() {
-        if (currentController instanceof Controllers.OfferFilterAware aware) {
+        if (currentController instanceof OfferFilterAware aware) {
             aware.applyFilter(offerFilter);
         }
     }

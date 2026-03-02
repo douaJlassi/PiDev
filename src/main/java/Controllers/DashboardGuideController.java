@@ -42,7 +42,7 @@ import java.util.*;
 
 import gestion_activite.Activite;
 import gestion_activite.ReservationDetail;
-import services.ActiviteService;
+import Services.ActiviteService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;

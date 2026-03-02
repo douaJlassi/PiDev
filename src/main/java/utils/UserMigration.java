@@ -1,7 +1,7 @@
 package utils;
 
 import entities.Utilisateur;
-import services.ServiceUtilisateur;
+import Services.ServiceUtilisateur;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import java.util.HashMap;
 import java.util.List;

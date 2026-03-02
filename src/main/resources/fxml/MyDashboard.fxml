@@ -74,6 +74,14 @@
                                  fill="#1BB7B1"/>
                     </graphic>
                 </Button>
+                <Button fx:id="analyticsBtn" text="Analytics" onAction="#onGoAnalytics"
+                        styleClass="dash-nav-btn" maxWidth="Infinity">
+                    <graphic>
+                        <!-- Bar chart icon -->
+                        <SVGPath fill="#1BB7B1"
+                                 content="M4 19h16v2H2V3h2v16zm4-8h2v8H8v-8zm4-6h2v14h-2V5zm4 4h2v10h-2V9z"/>
+                    </graphic>
+                </Button>
             </VBox>
 
             <VBox spacing="10" style="-fx-background-color: #F8FAFC; -fx-padding: 15; -fx-background-radius: 12; -fx-border-color: #E2E8F0; -fx-border-width: 1;">
@@ -172,4 +180,3 @@
     </right>
 
 </BorderPane>
-

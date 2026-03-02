@@ -2,7 +2,7 @@ package Controllers;
 
 import Controllers.DashboardGuideController;
 import gestion_activite.Activite;
-import services.ActiviteService;
+import Services.ActiviteService;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;

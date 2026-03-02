@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.sql.*;
 import java.util.*;
 
-public class ServiceConversation implements services.CRUD<Conversation> {
+public class ServiceConversation implements Services.CRUD<Conversation> {
 
     /*private Connection cnx;
     public ServiceConversation(){

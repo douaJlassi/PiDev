@@ -1,7 +1,7 @@
 package Controllers;
 
 import services.AchatService;
-import services.ActiviteService;
+import Services.ActiviteService;
 import gestion_activite.Achat;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;

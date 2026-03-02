@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ServiceMessage implements services.CRUD<Message> {
+public class ServiceMessage implements Services.CRUD<Message> {
 
     /*private Connection cnx;
     public ServiceMessage(){
@@ -27,7 +27,7 @@ public class ServiceMessage implements services.CRUD<Message> {
     private ElasticsearchClient esClient= ElasticSearchClient.getInstance();
 
     private ServiceConversation serConv = new ServiceConversation();
-    private services.ServiceUtilisateur serUtilisateur = new services.ServiceUtilisateur();
+    private Services.ServiceUtilisateur serUtilisateur = new Services.ServiceUtilisateur();
 
     @Override
     public void insertOne(Message message) throws SQLException {

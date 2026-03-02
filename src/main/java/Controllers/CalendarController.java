@@ -1,6 +1,6 @@
 package Controllers;
 
-import services.ActiviteService;
+import Services.ActiviteService;
 import gestion_activite.Activite;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;

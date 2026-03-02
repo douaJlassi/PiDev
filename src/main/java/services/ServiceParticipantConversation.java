@@ -14,12 +14,12 @@ import java.sql.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ServiceParticipantConversation implements services.CRUD<ParticipantConversation> {
+public class ServiceParticipantConversation implements Services.CRUD<ParticipantConversation> {
 
     private ElasticsearchClient esClient= ElasticSearchClient.getInstance();
 
     private ServiceConversation serCnv = new ServiceConversation();
-    private services.ServiceUtilisateur serUser = new services.ServiceUtilisateur();
+    private Services.ServiceUtilisateur serUser = new Services.ServiceUtilisateur();
 
     @Override
     public void insertOne(ParticipantConversation pc) throws SQLException {
