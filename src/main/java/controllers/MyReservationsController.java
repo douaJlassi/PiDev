@@ -1,5 +1,6 @@
-package controllers;
+package Controllers;
 
+import Controllers.ReservationDetailsController;
 import app.Session;
 import entities.ReservationSummary;
 import javafx.collections.FXCollections;
@@ -199,7 +200,7 @@ public class MyReservationsController {
             );
             javafx.scene.Parent root = loader.load();
 
-            controllers.ReservationDetailsController ctrl = loader.getController();
+            ReservationDetailsController ctrl = loader.getController();
             ctrl.init(r);
 
             Stage stage = new Stage();

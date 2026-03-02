@@ -12,7 +12,7 @@
 
 <VBox spacing="15" xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="controllers.ReservationDetailsController"
+      fx:controller="Controllers.ReservationDetailsController"
       style="-fx-padding: 24; -fx-background-color: #f8fafc;">
 
     <!-- En‑tête avec titre et compteur -->

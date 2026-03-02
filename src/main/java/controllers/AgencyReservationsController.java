@@ -1,4 +1,4 @@
-package controllers;
+package Controllers;
 
 import app.Session;
 import entities.AgencyReservationLine;
@@ -28,7 +28,7 @@ public class AgencyReservationsController {
 
     private final IAgencyReservationsRepository repo = new AgencyReservationsRepository();
     private final repositories.UserRepository userRepo = new repositories.UserRepository();
-    private final services.EmailService emailService = new services.EmailService();
+    private final Services.OffreEmailService emailService = new Services.OffreEmailService();
     private final DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     @FXML

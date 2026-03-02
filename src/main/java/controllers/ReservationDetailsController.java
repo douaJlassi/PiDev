@@ -1,9 +1,10 @@
-package controllers;
+package Controllers;
 
 import app.Session;
 import entities.CartItem;
 import entities.ReservationSummary;
 import entities.ReservationStatut;
+import gestion_activite.ReservationDetail;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -12,6 +13,7 @@ import javafx.stage.Stage;
 import repositories.ReservationRepository;
 
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 public class ReservationDetailsController {
 
@@ -167,5 +169,9 @@ public class ReservationDetailsController {
         a.setHeaderText(null);
         a.setContentText(msg);
         a.showAndWait();
+    }
+
+    public void setReservations(List<ReservationDetail> details) {
+
     }
 }

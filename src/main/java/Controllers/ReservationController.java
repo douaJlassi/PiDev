@@ -1,4 +1,4 @@
-package controllers;
+package Controllers;
 
 import services.ActiviteService;
 import services.AchatService;
@@ -11,7 +11,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import services.EmailService;
+import Services.EmailService;
 import utils.EventBus;
 import utils.MyDBConnexion;
 import java.sql.*;
