@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 
 <VBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="controllers.ArchivedOfferCardController"
+      fx:controller="Controllers.ArchivedOfferCardController"
       spacing="12" prefWidth="300"
       style="-fx-background-color: white; -fx-background-radius: 15; -fx-border-color: #E2E8F0; -fx-border-radius: 15; -fx-opacity: 0.85;">
 
