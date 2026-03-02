@@ -1255,7 +1255,7 @@ public class AjouterPersonne {
 
                     loginPane.getChildren().remove(pi);
 
-                    if (similarity > 0.51) { // 51% threshold
+                    if (similarity > 0.41) { // 51% threshold
                         System.out.println("✅ Face ID verified for user: " + user.getUsername());
                         showAlert("Success", "Face ID verified! Logging in...", Alert.AlertType.INFORMATION);
 
