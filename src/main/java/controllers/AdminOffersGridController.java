@@ -1,4 +1,4 @@
-package controllers;
+package Controllers;
 
 import app.Session;
 import entities.Agency;
@@ -18,7 +18,7 @@ import javafx.scene.control.ComboBox;
 import java.io.IOException;
 import java.util.List;
 
-public class AdminOffersGridController implements OfferFilterAware {
+public class AdminOffersGridController implements Controllers.OfferFilterAware {
 
     @FXML private TilePane tilePane;
     @FXML private ComboBox<Agency> agencyCb;

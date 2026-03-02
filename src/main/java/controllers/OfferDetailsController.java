@@ -1,4 +1,4 @@
-package controllers;
+package Controllers;
 
 import app.Session;
 import entities.Offre;

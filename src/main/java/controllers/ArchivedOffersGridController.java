@@ -1,4 +1,4 @@
-package controllers;
+package Controllers;
 
 import app.Session;
 import entities.Offre;
@@ -45,7 +45,7 @@ public class ArchivedOffersGridController {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ArchivedOfferCard.fxml"));
                 Parent card = loader.load();
 
-                ArchivedOfferCardController ctrl = loader.getController();
+                Controllers.ArchivedOfferCardController ctrl = loader.getController();
                 ctrl.setData(offer, this::refresh);
 
                 tilePane.getChildren().add(card);

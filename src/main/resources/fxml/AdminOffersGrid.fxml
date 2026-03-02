@@ -7,7 +7,7 @@
 
 <VBox spacing="20" styleClass="dash-content"
       xmlns:fx="http://javafx.com/fxml"
-      fx:controller="controllers.AdminOffersGridController"
+      fx:controller="Controllers.AdminOffersGridController"
       stylesheets="@../css/app.css">
 
     <padding>

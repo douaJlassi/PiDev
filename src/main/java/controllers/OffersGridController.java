@@ -1,4 +1,4 @@
-package controllers;
+package Controllers;
 
 import entities.OfferFilter;
 import javafx.fxml.FXML;
@@ -77,7 +77,7 @@ public class OffersGridController implements OfferFilterAware {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/OfferCard.fxml"));
                 Parent card = loader.load();
 
-                OfferCardController ctrl = loader.getController();
+                Controllers.OfferCardController ctrl = loader.getController();
                 ctrl.setData(offer, () -> refresh());
 
                 tilePane.getChildren().add(card);

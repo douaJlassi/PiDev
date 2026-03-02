@@ -7,7 +7,7 @@
 
 <VBox spacing="25" styleClass="dash-content"
       xmlns:fx="http://javafx.com/fxml"
-      fx:controller="controllers.ArchivedOffersGridController">
+      fx:controller="Controllers.ArchivedOffersGridController">
 
     <padding><Insets top="30" right="30" bottom="30" left="30"/></padding>
 

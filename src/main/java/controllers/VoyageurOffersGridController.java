@@ -1,5 +1,6 @@
-package controllers;
+package Controllers;
 
+import Controllers.CartViewController;
 import entities.Actualite;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -27,7 +28,7 @@ import javafx.util.Duration;
 
 import java.io.IOException;
 import java.util.List;
-import controllers.OfferFilterAware;
+import Controllers.OfferFilterAware;
 import entities.OfferFilter;
 
 public class VoyageurOffersGridController implements OfferFilterAware {
@@ -135,7 +136,7 @@ public class VoyageurOffersGridController implements OfferFilterAware {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/OfferCard.fxml"));
                 Parent card = loader.load();
 
-                OfferCardController ctrl = loader.getController();
+                Controllers.OfferCardController ctrl = loader.getController();
                 ctrl.setData(offer, this::refresh);
 
                 tilePane.getChildren().add(card);
@@ -230,7 +231,7 @@ public class VoyageurOffersGridController implements OfferFilterAware {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/OfferDetails.fxml"));
             Parent root = loader.load();
 
-            OfferDetailsController ctrl = loader.getController();
+            Controllers.OfferDetailsController ctrl = loader.getController();
 
             Offre offer = repo.findById(idOffre); // ✅ you already have this
             ctrl.setOffer(offer);

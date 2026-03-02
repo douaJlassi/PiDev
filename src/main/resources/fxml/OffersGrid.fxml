@@ -10,7 +10,7 @@
 <?import javafx.scene.shape.SVGPath?>
 <?import javafx.scene.control.Tooltip?>
 <VBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="controllers.OffersGridController"
+      fx:controller="Controllers.OffersGridController"
       spacing="12">
 
     <padding>
