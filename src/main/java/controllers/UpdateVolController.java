@@ -9,7 +9,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
-import entites.vol;
+import entities.vol;
 import services.SupabaseStorageService;
 import services.VolService;
 

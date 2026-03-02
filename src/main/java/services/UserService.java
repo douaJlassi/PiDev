@@ -1,6 +1,6 @@
 package services;
 
-import entites.user;
+import entities.user;
 import utils.MyDBConnexion;
 
 import java.sql.*;

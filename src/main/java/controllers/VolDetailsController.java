@@ -7,8 +7,8 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import org.json.JSONObject;
-import entites.user;
-import entites.vol;
+import entities.user;
+import entities.vol;
 import services.ServiceService;
 
 import java.io.BufferedReader;

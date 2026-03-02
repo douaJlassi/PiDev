@@ -1,5 +1,5 @@
 package services;
-import entites.service;
+import entities.service;
 import utils.MyDBConnexion;
 import java.sql.*;
 import java.util.ArrayList;

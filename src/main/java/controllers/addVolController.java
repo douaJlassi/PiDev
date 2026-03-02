@@ -12,7 +12,7 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import entites.vol;
+import entities.vol;
 import services.SupabaseStorageService;
 import services.VolService;
 

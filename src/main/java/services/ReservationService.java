@@ -1,6 +1,6 @@
 package services;
 
-import entites.reservation;
+import entities.reservation;
 import utils.MyDBConnexion;// Assurez-vous d'importer votre classe de connexion
 
 import java.sql.*;

@@ -1,4 +1,4 @@
-import entites.vol;
+import entities.vol;
 import services.VolService;
 import org.junit.jupiter.api.*;
 import java.sql.SQLException;

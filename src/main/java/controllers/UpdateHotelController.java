@@ -8,7 +8,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
-import entites.Hotel;
+import entities.Hotel;
 import services.HotelService;
 import services.SupabaseStorageService;
 

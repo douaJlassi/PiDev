@@ -1,6 +1,6 @@
 package controllers;
 
-import entites.*;
+import entities.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -12,7 +12,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import projet.entites.*;
 import services.HotelService;
 import services.ReservationService;
 import services.ServiceService;

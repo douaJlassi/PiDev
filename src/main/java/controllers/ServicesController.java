@@ -13,10 +13,10 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 
-import entites.Hotel;
-import entites.service;
-import entites.user;
-import entites.vol;
+import entities.Hotel;
+import entities.service;
+import entities.user;
+import entities.vol;
 import services.HotelService;
 import services.ServiceService;
 import services.SupabaseStorageService;

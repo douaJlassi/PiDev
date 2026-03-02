@@ -2,7 +2,7 @@ import org.junit.jupiter.api.*;
 import java.sql.SQLException;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
-import entites.Hotel;
+import entities.Hotel;
 import services.HotelService;
 public class HotelServiceTest {
     static HotelService hotelService;

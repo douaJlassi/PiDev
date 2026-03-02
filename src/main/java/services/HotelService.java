@@ -1,6 +1,6 @@
 package services;
 
-import entites.Hotel;
+import entities.Hotel;
 import utils.MyDBConnexion;
 
 import java.sql.*;

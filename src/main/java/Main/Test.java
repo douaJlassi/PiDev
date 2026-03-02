@@ -1,10 +1,10 @@
 package Main;
 
-import entites.Hotel;
+import entities.Hotel;
 import services.HotelService;
 import utils.MyDBConnexion;
 
-import entites.vol;
+import entities.vol;
 import services.VolService;
 
 import java.sql.SQLException;

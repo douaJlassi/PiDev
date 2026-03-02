@@ -1,5 +1,5 @@
 import services.ServiceService;
-import entites.service;
+import entities.service;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.*;
 import java.sql.SQLException;

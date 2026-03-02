@@ -1,6 +1,6 @@
 package services;
 
-import entites.vol;
+import entities.vol;
 import utils.MyDBConnexion;
 
 import java.sql.*;

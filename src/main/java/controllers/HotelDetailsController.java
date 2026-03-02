@@ -7,8 +7,8 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import org.json.JSONObject;
-import entites.Hotel;
-import entites.user;
+import entities.Hotel;
+import entities.user;
 import services.ServiceService;
 // Ensure this matches your package structure
 
