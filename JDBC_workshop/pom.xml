@@ -169,7 +169,7 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>tn.esprit.projet.test.MainFX</mainClass>
+                    <mainClass>test.MainFX</mainClass>
                     <options>
                         <option>--enable-native-access=ALL-UNNAMED</option>
                         <option>--add-exports=javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED</option>
@@ -194,7 +194,7 @@
                         <argument>-Djava.library.path=${project.basedir}/lib:${project.build.directory}/lib</argument>
                         <argument>-classpath</argument>
                         <classpath/>
-                        <argument>tn.esprit.projet.test.MainFX</argument>
+                        <argument>test.MainFX</argument>
                     </arguments>
                 </configuration>
             </plugin>

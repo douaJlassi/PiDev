@@ -8,7 +8,7 @@
 
 <DialogPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="tn.esprit.projet.controlles.PurchaseDialogController"
+            fx:controller="controllers.PurchaseDialogController"
             prefWidth="800" prefHeight="600"
             style="-fx-background-color: #f8faff;">
 
