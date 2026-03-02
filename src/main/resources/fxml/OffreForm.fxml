@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<ScrollPane fitToWidth="true" style="-fx-background-color: transparent;" xmlns:fx="http://javafx.com/fxml" fx:controller="controllers.OffreFormController">
+<ScrollPane fitToWidth="true" style="-fx-background-color: transparent;" xmlns:fx="http://javafx.com/fxml" fx:controller="Controllers.OffreFormController">
     <VBox alignment="TOP_CENTER" spacing="20" style="-fx-background-color: -bg;">
         <padding>
             <Insets top="30" right="30" bottom="30" left="30"/>
