@@ -2,7 +2,7 @@ package services;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import entities.Conversation;
-import entities.Message;
+import entities.Messages;
 import entities.ParticipantConversation;
 import entities.Utilisateur;
 import utils.ElasticSearchClient;

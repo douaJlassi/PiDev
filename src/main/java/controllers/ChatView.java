@@ -98,6 +98,8 @@ public class ChatView {
     private Button btnConfirmGroup;
 
     private static final String UPLOAD_DIR = System.getProperty("user.dir") + "/uploads/";
+    private static final String UPLOAD_DIR_VOICE = System.getProperty("user.dir") + "/uploadVoice/";
+
     @FXML
     private Button btnAddFile;
 
@@ -129,8 +131,34 @@ public class ChatView {
         listConversations.setItems(filteredData);
         searchField.textProperty().addListener((obs, oldV, newV) -> updateFilter());
 
-        String styleNormal = "-fx-background-color: white; -fx-border-color: #10A5A5; -fx-border-radius: 20; -fx-background-radius: 20; -fx-text-fill: #0D3B66; -fx-cursor: hand;";
-        String styleSelected = "-fx-background-color: #10A5A5; -fx-border-color: #10A5A5; -fx-border-radius: 20; -fx-background-radius: 20; -fx-text-fill: white; -fx-cursor: hand;";
+        String styleNormal =
+                "-fx-background-color: white;" +
+                        "-fx-border-color: #E0E0E0;" +
+                        "-fx-border-width: 1;" +
+                        "-fx-border-radius: 20;" +
+                        "-fx-background-radius: 20;" +
+                        "-fx-padding: 8 20;" +
+                        "-fx-font-size: 14px;" +
+                        "-fx-font-weight: 500;" +
+                        "-fx-text-fill: #444;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 6, 0, 0, 2);" +
+                        "-fx-min-width: 120;" +
+                        "-fx-alignment: center;" +
+                        "-fx-cursor: hand;";
+
+        String styleSelected =
+                "-fx-background-color: linear-gradient(to right, #00B4D8, #0077B6);" +
+                        "-fx-border-color: transparent;" +
+                        "-fx-border-radius: 20;" +
+                        "-fx-background-radius: 20;" +
+                        "-fx-padding: 8 20;" +
+                        "-fx-font-size: 14px;" +
+                        "-fx-font-weight: 600;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 10, 0, 0, 3);" +
+                        "-fx-cursor: hand;"+
+                        "-fx-min-width: 120;" +
+                        "-fx-alignment: center;";
         btnAll.setStyle(styleSelected);
         btnGroups.setStyle(styleNormal);
         categoryGroup.selectedToggleProperty().addListener((obs, oldV, newVal) -> {
@@ -207,8 +235,8 @@ public class ChatView {
                 circleStatus.setOpacity(1);
             }
 
-            List<Message> messages = serMsg.selectByConversation(conv.getIdConversation());
-            for (Message m : messages) {
+            List<Messages> messages = serMsg.selectByConversation(conv.getIdConversation());
+            for (Messages m : messages) {
                 boolean isMoi = (m.getExpediteur().getIdUtilisateur() == currentUserId);
                 renderMessage(m, isMoi);
             }
@@ -511,7 +539,7 @@ public class ChatView {
             return nameToSearch.contains(searchText);
         });
     }
-    private void renderMessage(Message msg, boolean isMoi) {
+    private void renderMessage(Messages msg, boolean isMoi) {
         HBox lineContainer = new HBox(10);
         lineContainer.setPadding(new Insets(8, 15, 8, 15));
 
@@ -627,7 +655,7 @@ public class ChatView {
 
             btnPlay.setOnAction(e -> {
                 try {
-                    File file = new File(UPLOAD_DIR + msg.getUrlFichier());
+                    File file = new File(UPLOAD_DIR_VOICE + msg.getUrlFichier());
                     javafx.scene.media.Media hit = new javafx.scene.media.Media(file.toURI().toString());
                     javafx.scene.media.MediaPlayer mediaPlayer = new javafx.scene.media.MediaPlayer(hit);
                     if (btnPlay.getText().equals("▶")) {
@@ -736,7 +764,7 @@ public class ChatView {
         paneScrollDown.setVisible(false);
         paneScrollDown.setManaged(false);
     }
-    private void handleSupprimerMessage(Message msg, HBox lineContainer) {
+    private void handleSupprimerMessage(Messages msg, HBox lineContainer) {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setHeaderText("Supprimer ce message ?");
         confirm.setContentText("Le message sera supprimé pour tout le monde.");
@@ -755,7 +783,7 @@ public class ChatView {
         }
     }
 
-    private void handleModifierMessage(Message msg, Label lblContent) {
+    private void handleModifierMessage(Messages msg, Label lblContent) {
         HBox parent = (HBox) lblContent.getParent();
         int index = parent.getChildren().indexOf(lblContent);
 
@@ -792,7 +820,7 @@ public class ChatView {
         });
     }
 
-    private void validerModificationInline(Message msg, Label lblContent, TextField editField, HBox parent, int index) {
+    private void validerModificationInline(Messages msg, Label lblContent, TextField editField, HBox parent, int index) {
         String newText = editField.getText().trim();
 
         if (!newText.isEmpty() && !newText.equals(msg.getContenu())) {
@@ -812,9 +840,9 @@ public class ChatView {
     private void chargerHistorique(int idConversation) {
         vboxMessages.getChildren().clear();
         try {
-            List<Message> historique = serMsg.selectByConversation(idConversation);
+            List<Messages> historique = serMsg.selectByConversation(idConversation);
 
-            for (Message m : historique) {
+            for (Messages m : historique) {
                 boolean isCurrentUser = (m.getExpediteur().getIdUtilisateur() == currentUserId);
                 renderMessage(m, isCurrentUser);
             }
@@ -885,7 +913,7 @@ public class ChatView {
 
                     // --- 3. LOGIQUE DE REMPLISSAGE (Mise à jour ici) ---
                     try {
-                        Message last = serMsg.selectLastMessage(conv.getIdConversation());
+                        Messages last = serMsg.selectLastMessage(conv.getIdConversation());
 
                         if (last != null) {
                             lblLastMsg.setText(last.getContenu());
@@ -947,7 +975,7 @@ public class ChatView {
         if (currentConv == null) return;
 
         try {
-            Message m = new Message();
+            Messages m = new Messages();
             m.setContenu(text.trim());
             m.setDateEnvoi(LocalDateTime.now());
             m.setLu(false);
@@ -1268,7 +1296,7 @@ public class ChatView {
                 Conversation currentConv = listConversations.getSelectionModel().getSelectedItem();
                 if (currentConv == null) return;
 
-                Message m = new Message();
+                Messages m = new Messages();
                 m.setContenu(selectedFile.getName());
                 m.setDateEnvoi(LocalDateTime.now());
                 m.setLu(false);
@@ -1310,7 +1338,7 @@ public class ChatView {
         if (currentConv == null) return;
 
         try {
-            List<Message> medias = serMsg.getMediaHistory(currentConv.getIdConversation());
+            List<Messages> medias = serMsg.getMediaHistory(currentConv.getIdConversation());
             if (medias.isEmpty()) {
                 VBox emptyState = new VBox(15);
                 emptyState.setAlignment(Pos.CENTER);
@@ -1326,7 +1354,7 @@ public class ChatView {
                 vboxMediaList.getChildren().add(emptyState);
                 return;
             }
-            for (Message m : medias) {
+            for (Messages m : medias) {
                 HBox card = new HBox(12);
                 card.setAlignment(Pos.CENTER_LEFT);
                 card.setPadding(new Insets(12));
@@ -1387,7 +1415,7 @@ public class ChatView {
         paneMediaHistory.setManaged(false);
     }
 
-    private void showReactionMenu(Button source, Message msg, StackPane bubble) {
+    private void showReactionMenu(Button source, Messages msg, StackPane bubble) {
         HBox emojiBar = new HBox(15);
         emojiBar.setAlignment(Pos.CENTER);
         emojiBar.setPadding(new Insets(10, 20, 10, 20));
@@ -1482,22 +1510,36 @@ public class ChatView {
     @FXML
     private void stopRecording() {
         recorder.stop();
+
         btnMic.setStyle("-fx-background-color: #0077B6; -fx-background-radius: 50;");
 
-        try {
-            Message m = new Message();
-            m.setContenu("🎤 Message Vocal");
-            m.setTypeMessage(TypeMessage.AUDIO);
-            m.setUrlFichier(currentAudioFile.getName());
-            m.setDateEnvoi(LocalDateTime.now());
-            m.setConversation(listConversations.getSelectionModel().getSelectedItem());
-            m.setExpediteur(userConnecte);
-            serMsg.insertOne(m);
+        new Thread(() -> {
+            try {
+                Thread.sleep(500);
 
-            loadConversations();
-            listConversations.getSelectionModel().select(m.getConversation());
+                Platform.runLater(() -> {
+                    try {
+                        Messages m = new Messages();
+                        m.setContenu("🎤 Message Vocal");
+                        m.setTypeMessage(TypeMessage.AUDIO);
+                        m.setUrlFichier(currentAudioFile.getName());
+                        m.setDateEnvoi(LocalDateTime.now());
+                        m.setConversation(listConversations.getSelectionModel().getSelectedItem());
+                        m.setExpediteur(userConnecte);
 
-        } catch (SQLException e) { e.printStackTrace(); }
+                        serMsg.insertOne(m);
+
+                        loadConversations();
+                        listConversations.getSelectionModel().select(m.getConversation());
+
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                });
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     @FXML
@@ -1549,7 +1591,7 @@ public class ChatView {
 
     private void envoyerMessageLocation(String coords) {
         try {
-            Message m = new Message();
+            Messages m = new Messages();
             m.setContenu("📍 Position partagée");
             m.setTypeMessage(TypeMessage.LOCATION);
             m.setUrlFichier(coords);

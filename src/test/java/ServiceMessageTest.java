@@ -68,7 +68,7 @@ public class ServiceMessageTest {
     @Order(1)
     void simulationEchangeMessages() throws SQLException {
         // ali envoie le premier message
-        Message m1 = new Message();
+        Messages m1 = new Messages();
         m1.setContenu("Salut Douaa, tu as fini le projet ?");
         m1.setExpediteur(ali);
         m1.setConversation(chat);
@@ -77,7 +77,7 @@ public class ServiceMessageTest {
         sm.insertOne(m1);
 
         // Douaa répond
-        Message m2 = new Message();
+        Messages m2 = new Messages();
         m2.setContenu("Oui ali, je viens de terminer les tests !");
         m2.setExpediteur(sarra);
         m2.setConversation(chat);
@@ -86,7 +86,7 @@ public class ServiceMessageTest {
         sm.insertOne(m2);
 
         // Vérification
-        List<Message> discussion = sm.selectByConversation(chat.getIdConversation());
+        List<Messages> discussion = sm.selectByConversation(chat.getIdConversation());
         assertEquals(2, discussion.size(), "Il devrait y avoir 2 messages dans la conversation");
 
         // On vérifie que le premier message vient bien d'ali
@@ -95,7 +95,7 @@ public class ServiceMessageTest {
         assertEquals("sarra", discussion.get(1).getExpediteur().getPrenom());
 
         System.out.println("--- Historique de la discussion ---");
-        for(Message m : discussion) {
+        for(Messages m : discussion) {
             System.out.println(m.getExpediteur().getPrenom() + " : " + m.getContenu());
         }
     }

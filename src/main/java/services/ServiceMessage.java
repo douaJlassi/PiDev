@@ -2,7 +2,7 @@ package services;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import entities.Conversation;
-import entities.Message;
+import entities.Messages;
 import entities.TypeMessage;
 import entities.Utilisateur;
 import utils.ElasticSearchClient;
@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ServiceMessage implements CRUD<Message>{
+public class ServiceMessage implements CRUD<Messages>{
 
     private Connection cnx;
     public ServiceMessage(){
@@ -27,7 +27,7 @@ public class ServiceMessage implements CRUD<Message>{
     private ServiceUtilisateur serUtilisateur = new ServiceUtilisateur();
 
     @Override
-    public void insertOne(Message message) throws SQLException {
+    public void insertOne(Messages message) throws SQLException {
         String query= "INSERT INTO `message`(`contenu`, `dateEnvoi`, `lu`, `idConversation`, `idExpediteur`, `typeMessage`, `urlFichier`) VALUES (?,?,?,?,?,?,?)";
 
         PreparedStatement pst = cnx.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
@@ -73,7 +73,7 @@ public class ServiceMessage implements CRUD<Message>{
     }
 
     @Override
-    public void updateOne(Message message) throws SQLException {
+    public void updateOne(Messages message) throws SQLException {
         String query= "UPDATE `message` SET contenu=? WHERE idMessage=?";
 
         PreparedStatement pst = cnx.prepareStatement(query);
@@ -86,7 +86,7 @@ public class ServiceMessage implements CRUD<Message>{
     }
 
     @Override
-    public void deleteOne(Message m) throws SQLException {
+    public void deleteOne(Messages m) throws SQLException {
         String query = "UPDATE `message` SET isDeleted = 1 WHERE idMessage = ?";
         try (PreparedStatement ps = cnx.prepareStatement(query)) {
             ps.setInt(1, m.getIdMessage());
@@ -95,8 +95,8 @@ public class ServiceMessage implements CRUD<Message>{
     }
 
     @Override
-    public List<Message> selectALL() throws SQLException {
-        List<Message> messages= new ArrayList<>();
+    public List<Messages> selectALL() throws SQLException {
+        List<Messages> messages= new ArrayList<>();
         String query= "SELECT * FROM `message` ORDER BY dateEnvoi ASC";
         PreparedStatement pst = cnx.prepareStatement(query);
         ResultSet rs = pst.executeQuery();
@@ -105,7 +105,7 @@ public class ServiceMessage implements CRUD<Message>{
             Conversation conv = serConv.selectOne(idConv);
             int idExp = rs.getInt("idExpediteur");
             Utilisateur exp = serUtilisateur.selectOne(idExp);
-            messages.add(new Message(
+            messages.add(new Messages(
                     rs.getInt(1),
                     rs.getString(2),
                     rs.getTimestamp(3).toLocalDateTime(),
@@ -122,7 +122,7 @@ public class ServiceMessage implements CRUD<Message>{
     }
 
     @Override
-    public Message selectOne(int id) throws SQLException {
+    public Messages selectOne(int id) throws SQLException {
         String query= "SELECT * FROM `message` WHERE idMessage=?";
         PreparedStatement pst = cnx.prepareStatement(query);
         pst.setInt(1, id);
@@ -132,7 +132,7 @@ public class ServiceMessage implements CRUD<Message>{
             Conversation conv = serConv.selectOne(idConv);
             int idExp = rs.getInt("idExpediteur");
             Utilisateur exp = serUtilisateur.selectOne(idExp);
-            return new Message(
+            return new Messages(
                     rs.getInt(1),
                     rs.getString(2),
                     rs.getTimestamp(3).toLocalDateTime(),
@@ -148,8 +148,8 @@ public class ServiceMessage implements CRUD<Message>{
         return null;
     }
 
-    public List<Message> selectByConversation(int idConversation) throws SQLException {
-        List<Message> messages = new ArrayList<>();
+    public List<Messages> selectByConversation(int idConversation) throws SQLException {
+        List<Messages> messages = new ArrayList<>();
         String query = "SELECT * FROM `message` WHERE idConversation=? ORDER BY dateEnvoi ASC";
         PreparedStatement pst = cnx.prepareStatement(query);
         pst.setInt(1, idConversation);
@@ -159,7 +159,7 @@ public class ServiceMessage implements CRUD<Message>{
             Conversation conv = serConv.selectOne(idConv);
             int idExp = rs.getInt("idExpediteur");
             Utilisateur exp = serUtilisateur.selectOne(idExp);
-            messages.add(new Message(rs.getInt(1),
+            messages.add(new Messages(rs.getInt(1),
                     rs.getString(2),
                     rs.getTimestamp(3).toLocalDateTime(),
                     rs.getBoolean(4),
@@ -174,7 +174,7 @@ public class ServiceMessage implements CRUD<Message>{
         return messages;
     }
 
-    public Message selectLastMessage(int idConversation) throws SQLException {
+    public Messages selectLastMessage(int idConversation) throws SQLException {
 
         String query = "SELECT * FROM `message` WHERE idConversation=? ORDER BY dateEnvoi Desc LIMIT 1";
         PreparedStatement pst = cnx.prepareStatement(query);
@@ -185,7 +185,7 @@ public class ServiceMessage implements CRUD<Message>{
             Conversation conv = serConv.selectOne(idConv);
             int idExp = rs.getInt("idExpediteur");
             Utilisateur exp = serUtilisateur.selectOne(idExp);
-            return new Message(rs.getInt("idMessage"),
+            return new Messages(rs.getInt("idMessage"),
                     rs.getString("contenu"),
                     rs.getTimestamp("dateEnvoi").toLocalDateTime(),
                     rs.getBoolean("lu"),
@@ -226,8 +226,8 @@ public class ServiceMessage implements CRUD<Message>{
         return 0;
     }
 
-    public List<Message> getMediaHistory(int idConv) throws SQLException {
-        List<Message> medias = new ArrayList<>();
+    public List<Messages> getMediaHistory(int idConv) throws SQLException {
+        List<Messages> medias = new ArrayList<>();
         String query = "SELECT * FROM `message` WHERE idConversation = ? AND typeMessage != 'TEXTE' ORDER BY dateEnvoi DESC";
 
         try (PreparedStatement ps = cnx.prepareStatement(query)) {
@@ -238,7 +238,7 @@ public class ServiceMessage implements CRUD<Message>{
                 Conversation conv = serConv.selectOne(idConversation);
                 int idExp = rs.getInt("idExpediteur");
                 Utilisateur exp = serUtilisateur.selectOne(idExp);
-                medias.add(new Message(
+                medias.add(new Messages(
                         rs.getInt("idMessage"),
                         rs.getString("contenu"),
                         rs.getTimestamp("dateEnvoi").toLocalDateTime(),

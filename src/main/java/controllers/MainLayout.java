@@ -65,7 +65,7 @@ public class MainLayout {
     @FXML
     private void showChatView() {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/ChatView.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("/views/ChatView.fxml"));
             mainBorderPane.setCenter(root);
             refreshBadge();
         } catch (IOException e) {

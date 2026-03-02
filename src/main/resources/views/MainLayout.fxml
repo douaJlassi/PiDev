@@ -23,7 +23,7 @@
                         <Insets left="20.0" />
                     </HBox.margin>
                     <image>
-                        <Image url="@images/logo.png" />
+                        <Image url="@../images/logo.png" />
                     </image>
                 </ImageView>
                 <Button fx:id="btnChat" alignment="CENTER_LEFT" mnemonicParsing="false" onAction="#showChatView"

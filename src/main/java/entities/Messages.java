@@ -3,7 +3,7 @@ package entities;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-public class Message {
+public class Messages {
 
     private int idMessage;
     private String contenu;
@@ -16,10 +16,10 @@ public class Message {
     private String reaction;
     private boolean isDeleted;
 
-    public Message() {
+    public Messages() {
     }
 
-    public Message(int idMessage, String contenu, LocalDateTime dateEnvoi, boolean lu, Conversation conversation,  Utilisateur utilisateur,  TypeMessage typeMessage, String urlFichier, String reaction, boolean isDeleted) {
+    public Messages(int idMessage, String contenu, LocalDateTime dateEnvoi, boolean lu, Conversation conversation, Utilisateur utilisateur, TypeMessage typeMessage, String urlFichier, String reaction, boolean isDeleted) {
         this.idMessage = idMessage;
         this.contenu = contenu;
         this.dateEnvoi = dateEnvoi;
@@ -129,7 +129,7 @@ public class Message {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Message message)) return false;
+        if (!(o instanceof Messages message)) return false;
         return idMessage == message.idMessage
                 && lu == message.lu
                 && Objects.equals(contenu, message.contenu)

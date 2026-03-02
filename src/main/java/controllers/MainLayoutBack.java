@@ -13,7 +13,7 @@ public class MainLayoutBack {
     @FXML
     private void showDashboard() {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/BackofficeView.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("/views/BackofficeView.fxml"));
             mainBorderPane.setCenter(root);
         } catch (IOException e) {
             e.printStackTrace();

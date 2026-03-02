@@ -46,8 +46,8 @@ public class MigrationTool {
             }
             System.out.println("✅ " + convs.size() + " conversations migrées.");
 
-            List<Message> msgs = serMsg.selectALL();
-            for (Message m : msgs) {
+            List<Messages> msgs = serMsg.selectALL();
+            for (Messages m : msgs) {
                 Map<String, Object> data = new HashMap<>();
                 data.put("idMessage", m.getIdMessage());
                 data.put("contenu", m.getContenu());
