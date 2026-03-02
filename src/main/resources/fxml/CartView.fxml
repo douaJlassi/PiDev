@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox spacing="20" styleClass="dash-content" xmlns:fx="http://javafx.com/fxml" fx:controller="controllers.CartViewController">
+<VBox spacing="20" styleClass="dash-content" xmlns:fx="http://javafx.com/fxml" fx:controller="Controllers.CartViewController">
     <padding>
         <Insets top="30" right="30" bottom="30" left="30"/>
     </padding>

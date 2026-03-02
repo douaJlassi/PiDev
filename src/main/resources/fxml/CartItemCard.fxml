@@ -7,7 +7,7 @@
 
 <?import javafx.scene.shape.SVGPath?>
 <VBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="controllers.CartItemCardController"
+      fx:controller="Controllers.CartItemCardController"
       spacing="0"
       styleClass="cart-item-card"
       prefWidth="650">

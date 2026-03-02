@@ -1,4 +1,4 @@
-package controllers;
+package Controllers;
 
 import entities.CartItem;
 import javafx.fxml.FXML;

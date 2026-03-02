@@ -1,4 +1,4 @@
-package controllers;
+package Controllers;
 
 import app.Session;
 import entities.CartItem;
@@ -23,7 +23,7 @@ public class CartViewController {
     private final ReservationRepository reservationRepo = new ReservationRepository();
     private final LignePanierRepository ligneRepo = new LignePanierRepository();
     private final repositories.UserRepository userRepo = new repositories.UserRepository();
-    private final services.EmailService emailService = new services.EmailService();
+    private final Services.OffreEmailService emailService = new Services.OffreEmailService();
 
     private int cartId;
 
@@ -117,7 +117,7 @@ public class CartViewController {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/CartItemCard.fxml"));
                 Parent card = loader.load();
 
-                CartItemCardController ctrl = loader.getController();
+                Controllers.CartItemCardController ctrl = loader.getController();
                 ctrl.setData(it, this::refresh);
 
                 itemsBox.getChildren().add(card);
