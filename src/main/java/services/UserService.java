@@ -7,7 +7,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserService implements CRUD<String, user>{
+public class UserService implements CRUDservices<String, user> {
     private Connection connection;
     private String nom;
     public UserService() {connection= MyDBConnexion.getInstance().getConnection();}

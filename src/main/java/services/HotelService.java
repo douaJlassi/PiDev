@@ -7,7 +7,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HotelService implements CRUD<String,Hotel> {
+public class HotelService implements CRUDservices<String,Hotel> {
     private Connection connection;
     private String nom;
     public HotelService() {connection= MyDBConnexion.getInstance().getConnection();}

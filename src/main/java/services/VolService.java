@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 import java.util.List;
 
-public class VolService implements CRUD<String,vol> {
+public class VolService implements CRUDservices<String,vol> {
     private Connection connection;
     private String NbVol;
 

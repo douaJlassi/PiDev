@@ -7,7 +7,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReservationService implements CRUD<String, reservation> {
+public class ReservationService implements CRUDservices<String, reservation> {
 
     private Connection connection;
 

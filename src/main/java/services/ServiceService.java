@@ -5,7 +5,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ServiceService implements CRUD<String,service> {
+public class ServiceService implements CRUDservices<String,service> {
     private Connection connection;
     private String nom;
     public ServiceService() {connection=MyDBConnexion.getInstance().getConnection();}
