@@ -57,6 +57,11 @@ public class ReservationService implements CRUDservices<String, reservation> {
         PreparedStatement ps = connection.prepareStatement(req);
         ps.executeUpdate();
     }
+    public void deletebyId(int id) throws SQLException {
+        String req = "DELETE FROM `reservations` WHERE `idReservation` = " + "'" + id + "'";
+        PreparedStatement ps = connection.prepareStatement(req);
+        ps.executeUpdate();
+    }
 
     @Override
     public List<reservation> selectALL() throws SQLException {

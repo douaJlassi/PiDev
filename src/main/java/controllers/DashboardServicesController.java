@@ -201,11 +201,16 @@ public class DashboardServicesController implements Initializable {
             statusLbl.setMinWidth(100);
             statusLbl.getStyleClass().add("status-active");
             row.getChildren().addAll(nameLbl, DateLbl, PaymentLbl, ServiceLbl, statusLbl);
+        } else if (reservation.getStatut().equals("en attente")) {
+            Label statusLbl = new Label("Pending");
+            statusLbl.setMinWidth(100);
+            statusLbl.getStyleClass().add("status-pending");
+            row.getChildren().addAll(nameLbl, DateLbl, PaymentLbl, ServiceLbl, statusLbl);
         }
         else {
             Label statusLbl = new Label("Not Accepted");
             statusLbl.setMinWidth(100);
-            statusLbl.getStyleClass().add("status-pending");
+            statusLbl.getStyleClass().add("status-inactive");
             row.getChildren().addAll(nameLbl, DateLbl, PaymentLbl, ServiceLbl, statusLbl);
 
         }

@@ -163,6 +163,12 @@
     -fx-background-radius: 5;
     -fx-padding: 3 8;
 }
+.status-inactive {
+    -fx-text-fill: rgba(255, 255, 255, 1);
+    -fx-background-color: rgba(255, 0, 0, 0.5);
+    -fx-background-radius: 5;
+    -fx-padding: 3 8;
+}
 /* Filter Button Styling */
 .filter-btn {
     -fx-background-color: white;

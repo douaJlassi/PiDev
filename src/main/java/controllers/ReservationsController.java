@@ -127,7 +127,9 @@ public class ReservationsController implements Initializable {
         });
         btnDelete.setOnAction(event -> {
             try {
-                Service.deleteOne(r);
+                int id=Service.getIdReservation(r);
+                Service.deletebyId(id);
+                //Service.deleteOne(r);
                 ServiceService service = new ServiceService();
                 service.IncrementCapacite(r.getIdService());
                 refreshServices();

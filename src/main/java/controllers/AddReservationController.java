@@ -206,7 +206,7 @@ public class AddReservationController {
             dpDateReservation.getStyleClass().add("error");
             messageErrorDate="La date ne peut pas être vide" ;
             return false;
-        } else if (dpDateReservation.getValue().isAfter(LocalDate.now())) {
+        } else if (dpDateReservation.getValue().isBefore(LocalDate.now())) {
             messageErrorDate="Date already passed" ;
             return false;
         }
