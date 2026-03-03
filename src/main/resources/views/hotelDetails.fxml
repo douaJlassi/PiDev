@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<?import javafx.scene.layout.HBox?>
+<AnchorPane style="-fx-background-color: transparent;" stylesheets="@style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.HotelDetailsController">
+
+    <children>
+        <VBox alignment="CENTER" fillWidth="false" spacing="20" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+
+            <VBox spacing="20" styleClass="form-card" minWidth="600">
+
+                <!-- Header -->
+                <VBox alignment="CENTER" spacing="5">
+                    <Label styleClass="form-title" text="🏨 Détails de l'Hôtel" />
+                    <Label fx:id="lblNom" style="-fx-font-size: 18px; -fx-text-fill: #4ba3a1; -fx-font-weight: bold;" text="Nom Hôtel" />
+                </VBox>
+
+                <Separator opacity="0.1" />
+
+                <!-- Details Grid -->
+                <GridPane hgap="20.0" vgap="15.0">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="100.0" prefWidth="120.0" />
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="150.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="100.0" prefWidth="120.0" />
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="150.0" />
+                    </columnConstraints>
+
+                    <!-- ROW 0 -->
+                    <Label styleClass="form-label" text="Localisation :" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <HBox spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                    <Label fx:id="lblLocalisation" styleClass="detail-value" text="Hammamet"  />
+                    <Label fx:id="lblTemp" text="-- °C" style="-fx-font-weight: bold;" />
+                        <Button fx:id="btnCountryInfo"  onAction="#handleCountryInfo" text="🌍" styleClass="btn-country" style="-fx-background-color: #4ba3a1; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 8 8; -fx-cursor: hand; -fx-font-size: 13px;"
+                    />
+
+
+                    </HBox>
+                    <Label styleClass="form-label" text="Prix / Nuit :" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                    <Label fx:id="lblPrix" styleClass="detail-value" text="120 TND" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+
+                    <!-- ROW 1 -->
+                    <Label styleClass="form-label" text="Nombre Étoiles :" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                    <Label fx:id="lblEtoiles" styleClass="detail-value" text="★★★★★" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                    <Label styleClass="form-label" text="Type Chambre :" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                    <Label fx:id="lblChambre" styleClass="detail-value" text="Double" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+
+                    <!-- ROW 2 -->
+                    <Label styleClass="form-label" text="Capacité :" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                    <Label fx:id="lblCapacite" styleClass="detail-value" text="200" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                    <Label styleClass="form-label" text="Statut :" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                    <Label fx:id="lblStatus" styleClass="detail-value" text="Disponible" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+
+                    <!-- Description -->
+                    <Label styleClass="form-label" text="Description :" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                    <Label fx:id="lblDescription" styleClass="detail-value" text="Description de l'hôtel..." wrapText="true" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="3" />
+                    <rowConstraints>
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                    </rowConstraints>
+
+                </GridPane>
+
+                <Separator opacity="0.1" />
+
+                <Button fx:id="retourBtn"   styleClass="btn-back" text="← Retour" />
+                <Button fx:id="btnReserver"  onAction="#handleReserver" styleClass="btn-submit" text="Réserver une chambre" />
+
+            </VBox>
+        </VBox>
+    </children>
+</AnchorPane>
