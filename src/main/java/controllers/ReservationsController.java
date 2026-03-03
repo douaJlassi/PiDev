@@ -7,15 +7,10 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
-import services.HotelService;
-import services.ReservationService;
-import services.ServiceService;
-import services.VolService;
+import services.*;
 
 import java.io.IOException;
 import java.net.URL;
@@ -35,8 +30,17 @@ public class ReservationsController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        if (connectedUser.getType().equals("user")) {
+            allReservations = getDummyData();
+            List<reservation> filtered= allReservations.stream()
+                    .filter(r ->r.getNom().equals(connectedUser.getNom()+" "+connectedUser.getPrenom()) )
+                    .toList();
+            renderServices(filtered);
+
+        }
+        else {
         allReservations = getDummyData();
-        renderServices(allReservations);
+            renderServices(allReservations);}
     }
     public void refreshServices() {
         allReservations = getDummyData();
@@ -96,6 +100,31 @@ public class ReservationsController implements Initializable {
         actions.setAlignment(Pos.CENTER_RIGHT);
         actions.setSpacing(10);
         Button btnDelete = new Button("🗑");
+        Button btnAccept = new Button("✅");
+        Button btnRefuse = new Button("❌");
+        Button btnExportPdf = new Button("📄");
+        btnExportPdf.setTooltip(new javafx.scene.control.Tooltip("Export PDF"));
+        btnExportPdf.getStyleClass().addAll("btn-card-action");
+        btnExportPdf.setVisible(r.getStatut().equals("acceptee"));
+        btnExportPdf.setManaged(r.getStatut().equals("acceptee"));
+        btnAccept.setOnAction(event -> {
+            try {
+                int id=Service.getIdReservation(r);
+                Service.validerReservation(id);
+                refreshServices();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        btnRefuse.setOnAction(event -> {
+            try {
+                int id=Service.getIdReservation(r);
+                Service.RefuserReservation(id);
+                refreshServices();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
         btnDelete.setOnAction(event -> {
             try {
                 Service.deleteOne(r);
@@ -106,15 +135,33 @@ public class ReservationsController implements Initializable {
                 throw new RuntimeException(e);
             }
         });
+        btnExportPdf.setOnAction(event -> {
+            try {
+                ServiceService serviceService = new ServiceService();
+                String serviceName = serviceService.getServiceName(r.getIdService());
+                service s;
+                s = serviceService.selectByNom(serviceName);
+                String type = serviceService.selectByNom(serviceName).getType();
+                System.out.println(type);
+                PdfExportService.exportReservation(r, s,type);
+                Alert alert = new Alert(Alert.AlertType.INFORMATION, "PDF exported successfully!", ButtonType.OK);
+                alert.show();
+            } catch (Exception e) {
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to export PDF: " + e.getMessage(), ButtonType.OK);
+                alert.show();
+            }
+        });
         if (connectedUser.getType().equals("user")) {
-            btnDelete.setVisible(false);
-
+            btnAccept.setVisible(false);
+            btnRefuse.setVisible(false);
         }
         btnDelete.getStyleClass().addAll("btn-card-action", "btn-card-delete");
+        btnAccept.getStyleClass().addAll("btn-card-action");
+        btnRefuse.getStyleClass().addAll("btn-card-action","btn-card-delete");
         Pane spacer = new Pane();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        actions.getChildren().addAll( spacer, btnDelete);
+        actions.getChildren().addAll( spacer,btnAccept,btnRefuse,btnDelete,btnExportPdf);
 
         details.getChildren().addAll(name,statut,paiement,date,actions);
         card.getChildren().addAll(details);
@@ -131,52 +178,5 @@ public class ReservationsController implements Initializable {
         }
         return list;
     }
-    private void showDetails(service s) {
-        FXMLLoader loader ;
-        Parent root;
-        vol v;
-        Hotel h;
-        if (s.getType().equals("hotel")) {
-            loader = new FXMLLoader(getClass().getResource("/hotelDetails.fxml"));
-            try {
-                HotelService hotelService = new HotelService();
-                try {
-                    h=hotelService.selectOne(s.getNom());
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-                root = loader.load();
-                HotelDetailsController controller = loader.getController();
-                controller.setHotelData(h);
-                controller.setHotelData(h);
-                cardsContainer.getScene().setRoot(root);
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
 
-            }
-        }
-        else if (s.getType().equals("vol")) {
-            loader = new FXMLLoader(getClass().getResource("/volsDetails.fxml"));
-            try {
-                VolService volService = new VolService();
-                try {
-                    v = volService.selectByNom(s.getNom());
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-                root = loader.load();
-                VolDetailsController controller = loader.getController();
-                controller.setVolData(v);
-                cardsContainer.getScene().setRoot(root);
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-
-            }
-        }
-        else {
-            return;
-        }
-
-
-    }
 }

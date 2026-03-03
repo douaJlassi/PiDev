@@ -18,7 +18,7 @@
                 <!-- HEADER: Title + Search + Filter -->
                 <HBox alignment="CENTER_LEFT" prefHeight="60.0" spacing="15.0" style="-fx-background-color: white; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);">
                     <children>
-                        <Label styleClass="page-title" text="Available Services" />
+                        <Label styleClass="page-title" text="Available services" />
 
                         <Pane HBox.hgrow="ALWAYS" />
 

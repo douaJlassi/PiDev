@@ -74,7 +74,7 @@ public class ServiceService implements CRUDservices<String,service> {
                     rs.getDouble(4),
                     rs.getBoolean(5),
                     rs.getInt(6),
-                    "none",
+                    rs.getString(16),
                     rs.getString(15)
             );
 
@@ -115,10 +115,13 @@ public class ServiceService implements CRUDservices<String,service> {
         return sr;
     }
     public String getServiceName(int id) throws SQLException {
-        String req = "SELECT nom FROM `services` WHERE `id` = '" + id + "'";
+        String req = "SELECT nom FROM `services` WHERE `idService` = '" + id + "'";
         Statement st = connection.createStatement();
         ResultSet rs = st.executeQuery(req);
-        return rs.getString(1);
+        if (rs.next()) {
+            return rs.getString(1);
+        }
+        return "Unknown";
     }
     public void DecrementCapacite(int id) throws SQLException {
         String req = "UPDATE services SET capacite = capacite - 1, " +

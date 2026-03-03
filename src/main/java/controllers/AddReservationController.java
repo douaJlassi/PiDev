@@ -88,8 +88,8 @@ public class AddReservationController {
             System.out.println(idService);
             ReservationService service = new ReservationService();
             reservation reservation = "vol".equals(Type)
-                    ? new reservation("non acceptee", sqlDateArrive, idService, modePaiement, nom, selectedSeatNumber)
-                    : new reservation("non acceptee", sqlDateArrive, idService, modePaiement, nom, -1);
+                    ? new reservation("en attente", sqlDateArrive, idService, modePaiement, nom, selectedSeatNumber)
+                    : new reservation("en attente", sqlDateArrive, idService, modePaiement, nom, -1);
             try {
                 service.validerReservation(reservation, Type);
             } catch (ReservationService.ReservationException e) {

@@ -14,6 +14,7 @@ public class ReservationService implements CRUDservices<String, reservation> {
     public ReservationService() {
         connection = MyDBConnexion.getInstance().getConnection();
     }
+
     @Override
     public void insertOne(reservation r) throws SQLException {
         java.sql.Date sqlDate = java.sql.Date.valueOf(r.getDateReservation().toString());
@@ -29,6 +30,7 @@ public class ReservationService implements CRUDservices<String, reservation> {
             System.out.println("Réservation ajoutée avec succès !");
         }
     }
+
     @Override
     public void updateOne(String id, reservation r) throws SQLException {
         java.sql.Date sqlDate = java.sql.Date.valueOf(r.getDateReservation().toString());
@@ -48,12 +50,14 @@ public class ReservationService implements CRUDservices<String, reservation> {
             }
         }
     }
+
     @Override
     public void deleteOne(reservation r) throws SQLException {
         String req = "DELETE FROM `reservations` WHERE `nom` = " + "'" + r.getNom() + "'";
         PreparedStatement ps = connection.prepareStatement(req);
         ps.executeUpdate();
     }
+
     @Override
     public List<reservation> selectALL() throws SQLException {
         List<reservation> reservations = new ArrayList<>();
@@ -75,9 +79,10 @@ public class ReservationService implements CRUDservices<String, reservation> {
         }
         return reservations;
     }
+
     public List<Integer> selectSeats(int ServiceId) throws SQLException {
         List<Integer> reservations = new ArrayList<>();
-        String req = "SELECT seatNb FROM reservations WHERE `idService` = '"+ServiceId+"'";
+        String req = "SELECT seatNb FROM reservations WHERE `idService` = '" + ServiceId + "'";
         try (Statement st = connection.createStatement();
              ResultSet rs = st.executeQuery(req)) {
 
@@ -89,6 +94,7 @@ public class ReservationService implements CRUDservices<String, reservation> {
         }
         return reservations;
     }
+
     public void validerReservation(reservation r, String typeService) throws SQLException, ReservationException {
 
         // 1. Le service existe et est disponible
@@ -107,6 +113,7 @@ public class ReservationService implements CRUDservices<String, reservation> {
         // 4. Cohérence vol ↔ hôtel (ville d'arrivée du vol = ville de l'hôtel)
         verifierCoherenceVolHotel(r.getNom(), r.getIdService(), typeService);
     }
+
     private void verifierDisponibiliteService(int idService) throws SQLException, ReservationException {
         String req = "SELECT disponibilite, capacite, nom FROM services WHERE idService = ?";
         try (PreparedStatement pst = connection.prepareStatement(req)) {
@@ -115,9 +122,9 @@ public class ReservationService implements CRUDservices<String, reservation> {
             if (!rs.next()) {
                 throw new ReservationException("❌ Service introuvable (id=" + idService + ").");
             }
-            String dispo   = rs.getString("disponibilite");
-            int    capacite = rs.getInt("capacite");
-            String nom      = rs.getString("nom");
+            String dispo = rs.getString("disponibilite");
+            int capacite = rs.getInt("capacite");
+            String nom = rs.getString("nom");
 
             if ("false".equalsIgnoreCase(dispo) || capacite <= 0) {
                 throw new ReservationException(
@@ -125,6 +132,7 @@ public class ReservationService implements CRUDservices<String, reservation> {
             }
         }
     }
+
     private void verifierDoublonHotel(String nomClient, Date dateReservation) throws SQLException, ReservationException {
         String req =
                 "SELECT r.idReservation, s.nom AS nomHotel " +
@@ -145,6 +153,7 @@ public class ReservationService implements CRUDservices<String, reservation> {
             }
         }
     }
+
     private void verifierDoublonVol(String nomClient, int idVolNouveau) throws SQLException, ReservationException {
         // Récupérer les horaires du nouveau vol
         String reqVol = "SELECT dateDepart, dateArrive FROM services WHERE idService = ?";
@@ -153,7 +162,7 @@ public class ReservationService implements CRUDservices<String, reservation> {
             pst.setInt(1, idVolNouveau);
             ResultSet rs = pst.executeQuery();
             if (!rs.next()) return; // déjà géré par règle 1
-            departNouv  = rs.getDate("dateDepart");
+            departNouv = rs.getDate("dateDepart");
             arriveeNouv = rs.getDate("dateArrive");
         }
 
@@ -190,6 +199,7 @@ public class ReservationService implements CRUDservices<String, reservation> {
             return rs.next() ? rs.getString("villeArrivee") : null;
         }
     }
+
     private String getLocalisationHotel(int idHotel) throws SQLException {
         String req = "SELECT localisation FROM services WHERE idService = ?";
         try (PreparedStatement pst = connection.prepareStatement(req)) {
@@ -198,6 +208,7 @@ public class ReservationService implements CRUDservices<String, reservation> {
             return rs.next() ? rs.getString("localisation") : null;
         }
     }
+
     private void verifierCoherenceVolHotel(String nomClient, int idServiceNouveau, String typeNouv) throws SQLException, ReservationException {
 
         if (typeNouv.equals("vol")) {
@@ -251,7 +262,59 @@ public class ReservationService implements CRUDservices<String, reservation> {
             }
         }
     }
+
     public static class ReservationException extends Exception {
-        public ReservationException(String message) { super(message); }
+        public ReservationException(String message) {
+            super(message);
+        }
+    }
+
+    public void validerReservation(int id) throws SQLException {
+        String req = "UPDATE reservations SET  statut = ? WHERE idReservation ='" + id + "'";
+        try (PreparedStatement pst = connection.prepareStatement(req)) {
+            pst.setString(1, "acceptee");
+            int rowsAffected = pst.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("Réservation acceptee avec succès !");
+            } else {
+                System.out.println("Aucune réservation trouvée avec l'ID : " + id);
+            }
+        }
+    }
+    public void RefuserReservation(int id) throws SQLException {
+        String req = "UPDATE reservations SET  statut = ? WHERE idReservation ='" + id + "'";
+        try (PreparedStatement pst = connection.prepareStatement(req)) {
+            pst.setString(1, "non acceptee");
+            int rowsAffected = pst.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("Réservation refusee avec succès !");
+            } else {
+                System.out.println("Aucune réservation trouvée avec l'ID : " + id);
+            }
+        }
+    }
+    public int getIdReservation(reservation reservation) throws SQLException {
+        java.sql.Date sqlDate = java.sql.Date.valueOf(reservation.getDateReservation().toString());
+        String req = "SELECT idReservation FROM reservations "
+                + "WHERE dateReservation = ? "
+                + "AND statut = ? "
+                + "AND modePaiement = ? "
+                + "AND idService = ? "
+                + "AND nom = ?";
+        try (PreparedStatement st = connection.prepareStatement(req)) {
+             st.setDate(1, sqlDate); // java.sql.Date
+             st.setString(2, reservation.getStatut());
+             st.setString(3, reservation.getModePaiement());
+             st.setInt(4, reservation.getIdService());
+             st.setString(5, reservation.getNom());
+             ResultSet rs = st.executeQuery();
+            int ID = -1;
+            while (rs.next()) {
+             ID = rs.getInt("idReservation");
+            }
+            return ID;
+        }
+
+
     }
 }

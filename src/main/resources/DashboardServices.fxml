@@ -40,7 +40,7 @@
                 <VBox prefHeight="400.0" prefWidth="250.0" spacing="10.0" VBox.vgrow="ALWAYS">
                     <children>
                         <Button fx:id="Dashboard" onAction="#handleShowDashboard" alignment="BASELINE_LEFT" graphicTextGap="15.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="nav-btn" text="📉 Dashboard" />
-                        <Button fx:id="Services" onAction="#handleShowServices" alignment="BASELINE_LEFT" graphicTextGap="15.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="nav-btn" text="👨🏻‍💻 Services" />
+                        <Button fx:id="Services" onAction="#handleShowServices" alignment="BASELINE_LEFT" graphicTextGap="15.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="nav-btn" text="👨🏻‍💻 services" />
                         <Button fx:id="Reservations" onAction="#handleShowReservations" alignment="BASELINE_LEFT" graphicTextGap="15.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="nav-btn" text="🎫 Reservations"/>
 
                     </children>
@@ -122,7 +122,7 @@
                                                 <!-- *** HEADER WITH NEW BUTTONS *** -->
                                                 <HBox alignment="CENTER_LEFT" spacing="10.0">
                                                     <children>
-                                                        <Label styleClass="section-header" text="Services" />
+                                                        <Label styleClass="section-header" text="services" />
                                                         <Pane HBox.hgrow="ALWAYS" />
 
                                                         <!-- NEW BUTTONS -->

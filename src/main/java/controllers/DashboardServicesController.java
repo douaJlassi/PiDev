@@ -74,18 +74,35 @@ public class DashboardServicesController implements Initializable {
             pnItems.getChildren().add(row);
         }
         for (reservation r : recentReservations) {
-
-                HBox row = createReservationRow(r,"test");
+            String serviceName;
+            try {
+                serviceName = Service.getServiceName(r.getIdService());
+            } catch (SQLException e) {
+                serviceName = "Unknown";
+            }
+                HBox row = createReservationRow(r,serviceName);
                 pnItemsReservation.getChildren().add(row);
         }
     }
     private void refreshData() {
         System.out.println("Refreshing Dashboard Data...");
         pnItems.getChildren().clear();
+        pnItemsReservation.getChildren().clear();
         List<service> recentServices = getAllServices();
+        List<reservation> recentReservations = getAllReservations();
         for (service service : recentServices) {
             HBox row = createServiceRow(service);
             pnItems.getChildren().add(row);
+        }
+        for (reservation r : recentReservations) {
+            String serviceName;
+            try {
+                serviceName = Service.getServiceName(r.getIdService());
+            } catch (SQLException e) {
+                serviceName = "Unknown";
+            }
+            HBox row = createReservationRow(r,serviceName);
+            pnItemsReservation.getChildren().add(row);
         }
     }
     private List<service> getAllServices() {
