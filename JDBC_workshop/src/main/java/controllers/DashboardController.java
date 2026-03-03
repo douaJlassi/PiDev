@@ -261,10 +261,7 @@ public class DashboardController {
             todoMenuItem.setStyle("-fx-padding: 12 15; -fx-background-radius: 10; -fx-cursor: hand;");
         }
 
-        if (myTicketsMenuItem != null) {
-            myTicketsMenuItem.setOnMouseClicked(this::handleMenuClick);
-            myTicketsMenuItem.setStyle("-fx-padding: 12 15; -fx-background-radius: 10; -fx-cursor: hand;");
-        }
+
 
         if (favouriteMenuItem != null) {
             favouriteMenuItem.setOnMouseClicked(this::handleMenuClick);
@@ -3523,6 +3520,33 @@ public class DashboardController {
     private void showDashboardMessaging() {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/views/BackofficeView.fxml"));
+            mainBorderPane.setCenter(root);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    @FXML
+    private void showDashboardSerices() {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/views/DashboardServices.fxml"));
+            mainBorderPane.setCenter(root);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    @FXML
+    private void showServices() {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/views/Services.fxml"));
+            mainBorderPane.setCenter(root);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    @FXML
+    private void showReservations() {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/views/Reservations.fxml"));
             mainBorderPane.setCenter(root);
         } catch (IOException e) {
             e.printStackTrace();

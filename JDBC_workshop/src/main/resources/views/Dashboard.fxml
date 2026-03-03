@@ -143,7 +143,23 @@
                 </Label>
 
                 <!-- My Tickets Menu Item -->
-                <Label fx:id="myTicketsMenuItem" text="My Tickets"
+                <Label fx:id="myTicketsMenuItem" text="Services Dashboard" onMouseClicked="#showDashboardSerices"
+                       style="-fx-padding: 12 15; -fx-background-radius: 10; -fx-background-color: #34495e; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"
+                       maxWidth="Infinity">
+                    <effect>
+                        <DropShadow color="#00000080" radius="6" offsetX="2" offsetY="2"/>
+                        <InnerShadow color="#FFFFFF33" radius="2"/>
+                    </effect>
+                </Label>
+                <Label fx:id="myTicketsMenuItemm" text="Services" onMouseClicked="#showServices"
+                       style="-fx-padding: 12 15; -fx-background-radius: 10; -fx-background-color: #34495e; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"
+                       maxWidth="Infinity">
+                    <effect>
+                        <DropShadow color="#00000080" radius="6" offsetX="2" offsetY="2"/>
+                        <InnerShadow color="#FFFFFF33" radius="2"/>
+                    </effect>
+                </Label>
+                <Label fx:id="myTicketsMenuItemmm" text="Reservations" onMouseClicked="#showReservations"
                        style="-fx-padding: 12 15; -fx-background-radius: 10; -fx-background-color: #34495e; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"
                        maxWidth="Infinity">
                     <effect>

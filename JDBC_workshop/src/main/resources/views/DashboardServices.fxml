@@ -18,45 +18,7 @@
 <?import javafx.scene.control.ComboBox?>
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="750.0" prefWidth="1050.0" styleClass="root-pane" stylesheets="@styleDash.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.DashboardServicesController">
 
-    <!-- ================= LEFT SIDEBAR ================= -->
-    <left>
-        <VBox prefHeight="750.0" prefWidth="250.0" styleClass="sidebar" BorderPane.alignment="CENTER">
-            <children>
-                <VBox alignment="CENTER" prefHeight="150.0" prefWidth="250.0" spacing="10.0">
-                    <children>
-                        <ImageView fitHeight="60.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
-                            <image>
-                                <Image url="@logo.png" />
-                            </image>
-                        </ImageView>
-                    </children>
-                    <padding>
-                        <Insets bottom="20.0" top="20.0" />
-                    </padding>
-                </VBox>
 
-                <Separator opacity="0.3" prefWidth="200.0" />
-
-                <VBox prefHeight="400.0" prefWidth="250.0" spacing="10.0" VBox.vgrow="ALWAYS">
-                    <children>
-                        <Button fx:id="Dashboard" onAction="#handleShowDashboard" alignment="BASELINE_LEFT" graphicTextGap="15.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="nav-btn" text="📉 Dashboard" />
-                        <Button fx:id="Services" onAction="#handleShowServices" alignment="BASELINE_LEFT" graphicTextGap="15.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="nav-btn" text="👨🏻‍💻 services" />
-                        <Button fx:id="Reservations" onAction="#handleShowReservations" alignment="BASELINE_LEFT" graphicTextGap="15.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="nav-btn" text="🎫 Reservations"/>
-
-                    </children>
-                    <padding>
-                        <Insets left="15.0" right="15.0" top="30.0" />
-                    </padding>
-                </VBox>
-
-                <VBox alignment="CENTER" prefHeight="80.0" prefWidth="100.0">
-                    <children>
-                        <Label styleClass="version-text" text="Rehletna Admin v1.0" />
-                    </children>
-                </VBox>
-            </children>
-        </VBox>
-    </left>
 
     <!-- ================= MAIN CONTENT ================= -->
     <!-- ... inside BorderPane ... -->
