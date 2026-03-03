@@ -92,7 +92,7 @@ public class UpdateVolController {
             vs.updateOne(currentService.getNumeroVol(),v);
             Parent dashboardView = null;
             try {
-                dashboardView = FXMLLoader.load(getClass().getResource("/views/DashboardServices.fxml"));
+                dashboardView = FXMLLoader.load(getClass().getResource("/views/mainpage.fxml"));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

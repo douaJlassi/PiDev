@@ -75,7 +75,7 @@ btnReserver.setOnAction(e -> {handleReserver();});
     }
     @FXML private void handleBack() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/DashboardServices.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/mainpage.fxml"));
             Parent root = loader.load();
             retourBtn.getScene().setRoot(root);
         } catch (IOException e) {

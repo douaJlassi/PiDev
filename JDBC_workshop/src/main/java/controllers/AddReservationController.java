@@ -84,7 +84,7 @@ public class AddReservationController {
             String modePaiement = tfModePaiement.getText();
             LocalDate dateReservationValue = dpDateReservation.getValue();
             java.sql.Date sqlDateArrive = java.sql.Date.valueOf(dateReservationValue);
-            String statut = "non acceptee";
+            String statut = "en attente";
             System.out.println(idService);
             ReservationService service = new ReservationService();
             reservation reservation = "vol".equals(Type)
@@ -116,7 +116,7 @@ public class AddReservationController {
     @FXML
     private void handleBack() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/DashboardServices.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/mainpage.fxml"));
             Parent root = loader.load();
             tfModePaiement.getScene().setRoot(root);
         } catch (IOException e) {

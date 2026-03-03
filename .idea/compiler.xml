@@ -6,11 +6,9 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="PiDev" />
         <module name="JDBC_workshop" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="PiDev" target="17" />
-    </bytecodeTargetLevel>
   </component>
 </project>

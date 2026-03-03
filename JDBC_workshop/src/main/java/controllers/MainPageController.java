@@ -388,9 +388,7 @@ public class MainPageController {
         }
 
         // Favorites button action
-        if (favoritesBtn != null) {
-            favoritesBtn.setOnAction(event -> showMessage("arja3 ghodwa !"));
-        }
+
 
         // Settings button action
         if (settingsBtn != null) {
@@ -1135,6 +1133,16 @@ public class MainPageController {
     private void showChatView() {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/views/ChatView.fxml"));
+            mainBorderPane.setCenter(root);
+            refreshBadge();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    @FXML
+    private void showServicesView() {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/views/Services.fxml"));
             mainBorderPane.setCenter(root);
             refreshBadge();
         } catch (IOException e) {

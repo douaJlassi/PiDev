@@ -190,7 +190,7 @@ public class UpdateHotelController {
             Hotel v = new Hotel(newName, newdescription, newPrice, newdisponibilite, newcapacite, "hotel", newnbetoiles, newlocalisation, newtypechambre,imageUrl);
             try {
                 vs.updateOne(currentService.getNom(), v);
-                Parent dashboardView = FXMLLoader.load(getClass().getResource("/views/DashboardServices.fxml"));
+                Parent dashboardView = FXMLLoader.load(getClass().getResource("/views/mainpage.fxml"));
                 StackPane contentArea = (StackPane) tfNom.getScene().lookup("#contentArea");
                 if (contentArea != null) {
                     contentArea.getChildren().setAll(dashboardView);

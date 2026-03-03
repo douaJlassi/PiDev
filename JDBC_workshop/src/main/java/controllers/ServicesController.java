@@ -31,7 +31,7 @@ import java.util.ResourceBundle;
 
 public class ServicesController implements Initializable {
    // user connectedUser=new user("achref","souli","admin");
-    user connectedUser=new user("achref","souli","admin");
+    user connectedUser=new user("achref","souli","user");
 
     @FXML
     private FlowPane cardsContainer;
