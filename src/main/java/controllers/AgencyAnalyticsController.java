@@ -1,4 +1,4 @@
-package Controllers;
+package controllers;
 
 import app.Session;
 import entities.*;
@@ -25,7 +25,7 @@ public class AgencyAnalyticsController {
     @FXML private BarChart<String, Number> topOffersChart;
 
     @FXML private TableView<AgencyTopClient> clientsTable;
-    @FXML private TableColumn<AgencyTopClient, Integer> colClientId;
+    @FXML private TableColumn<AgencyTopClient, String> colClientName;
     @FXML private TableColumn<AgencyTopClient, Integer> colBookings;
     @FXML private TableColumn<AgencyTopClient, BigDecimal> colClientRevenue;
 
@@ -35,7 +35,7 @@ public class AgencyAnalyticsController {
     @FXML
     public void initialize() {
         // table columns
-        colClientId.setCellValueFactory(new PropertyValueFactory<>("idClient"));
+        colClientName.setCellValueFactory(new PropertyValueFactory<>("fullName"));
         colBookings.setCellValueFactory(new PropertyValueFactory<>("bookings"));
         colClientRevenue.setCellValueFactory(new PropertyValueFactory<>("revenue"));
 

@@ -3,7 +3,7 @@ package entities;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public class Reservation {
+public class OffreReservation {
     private int idReservation;
     private LocalDateTime dateReservation;
     private ReservationStatut statut;
@@ -11,7 +11,7 @@ public class Reservation {
     private BigDecimal montantTotal;
     private int idClient;
 
-    public Reservation() {}
+    public OffreReservation() {}
 
     public int getIdReservation() { return idReservation; }
     public void setIdReservation(int idReservation) { this.idReservation = idReservation; }

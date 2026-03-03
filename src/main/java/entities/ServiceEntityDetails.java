@@ -3,7 +3,7 @@ package entities;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public class ServiceDetails {
+public class ServiceEntityDetails {
     // base service
     private int idService;
     private String nom;

@@ -1,12 +1,15 @@
 package controllers;
 
 import app.Session;
-import entities.Service;
+import entities.ServiceEntity;
+import entities.ServiceEntityDetails;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import entities.Offre;
@@ -18,12 +21,7 @@ import repositories.ServiceRepository;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.util.Duration;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
-import javafx.util.Duration;
-import javafx.scene.effect.DropShadow;
-import javafx.scene.paint.Color;
+import services.OffreAIService;
 
 import java.io.File;
 
@@ -44,9 +42,18 @@ public class OffreFormController {
     @FXML private TextArea descTa;
     @FXML private Label errorLbl;
     @FXML private TextField imageTf;
-    @FXML private ListView<Service> servicesLv;
+    @FXML private ListView<ServiceEntity> servicesLv;
     @FXML private TextField originalPriceTf;
     @FXML private TextField discountTf;
+    @FXML private TextField serviceSearchTf;
+    @FXML private ComboBox<String> serviceCategoryCb;
+    @FXML private Label selectedCountLbl;
+    @FXML private VBox servicePreviewHost;
+
+    private Parent serviceCardNode;
+    private ServiceCardController serviceCardCtrl;
+
+    private List<ServiceEntity> allServices;
 
 
 
@@ -90,11 +97,14 @@ public class OffreFormController {
     @FXML
     public void initialize() {
         servicesLv.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        List<Service> all = serviceRepo.findAllByAgency(Session.getUserId());
-        servicesLv.getItems().setAll(all);
+
+        allServices = serviceRepo.findAllByAgency(Session.getUserId());
+        servicesLv.getItems().setAll(allServices);
+        setupServicePreview();
+
         setupPromoCalc();
-
-
+        setupServiceFilters();
+        setupSelectedCount();
     }
     private void setupPromoCalc() {
         ChangeListener<String> listener = new ChangeListener<>() {
@@ -106,6 +116,130 @@ public class OffreFormController {
 
         originalPriceTf.textProperty().addListener(listener);
         discountTf.textProperty().addListener(listener);
+    }
+    private void setupServiceFilters() {
+        // kind values from your ServiceEntity: VOL / HOTEL / SERVICE
+        java.util.Set<String> kinds = new java.util.TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        for (ServiceEntity s : allServices) {
+            if (s.getKind() != null && !s.getKind().isBlank()) kinds.add(s.getKind().toUpperCase());
+        }
+
+        java.util.List<String> list = new java.util.ArrayList<>();
+        list.add("ALL");
+        list.addAll(kinds);
+
+        serviceCategoryCb.setItems(FXCollections.observableArrayList(list));
+        serviceCategoryCb.getSelectionModel().select("ALL");
+
+        serviceSearchTf.textProperty().addListener((obs, o, n) -> applyServiceFilters());
+        serviceCategoryCb.valueProperty().addListener((obs, o, n) -> applyServiceFilters());
+    }
+
+    private void applyServiceFilters() {
+        String q = serviceSearchTf.getText() == null ? "" : serviceSearchTf.getText().trim().toLowerCase();
+        String kind = serviceCategoryCb.getValue() == null ? "ALL" : serviceCategoryCb.getValue();
+
+        // keep selection after filtering
+        java.util.List<Integer> selectedIds = servicesLv.getSelectionModel()
+                .getSelectedItems()
+                .stream()
+                .map(ServiceEntity::getIdService)
+                .toList();
+
+        java.util.List<ServiceEntity> filtered = new java.util.ArrayList<>();
+
+        for (ServiceEntity s : allServices) {
+            // kind filter
+            if (!"ALL".equalsIgnoreCase(kind)) {
+                String sk = s.getKind() == null ? "" : s.getKind();
+                if (!sk.equalsIgnoreCase(kind)) continue;
+            }
+
+            // text filter by name or kind
+            if (!q.isEmpty()) {
+                String name = s.getNom() == null ? "" : s.getNom().toLowerCase();
+                String k = s.getKind() == null ? "" : s.getKind().toLowerCase();
+                if (!(name.contains(q) || k.contains(q))) continue;
+            }
+
+            filtered.add(s);
+        }
+
+        servicesLv.getItems().setAll(filtered);
+
+        // restore selection
+        servicesLv.getSelectionModel().clearSelection();
+        for (int i = 0; i < filtered.size(); i++) {
+            if (selectedIds.contains(filtered.get(i).getIdService())) {
+                servicesLv.getSelectionModel().select(i);
+            }
+        }
+
+        updateSelectedCount();
+    }
+    private void setupServicePreview() {
+        if (servicesLv == null || servicePreviewHost == null) return;
+
+        // preload card once
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/OffreServiceCard.fxml"));
+            serviceCardNode = loader.load();
+            serviceCardCtrl = loader.getController();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+
+        // show/hide depending on selection list
+        servicesLv.getSelectionModel().getSelectedItems().addListener(
+                (javafx.collections.ListChangeListener<ServiceEntity>) c -> {
+                    var selected = servicesLv.getSelectionModel().getSelectedItems();
+                    if (selected == null || selected.isEmpty()) {
+                        servicePreviewHost.getChildren().clear();
+                        return;
+                    }
+
+                    ServiceEntity sel = selected.get(0); // show first selected
+
+                    ServiceEntityDetails d = null;
+                    try {
+                        d = serviceRepo.findDetailsByIdService(sel.getIdService()); // ✅ real details
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+
+// fallback if not found / query failed
+                    if (d == null) {
+                        d = new ServiceEntityDetails();
+                        d.setIdService(sel.getIdService());
+                        d.setNom(sel.getNom());
+                        d.setKind(sel.getKind() == null ? "SERVICE" : sel.getKind().toUpperCase());
+                        d.setDescription("");
+                        d.setPrixOverride(null);
+                    }
+
+// quantity = number selected (nice demo)
+                    d.setQuantite(selected.size());
+
+                    serviceCardCtrl.setData(d);
+                    servicePreviewHost.getChildren().setAll(serviceCardNode);
+                }
+        );
+
+        // initial state
+        servicePreviewHost.getChildren().clear();
+    }
+
+    private void setupSelectedCount() {
+        servicesLv.getSelectionModel().getSelectedItems().addListener(
+                (javafx.collections.ListChangeListener<ServiceEntity>) c -> updateSelectedCount()
+        );
+        updateSelectedCount();
+    }
+
+    private void updateSelectedCount() {
+        if (selectedCountLbl == null) return;
+        selectedCountLbl.setText(String.valueOf(servicesLv.getSelectionModel().getSelectedItems().size()));
     }
 
     private void computePromo() {
@@ -159,7 +293,7 @@ public class OffreFormController {
         priceTf.setText(offer.getPrixPromo() != null ? offer.getPrixPromo().toPlainString() : "");
         //servicesLv.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
-        //List<Service> all = serviceRepo.findAllByAgency(Session.getUserId());
+        //List<ServiceEntity> all = serviceRepo.findAllByAgency(Session.getUserId());
         //servicesLv.getItems().setAll(all);
 
         if (offer != null) {
@@ -167,7 +301,7 @@ public class OffreFormController {
 
             servicesLv.getSelectionModel().clearSelection();
 
-            for (Service s : servicesLv.getItems()) {
+            for (ServiceEntity s : servicesLv.getItems()) {
                 if (selectedIds.contains(s.getIdService())) {
                     servicesLv.getSelectionModel().select(s);
                 }
@@ -212,7 +346,7 @@ public class OffreFormController {
         /*try {
             idAgence = Integer.parseInt(agencyTf.getText().trim());
         } catch (Exception ex) {
-            errorLbl.setText("Agency Id must be a valid integer.");
+            errorLbl.setText("OffreAgency Id must be a valid integer.");
             return;
         }*/
 
@@ -220,7 +354,7 @@ public class OffreFormController {
         if (desc.isEmpty())  { errorLbl.setText("Description is required."); return; }
         if (start == null || end == null) { errorLbl.setText("Dates are required."); return; }
         if (start.isAfter(end)) { errorLbl.setText("Start date must be <= end date."); return; }
-        //if (idAgence <= 0) { errorLbl.setText("Agency Id must be > 0."); return; }
+        //if (idAgence <= 0) { errorLbl.setText("OffreAgency Id must be > 0."); return; }
         if (price.compareTo(BigDecimal.ZERO) < 0) { errorLbl.setText("Price must be >= 0."); return; }
 
         //  create object FIRST
@@ -262,7 +396,7 @@ public class OffreFormController {
         var selected = servicesLv.getSelectionModel().getSelectedItems();
         offreServiceRepo.replaceServices(
                 current.getIdOffre(),
-                selected.stream().map(Service::getIdService).toList()
+                selected.stream().map(ServiceEntity::getIdService).toList()
         );
         BigDecimal original;
         BigDecimal promo;
@@ -340,7 +474,7 @@ public class OffreFormController {
         javafx.concurrent.Task<String> aiTask = new javafx.concurrent.Task<>() {
             @Override
             protected String call() throws Exception {
-                return services.AIService.generateDescription(title);
+                return OffreAIService.generateDescription(title);
             }
         };
 
@@ -350,7 +484,7 @@ public class OffreFormController {
         });
 
         aiTask.setOnFailed(e -> {
-            errorLbl.setText("AI Service currently unavailable.");
+            errorLbl.setText("AI ServiceEntity currently unavailable.");
             stopAIEffects(pulse);
         });
 

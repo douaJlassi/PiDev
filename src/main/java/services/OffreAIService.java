@@ -3,7 +3,7 @@ package services;
 import com.google.genai.Client;
 import com.google.genai.types.GenerateContentResponse;
 
-public class AIService {
+public class OffreAIService {
 
 
     private static final String API_KEY = "";

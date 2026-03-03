@@ -2,7 +2,7 @@ package controllers;
 
 import app.Session;
 import entities.Offre;
-import entities.ServiceDetails;
+import entities.ServiceEntityDetails;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -47,7 +47,7 @@ public class OfferDetailsController {
         // Basic Info
         titleLbl.setText(offer.getTitre());
         kindLbl.setText("OFFRE");
-        agencyLbl.setText(offer.getNomAgence() != null ? offer.getNomAgence() : ("Agency #" + offer.getIdAgence()));
+        agencyLbl.setText(offer.getNomAgence() != null ? offer.getNomAgence() : ("OffreAgency #" + offer.getIdAgence()));
         datesLbl.setText(offer.getDateDebut() + " → " + offer.getDateFin());
 
         // Set Base TND Price
@@ -82,16 +82,16 @@ public class OfferDetailsController {
         servicesBox.getChildren().clear();
         servicesBox.setFillWidth(true);
 
-        List<ServiceDetails> services = detailsRepo.findServicesDetailsByOffre(offer.getIdOffre());
+        List<ServiceEntityDetails> services = detailsRepo.findServicesDetailsByOffre(offer.getIdOffre());
         if (services.isEmpty()) {
             Label empty = new Label("No services attached to this offer yet.");
             servicesBox.getChildren().add(empty);
             return;
         }
 
-        for (ServiceDetails s : services) {
+        for (ServiceEntityDetails s : services) {
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ServiceCard.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/OffreServiceCard.fxml"));
                 Parent node = loader.load();
 
                 ServiceCardController ctrl = loader.getController();

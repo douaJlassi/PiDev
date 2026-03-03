@@ -23,33 +23,35 @@ public class ExchangeRateService {
     private final Duration ttl = Duration.ofMinutes(30);
 
     public BigDecimal getRate(String base, String target) {
-        String key = base.toUpperCase() + "->" + target.toUpperCase();
+        String b = base.toUpperCase();
+        String t = target.toUpperCase();
+        if (b.equals(t)) return BigDecimal.ONE;
+
+        String key = b + "->" + t;
         CachedRate c = cache.get(key);
         if (c != null && Duration.between(c.at, Instant.now()).compareTo(ttl) < 0) return c.rate;
 
-        String baseLc = base.toLowerCase();
-        String targetLc = target.toLowerCase();
+        // ✅ Provider 1: Frankfurter (no key)
+        // Example: https://api.frankfurter.dev/v1/latest?from=EUR&to=USD
+        String url1 = "https://api.frankfurter.dev/v1/latest?from=" + b + "&to=" + t;
 
-        String url1 = "";
-        String url2 = ""; // fallback
+        // ✅ Provider 2: open.er-api (no key)
+        // Example: https://open.er-api.com/v6/latest/EUR  -> rates.USD
+        String url2 = "https://open.er-api.com/v6/latest/" + b;
 
         try {
             String body = fetch(url1);
-            BigDecimal rate = parseRate(body, baseLc, targetLc);
-
+            BigDecimal rate = parseFrankfurter(body, t);
             cache.put(key, new CachedRate(rate, Instant.now()));
             return rate;
-
         } catch (Exception first) {
             try {
                 String body = fetch(url2);
-                BigDecimal rate = parseRate(body, baseLc, targetLc);
-
+                BigDecimal rate = parseOpenErApi(body, t);
                 cache.put(key, new CachedRate(rate, Instant.now()));
                 return rate;
-
             } catch (Exception second) {
-                throw new RuntimeException("Exchange rate failed (" + base + "->" + target + "): " + second.getMessage(), second);
+                throw new RuntimeException("Exchange rate failed (" + b + "->" + t + "): " + second.getMessage(), second);
             }
         }
     }
@@ -65,25 +67,37 @@ public class ExchangeRateService {
         return res.body();
     }
 
-    // JSON shape: { "date":"...", "tnd": { "eur": 0.29, "usd": 0.31, ... } }
-    private BigDecimal parseRate(String body, String baseLc, String targetLc) {
-        String baseMarker = "\"" + baseLc + "\":";
-        int baseIdx = body.indexOf(baseMarker);
-        if (baseIdx < 0) throw new RuntimeException("Base currency not found: " + baseLc);
+    // Frankfurter JSON: { "base":"EUR", "date":"...", "rates": { "USD": 1.08 } }
+    private BigDecimal parseFrankfurter(String body, String targetUpper) {
+        return parseRateInsideObject(body, "\"rates\"", "\"" + targetUpper + "\"");
+    }
 
-        String targetMarker = "\"" + targetLc + "\":";
-        int idx = body.indexOf(targetMarker, baseIdx);
-        if (idx < 0) throw new RuntimeException("Target currency not found: " + targetLc);
+    // open.er-api JSON: { "base_code":"EUR", "rates": { "USD": 1.08, ... } }
+    private BigDecimal parseOpenErApi(String body, String targetUpper) {
+        return parseRateInsideObject(body, "\"rates\"", "\"" + targetUpper + "\"");
+    }
 
-        int start = idx + targetMarker.length();
+    // Finds: <objectName> : { ... <targetKey> : <number> ... }
+    private BigDecimal parseRateInsideObject(String body, String objectName, String targetKey) {
+        int objIdx = body.indexOf(objectName);
+        if (objIdx < 0) throw new RuntimeException("rates object not found");
 
+        int braceStart = body.indexOf('{', objIdx);
+        if (braceStart < 0) throw new RuntimeException("rates brace not found");
 
-        while (start < body.length() && (body.charAt(start) == ' ' || body.charAt(start) == ':')) start++;
+        int targetIdx = body.indexOf(targetKey, braceStart);
+        if (targetIdx < 0) throw new RuntimeException("Target currency not found: " + targetKey);
+
+        int colon = body.indexOf(':', targetIdx);
+        if (colon < 0) throw new RuntimeException("Invalid JSON near target");
+
+        int start = colon + 1;
+        while (start < body.length() && (body.charAt(start) == ' ')) start++;
 
         int end = start;
         while (end < body.length() && "0123456789.-".indexOf(body.charAt(end)) >= 0) end++;
 
-        if (end <= start) throw new RuntimeException("Invalid number for " + targetLc);
+        if (end <= start) throw new RuntimeException("Invalid number for " + targetKey);
 
         return new BigDecimal(body.substring(start, end));
     }

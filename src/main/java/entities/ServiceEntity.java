@@ -1,13 +1,13 @@
 package entities;
 
-public class Service {
+public class ServiceEntity {
     private int idService;
     private String nom;
     private String kind; // "VOL" | "HOTEL" | "SERVICE"
 
-    public Service() {}
+    public ServiceEntity() {}
 
-    public Service(int idService, String nom, String kind) {
+    public ServiceEntity(int idService, String nom, String kind) {
         this.idService = idService;
         this.nom = nom;
         this.kind = kind;

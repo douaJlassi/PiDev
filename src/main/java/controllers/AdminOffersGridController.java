@@ -1,7 +1,7 @@
 package controllers;
 
 import app.Session;
-import entities.Agency;
+import entities.OffreAgency;
 import entities.OfferFilter;
 import entities.Offre;
 import javafx.fxml.FXML;
@@ -21,7 +21,7 @@ import java.util.List;
 public class AdminOffersGridController implements OfferFilterAware {
 
     @FXML private TilePane tilePane;
-    @FXML private ComboBox<Agency> agencyCb;
+    @FXML private ComboBox<OffreAgency> agencyCb;
     @FXML private Label countLbl;
 
 
@@ -46,7 +46,7 @@ public class AdminOffersGridController implements OfferFilterAware {
         agencyCb.getItems().clear();
 
         // "All agencies" entry
-        agencyCb.getItems().add(new Agency(0, "All agencies"));
+        agencyCb.getItems().add(new OffreAgency(0, "All agencies"));
         agencyCb.getSelectionModel().selectFirst();
 
         agencyCb.getItems().addAll(agenceRepo.findAllValidated());
@@ -75,7 +75,7 @@ public class AdminOffersGridController implements OfferFilterAware {
     public void refresh() {
         tilePane.getChildren().clear();
 
-        Agency selected = agencyCb.getSelectionModel().getSelectedItem();
+        OffreAgency selected = agencyCb.getSelectionModel().getSelectedItem();
         Integer agencyId = null;
 
         if (selected != null && selected.getIdUser() != 0) agencyId = selected.getIdUser();

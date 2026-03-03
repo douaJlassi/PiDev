@@ -42,15 +42,14 @@ public class AgencyAnalyticsRepository {
 
         // Approval rate: APPROUVEE / (APPROUVEE + REFUSEE) * 100
         String sqlApproval = """
-            SELECT
-              SUM(CASE WHEN lp.agencyStatus='APPROUVEE' THEN 1 ELSE 0 END) AS approved,
-              SUM(CASE WHEN lp.agencyStatus='REFUSEE'   THEN 1 ELSE 0 END) AS refused
-            FROM lignepanier lp
-            JOIN offre o ON o.idOffre = lp.idOffre
-            JOIN reservation r ON r.idReservation = lp.idReservation
-            WHERE o.idAgence = ?
-              AND r.statut = 'ENATTENTE'
-        """;
+    SELECT
+      SUM(CASE WHEN lp.agencyStatus='APPROUVEE' THEN 1 ELSE 0 END) AS approved,
+      SUM(CASE WHEN lp.agencyStatus='REFUSEE'   THEN 1 ELSE 0 END) AS refused
+    FROM lignepanier lp
+    JOIN offre o ON o.idOffre = lp.idOffre
+    JOIN reservation r ON r.idReservation = lp.idReservation
+    WHERE o.idAgence = ?
+""";
 
         try (PreparedStatement ps = cnx.prepareStatement(sqlRevenue)) {
             ps.setInt(1, idAgence);
@@ -202,17 +201,22 @@ public class AgencyAnalyticsRepository {
     // Top clients by revenue (CONFIRME only)
     public List<AgencyTopClient> topClients(int idAgence, int limit) {
         String sql = """
-            SELECT r.idClient AS idClient,
-                   COUNT(DISTINCT r.idReservation) AS bookings,
-                   COALESCE(SUM(lp.prixUnitaire),0) AS revenue
-            FROM lignepanier lp
-            JOIN offre o ON o.idOffre = lp.idOffre
-            JOIN reservation r ON r.idReservation = lp.idReservation
-            WHERE o.idAgence = ?
-              AND r.statut='CONFIRME'
-            GROUP BY r.idClient
-            ORDER BY revenue DESC
-            LIMIT ?
+            SELECT\s
+                     r.idClient AS idClient,
+                     u.nom AS nom,
+                     u.prenom AS prenom,
+                     u.telephone AS telephone,
+                     COUNT(DISTINCT r.idReservation) AS bookings,
+                     COALESCE(SUM(lp.prixUnitaire),0) AS revenue
+                   FROM lignepanier lp
+                   JOIN offre o ON o.idOffre = lp.idOffre
+                   JOIN reservation r ON r.idReservation = lp.idReservation
+                   JOIN user u ON u.idUser = r.idClient
+                   WHERE o.idAgence = ?
+                     AND r.statut='CONFIRME'
+                   GROUP BY r.idClient, u.nom, u.prenom, u.telephone
+                   ORDER BY revenue DESC
+                   LIMIT ?
         """;
 
         List<AgencyTopClient> list = new ArrayList<>();
@@ -225,6 +229,11 @@ public class AgencyAnalyticsRepository {
                     c.setIdClient(rs.getInt("idClient"));
                     c.setBookings(rs.getInt("bookings"));
                     c.setRevenue(rs.getBigDecimal("revenue"));
+                    String nom = rs.getString("nom");
+                    String prenom = rs.getString("prenom");
+                    String fullName = ((prenom == null ? "" : prenom) + " " + (nom == null ? "" : nom)).trim();
+                    c.setFullName(fullName.isEmpty() ? "Client" : fullName);
+                    c.setTelephone(rs.getString("telephone"));
                     list.add(c);
                 }
             }

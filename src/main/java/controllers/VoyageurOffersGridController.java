@@ -6,6 +6,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.image.Image;
@@ -38,13 +39,20 @@ public class VoyageurOffersGridController implements OfferFilterAware {
     @FXML private ScrollPane offersScroll;
     @FXML private VBox actualitesContainer;
     @FXML private HBox actualitiesBox;
+    @FXML private StackPane filtersHost;
+    @FXML private Button filtersBtn;
+
+    private OfferFiltersPanelController filtersCtrl;
+    private boolean filtersVisible = false;
     private final IOffreRepository repo = new OffreRepository();
     private final IActualiteRepository actualiteRepo = new ActualiteRepository();
     private boolean actualitesVisible = true;
     private boolean animating = false;
 
     @FXML
-    public void initialize() { loadActualites();
+    public void initialize() {
+        loadFiltersPanel();
+        loadActualites();
         refresh();
         setupAutoHideActualitesOnScroll();
     }
@@ -64,6 +72,31 @@ public class VoyageurOffersGridController implements OfferFilterAware {
                 hideActualitesSmooth();
             }
         });
+    }
+    private void loadFiltersPanel() {
+        if (filtersHost == null) return;
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/OfferFiltersPanel.fxml"));
+            Parent panelRoot = loader.load();
+            filtersCtrl = loader.getController();
+
+            filtersHost.getChildren().setAll(panelRoot);
+            filtersHost.setVisible(false);
+            filtersHost.setManaged(false);
+
+            filtersCtrl.setFilter(currentFilter);
+            filtersCtrl.setOnChanged(f -> {
+                currentFilter = (f == null) ? new OfferFilter() : f;
+                loadActualites();
+                refresh();
+            });
+            filtersCtrl.setOnClose(this::hideFilters);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("UI error", "Cannot load filters panel: " + e.getMessage());
+        }
     }
     private void hideActualitesSmooth() {
         if (animating || !actualitesVisible || actualitesContainer == null) return;
@@ -92,6 +125,28 @@ public class VoyageurOffersGridController implements OfferFilterAware {
 
         slide.play();
         fade.play();
+    }
+    @FXML
+    private void onToggleFilters() {
+        filtersVisible = !filtersVisible;
+        if (filtersHost != null) {
+            filtersHost.setVisible(filtersVisible);
+            filtersHost.setManaged(filtersVisible);
+        }
+        if (filtersBtn != null) {
+            filtersBtn.setText(filtersVisible ? "Filters ◂" : "Filters ▾");
+        }
+    }
+
+    private void hideFilters() {
+        filtersVisible = false;
+        if (filtersHost != null) {
+            filtersHost.setVisible(false);
+            filtersHost.setManaged(false);
+        }
+        if (filtersBtn != null) {
+            filtersBtn.setText("Filters ▾");
+        }
     }
 
     private void showActualitesSmooth() {

@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import entities.SearchCriteria;
 
 public class AISearchService {
+    private static String API_KEY ="";
 
     // Initialize the Gemini Client
     private static final Client client = Client.builder()

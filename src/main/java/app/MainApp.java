@@ -9,7 +9,7 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        Session.loginAs(2, "AGENCE"); // test
+        Session.loginAs(4, "CLIENT"); // test
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/MyDashboard.fxml"));
         Scene scene = new Scene(loader.load(), 1200, 750);

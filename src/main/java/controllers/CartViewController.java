@@ -11,6 +11,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import repositories.LignePanierRepository;
 import repositories.ReservationRepository;
+import services.OffreEmailService;
 
 import java.util.List;
 
@@ -23,7 +24,7 @@ public class CartViewController {
     private final ReservationRepository reservationRepo = new ReservationRepository();
     private final LignePanierRepository ligneRepo = new LignePanierRepository();
     private final repositories.UserRepository userRepo = new repositories.UserRepository();
-    private final services.EmailService emailService = new services.EmailService();
+    private final OffreEmailService offreEmailService = new OffreEmailService();
 
     private int cartId;
 
@@ -159,7 +160,21 @@ public class CartViewController {
             return;
         }
 
+        showInfo(
+                "Request sent ✅",
+                "Your reservation request has been sent to the agencies.\n\n" +
+                        "Next step:\n" +
+                        "• Agencies will approve or reject your offers.\n" +
+                        "• You will receive a confirmation email once everything is approved."
+        );
 
+        // optional: reset and refresh UI
+        cartId = 0;
+        refresh();
+
+        // optional: close cart window after sending request
+        // Stage stage = (Stage) itemsBox.getScene().getWindow();
+        // stage.close();
     }
 
     private void showInfo(String title, String msg) {
@@ -167,6 +182,7 @@ public class CartViewController {
         a.setTitle(title);
         a.setHeaderText(null);
         a.setContentText(msg);
+        a.getDialogPane().setPrefWidth(420);
         a.showAndWait();
     }
 }

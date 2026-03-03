@@ -81,12 +81,18 @@
                 <VBox spacing="15" HBox.hgrow="ALWAYS" style="-fx-padding: 25; -fx-background-color: rgba(0,0,0,0.01);">
 
                     <VBox spacing="10">
-                        <Label text="Select Services" styleClass="h2" style="-fx-font-size: 18px;"/>
+                        <Label text="Select services" styleClass="h2" style="-fx-font-size: 18px;"/>
 
                         <HBox spacing="10" alignment="CENTER_LEFT">
-                            <TextField promptText="🔍 Search services..." HBox.hgrow="ALWAYS" prefHeight="35" style="-fx-background-radius: 20;"/>
-                            <ComboBox promptText="Category" prefHeight="35" prefWidth="120" style="-fx-background-radius: 20;"/>
+                            <TextField fx:id="serviceSearchTf" promptText="🔍 Search services..."
+                                       HBox.hgrow="ALWAYS" prefHeight="35" style="-fx-background-radius: 20;"/>
+
+                            <ComboBox fx:id="serviceCategoryCb" promptText="Category"
+                                      prefHeight="35" prefWidth="120" style="-fx-background-radius: 20;"/>
                         </HBox>
+
+                        <!-- ✅ preview card appears here -->
+                        <VBox fx:id="servicePreviewHost" spacing="10" />
                     </VBox>
 
                     <VBox VBox.vgrow="ALWAYS" spacing="8">
@@ -96,8 +102,9 @@
                     </VBox>
 
                     <HBox style="-fx-padding: 10; -fx-background-color: rgba(99,102,241,0.1); -fx-background-radius: 10;" alignment="CENTER">
-                        <Label text="Services Selected: " style="-fx-text-fill: #6366F1; -fx-font-weight: bold;"/>
-                        <Label text="0" style="-fx-text-fill: #6366F1; -fx-font-weight: bold;"/>
+                        <Label text="services Selected: " style="-fx-text-fill: #6366F1; -fx-font-weight: bold;"/>
+                        <Label fx:id="selectedCountLbl" text="0"
+                               style="-fx-text-fill: #6366F1; -fx-font-weight: bold;"/>
                     </HBox>
                 </VBox>
 

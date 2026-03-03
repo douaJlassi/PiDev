@@ -5,7 +5,9 @@ import java.net.http.*;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 
-public class EmailService {
+public class OffreEmailService {
+    private static String apiKey ="";
+    private static String fromEmail="";
 
     private final HttpClient http = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))

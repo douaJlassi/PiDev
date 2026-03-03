@@ -1,6 +1,6 @@
 package repositories;
 
-import entities.Agency;
+import entities.OffreAgency;
 import utils.MyDBConnexion;
 
 import java.sql.*;
@@ -15,15 +15,15 @@ public class AgencyRepository {
         cnx = MyDBConnexion.getInstance().getConnection();
     }
 
-    public List<Agency> findAllValidated() {
-        List<Agency> list = new ArrayList<>();
+    public List<OffreAgency> findAllValidated() {
+        List<OffreAgency> list = new ArrayList<>();
         String sql = "SELECT idUser, nomAgence FROM agence WHERE validationAdmin=1 ORDER BY nomAgence";
 
         try (PreparedStatement ps = cnx.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                Agency a = new Agency();
+                OffreAgency a = new OffreAgency();
                 a.setIdUser(rs.getInt("idUser"));
                 a.setNomAgence(rs.getString("nomAgence"));
                 list.add(a);

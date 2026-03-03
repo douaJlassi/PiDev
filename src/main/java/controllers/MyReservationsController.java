@@ -195,15 +195,15 @@ public class MyReservationsController {
     private void showDetails(ReservationSummary r) {
         try {
             javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
-                    getClass().getResource("/fxml/ReservationsDetailsView.fxml")
+                    getClass().getResource("/fxml/OffreReservationsDetailsView.fxml")
             );
             javafx.scene.Parent root = loader.load();
 
-            controllers.ReservationDetailsController ctrl = loader.getController();
+            OffreReservationDetailsController ctrl = loader.getController();
             ctrl.init(r);
 
             Stage stage = new Stage();
-            stage.setTitle("Reservation Details");
+            stage.setTitle("OffreReservation Details");
             stage.setScene(new javafx.scene.Scene(root));
             stage.initOwner(table.getScene().getWindow());
             stage.initModality(javafx.stage.Modality.WINDOW_MODAL);

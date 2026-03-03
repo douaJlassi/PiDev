@@ -1,6 +1,7 @@
 package entities;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 public class CartItem {
     private int idReservation;
@@ -58,6 +59,25 @@ public class CartItem {
     public String getAgencyStatus() {
         return agencyStatus;
     }
+    private String nomAgence;
+    private String refusalReason;
+    private LocalDateTime agencyDecisionAt;
+
+    // getter + setter
+    public LocalDateTime getAgencyDecisionAt() {
+        return agencyDecisionAt;
+    }
+
+    public void setAgencyDecisionAt(LocalDateTime agencyDecisionAt) {
+        this.agencyDecisionAt = agencyDecisionAt;
+    }
+
+
+    public String getNomAgence() { return nomAgence; }
+    public void setNomAgence(String nomAgence) { this.nomAgence = nomAgence; }
+
+    public String getRefusalReason() { return refusalReason; }
+    public void setRefusalReason(String refusalReason) { this.refusalReason = refusalReason; }
 
     // getters/setters
 }

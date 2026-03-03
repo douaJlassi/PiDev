@@ -15,24 +15,30 @@ public class AgencyReservationsRepository implements IAgencyReservationsReposito
     public List<AgencyReservationLine> findLinesForAgency(int idAgence) {
 
         String sql = """
-            SELECT 
-              r.idReservation        AS idReservation,
-              r.idClient             AS idClient,
-              r.statut               AS reservationStatus,
+    SELECT 
+      r.idReservation        AS idReservation,
+      r.idClient             AS idClient,
+      r.statut               AS reservationStatus,
 
-              lp.idOffre             AS idOffre,
-              o.titre                AS offerTitle,
-              lp.prixUnitaire        AS prixFinal,
+      u.nom                  AS nom,
+      u.prenom               AS prenom,
+      u.email                AS email,
+      u.telephone            AS telephone,
 
-              lp.agencyStatus        AS agencyStatus,
-              lp.refusalReason       AS refusalReason,
-              lp.agencyDecisionAt    AS agencyDecisionAt
-            FROM lignepanier lp
-            JOIN offre o ON o.idOffre = lp.idOffre
-            JOIN reservation r ON r.idReservation = lp.idReservation
-            WHERE o.idAgence = ?
-            ORDER BY lp.idReservation DESC
-        """;
+      lp.idOffre             AS idOffre,
+      o.titre                AS offerTitle,
+      lp.prixUnitaire        AS prixFinal,
+
+      lp.agencyStatus        AS agencyStatus,
+      lp.refusalReason       AS refusalReason,
+      lp.agencyDecisionAt    AS agencyDecisionAt
+    FROM lignepanier lp
+    JOIN offre o ON o.idOffre = lp.idOffre
+    JOIN reservation r ON r.idReservation = lp.idReservation
+    JOIN user u ON u.idUser = r.idClient
+    WHERE o.idAgence = ?
+    ORDER BY lp.idReservation DESC
+""";
 
         List<AgencyReservationLine> list = new ArrayList<>();
 
@@ -54,9 +60,19 @@ public class AgencyReservationsRepository implements IAgencyReservationsReposito
                     x.setPrixFinal(rs.getBigDecimal("prixFinal"));
 
                     String agStatus = rs.getString("agencyStatus");
+                    x.setClientPhone(rs.getString("telephone"));
                     x.setAgencyStatut(agStatus == null ? AgencyStatut.ENATTENTE : AgencyStatut.valueOf(agStatus));
 
                     x.setRefusalReason(rs.getString("refusalReason"));
+                    String nom = rs.getString("nom");
+                    String prenom = rs.getString("prenom");
+                    String email = rs.getString("email");
+                    x.setClientPhone(rs.getString("telephone"));
+
+                    String fullName = ((prenom == null ? "" : prenom) + " " + (nom == null ? "" : nom)).trim();
+                    if (fullName.isEmpty()) fullName = (email == null ? "Client" : email);
+
+                    x.setClientName(fullName);
 
                     Timestamp decisionTs = rs.getTimestamp("agencyDecisionAt");
                     if (decisionTs != null) x.setAgencyDecisionAt(decisionTs.toLocalDateTime());

@@ -1,6 +1,6 @@
 package controllers;
 
-import entities.ServiceDetails;
+import entities.ServiceEntityDetails;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 
@@ -14,7 +14,7 @@ public class ServiceCardController {
     @FXML private Label subtotalLbl;
     @FXML private Label extraLbl;
 
-    public void setData(ServiceDetails s) {
+    public void setData(ServiceEntityDetails s) {
         nameLbl.setText(s.getNom());
         kindLbl.setText(s.getKind());
         kindLbl.getStyleClass().add("badge-" + s.getKind().toLowerCase()); // vol / hotel / service

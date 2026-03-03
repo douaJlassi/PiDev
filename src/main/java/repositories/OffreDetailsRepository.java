@@ -1,11 +1,9 @@
 package repositories;
 
-import entities.ServiceDetails;
+import entities.ServiceEntityDetails;
 import utils.MyDBConnexion;
 
-import java.math.BigDecimal;
 import java.sql.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,8 +16,8 @@ public class OffreDetailsRepository {
     }
 
 
-    public List<ServiceDetails> findServicesDetailsByOffre(int idOffre) {
-        List<ServiceDetails> list = new ArrayList<>();
+    public List<ServiceEntityDetails> findServicesDetailsByOffre(int idOffre) {
+        List<ServiceEntityDetails> list = new ArrayList<>();
 
         String sql =
                 "SELECT " +
@@ -39,7 +37,7 @@ public class OffreDetailsRepository {
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    ServiceDetails d = new ServiceDetails();
+                    ServiceEntityDetails d = new ServiceEntityDetails();
 
                     // ---- base service
                     d.setIdService(rs.getInt("idService"));

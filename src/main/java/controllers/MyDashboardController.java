@@ -1,6 +1,7 @@
-package Controllers;
+package controllers;
 
 import app.Session;
+import entities.OffreAgency;
 import entities.SearchCriteria;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -10,9 +11,8 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
-import entities.Agency;
 import javafx.scene.layout.VBox;
-import Services.AISearchService;
+import services.AISearchService;
 
 public class MyDashboardController {
 
@@ -28,7 +28,7 @@ public class MyDashboardController {
     @FXML private javafx.scene.control.DatePicker calendarDp;
     @FXML private javafx.scene.control.TextField minPriceTf;
     @FXML private javafx.scene.control.TextField maxPriceTf;
-    @FXML private ListView<Agency> agenciesLv;
+    @FXML private ListView<OffreAgency> agenciesLv;
     @FXML private javafx.scene.layout.VBox rightPanel;
     @FXML private Button filtersBtn;
     @FXML private Button bannersBtn;
@@ -80,26 +80,26 @@ public class MyDashboardController {
                 agenciesLv.getItems().setAll(agencies);
 
                 // Checkbox cells
-                agenciesLv.setCellFactory(list -> new javafx.scene.control.cell.CheckBoxListCell<entities.Agency>(
-                        (entities.Agency agency) -> {
+                agenciesLv.setCellFactory(list -> new javafx.scene.control.cell.CheckBoxListCell<OffreAgency>(
+                        (OffreAgency offreAgency) -> {
                             javafx.beans.property.BooleanProperty prop =
                                     new javafx.beans.property.SimpleBooleanProperty(
-                                            offerFilter.getAgencyIds().contains(agency.getIdUser())
+                                            offerFilter.getAgencyIds().contains(offreAgency.getIdUser())
                                     );
 
                             prop.addListener((obs, was, now) -> {
-                                if (now) offerFilter.getAgencyIds().add(agency.getIdUser());
-                                else offerFilter.getAgencyIds().remove(agency.getIdUser());
+                                if (now) offerFilter.getAgencyIds().add(offreAgency.getIdUser());
+                                else offerFilter.getAgencyIds().remove(offreAgency.getIdUser());
                                 pushFilterToCurrentView();
                             });
 
                             return prop;
                         },
-                        new javafx.util.StringConverter<entities.Agency>() {
-                            @Override public String toString(entities.Agency a) {
+                        new javafx.util.StringConverter<OffreAgency>() {
+                            @Override public String toString(OffreAgency a) {
                                 return (a == null) ? "" : a.toString();
                             }
-                            @Override public entities.Agency fromString(String s) {
+                            @Override public OffreAgency fromString(String s) {
                                 return null;
                             }
                         }
@@ -343,7 +343,7 @@ public class MyDashboardController {
             pushFilterToCurrentView();
 
             // cart needs manual load
-            if (currentController instanceof Controllers.CartViewController c) {
+            if (currentController instanceof controllers.CartViewController c) {
                 c.loadCart();
             }
             if (currentController instanceof MyReservationsController r) {
@@ -391,7 +391,7 @@ public class MyDashboardController {
         if (Session.isAgency()) {
             offerFilter.getAgencyIds().add(Session.getUserId());
         }
-        offerFilter.getAgencyIds().clear();
+        //offerFilter.getAgencyIds().clear();
 
         if (searchTf != null) searchTf.clear();
         if (minPriceTf != null) minPriceTf.clear();

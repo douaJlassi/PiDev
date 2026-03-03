@@ -298,7 +298,7 @@
     -fx-background-color: #f1f5f9;
 }
 
-/* Specific styling for the Services items inside the VBox */
+/* Specific styling for the services items inside the VBox */
 .service-item {
     -fx-padding: 10;
     -fx-background-color: #f8fafc;
@@ -796,6 +796,7 @@
 .text-area {
     -fx-transition: all 0.5s ease-in-out;
 }
+
 
 
 

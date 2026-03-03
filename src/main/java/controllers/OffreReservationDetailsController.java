@@ -13,7 +13,7 @@ import repositories.ReservationRepository;
 
 import java.time.format.DateTimeFormatter;
 
-public class ReservationDetailsController {
+public class OffreReservationDetailsController {
 
     @FXML private Label titleLbl;
     @FXML private Label statusLbl;
@@ -26,6 +26,8 @@ public class ReservationDetailsController {
     @FXML private TableColumn<CartItem, String> colPrice;
     @FXML private TableColumn<CartItem, Object> colAgencyStatus;
     @FXML private TableColumn<CartItem, Void> colAction;
+    @FXML private TableColumn<CartItem, String> colReason;
+    @FXML private TableColumn<CartItem, String> colDecisionAt;
 
     @FXML private Button cancelBtn;
 
@@ -37,7 +39,7 @@ public class ReservationDetailsController {
     public void init(ReservationSummary r) {
         this.reservation = r;
 
-        titleLbl.setText("Reservation #" + r.getIdReservation());
+        titleLbl.setText("OffreReservation #" + r.getIdReservation());
         totalLbl.setText("Total: " + r.getMontantTotal() + " TND");
         payLbl.setText("Payment: " + (r.getModePaiement() == null ? "CASH" : r.getModePaiement().toUpperCase()));
         dateLbl.setText("Date: " + (r.getDateReservation() == null ? "-" : r.getDateReservation().format(fmt)));
@@ -53,12 +55,49 @@ public class ReservationDetailsController {
     }
 
     private void setupColumns() {
-        colTitle.setCellValueFactory(p -> new javafx.beans.property.SimpleStringProperty(p.getValue().getTitre()));
+        colTitle.setCellValueFactory(p ->
+                new javafx.beans.property.SimpleStringProperty(
+                        p.getValue().getTitre() + "  •  " + (p.getValue().getNomAgence() == null ? "" : p.getValue().getNomAgence())
+                )
+        );
         colPrice.setCellValueFactory(p -> new javafx.beans.property.SimpleStringProperty(
                 p.getValue().getPrixUnitaire() == null ? "-" : (p.getValue().getPrixUnitaire() + " TND")
         ));
+        colDecisionAt.setCellValueFactory(p ->
+                new javafx.beans.property.SimpleStringProperty(
+                        p.getValue().getAgencyDecisionAt() == null
+                                ? "-"
+                                : p.getValue().getAgencyDecisionAt().format(fmt)
+                )
+        );
+        colReason.setCellValueFactory(p ->
+                new javafx.beans.property.SimpleStringProperty(
+                        (p.getValue().getRefusalReason() == null || p.getValue().getRefusalReason().isBlank())
+                                ? "-"
+                                : p.getValue().getRefusalReason()
+                )
+        );
+        colReason.setCellFactory(col -> new TableCell<>() {
+            private final Label label = new Label();
+            {
+                label.setWrapText(true);
+                label.setStyle("-fx-text-fill: #475569; -fx-padding: 6 0;");
+                setGraphic(label);
+                setPrefHeight(Control.USE_COMPUTED_SIZE);
+            }
+            @Override protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    label.setText(null);
+                    setGraphic(null);
+                } else {
+                    label.setText(item);
+                    setGraphic(label);
+                }
+            }
+        });
 
-        // Agency status pill
+        // OffreAgency status pill
         colAgencyStatus.setCellValueFactory(p -> new javafx.beans.property.SimpleObjectProperty<>(p.getValue().getAgencyStatus()));
         colAgencyStatus.setCellFactory(col -> new TableCell<>() {
             @Override protected void updateItem(Object item, boolean empty) {
@@ -129,7 +168,7 @@ public class ReservationDetailsController {
 
         boolean ok = repo.cancelReservation(reservation.getIdReservation(), Session.getUserId());
         if (ok) {
-            show(Alert.AlertType.INFORMATION, "Cancelled", "Reservation cancelled.");
+            show(Alert.AlertType.INFORMATION, "Cancelled", "OffreReservation cancelled.");
             onBack();
         } else {
             show(Alert.AlertType.ERROR, "Failed", "Cannot cancel this reservation.");
@@ -167,5 +206,9 @@ public class ReservationDetailsController {
         a.setHeaderText(null);
         a.setContentText(msg);
         a.showAndWait();
+    }
+    @FXML
+    private void onRefresh() {
+        refreshItems();
     }
 }

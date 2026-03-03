@@ -119,7 +119,7 @@ public class OfferCardController {
 
         }
         datesLbl.setText("Dates: " + offer.getDateDebut() + " → " + offer.getDateFin());
-        agencyLbl.setText("Agency: " + (offer.getNomAgence() != null ? offer.getNomAgence() : ("#" + offer.getIdAgence())));
+        agencyLbl.setText("OffreAgency: " + (offer.getNomAgence() != null ? offer.getNomAgence() : ("#" + offer.getIdAgence())));
         loadImage(offer.getImageUrl());
         if (genBannerBtn != null) {
             boolean canGenerate = Session.isAgency();
@@ -178,7 +178,7 @@ public class OfferCardController {
                 "Description:\n" + offer.getDescription() + "\n\n" +
                         "Price: " + offer.getPrixPromo() + " TND\n" +
                         "Dates: " + offer.getDateDebut() + " → " + offer.getDateFin() + "\n" +
-                        "Agency: " + (offer.getNomAgence() != null ? offer.getNomAgence() : ("#" + offer.getIdAgence()))
+                        "OffreAgency: " + (offer.getNomAgence() != null ? offer.getNomAgence() : ("#" + offer.getIdAgence()))
         );
         info.showAndWait();
     }*/

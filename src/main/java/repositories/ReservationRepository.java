@@ -147,7 +147,7 @@ public class ReservationRepository {
 
         return list;
     }
-    public List<entities.CartItem> findReservationItems(int idReservation, int idClient) {
+    /*public List<entities.CartItem> findReservationItems(int idReservation, int idClient) {
         List<entities.CartItem> list = new java.util.ArrayList<>();
 
         String sql =
@@ -170,6 +170,44 @@ public class ReservationRepository {
                     it.setTitre(rs.getString("titre"));
                     it.setImageUrl(rs.getString("imageUrl"));
                     it.setAgencyStatus(rs.getString("agencyStatus"));
+                    list.add(it);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error findReservationItems: " + e.getMessage(), e);
+        }
+
+        return list;
+    }*/
+    public List<entities.CartItem> findReservationItems(int idReservation, int idClient) {
+        List<entities.CartItem> list = new java.util.ArrayList<>();
+
+        String sql =
+                "SELECT lp.idReservation, lp.idOffre, lp.prixUnitaire, lp.agencyStatus, lp.refusalReason, lp.agencyDecisionAt, " +
+                        "       o.titre, o.imageUrl, a.nomAgence " +
+                        "FROM lignepanier lp " +
+                        "JOIN offre o ON o.idOffre = lp.idOffre " +
+                        "JOIN agence a ON a.idUser = o.idAgence " +
+                        "JOIN reservation r ON r.idReservation = lp.idReservation " +
+                        "WHERE lp.idReservation = ? AND r.idClient = ? " +
+                        "ORDER BY lp.idOffre DESC";
+
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setInt(1, idReservation);
+            ps.setInt(2, idClient);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    entities.CartItem it = new entities.CartItem();
+                    it.setIdReservation(rs.getInt("idReservation"));
+                    it.setIdOffre(rs.getInt("idOffre"));
+                    it.setPrixUnitaire(rs.getBigDecimal("prixUnitaire"));
+                    it.setTitre(rs.getString("titre"));
+                    it.setImageUrl(rs.getString("imageUrl"));
+                    it.setAgencyStatus(rs.getString("agencyStatus"));
+                    it.setNomAgence(rs.getString("nomAgence"));
+                    it.setRefusalReason(rs.getString("refusalReason"));
+                    Timestamp ts = rs.getTimestamp("agencyDecisionAt");
+                    if (ts != null) it.setAgencyDecisionAt(ts.toLocalDateTime());
                     list.add(it);
                 }
             }

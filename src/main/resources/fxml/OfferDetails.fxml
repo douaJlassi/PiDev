@@ -80,7 +80,7 @@
                 </VBox>
 
                 <VBox spacing="15">
-                    <Label text="Included Services" styleClass="h2" style="-fx-padding: 0 0 0 5;"/>
+                    <Label text="Included services" styleClass="h2" style="-fx-padding: 0 0 0 5;"/>
                     <VBox fx:id="servicesBox" spacing="12">
                     </VBox>
                 </VBox>

@@ -8,7 +8,7 @@
 
 <BorderPane xmlns:fx="http://javafx.com/fxml/1"
             xmlns="http://javafx.com/javafx/17"
-            fx:controller="Controllers.MyDashboardController"
+            fx:controller="controllers.MyDashboardController"
             styleClass="dash-root">
 
     <left>
@@ -74,14 +74,13 @@
                                  fill="#1BB7B1"/>
                     </graphic>
                 </Button>
-                <Button fx:id="analyticsBtn" text="Analytics" onAction="#onGoAnalytics"
+                <!--<Button fx:id="analyticsBtn" text="Analytics" onAction="#onGoAnalytics"
                         styleClass="dash-nav-btn" maxWidth="Infinity">
                     <graphic>
-                        <!-- Bar chart icon -->
                         <SVGPath fill="#1BB7B1"
                                  content="M4 19h16v2H2V3h2v16zm4-8h2v8H8v-8zm4-6h2v14h-2V5zm4 4h2v10h-2V9z"/>
                     </graphic>
-                </Button>
+                </-Button>-->
             </VBox>
 
             <VBox spacing="10" style="-fx-background-color: #F8FAFC; -fx-padding: 15; -fx-background-radius: 12; -fx-border-color: #E2E8F0; -fx-border-width: 1;">
@@ -127,57 +126,57 @@
         <StackPane fx:id="contentHost" styleClass="dash-content" />
     </center>
 
-    <right>
-        <VBox fx:id="rightPanel" spacing="20" styleClass="rightbar" prefWidth="300">
-            <padding><Insets top="30" right="25" bottom="25" left="25"/></padding>
+<!--    <right>-->
+<!--        <VBox fx:id="rightPanel" spacing="20" styleClass="rightbar" prefWidth="300">-->
+<!--            <padding><Insets top="30" right="25" bottom="25" left="25"/></padding>-->
 
-            <HBox alignment="CENTER_LEFT" spacing="10">
-                <Label text="Filter Results" styleClass="h1" style="-fx-font-size: 20px;"/>
-                <Region HBox.hgrow="ALWAYS"/>
-                <Button onAction="#onToggleRightPanel" text="✕" styleClass="btn-ghost" style="-fx-text-fill: #94A3B8;"/>
-            </HBox>
-            <VBox fx:id="aiAgentBox" spacing="12"
-                  style="-fx-background-color: #F0FDFA; -fx-padding: 15; -fx-background-radius: 12; -fx-border-color: #1BB7B1; -fx-border-width: 1;">
-                <HBox alignment="CENTER_LEFT" spacing="8">
-                    <SVGPath content="M12 2L4.5 20.29L5.21 21L12 18L18.79 21L19.5 20.29L12 2Z" fill="#1BB7B1" scaleX="0.6" scaleY="0.6"/>
-                    <Label text="AI SMART ASSISTANT" style="-fx-font-weight: 900; -fx-font-size: 10px; -fx-text-fill: #1BB7B1;"/>
-                </HBox>
+<!--            <HBox alignment="CENTER_LEFT" spacing="10">-->
+<!--                <Label text="Filter Results" styleClass="h1" style="-fx-font-size: 20px;"/>-->
+<!--                <Region HBox.hgrow="ALWAYS"/>-->
+<!--                <Button onAction="#onToggleRightPanel" text="✕" styleClass="btn-ghost" style="-fx-text-fill: #94A3B8;"/>-->
+<!--            </HBox>-->
+<!--            <VBox fx:id="aiAgentBox" spacing="12"-->
+<!--                  style="-fx-background-color: #F0FDFA; -fx-padding: 15; -fx-background-radius: 12; -fx-border-color: #1BB7B1; -fx-border-width: 1;">-->
+<!--                <HBox alignment="CENTER_LEFT" spacing="8">-->
+<!--                    <SVGPath content="M12 2L4.5 20.29L5.21 21L12 18L18.79 21L19.5 20.29L12 2Z" fill="#1BB7B1" scaleX="0.6" scaleY="0.6"/>-->
+<!--                    <Label text="AI SMART ASSISTANT" style="-fx-font-weight: 900; -fx-font-size: 10px; -fx-text-fill: #1BB7B1;"/>-->
+<!--                </HBox>-->
 
-                <TextArea fx:id="aiSearchArea" promptText="Try: 'A 5-star trip to Paris with flights under 5000 TND...'"
-                          prefHeight="85" wrapText="true"
-                          style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #E2E8F0; -fx-font-size: 12px;"/>
+<!--                <TextArea fx:id="aiSearchArea" promptText="Try: 'A 5-star trip to Paris with flights under 5000 TND...'"-->
+<!--                          prefHeight="85" wrapText="true"-->
+<!--                          style="-fx-background-color: white; -fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #E2E8F0; -fx-font-size: 12px;"/>-->
 
-                <Button fx:id="aiSearchBtn" text="Ask Gemini Agent" onAction="#onAISmartSearch" maxWidth="Infinity" prefHeight="35"
-                        style="-fx-background-color: #1BB7B1; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;"/>
-            </VBox>
-            <Separator opacity="0.1" />
+<!--                <Button fx:id="aiSearchBtn" text="Ask Gemini Agent" onAction="#onAISmartSearch" maxWidth="Infinity" prefHeight="35"-->
+<!--                        style="-fx-background-color: #1BB7B1; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;"/>-->
+<!--            </VBox>-->
+<!--            <Separator opacity="0.1" />-->
 
-            <VBox spacing="10">
-                <Label text="TRAVEL DATE" styleClass="dash-muted" style="-fx-font-weight: bold; -fx-font-size: 10px;"/>
-                <DatePicker fx:id="calendarDp" maxWidth="Infinity" promptText="Select date"
-                            style="-fx-background-radius: 10; -fx-border-radius: 10;"/>
-            </VBox>
+<!--            <VBox spacing="10">-->
+<!--                <Label text="TRAVEL DATE" styleClass="dash-muted" style="-fx-font-weight: bold; -fx-font-size: 10px;"/>-->
+<!--                <DatePicker fx:id="calendarDp" maxWidth="Infinity" promptText="Select date"-->
+<!--                            style="-fx-background-radius: 10; -fx-border-radius: 10;"/>-->
+<!--            </VBox>-->
 
-            <VBox spacing="10">
-                <Label text="BUDGET RANGE (TND)" styleClass="dash-muted" style="-fx-font-weight: bold; -fx-font-size: 10px;"/>
-                <HBox spacing="12">
-                    <TextField fx:id="minPriceTf" promptText="Min" HBox.hgrow="ALWAYS"
-                               style="-fx-background-color: #F8FAFC; -fx-border-color: #E2E8F0; -fx-background-radius: 8; -fx-border-radius: 8; -fx-padding: 8;"/>
-                    <TextField fx:id="maxPriceTf" promptText="Max" HBox.hgrow="ALWAYS"
-                               style="-fx-background-color: #F8FAFC; -fx-border-color: #E2E8F0; -fx-background-radius: 8; -fx-border-radius: 8; -fx-padding: 8;"/>
-                </HBox>
-            </VBox>
+<!--            <VBox spacing="10">-->
+<!--                <Label text="BUDGET RANGE (TND)" styleClass="dash-muted" style="-fx-font-weight: bold; -fx-font-size: 10px;"/>-->
+<!--                <HBox spacing="12">-->
+<!--                    <TextField fx:id="minPriceTf" promptText="Min" HBox.hgrow="ALWAYS"-->
+<!--                               style="-fx-background-color: #F8FAFC; -fx-border-color: #E2E8F0; -fx-background-radius: 8; -fx-border-radius: 8; -fx-padding: 8;"/>-->
+<!--                    <TextField fx:id="maxPriceTf" promptText="Max" HBox.hgrow="ALWAYS"-->
+<!--                               style="-fx-background-color: #F8FAFC; -fx-border-color: #E2E8F0; -fx-background-radius: 8; -fx-border-radius: 8; -fx-padding: 8;"/>-->
+<!--                </HBox>-->
+<!--            </VBox>-->
 
-            <VBox spacing="10" VBox.vgrow="ALWAYS">
-                <Label text="PARTNER AGENCIES" styleClass="dash-muted" style="-fx-font-weight: bold; -fx-font-size: 10px;"/>
-                <ListView fx:id="agenciesLv" VBox.vgrow="ALWAYS" styleClass="modern-list-view"
-                          style="-fx-background-radius: 10; -fx-border-radius: 10;"/>
-            </VBox>
+<!--            <VBox spacing="10" VBox.vgrow="ALWAYS">-->
+<!--                <Label text="PARTNER AGENCIES" styleClass="dash-muted" style="-fx-font-weight: bold; -fx-font-size: 10px;"/>-->
+<!--                <ListView fx:id="agenciesLv" VBox.vgrow="ALWAYS" styleClass="modern-list-view"-->
+<!--                          style="-fx-background-radius: 10; -fx-border-radius: 10;"/>-->
+<!--            </VBox>-->
 
-            <Button text="Reset All Filters" onAction="#onClearFilters" maxWidth="Infinity" prefHeight="45"
-                    style="-fx-background-color: #F1F5F9; -fx-text-fill: #475569; -fx-font-weight: bold; -fx-background-radius: 10;"/>
-        </VBox>
-    </right>
+<!--            <Button text="Reset All Filters" onAction="#onClearFilters" maxWidth="Infinity" prefHeight="45"-->
+<!--                    style="-fx-background-color: #F1F5F9; -fx-text-fill: #475569; -fx-font-weight: bold; -fx-background-radius: 10;"/>-->
+<!--        </VBox>-->
+<!--    </right>-->
 
 </BorderPane>
 

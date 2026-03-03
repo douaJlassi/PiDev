@@ -8,7 +8,7 @@
 <VBox spacing="20" styleClass="dash-content"
       xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="controllers.ReservationDetailsController">
+      fx:controller="controllers.OffreReservationDetailsController">
 
     <padding>
         <Insets top="25" right="25" bottom="25" left="25"/>
@@ -33,11 +33,11 @@
     <!-- Items -->
     <TableView fx:id="itemsTable" VBox.vgrow="ALWAYS" styleClass="modern-table">
         <columns>
-            <TableColumn fx:id="colTitle" text="OFFER" prefWidth="320"/>
+            <TableColumn fx:id="colTitle" text="OFFER" prefWidth="200"/>
             <TableColumn fx:id="colPrice" text="PRICE" prefWidth="120"/>
             <TableColumn fx:id="colAgencyStatus" text="AGENCY STATUS" prefWidth="160"/>
             <TableColumn fx:id="colDecisionAt" text="DECISION AT" prefWidth="170"/>
-            <TableColumn fx:id="colReason" text="REASON" prefWidth="240"/>
+            <TableColumn fx:id="colReason" text="REASON" prefWidth="360"/>
             <TableColumn fx:id="colAction" text="ACTION" prefWidth="120"/>
         </columns>
     </TableView>

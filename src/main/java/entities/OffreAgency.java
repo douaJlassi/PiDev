@@ -1,12 +1,12 @@
 package entities;
 
-public class Agency {
+public class OffreAgency {
     private int idUser;
     private String nomAgence;
 
-    public Agency() {}
+    public OffreAgency() {}
 
-    public Agency(int idUser, String nomAgence) {
+    public OffreAgency(int idUser, String nomAgence) {
         this.idUser = idUser;
         this.nomAgence = nomAgence;
     }

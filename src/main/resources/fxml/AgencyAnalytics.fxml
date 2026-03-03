@@ -9,7 +9,7 @@
 <VBox spacing="20" styleClass="dash-content"
       xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="Controllers.AgencyAnalyticsController">
+      fx:controller="controllers.AgencyAnalyticsController">
 
     <padding>
         <Insets top="30" right="30" bottom="30" left="30"/>
@@ -22,7 +22,7 @@
         <HBox alignment="CENTER_LEFT" spacing="20">
             <VBox HBox.hgrow="ALWAYS">
                 <Label text="Analytics" styleClass="h1" style="-fx-font-size: 22px; -fx-text-fill: #0F172A;" />
-                <Label text="Daily insights for your agency offers" styleClass="dash-muted" />
+                <Label text="Daily insights for your offreAgency offers" styleClass="dash-muted" />
             </VBox>
 
             <Button onAction="#onRefresh" styleClass="btn-ghost" prefHeight="40" prefWidth="40">
@@ -108,7 +108,7 @@
             <Label text="Top clients" style="-fx-font-weight: bold; -fx-text-fill: #0F172A;"/>
             <TableView fx:id="clientsTable" VBox.vgrow="ALWAYS" styleClass="modern-table">
                 <columns>
-                    <TableColumn fx:id="colClientId" text="CLIENT" prefWidth="110"/>
+                    <TableColumn fx:id="colClientName" text="CLIENT" prefWidth="110"/>
                     <TableColumn fx:id="colBookings" text="BOOKINGS" prefWidth="110"/>
                     <TableColumn fx:id="colClientRevenue" text="REVENUE" prefWidth="160"/>
                 </columns>

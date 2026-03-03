@@ -27,14 +27,35 @@
             <tooltip><Tooltip text="Refresh Offers"/></tooltip>
         </Button>
     </HBox>
+    <Button text="See today's stats!" onAction="#onOpenAnalytics"
+            styleClass="btn-ghost" style="-fx-border-radius: 20; -fx-background-radius: 20;">
+        <graphic>
+            <SVGPath fill="#1BB7B1"
+                     content="M4 19h16v2H2V3h2v16zm4-8h2v8H8v-8zm4-6h2v14h-2V5zm4 4h2v10h-2V9z"/>
+        </graphic>
+    </Button>
+    <HBox spacing="15" alignment="CENTER_LEFT"
+          style="-fx-background-color: white; -fx-padding: 14; -fx-background-radius: 15; -fx-border-color: #E7ECF3; -fx-border-radius: 15;">
+
+        <TextField fx:id="searchField"
+                   promptText="Search by client, offer, reason..."
+                   styleClass="dash-search"
+                   HBox.hgrow="ALWAYS"/>
+
+        <ComboBox fx:id="statusFilter"
+                  promptText="Availability"
+                  prefWidth="180"
+                  style="-fx-background-radius: 12; -fx-background-color: #F2F5FA;"/>
+    </HBox>
 
     <TableView fx:id="table" VBox.vgrow="ALWAYS">
         <columns>
-            <TableColumn fx:id="colResId" text="Reservation" prefWidth="120"/>
+            <TableColumn fx:id="colResId" text="Reservation" prefWidth="100"/>
             <TableColumn fx:id="colClient" text="Client" prefWidth="90"/>
-            <TableColumn fx:id="colOffer" text="Offer" prefWidth="260"/>
-            <TableColumn fx:id="colPrice" text="Price" prefWidth="120"/>
-            <TableColumn fx:id="colResStatus" text="Reservation" prefWidth="130"/>
+            <TableColumn fx:id="colPhone" text="Phone" prefWidth="130"/>
+            <TableColumn fx:id="colOffer" text="Offer" prefWidth="220"/>
+            <TableColumn fx:id="colPrice" text="Price" prefWidth="90"/>
+            <TableColumn fx:id="colResStatus" text="Checkout" prefWidth="110"/>
             <TableColumn fx:id="colAgencyStatus" text="Availability" prefWidth="130"/>
             <TableColumn fx:id="colEnds" text="Decision At" prefWidth="170"/>
             <TableColumn fx:id="colActions" text="Actions" prefWidth="240"/>

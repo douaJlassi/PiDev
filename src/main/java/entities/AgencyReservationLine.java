@@ -17,6 +17,9 @@ public class AgencyReservationLine {
     private AgencyStatut agencyStatut;
     private LocalDateTime agencyDecisionAt;
     private String refusalReason;
+    private String clientPhone;
+    public String getClientPhone() { return clientPhone; }
+    public void setClientPhone(String clientPhone) { this.clientPhone = clientPhone; }
 
     public String getRefusalReason() {
         return refusalReason;
@@ -52,4 +55,8 @@ public class AgencyReservationLine {
 
     public LocalDateTime getAgencyDecisionAt() { return agencyDecisionAt; }
     public void setAgencyDecisionAt(LocalDateTime agencyDecisionAt) { this.agencyDecisionAt = agencyDecisionAt; }
+    private String clientName;
+
+    public String getClientName() { return clientName; }
+    public void setClientName(String clientName) { this.clientName = clientName; }
 }
