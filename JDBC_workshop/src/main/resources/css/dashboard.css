@@ -1,0 +1,97 @@
+/* ===== Root ===== */
+.dash-root {
+    -fx-background-color: #F6F8FB;
+    -fx-font-family: "Segoe UI";
+}
+
+/* ===== Sidebar ===== */
+.dash-sidebar {
+    -fx-background-color: white;
+    -fx-border-color: #E7ECF3;
+    -fx-border-width: 0 1 0 0;
+}
+
+.dash-brand-text {
+    -fx-font-size: 18px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #0B2B3A; /* dark */
+}
+
+.dash-muted {
+    -fx-text-fill: #6C7A89;
+    -fx-font-size: 12px;
+}
+
+/* Nav button */
+.dash-nav-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #0B2B3A;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 10 12;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+}
+
+.dash-nav-btn:hover {
+    -fx-background-color: #EAF7F6; /* light teal */
+}
+
+.dash-nav-btn:pressed {
+    -fx-background-color: #D9F2F0;
+}
+
+/* ===== Topbar ===== */
+.dash-topbar {
+    -fx-background-color: white;
+    -fx-border-color: #E7ECF3;
+    -fx-border-width: 0 0 1 0;
+}
+
+.dash-search {
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-background-color: #F2F5FA;
+    -fx-border-color: #E7ECF3;
+    -fx-padding: 8 12;
+    -fx-pref-width: 320;
+}
+
+.dash-user {
+    -fx-text-fill: #0B2B3A;
+    -fx-font-weight: 700;
+}
+
+/* ===== Content ===== */
+.dash-content {
+    -fx-background-color: transparent;
+}
+.rightbar{
+    -fx-background-color: white;
+    -fx-border-color: rgba(0,0,0,0.06);
+    -fx-border-width: 0 0 0 1;
+    -fx-padding: 16;
+}
+
+.calendar{
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: rgba(0,0,0,0.12);
+}
+.dash-nav-btn.active {
+    /* Option A: Keep light background, use dark text (Recommended for your style) */
+    -fx-background-color: rgba(27, 183, 177, 0.15);
+    -fx-border-color: #1BB7B1;
+    -fx-text-fill: #0B2B3A;
+
+    /* OR Option B: Use solid teal background with white text */
+    /* -fx-background-color: #1BB7B1; */
+    /* -fx-text-fill: white; */
+
+    -fx-border-width: 1;
+    -fx-border-radius: 10; /* Match your non-active radius for consistency */
+    -fx-background-radius: 10;
+}
+
+
