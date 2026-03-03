@@ -1,5 +1,6 @@
 package controllers;
 
+import co.elastic.clients.elasticsearch.security.User;
 import entities.*;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -20,8 +21,14 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class ReservationsController implements Initializable {
-    // user connectedUser=new user("achref","souli","admin");
     user connectedUser=new user("achref","souli","admin");
+    /*user connectedUser;
+    void setConnectedUser(Person person) {
+        connectedUser.setNom(person.getUsername());
+        connectedUser.setPrenom("");
+        connectedUser.setType(person.getRole());
+    }*/
+
     @FXML
     private FlowPane cardsContainer;
     @FXML
