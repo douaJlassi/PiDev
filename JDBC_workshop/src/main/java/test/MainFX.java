@@ -8,6 +8,7 @@ import javafx.stage.Stage;
 import controllers.AjouterPersonne;
 
 import java.io.File;
+import java.io.IOException;
 
 public class MainFX extends Application {
 
@@ -58,8 +59,8 @@ public class MainFX extends Application {
     public void start(Stage primaryStage) {
         try {
             System.out.println("Loading FXML...");
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/AjouterPersonne.fxml"));
-
+            //FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/AjouterPersonne.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/mainpage.fxml"));
             Parent root = loader.load();
             System.out.println("FXML loaded successfully");
 
@@ -77,5 +78,15 @@ public class MainFX extends Application {
             e.printStackTrace();
             System.exit(1);
         }
+        /*FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/MainLayout.fxml"));
+        try {
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+            primaryStage.setScene(scene);
+            primaryStage.setTitle("Rehletna.tn");
+            primaryStage.show();
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }*/
     }
 }

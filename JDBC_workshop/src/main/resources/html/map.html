@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        html, body { height: 100%; margin: 0; padding: 0; background: white; }
+        #map { height: 100vh; width: 100vw; }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+    window.selectedLat = null;
+    window.selectedLon = null;
+    window.positionReady = false;
+
+    var map = L.map('map').setView([36.8065, 10.1815], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    var marker;
+
+    function locateUser() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                updatePosition(position.coords.latitude, position.coords.longitude);
+            }, function() {
+                window.positionReady = true; // Permettre le clic manuel en cas d'échec
+            }, { enableHighAccuracy: true });
+        }
+    }
+
+    function updatePosition(lat, lon) {
+        map.setView([lat, lon], 16);
+        if (marker) map.removeLayer(marker);
+        marker = L.marker([lat, lon], {draggable: true}).addTo(map);
+        window.selectedLat = lat;
+        window.selectedLon = lon;
+        window.positionReady = true;
+    }
+
+    map.on('click', function(e) {
+        updatePosition(e.latlng.lat, e.latlng.lng);
+    });
+
+    // --- LA SOLUTION AUX CARREAUX GRIS ---
+    function fixMap() {
+        var count = 0;
+        var interval = setInterval(function() {
+            map.invalidateSize();
+            if (count == 0) locateUser(); // Lance le GPS au premier tour
+            if (count++ > 5) clearInterval(interval); // S'arrête après 5 tentatives (1 sec)
+        }, 200);
+    }
+</script>
+</body>
+</html>

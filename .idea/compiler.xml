@@ -9,5 +9,8 @@
         <module name="JDBC_workshop" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="PiDev" target="17" />
+    </bytecodeTargetLevel>
   </component>
 </project>

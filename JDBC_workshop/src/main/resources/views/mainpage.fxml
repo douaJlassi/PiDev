@@ -8,8 +8,10 @@
 <?import javafx.scene.paint.*?>
 <?import javafx.geometry.*?>
 
+<?import javafx.scene.text.Font?>
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="controllers.MainPageController"
+            fx:id="mainBorderPane"
             prefWidth="1300"
             prefHeight="800"
             style="-fx-background-color: #f8faff;">
@@ -125,6 +127,40 @@
                         </HBox>
                     </graphic>
                 </Button>
+                <Button fx:id="btnChat" alignment="CENTER_LEFT" mnemonicParsing="false" onAction="#showChatView"
+                        prefHeight="60.0" prefWidth="220.0"
+                        style="-fx-background-color: transparent; -fx-cursor: hand;">
+                    <graphic>
+                        <HBox alignment="CENTER_LEFT" spacing="15.0">
+                            <children>
+                                <StackPane alignment="CENTER" prefHeight="30.0" prefWidth="35.0">
+                                    <children>
+                                        <Label style="-fx-text-fill: Black; -fx-font-size: 24;" text="💬" alignment="CENTER" />
+                                        <Label fx:id="lblBadge" alignment="CENTER" managed="false"
+                                               minHeight="18.0" minWidth="18.0" text="0" visible="false"
+                                               style="-fx-background-color: #e74c3c;
+                                      -fx-text-fill: Black;
+                                      -fx-background-radius: 10;
+                                      -fx-font-size: 9;
+                                      -fx-font-weight: bold;
+                                      -fx-translate-x: 12;
+                                      -fx-translate-y: -10;" />
+                                    </children>
+                                </StackPane>
+
+                                <Label fx:id="lblChat" text="Messagerie" textFill="Black">
+                                    <font>
+                                        <Font name="System Bold" size="15.0" />
+                                    </font>
+                                </Label>
+                            </children>
+                        </HBox>
+                    </graphic>
+                    <padding>
+                        <Insets left="15.0" />
+                    </padding>
+                </Button>
+
                 <Button fx:id="aiClassifierBtn"
                         style="-fx-background-color: transparent; -fx-text-fill: #666; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 25; -fx-cursor: hand;">
                     <graphic>
@@ -136,6 +172,8 @@
                 </Button>
 
                 <Region HBox.hgrow="ALWAYS"/>
+
+
 
                 <!-- Logout Button -->
                 <Button fx:id="logoutBtn"

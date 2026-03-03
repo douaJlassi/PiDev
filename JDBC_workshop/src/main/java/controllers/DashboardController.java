@@ -3516,4 +3516,16 @@ public class DashboardController {
         }
     }
 
+
+    @FXML
+    private BorderPane mainBorderPane;
+    @FXML
+    private void showDashboardMessaging() {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/views/BackofficeView.fxml"));
+            mainBorderPane.setCenter(root);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -15,8 +15,11 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
 
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Font?>
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="controllers.DashboardController"
+            fx:id="mainBorderPane"
             prefWidth="1300"
             prefHeight="800"
             style="-fx-background-color: #f5f5f5;">
@@ -148,6 +151,23 @@
                         <InnerShadow color="#FFFFFF33" radius="2"/>
                     </effect>
                 </Label>
+                <Label fx:id="btnChat"
+                       text="💬 Dashboard Messenger"
+                       onMouseClicked="#showDashboardMessaging"
+                       maxWidth="Infinity"
+                       style="-fx-padding: 12 15;
+              -fx-background-radius: 10;
+              -fx-background-color: #34495e;
+              -fx-text-fill: white;
+              -fx-font-weight: bold;
+              -fx-cursor: hand;">
+
+                    <effect>
+                        <DropShadow color="#00000080" radius="6" offsetX="2" offsetY="2"/>
+                        <InnerShadow color="#FFFFFF33" radius="2"/>
+                    </effect>
+
+                </Label>
 
                 <!-- Shop Menu Item - Add this after Stats and before My Tickets -->
                 <Label fx:id="shopMenuItem" text="🛒 Shop"
@@ -198,6 +218,7 @@
                         <InnerShadow color="#FFFFFF33" radius="2"/>
                     </effect>
                 </Label>
+
 
                 <!-- Settings Menu Item -->
                 <Label fx:id="settingsMenuItem" text="Settings"
