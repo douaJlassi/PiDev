@@ -39,6 +39,10 @@
                     <HBox spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="0">
                     <Label fx:id="lblLocalisation" styleClass="detail-value" text="Hammamet"  />
                     <Label fx:id="lblTemp" text="-- °C" style="-fx-font-weight: bold;" />
+                        <Button fx:id="btnCountryInfo"  onAction="#handleCountryInfo" text="🌍" styleClass="btn-country" style="-fx-background-color: #4ba3a1; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 8 8; -fx-cursor: hand; -fx-font-size: 13px;"
+                    />
+
+
                     </HBox>
                     <Label styleClass="form-label" text="Prix / Nuit :" GridPane.columnIndex="2" GridPane.rowIndex="0" />
                     <Label fx:id="lblPrix" styleClass="detail-value" text="120 TND" GridPane.columnIndex="3" GridPane.rowIndex="0" />

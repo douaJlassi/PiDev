@@ -1,11 +1,16 @@
 package controllers;
 
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import org.json.JSONObject;
 import entities.Hotel;
 import entities.user;
@@ -35,8 +40,8 @@ public class HotelDetailsController {
     @FXML private Label lblStatus;
     @FXML private Label lblDescription;
     @FXML private Button btnReserver;
-    @FXML
-    private Button retourBtn;
+    @FXML private Button btnCountryInfo;
+    @FXML private Button retourBtn;
     int id;
     ServiceService HotelService = new ServiceService();
     private String weatherapiKey;
@@ -159,4 +164,41 @@ public class HotelDetailsController {
         }
     }
 
+
+
+
+
+
+    @FXML
+    private void handleCountryInfo(ActionEvent event) {
+        try {
+            // Get the current localisation value
+            String city = lblLocalisation.getText();
+
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/countryInfo.fxml"));
+            Parent root = loader.load();
+
+
+            CountryInfoController controller = loader.getController();
+            controller.setCity(city);
+
+            Stage popup = new Stage();
+            popup.initModality(Modality.APPLICATION_MODAL);
+            popup.initStyle(StageStyle.UNDECORATED); // clean look — no OS title bar
+            popup.setTitle("Country Info");
+            popup.setScene(new Scene(root));
+            popup.setResizable(false);
+
+            // Center over parent window
+            Stage parent = (Stage) btnCountryInfo.getScene().getWindow();
+            popup.setX(parent.getX() + (parent.getWidth()  - 420) / 2);
+            popup.setY(parent.getY() + (parent.getHeight() - 520) / 2);
+
+            popup.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
