@@ -1,6 +1,7 @@
-package Controllers;
+package controllers;
 
 
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -9,6 +10,8 @@ import javafx.scene.shape.Rectangle;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import services.WeatherService;
+import java.time.LocalDateTime;
 
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -18,7 +21,7 @@ import javafx.util.Duration;
 import javafx.scene.Node;
 import java.io.IOException;
 import gestion_activite.Activite;
-import Services.ActiviteService;
+import services.ActiviteService;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.layout.FlowPane;
@@ -29,6 +32,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,7 +41,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import utils.EventBus;
-import utils.NotificationUtils;
 
 
 public class DashboardController {
@@ -64,6 +67,8 @@ public class DashboardController {
     private TextField customCategoryField;
     @FXML
     private Button searchCategoryButton;
+
+    private WeatherService weatherService = new WeatherService();
 
     private int clientId = 5;
     private Node dashboardContent;
@@ -101,7 +106,7 @@ public class DashboardController {
 
     private void showMesAchats() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/MesAchats.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/MesAchats.fxml"));
             Node view = loader.load();
             MesAchatsController controller = loader.getController();
             controller.setClientId(clientId);
@@ -202,7 +207,7 @@ public class DashboardController {
 
     private void openReservationWindow(Activite activite) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ReservationView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/ReservationView.fxml"));
             Parent root = loader.load();
 
             Stage stage = new Stage();
@@ -212,7 +217,7 @@ public class DashboardController {
             controller.setClientId(clientId);
 
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/fxml/style.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("/views/style.css").toExternalForm());
 
             stage.setTitle("Réserver - " + activite.getTitre());
             stage.setScene(scene);
@@ -292,7 +297,6 @@ public class DashboardController {
 
 
 
-
     private void afficherActivites(List<Activite> activites) {
         activitiesFlowPane.getChildren().clear();
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy");
@@ -302,6 +306,7 @@ public class DashboardController {
             card.setPrefWidth(300);
             card.getStyleClass().add("card");
 
+            // Image
             ImageView imageView = new ImageView();
             imageView.setFitWidth(300);
             imageView.setFitHeight(160);
@@ -336,17 +341,27 @@ public class DashboardController {
             imageStack.getStyleClass().add("card-image");
             imageStack.getChildren().add(imageView);
 
+            // Badge
             String status = a.getStatut();
-            Label badge = new Label(status != null ? status : "Activité");
-            if (status != null && status.equalsIgnoreCase("Annulé")) {
-                badge.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white;");
+            Timestamp creation = a.getDateCreation();
+            boolean isNew = (creation != null) && (System.currentTimeMillis() - creation.getTime() < 24 * 60 * 60 * 1000);
+
+            Label badge = new Label();
+            if (isNew) {
+                badge.setText("NEW!");
+                badge.getStyleClass().add("badge-new");
+            } else {
+                badge.setText(status != null ? status : "Activité");
+                if (status != null && status.equalsIgnoreCase("Annulé")) {
+                    badge.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white;");
+                }
+                badge.getStyleClass().add("badge-category");
             }
-            badge.getStyleClass().add("badge-category");
             StackPane.setAlignment(badge, javafx.geometry.Pos.TOP_LEFT);
             StackPane.setMargin(badge, new Insets(10, 0, 0, 10));
             imageStack.getChildren().add(badge);
 
-
+            // Contenu texte
             VBox content = new VBox(8);
             content.getStyleClass().add("card-content");
 
@@ -356,12 +371,7 @@ public class DashboardController {
             lieu.getStyleClass().add("card-location");
 
             int places = a.getPlacesDisponibles();
-            String placesText;
-            if (places == 0) {
-                placesText = " Complet";
-            } else {
-                placesText = places + " place" + (places > 1 ? "s" : "") + " disponible" + (places > 1 ? "s" : "");
-            }
+            String placesText = (places == 0) ? " Complet" : places + " place" + (places > 1 ? "s" : "") + " disponible" + (places > 1 ? "s" : "");
             Label nbPlaces = new Label(placesText);
             if (places == 0) {
                 nbPlaces.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
@@ -372,6 +382,7 @@ public class DashboardController {
             Label date = new Label("📅 " + dateFormat.format(a.getDateActivite()));
             date.getStyleClass().add("card-date");
 
+            // Ligne prix
             HBox priceRow = new HBox();
             priceRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
             Text prix = new Text(String.format("%.0f DT", a.getPrix()));
@@ -384,23 +395,74 @@ public class DashboardController {
             duree.getStyleClass().add("card-duration");
             priceRow.getChildren().addAll(prix, note, spacer, duree);
 
+            // Bloc météo amélioré
+            HBox weatherBox = new HBox(8);
+            weatherBox.setAlignment(Pos.CENTER_LEFT);
+            weatherBox.setPadding(new Insets(5, 8, 5, 8));
+            weatherBox.setStyle("-fx-background-color: rgba(255,255,255,0.1); -fx-background-radius: 20; -fx-border-color: rgba(255,255,255,0.2); -fx-border-radius: 20;");
+            weatherBox.setVisible(false);
+
+            ImageView weatherIcon = new ImageView();
+            weatherIcon.setFitWidth(28);
+            weatherIcon.setFitHeight(28);
+
+            VBox weatherText = new VBox(2);
+            weatherText.setAlignment(Pos.CENTER_LEFT);
+            Label tempLabel = new Label();
+            tempLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #323b59;");
+            Label descLabel = new Label();
+            descLabel.setStyle("-fx-font-size: 10px; -fx-text-fill: #7c99ec;");
+            weatherText.getChildren().addAll(tempLabel, descLabel);
+
+            weatherBox.getChildren().addAll(weatherIcon, weatherText);
+
+            // Bouton réserver
             Button reserver = new Button("view more");
             reserver.getStyleClass().add("btn-reserve");
             reserver.setMaxWidth(Double.MAX_VALUE);
 
-
             if (places == 0) {
                 reserver.setDisable(true);
-                reserver.setStyle("-fx-background-color: #cccccc; -fx-text-fill: #666666;"); // gray button
+                reserver.setStyle("-fx-background-color: #cccccc; -fx-text-fill: #666666;");
                 card.setOpacity(0.6);
             } else {
                 reserver.setOnAction(event -> openReservationWindow(a));
             }
 
-            content.getChildren().addAll(titre, lieu, date, nbPlaces, priceRow, reserver);
+            // Assemblage du contenu
+            content.getChildren().addAll(titre, lieu, date, nbPlaces, priceRow, weatherBox, reserver);
             card.getChildren().addAll(imageStack, content);
-
             activitiesFlowPane.getChildren().add(card);
+
+            // Charger la météo
+            loadWeatherForActivity(a, tempLabel, descLabel, weatherIcon, weatherBox);
         }
     }
+
+    private void loadWeatherForActivity(Activite a, Label tempLabel, Label descLabel, ImageView icon, HBox weatherBox) {
+        LocalDateTime activityDateTime = a.getDateActivite().toLocalDateTime();
+        if (activityDateTime.isAfter(LocalDateTime.now().plusDays(5))) {
+            // Pas de météo pour les dates trop lointaines
+            return;
+        }
+        weatherService.getWeatherForCityAndDateTime(a.getLieu(), activityDateTime)
+                .thenAccept(weatherInfo -> {
+                    javafx.application.Platform.runLater(() -> {
+                        if (weatherInfo != null) {
+                            tempLabel.setText(String.format("%.1f°C", weatherInfo.getTemperature()));
+                            descLabel.setText(weatherInfo.getDescription());
+                            icon.setImage(new Image(weatherInfo.getIconUrl(), true));
+                            weatherBox.setVisible(true);
+                        } else {
+                            weatherBox.setVisible(false);
+                        }
+                    });
+                })
+                .exceptionally(ex -> {
+                    ex.printStackTrace();
+                    javafx.application.Platform.runLater(() -> weatherBox.setVisible(false));
+                    return null;
+                });
+    }
+
 }

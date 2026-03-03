@@ -1,9 +1,8 @@
-package Controllers;
+package controllers;
 
 import gestion_activite.Activite;
-import Services.ActiviteService;
+import services.ActiviteService;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -19,7 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.List;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class AddActiviteController {
@@ -198,7 +197,25 @@ public class AddActiviteController {
             String description = longDescField.getText();
             String lieu = (lieuCombo.getValue() != null) ? lieuCombo.getValue() : "Inconnu";
 
-            Timestamp timestamp = Timestamp.valueOf(datePicker.getValue().atStartOfDay());
+            LocalDate selectedDate = datePicker.getValue();
+
+            // ===== VALIDATION CONDITIONNELLE =====
+            if (currentActivite == null) {
+                // Nouvelle activité : la date ne peut pas être dans le passé
+                if (selectedDate.isBefore(LocalDate.now())) {
+                    showAlert("La date de l'activité ne peut pas être dans le passé.");
+                    return;
+                }
+            } else {
+                // Modification : on vérifie si la date a changé
+                LocalDate oldDate = currentActivite.getDateActivite().toLocalDateTime().toLocalDate();
+                if (!selectedDate.equals(oldDate) && selectedDate.isBefore(LocalDate.now())) {
+                    showAlert("Vous ne pouvez pas modifier la date vers une date passée.");
+                    return;
+                }
+            }
+
+            Timestamp timestamp = Timestamp.valueOf(selectedDate.atStartOfDay());
 
             int duree = Integer.parseInt(dureeField.getText());
             double prix = Double.parseDouble(prixField.getText());
@@ -208,7 +225,7 @@ public class AddActiviteController {
                 places = Integer.parseInt(placesField.getText());
             }
 
-            int idGuide = 1; // TODO: replace with actual logged-in guide ID
+            int idGuide = 1; // TODO: remplacer par l'ID du guide connecté
             String statut = publicToggle.isSelected() ? "Actif" : "Privé";
             String image = (selectedImageName != null) ? selectedImageName : "default.jpg";
             String categorie = categoryCombo.getValue();
@@ -243,12 +260,7 @@ public class AddActiviteController {
 
             EventBus.getInstance().publish();
 
-            // 🔁 Refresh the guide dashboard
-            if (dashboardController != null) {
-                dashboardController.refreshActivites();
-            }
-
-            // 🔙 Return to previous view
+            // Retour à la vue précédente
             if (mainBorderPane != null && previousView != null) {
                 mainBorderPane.setCenter(previousView);
             } else {

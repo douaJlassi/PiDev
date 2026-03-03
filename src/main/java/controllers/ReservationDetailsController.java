@@ -1,4 +1,4 @@
-package Controllers;
+package controllers;
 
 import gestion_activite.ReservationDetail;
 import javafx.collections.FXCollections;
@@ -19,15 +19,12 @@ import java.io.FileOutputStream;
 import java.util.List;
 
 
-import com.lowagie.text.*;
 import java.awt.Color;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import com.lowagie.text.*;
-import com.lowagie.text.*;
 
 public class ReservationDetailsController {
 

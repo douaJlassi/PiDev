@@ -16,7 +16,7 @@
 <BorderPane fx:id="borderPane" prefHeight="850.0" prefWidth="1300.0"
             stylesheets="@style.css" styleClass="dash-root"
             xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="Controllers.DashboardGuideController">
+            fx:controller="controllers.DashboardGuideController">
 
     <!-- ══════════════════════════ SIDEBAR -->
     <left>

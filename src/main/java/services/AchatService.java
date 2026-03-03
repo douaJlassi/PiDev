@@ -1,4 +1,4 @@
-package Services;
+package services;
 
 import gestion_activite.Achat;
 import utils.MyDBConnexion;
@@ -9,8 +9,6 @@ import java.util.List;
 
 public class AchatService {
 
-    // ❌ Remove: private Connection cnx;
-    // ✅ Always get a fresh (validated) connection per method
 
     private Connection getConn() {
         return MyDBConnexion.getInstance().getConnection();

@@ -1,4 +1,4 @@
-package Services;
+package services;
 
 import gestion_activite.Activite;
 import utils.MyDBConnexion;
@@ -142,7 +142,7 @@ public class ActiviteService implements CRUD<Activite> {
     }
 
     private Activite mapResultSetToActivite(ResultSet rs) throws SQLException {
-        return new Activite(
+        Activite a = new Activite(
                 rs.getInt("idActivite"),
                 rs.getString("titre"),
                 rs.getString("description"),
@@ -156,6 +156,9 @@ public class ActiviteService implements CRUD<Activite> {
                 rs.getInt("placesDisponibles"),
                 rs.getString("categorie")
         );
+        // new
+        a.setDateCreation(rs.getTimestamp("dateCreation"));
+        return a;
     }
 
     public void updatePlaces(int idActivite, int newPlaces) throws SQLException {
@@ -167,4 +170,33 @@ public class ActiviteService implements CRUD<Activite> {
             ps.executeUpdate();
         }
     }
+
+
+
+    public void deleteExpiredActivities() throws SQLException
+    {
+        String sql = "DELETE FROM activite WHERE dateActivite < DATE_SUB(NOW(), INTERVAL 2 DAY)";
+        try (Connection conn = MyDBConnexion.getInstance().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            int deleted = ps.executeUpdate();
+            if (deleted > 0) {
+                System.out.println(deleted + " activité(s) expirée(s) supprimée(s).");
+            }
+        }
+    }
+
+
+    public int countReservationsForActivity(int idActivite) throws SQLException {
+        String sql = "SELECT COALESCE(SUM(nbPlaces), 0) FROM achat WHERE idActivite = ? AND statut != 'Annulé'";
+        try (Connection conn = MyDBConnexion.getInstance().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, idActivite);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+        return 0;
+    }
+
 }

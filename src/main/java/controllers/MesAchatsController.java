@@ -1,20 +1,16 @@
-package Controllers;
+package controllers;
 
-import Services.AchatService;
-import Services.ActiviteService;
+import services.AchatService;
+import services.ActiviteService;
 import gestion_activite.Achat;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import javafx.animation.FadeTransition;
-import javafx.util.Duration;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.List;

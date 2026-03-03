@@ -1,14 +1,13 @@
-package Controllers;
+package controllers;
+import services.WeatherService;
 import javafx.scene.chart.*;
 import javafx.scene.layout.*;
 import javafx.scene.control.*;
 import javafx.scene.text.Text;
-import javafx.geometry.*;
-import javafx.scene.*;
-import javafx.stage.*;
 import javafx.animation.*;
 import javafx.util.Duration;
-import java.sql.*;
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.io.IOException;
@@ -20,31 +19,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 import java.io.File;
 import java.util.stream.Collectors;
 
-import javafx.scene.chart.*;
-import javafx.scene.layout.*;
-import javafx.scene.control.*;
-import javafx.scene.text.Text;
-import javafx.geometry.*;
-import javafx.scene.*;
-import javafx.stage.*;
-import javafx.animation.*;
-import javafx.util.Duration;
-import java.sql.*;
-import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.TextStyle;
 import java.util.*;
 
 import gestion_activite.Activite;
 import gestion_activite.ReservationDetail;
-import Services.ActiviteService;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import services.ActiviteService;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -53,17 +37,12 @@ import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.chart.*;
-import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
-import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import utils.EventBus;
 import utils.MyDBConnexion;
-import utils.NotificationUtils;
 
 public class DashboardGuideController {
 
@@ -95,6 +74,7 @@ public class DashboardGuideController {
     private int itemsPerPage = 10000;
     private int totalPages = 1;
     private int guideId = 1;
+    private WeatherService weatherService = new WeatherService();
 
     public DashboardGuideController() {
         activiteService = new ActiviteService();
@@ -741,7 +721,8 @@ public class DashboardGuideController {
                     setGraphic(null);
                 } else {
                     activite.setParticipantsActuels(getNbParticipantsActuels(activite.getIdActivite()));
-                    setGraphic(creerCarteActivite(activite));
+
+                    setGraphic(creerCarteActivite(activite, DashboardGuideController.this));
                 }
             }
         });
@@ -760,7 +741,8 @@ public class DashboardGuideController {
     }
 
     // ===== Création d'une carte d'activité =====
-    private VBox creerCarteActivite(Activite a) {
+    private VBox creerCarteActivite(Activite a, DashboardGuideController controller)
+    {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy");
 
         HBox card = new HBox(16);
@@ -769,7 +751,7 @@ public class DashboardGuideController {
         card.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(card, Priority.ALWAYS);
         card.setCursor(Cursor.HAND);
-        card.setOnMouseClicked(e -> voirReservations(a));
+        card.setOnMouseClicked(e -> controller.voirReservations(a));
 
         // Partie gauche : image + badge
         VBox leftBox = new VBox();
@@ -787,7 +769,7 @@ public class DashboardGuideController {
         imageView.setFitHeight(150);
         imageView.setPreserveRatio(true);
         imageView.setSmooth(true);
-        Image img = loadActivityImage(a);
+        Image img = controller.loadActivityImage(a);
         if (img != null) imageView.setImage(img);
 
         String status = a.getStatut();
@@ -852,7 +834,21 @@ public class DashboardGuideController {
 
         capacityRow.getChildren().addAll(iconLabel, capacityValue, suffixLabel);
 
-        detailsBox.getChildren().addAll(titre, lieu, date, priceRow, capacityRow);
+        // Ligne météo
+        HBox weatherBox = new HBox(5);
+        weatherBox.setAlignment(Pos.CENTER_LEFT);
+        ImageView weatherIcon = new ImageView();
+        weatherIcon.setFitWidth(30);
+        weatherIcon.setFitHeight(30);
+        weatherIcon.setVisible(false);
+        Label weatherLabel = new Label();
+        weatherLabel.setStyle("-fx-text-fill: #475569; -fx-font-size: 11px;");
+        weatherBox.getChildren().addAll(weatherIcon, weatherLabel);
+
+        detailsBox.getChildren().addAll(titre, lieu, date, priceRow, capacityRow, weatherBox);
+
+        // Charger la météo
+        controller.loadWeatherForActivity(a, weatherLabel, weatherIcon);
 
         // Partie droite : boutons d'action
         VBox actionsBox = new VBox(12);
@@ -865,7 +861,7 @@ public class DashboardGuideController {
         btnModifier.setMaxWidth(Double.MAX_VALUE);
         btnModifier.setOnAction(e -> {
             e.consume();
-            modifierActivite(a);
+            controller.modifierActivite(a);
         });
 
         Button btnSupprimer = new Button("Supprimer");
@@ -873,7 +869,7 @@ public class DashboardGuideController {
         btnSupprimer.setMaxWidth(Double.MAX_VALUE);
         btnSupprimer.setOnAction(e -> {
             e.consume();
-            supprimerActivite(a);
+            controller.supprimerActivite(a);
         });
 
         actionsBox.getChildren().addAll(btnModifier, btnSupprimer);
@@ -936,7 +932,7 @@ public class DashboardGuideController {
     private void voirReservations(Activite activite) {
         try {
             List<ReservationDetail> details = getReservationsForActivity(activite.getIdActivite());
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ReservationDetailsView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/ReservationDetailsView.fxml"));
             Parent root = loader.load();
             ReservationDetailsController controller = loader.getController();
             controller.setReservations(details);
@@ -977,7 +973,7 @@ public class DashboardGuideController {
 
     private void modifierActivite(Activite a) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/AddActivite.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/AddActivite.fxml"));
             Node addActiviteView = loader.load();
             AddActiviteController controller = loader.getController();
             controller.setDashboardController(this);
@@ -994,6 +990,24 @@ public class DashboardGuideController {
     }
 
     private void supprimerActivite(Activite a) {
+        try {
+            int reservationsCount = activiteService.countReservationsForActivity(a.getIdActivite());
+            if (reservationsCount > 0) {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Suppression impossible");
+                alert.setHeaderText("Cette activité a déjà des réservations");
+                alert.setContentText("Impossible de supprimer une activité qui a déjà des clients inscrits. (" + reservationsCount + " participant(s))");
+                alert.showAndWait();
+                return;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Erreur lors de la vérification des réservations.", ButtonType.OK);
+            alert.show();
+            return;
+        }
+
+        // Si aucune réservation, demander confirmation
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Supprimer activité");
         alert.setHeaderText("Êtes-vous sûr de vouloir supprimer cette activité ?");
@@ -1006,6 +1020,8 @@ public class DashboardGuideController {
                     EventBus.getInstance().publish();
                 } catch (SQLException e) {
                     e.printStackTrace();
+                    Alert errorAlert = new Alert(Alert.AlertType.ERROR, "Erreur lors de la suppression.", ButtonType.OK);
+                    errorAlert.show();
                 }
             }
         });
@@ -1038,7 +1054,7 @@ public class DashboardGuideController {
     @FXML
     private void handleNouvelleActivite() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/AddActivite.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/AddActivite.fxml"));
             Node addActiviteView = loader.load();
 
             AddActiviteController controller = loader.getController();
@@ -1060,7 +1076,7 @@ public class DashboardGuideController {
     @FXML
     private void handleCalendar() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/CalendarView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/CalendarView.fxml"));
             Parent root = loader.load();
             CalendarController controller = loader.getController();
             controller.setGuideId(guideId);
@@ -1076,4 +1092,35 @@ public class DashboardGuideController {
             alert.show();
         }
     }
+
+
+
+
+    private void loadWeatherForActivity(Activite a, Label label, ImageView icon) {
+        LocalDateTime activityDateTime = a.getDateActivite().toLocalDateTime();
+        if (activityDateTime.isAfter(LocalDateTime.now().plusDays(5))) {
+            label.setText("Météo >5j");
+            return;
+        }
+        weatherService.getWeatherForCityAndDateTime(a.getLieu(), activityDateTime)
+                .thenAccept(weatherInfo -> {
+                    javafx.application.Platform.runLater(() -> {
+                        if (weatherInfo != null) {
+                            label.setText(String.format("%.1f°C, %s", weatherInfo.getTemperature(), weatherInfo.getDescription()));
+                            icon.setImage(new Image(weatherInfo.getIconUrl(), true));
+                            icon.setVisible(true);
+                        } else {
+                            label.setText("Météo N/A");
+                        }
+                    });
+                })
+                .exceptionally(ex -> {
+                    ex.printStackTrace();
+                    javafx.application.Platform.runLater(() -> label.setText("Erreur"));
+                    return null;
+                });
+    }
+
+
+
 }

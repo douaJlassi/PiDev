@@ -3,6 +3,9 @@ package gestion_activite;
 import java.sql.Timestamp;
 
 public class Activite {
+    //new
+    private java.sql.Timestamp dateCreation;
+
     private int idActivite;
     private String titre;
     private String description;
@@ -94,6 +97,14 @@ public class Activite {
     public int getParticipantsActuels() { return participantsActuels; }
     public void setParticipantsActuels(int participantsActuels) { this.participantsActuels = participantsActuels; }
 
+
+    //new
+    public java.sql.Timestamp getDateCreation() {
+        return dateCreation;
+    }
+    public void setDateCreation(java.sql.Timestamp dateCreation) {
+        this.dateCreation = dateCreation;
+    }
 
     public String getCategorie() { return categorie; }          // NEW
     public void setCategorie(String categorie) { this.categorie = categorie; }
