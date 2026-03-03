@@ -196,7 +196,7 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>app.MainApp</mainClass>
+                    <mainClass>test.MainFX</mainClass>
                     <options>
                         <option>--enable-native-access=ALL-UNNAMED</option>
                         <option>--add-exports=javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED</option>
