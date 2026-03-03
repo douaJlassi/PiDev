@@ -135,6 +135,8 @@ public class PostDetailController {
             File img = new File(publication.getImagePath());
             if (img.exists()) {
                 postImage.setImage(new Image(img.toURI().toString()));
+                // Bind image width to container so it fills the panel
+                postImage.fitWidthProperty().bind(imageContainer.widthProperty());
                 imageContainer.setVisible(true);
                 imageContainer.setManaged(true);
             }
@@ -179,7 +181,7 @@ public class PostDetailController {
             return;
         }
 
-        // Don't fetch weather for very old posts (>30 days)
+        // Don't fetch weather for very old posts (>7 days)
         long postAgeHours = (System.currentTimeMillis() -
                 publication.getDatePublication().getTime()) / (1000 * 60 * 60);
         if (postAgeHours > 720) {

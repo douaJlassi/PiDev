@@ -390,7 +390,7 @@ Light BG: #f0f2f5
 .post-stats {
     -fx-padding: 8 16 8 16;
     -fx-border-color: #e4e6eb;
-    -fx-border-width: 1 0 0 0;
+    -fx-border-width: 1 0 1 0;
 }
 
 .post-stats-text {
@@ -565,103 +565,159 @@ Light BG: #f0f2f5
 }
 
 /* ===== POST DETAIL VIEW ===== */
+/* ╔══════════════════════════════════════════════════════╗
+   ║           POST DETAIL — Editorial Magazine Style     ║
+   ╚══════════════════════════════════════════════════════╝ */
+
 .post-detail-view {
-    -fx-background-color: white;
+    -fx-background-color: #f4f2ee;
 }
 
 .split-view {
-    -fx-background-color: white;
+    -fx-background-color: #f4f2ee;
     -fx-pref-height: infinity;
 }
 
-/* ── Top bar — teal accent ── */
+/* ── Top bar ── */
 .detail-top-bar {
     -fx-background-color: #17B3A6;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 4, 0, 0, 2);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 6, 0, 0, 2);
 }
-
 .detail-title {
-    -fx-font-size: 16px;
+    -fx-font-size: 15px;
     -fx-font-weight: 700;
     -fx-text-fill: white;
+    -fx-letter-spacing: 1;
 }
-
 .close-detail-btn {
-    -fx-background-color: rgba(255,255,255,0.18);
+    -fx-background-color: rgba(255,255,255,0.20);
     -fx-text-fill: white;
-    -fx-font-size: 14px;
+    -fx-font-size: 13px;
     -fx-font-weight: bold;
-    -fx-padding: 7 13;
+    -fx-padding: 6 12;
     -fx-background-radius: 50;
     -fx-cursor: hand;
 }
 .close-detail-btn:hover {
-    -fx-background-color: rgba(255,255,255,0.30);
+    -fx-background-color: rgba(255,255,255,0.35);
 }
 
-/* ── Left panel ── */
+/* ── Left panel (scrollable content) ── */
 .post-content-panel {
-    -fx-background-color: white;
-    -fx-border-color: #e4e6eb;
-    -fx-border-width: 0 1 0 0;
+    -fx-background-color: #f4f2ee;
 }
 
-/* ── Author ── */
+/* ── Hero image — full-bleed ── */
+.detail-hero-container {
+    -fx-background-color: transparent;
+}
+
+/* ── Content card below hero (or standalone) ── */
+.detail-content-card {
+    -fx-background-color: white;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 8, 0, 0, 2);
+}
+
+/* ── Author row for posts with no image ── */
 .detail-author-name {
-    -fx-font-size: 16px;
+    -fx-font-size: 15px;
     -fx-font-weight: 700;
     -fx-text-fill: #1a1d27;
 }
 
-/* ── Post text ── */
+/* ── Post body text ── */
 .detail-post-text {
     -fx-font-size: 15px;
-    -fx-text-fill: #050505;
-    -fx-line-spacing: 4;
+    -fx-text-fill: #2d2f3a;
+    -fx-line-spacing: 5;
 }
 
-/* ── Comments panel ── */
+/* ── Divider ── */
+.detail-sep {
+    -fx-background-color: #ebe8e4;
+    -fx-padding: 0 0 2 0;
+}
+
+/* ════════════════════════════════════════════
+   COMMENTS PANEL — warm off-white with depth
+   ════════════════════════════════════════════ */
 .comments-panel {
-    -fx-background-color: #f7f8fa;
+    -fx-background-color: #faf9f7;
+    -fx-border-color: #e8e4de;
+    -fx-border-width: 0 0 0 1;
 }
 
 .comments-panel-header {
     -fx-background-color: white;
-    -fx-border-color: #e4e6eb;
+    -fx-border-color: #e8e4de;
     -fx-border-width: 0 0 1 0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 4, 0, 0, 2);
 }
-
 .comments-panel-title {
-    -fx-font-size: 15px;
-    -fx-font-weight: 700;
-    -fx-text-fill: #050505;
-}
-
-.comments-count-label {
     -fx-font-size: 14px;
-    -fx-text-fill: #65676b;
+    -fx-font-weight: 700;
+    -fx-text-fill: #1a1d27;
+    -fx-letter-spacing: 0.5;
+}
+.comments-count-pill {
+    -fx-background-color: #17B3A6;
+    -fx-text-fill: white;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+    -fx-padding: 3 9;
+    -fx-background-radius: 20;
+    -fx-min-width: 28;
+    -fx-alignment: center;
+}
+.comments-count-label {
+    -fx-font-size: 13px;
+    -fx-text-fill: #8b90a7;
 }
 
-/* ── Comment input ── */
+/* ── Comment input row ── */
 .comment-input-row {
-    -fx-background-color: #f0f2f5;
-    -fx-border-color: #e4e6eb;
+    -fx-background-color: white;
+    -fx-border-color: #e8e4de;
     -fx-border-width: 0 0 1 0;
 }
-
 .comment-text-field {
-    -fx-background-color: white;
-    -fx-border-color: #e4e6eb;
-    -fx-border-radius: 20;
-    -fx-background-radius: 20;
-    -fx-padding: 8 14;
+    -fx-background-color: #f4f2ee;
+    -fx-border-color: transparent;
+    -fx-border-radius: 22;
+    -fx-background-radius: 22;
+    -fx-padding: 9 16;
     -fx-font-size: 13px;
-    -fx-text-fill: #050505;
+    -fx-text-fill: #1a1d27;
+    -fx-prompt-text-fill: #b0aaa3;
+}
+.comment-text-field:focused {
+    -fx-background-color: white;
+    -fx-border-color: #17B3A6;
+    -fx-border-width: 1.5;
+}
+.comment-post-btn {
+    -fx-background-color: #17B3A6;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-min-width: 36;
+    -fx-min-height: 36;
+    -fx-max-width: 36;
+    -fx-max-height: 36;
+    -fx-background-radius: 50;
+    -fx-cursor: hand;
+}
+.comment-post-btn:hover {
+    -fx-background-color: #0f9e92;
+}
+.comment-post-btn:disabled {
+    -fx-background-color: #dedad5;
+    -fx-text-fill: #b0aaa3;
 }
 
 /* ── Comments list ── */
 .comments-list {
-    -fx-background-color: #f7f8fa;
+    -fx-background-color: transparent;
 }
 
 /* ===== IMPROVED CREATE POST DIALOG ===== */
@@ -1302,19 +1358,6 @@ Light BG: #f0f2f5
     -fx-border-color: #e4e6eb;
     -fx-border-width: 0 0 1 0;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 4, 0, 0, 1);
-}
-
-/* Close button on white map header — override default white-on-white */
-.map-header .close-detail-btn {
-    -fx-background-color: #f0f2f5;
-    -fx-text-fill: #1a1d27;
-    -fx-border-color: #d0d3db;
-    -fx-border-width: 1;
-    -fx-border-radius: 50;
-}
-.map-header .close-detail-btn:hover {
-    -fx-background-color: #e4e6eb;
-    -fx-text-fill: #1a1d27;
 }
 
 .map-header-title {
