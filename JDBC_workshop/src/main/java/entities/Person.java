@@ -9,7 +9,7 @@ import java.io.Serializable;
  *
  * Since {@link Client} represents the same user in a social-feed context,
  * a {@code Person} can be converted to a {@code Client} via
- * {@code Client.fromPerson(person)} and back via {@link #fromClient(Client)}.
+ * {@code Client.fromPerson(person)} and back via {@link #fromClient(Client)}..
  *
  * <p><b>ID mapping:</b> {@code Person.id} ↔ {@code Client.clientID}</p>
  */
