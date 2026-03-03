@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.SVGPath?>
+
+<VBox spacing="20" styleClass="dash-content"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.AgencyAnalyticsController">
+
+    <padding>
+        <Insets top="30" right="30" bottom="30" left="30"/>
+    </padding>
+
+    <!-- Header card -->
+    <VBox spacing="15"
+          style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 15; -fx-border-color: #E7ECF3; -fx-border-radius: 15;">
+
+        <HBox alignment="CENTER_LEFT" spacing="20">
+            <VBox HBox.hgrow="ALWAYS">
+                <Label text="Analytics" styleClass="h1" style="-fx-font-size: 22px; -fx-text-fill: #0F172A;" />
+                <Label text="Daily insights for your offreAgency offers" styleClass="dash-muted" />
+            </VBox>
+
+            <Button onAction="#onRefresh" styleClass="btn-ghost" prefHeight="40" prefWidth="40">
+                <graphic>
+                    <SVGPath content="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"
+                             fill="#64748B" scaleX="0.8" scaleY="0.8"/>
+                </graphic>
+                <tooltip><Tooltip text="Refresh Analytics"/></tooltip>
+            </Button>
+        </HBox>
+    </VBox>
+
+    <!-- KPI cards row -->
+    <HBox spacing="15">
+        <VBox fx:id="kpiRevenue" HBox.hgrow="ALWAYS"
+              style="-fx-background-color: white; -fx-padding: 16; -fx-background-radius: 15; -fx-border-color: #E7ECF3; -fx-border-radius: 15;">
+            <Label text="Revenue (TND)" styleClass="dash-muted"/>
+            <Label fx:id="revenueLbl" text="0" style="-fx-font-size: 22px; -fx-font-weight: bold;"/>
+        </VBox>
+
+        <VBox fx:id="kpiBookings" HBox.hgrow="ALWAYS"
+              style="-fx-background-color: white; -fx-padding: 16; -fx-background-radius: 15; -fx-border-color: #E7ECF3; -fx-border-radius: 15;">
+            <Label text="Confirmed bookings" styleClass="dash-muted"/>
+            <Label fx:id="bookingsLbl" text="0" style="-fx-font-size: 22px; -fx-font-weight: bold;"/>
+        </VBox>
+
+        <VBox fx:id="kpiApproval" HBox.hgrow="ALWAYS"
+              style="-fx-background-color: white; -fx-padding: 16; -fx-background-radius: 15; -fx-border-color: #E7ECF3; -fx-border-radius: 15;">
+            <Label text="Approval rate" styleClass="dash-muted"/>
+            <Label fx:id="approvalLbl" text="0%" style="-fx-font-size: 22px; -fx-font-weight: bold;"/>
+        </VBox>
+
+        <VBox fx:id="kpiPending" HBox.hgrow="ALWAYS"
+              style="-fx-background-color: white; -fx-padding: 16; -fx-background-radius: 15; -fx-border-color: #E7ECF3; -fx-border-radius: 15;">
+            <Label text="Pending lines" styleClass="dash-muted"/>
+            <Label fx:id="pendingLbl" text="0" style="-fx-font-size: 22px; -fx-font-weight: bold;"/>
+        </VBox>
+    </HBox>
+
+    <!-- Charts row -->
+    <HBox spacing="15" VBox.vgrow="ALWAYS">
+        <!-- Revenue Line -->
+        <VBox HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS"
+              style="-fx-background-color: white; -fx-padding: 16; -fx-background-radius: 15; -fx-border-color: #E7ECF3; -fx-border-radius: 15;">
+            <Label text="Revenue (last 30 days)" style="-fx-font-weight: bold; -fx-text-fill: #0F172A;"/>
+            <LineChart fx:id="revenueChart" VBox.vgrow="ALWAYS" animated="false">
+                <xAxis>
+                    <CategoryAxis label="Day"/>
+                </xAxis>
+                <yAxis>
+                    <NumberAxis label="TND"/>
+                </yAxis>
+            </LineChart>
+        </VBox>
+
+        <!-- Status Pie -->
+        <VBox prefWidth="360" VBox.vgrow="ALWAYS"
+              style="-fx-background-color: white; -fx-padding: 16; -fx-background-radius: 15; -fx-border-color: #E7ECF3; -fx-border-radius: 15;">
+            <Label text="Requests status" style="-fx-font-weight: bold; -fx-text-fill: #0F172A;"/>
+            <PieChart fx:id="statusPie" VBox.vgrow="ALWAYS" legendVisible="true"/>
+        </VBox>
+    </HBox>
+
+    <!-- Bottom row -->
+    <HBox spacing="15" VBox.vgrow="ALWAYS">
+        <!-- Top offers -->
+        <VBox HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS"
+              style="-fx-background-color: white; -fx-padding: 16; -fx-background-radius: 15; -fx-border-color: #E7ECF3; -fx-border-radius: 15;">
+            <Label text="Top offers (by revenue)" style="-fx-font-weight: bold; -fx-text-fill: #0F172A;"/>
+            <BarChart fx:id="topOffersChart" VBox.vgrow="ALWAYS" animated="false">
+                <xAxis>
+                    <CategoryAxis label="Offer"/>
+                </xAxis>
+                <yAxis>
+                    <NumberAxis label="TND"/>
+                </yAxis>
+            </BarChart>
+        </VBox>
+
+        <!-- Top clients table -->
+        <VBox prefWidth="420" VBox.vgrow="ALWAYS"
+              style="-fx-background-color: white; -fx-padding: 16; -fx-background-radius: 15; -fx-border-color: #E7ECF3; -fx-border-radius: 15;">
+            <Label text="Top clients" style="-fx-font-weight: bold; -fx-text-fill: #0F172A;"/>
+            <TableView fx:id="clientsTable" VBox.vgrow="ALWAYS" styleClass="modern-table">
+                <columns>
+                    <TableColumn fx:id="colClientName" text="CLIENT" prefWidth="110"/>
+                    <TableColumn fx:id="colBookings" text="BOOKINGS" prefWidth="110"/>
+                    <TableColumn fx:id="colClientRevenue" text="REVENUE" prefWidth="160"/>
+                </columns>
+            </TableView>
+        </VBox>
+    </HBox>
+
+</VBox>

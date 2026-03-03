@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.shape.SVGPath?>
+<VBox spacing="20" styleClass="dash-content"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.OffreReservationDetailsController">
+
+    <padding>
+        <Insets top="25" right="25" bottom="25" left="25"/>
+    </padding>
+
+    <!-- Header -->
+    <VBox spacing="6" style="-fx-background-color: white; -fx-padding: 18; -fx-background-radius: 14; -fx-border-color: #E7ECF3; -fx-border-radius: 14;">
+        <HBox spacing="12" alignment="CENTER_LEFT">
+            <Button text="← Back" onAction="#onBack" styleClass="btn-ghost"/>
+            <Label fx:id="titleLbl" text="Reservation #0" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="statusLbl" text="STATUS" styleClass="status-pill"/>
+        </HBox>
+
+        <HBox spacing="18">
+            <Label fx:id="totalLbl" text="Total: 0 TND" />
+            <Label fx:id="payLbl" text="Payment: CASH" />
+            <Label fx:id="dateLbl" text="Date: -" />
+        </HBox>
+    </VBox>
+
+    <!-- Items -->
+    <TableView fx:id="itemsTable" VBox.vgrow="ALWAYS" styleClass="modern-table">
+        <columns>
+            <TableColumn fx:id="colTitle" text="OFFER" prefWidth="200"/>
+            <TableColumn fx:id="colPrice" text="PRICE" prefWidth="120"/>
+            <TableColumn fx:id="colAgencyStatus" text="AGENCY STATUS" prefWidth="160"/>
+            <TableColumn fx:id="colDecisionAt" text="DECISION AT" prefWidth="170"/>
+            <TableColumn fx:id="colReason" text="REASON" prefWidth="360"/>
+            <TableColumn fx:id="colAction" text="ACTION" prefWidth="120"/>
+        </columns>
+    </TableView>
+
+    <!-- Buttons -->
+    <HBox alignment="CENTER_RIGHT" spacing="10">
+        <Button fx:id="cancelBtn" text="Cancel Request" onAction="#onCancelRequest" styleClass="btn-action-danger"/>
+        <Button text="Close" onAction="#onBack" style="-fx-background-color: rgba(27, 183, 177, 0.1); -fx-background-radius: 10; -fx-padding: 8;"/>
+    </HBox>
+
+</VBox>
