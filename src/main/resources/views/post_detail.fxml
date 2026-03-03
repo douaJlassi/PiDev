@@ -5,46 +5,52 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.Rectangle?>
 
 <BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
             styleClass="post-detail-view"
             stylesheets="@../styles/dashboard.css">
 
-    <!-- ═══ TOP BAR ═══ -->
+    <!-- ═══ TOP BAR — minimal, borderless, no title ═══ -->
     <top>
-        <HBox styleClass="detail-top-bar" alignment="CENTER_LEFT" spacing="12">
-            <padding><Insets top="14" right="20" bottom="14" left="20"/></padding>
-            <Button fx:id="closeBtn" styleClass="close-detail-btn" text="✕" onAction="#onClose"/>
+        <HBox styleClass="detail-top-bar" alignment="CENTER_LEFT" spacing="10">
+            <padding><Insets top="12" right="20" bottom="12" left="16"/></padding>
+            <Button fx:id="closeBtn" styleClass="close-detail-btn" text="← Back" onAction="#onClose"/>
             <Region HBox.hgrow="ALWAYS"/>
-            <Label text="Post Details" styleClass="detail-title"/>
-            <Region HBox.hgrow="ALWAYS"/>
-            <Region prefWidth="36"/>
         </HBox>
     </top>
 
     <!-- ═══ SPLIT VIEW ═══ -->
     <center>
-        <HBox styleClass="split-view">
+        <HBox styleClass="split-view" fillHeight="true">
 
             <!-- ══ LEFT — post content ══ -->
-            <VBox fx:id="leftPanel" styleClass="post-content-panel" HBox.hgrow="ALWAYS">
-                <ScrollPane fitToWidth="true" styleClass="posts-scroll-pane" VBox.vgrow="ALWAYS">
-                    <VBox fx:id="postContentBox" spacing="0">
+            <VBox fx:id="leftPanel" styleClass="post-content-panel"
+                  HBox.hgrow="ALWAYS" fillWidth="true">
 
-                        <!-- Hero image — full-bleed, hidden when no image -->
-                        <VBox fx:id="imageContainer" visible="false" managed="false">
+                <ScrollPane fitToWidth="true" fitToHeight="false"
+                            styleClass="posts-scroll-pane" VBox.vgrow="ALWAYS"
+                            minViewportWidth="1">
+                    <VBox fx:id="postContentBox" spacing="0" fillWidth="true">
+
+                        <!-- Hero image — edge to edge, no side padding -->
+                        <VBox fx:id="imageContainer" styleClass="detail-hero-container"
+                              visible="false" managed="false"
+                              alignment="CENTER" fillWidth="true">
                             <ImageView fx:id="postImage"
-                                       fitWidth="9999" preserveRatio="true" smooth="true"/>
+                                       preserveRatio="true" smooth="true"
+                                       styleClass="detail-hero-image"/>
                         </VBox>
 
-                        <!-- Content card — always visible -->
-                        <VBox styleClass="detail-content-card" spacing="16">
-                            <padding><Insets top="22" right="28" bottom="28" left="28"/></padding>
+                        <!-- Content card — floats below image -->
+                        <!-- Content card — compact, tight under the image -->
+                        <VBox styleClass="detail-content-card" spacing="10">
+                            <padding><Insets top="16" right="24" bottom="16" left="24"/></padding>
 
-                            <!-- Author row — always shown -->
-                            <HBox spacing="12" alignment="CENTER_LEFT">
-                                <Circle fx:id="authorAvatar" styleClass="avatar" radius="24"/>
-                                <VBox spacing="3">
+                            <!-- Author row — tighter -->
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Circle fx:id="authorAvatar" styleClass="avatar" radius="20"/>
+                                <VBox spacing="2">
                                     <Label fx:id="authorNameLabel" styleClass="detail-author-name" text="Author"/>
                                     <Label fx:id="dateLabel" styleClass="post-meta" text="Date"/>
                                 </VBox>
@@ -57,7 +63,7 @@
                                 <HBox fx:id="weatherBadge" styleClass="weather-badge" spacing="6"
                                       alignment="CENTER_LEFT" visible="false" managed="false" maxWidth="-Infinity">
                                     <ImageView fx:id="weatherIcon" styleClass="weather-icon"
-                                               fitWidth="28" fitHeight="28" preserveRatio="true"/>
+                                               fitWidth="22" fitHeight="22" preserveRatio="true"/>
                                     <VBox spacing="1">
                                         <Label fx:id="weatherText" styleClass="weather-text" text=""/>
                                         <Label fx:id="weatherDescription" styleClass="post-meta" text=""/>
@@ -69,19 +75,19 @@
                             <Label fx:id="postContentLabel" styleClass="detail-post-text"
                                    wrapText="true" text=""/>
 
-                            <!-- Stats -->
-                            <HBox styleClass="post-stats" alignment="CENTER_LEFT" spacing="16">
+                            <!-- Stats — compact single line -->
+                            <HBox styleClass="post-stats" alignment="CENTER_LEFT" spacing="12">
                                 <Label fx:id="likesStatLabel" styleClass="post-stats-text"
                                        text="" visible="false" managed="false"/>
                                 <Label fx:id="commentsStatLabel" styleClass="post-stats-text"
                                        text="" visible="false" managed="false"/>
                             </HBox>
 
-                            <!-- Action buttons -->
-                            <HBox styleClass="post-actions" alignment="CENTER" spacing="10">
-                                <Button fx:id="likeBtn" styleClass="action-btn" text="Like"
+                            <!-- Action buttons — slim -->
+                            <HBox styleClass="post-actions" alignment="CENTER" spacing="8">
+                                <Button fx:id="likeBtn" styleClass="action-btn" text="♥  Like"
                                         maxWidth="Infinity" HBox.hgrow="ALWAYS" onAction="#onLikeClicked"/>
-                                <Button fx:id="commentBtn2" styleClass="action-btn" text="Comment"
+                                <Button fx:id="commentBtn2" styleClass="action-btn" text="💬  Comment"
                                         maxWidth="Infinity" HBox.hgrow="ALWAYS" onAction="#onCommentFocusClicked"/>
                             </HBox>
 
@@ -91,7 +97,8 @@
             </VBox>
 
             <!-- ══ RIGHT — comments panel ══ -->
-            <VBox fx:id="rightPanel" styleClass="comments-panel" prefWidth="380" minWidth="320" maxWidth="420">
+            <VBox fx:id="rightPanel" styleClass="comments-panel"
+                  prefWidth="360" minWidth="300" maxWidth="400">
 
                 <HBox styleClass="comments-panel-header" alignment="CENTER_LEFT" spacing="8">
                     <padding><Insets top="16" right="20" bottom="14" left="20"/></padding>

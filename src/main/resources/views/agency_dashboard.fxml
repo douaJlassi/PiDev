@@ -3,58 +3,75 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.shape.Circle?>
 
 <BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="controllers.AgencyDashboardController"
-            stylesheets="@../styles/dashboard.css"
-            styleClass="dashboard-root">
+            stylesheets="@../styles/dashboard.css,@../styles/agency.css"
+            styleClass="agency-root">
 
-    <!-- ===== TOP BAR ===== -->
     <top>
-        <HBox styleClass="nav-bar" alignment="CENTER_LEFT" spacing="16">
-            <padding><Insets top="12" right="24" bottom="12" left="24"/></padding>
-            <Label text="Agency Back Office" styleClass="agency-title-label"/>
+        <HBox styleClass="agency-header" alignment="CENTER_LEFT" spacing="16" prefHeight="64">
+            <padding><Insets top="0" right="28" bottom="0" left="28"/></padding>
+            <StackPane styleClass="agency-logo-mark" prefWidth="40" prefHeight="40">
+                <Label text="R" styleClass="agency-logo-letter"/>
+            </StackPane>
+            <VBox spacing="1" alignment="CENTER_LEFT">
+                <Label text="REHLETNA" styleClass="agency-brand-name"/>
+                <Label text="Back Office" styleClass="agency-brand-sub"/>
+            </VBox>
+            <Region styleClass="agency-header-divider" prefWidth="1" prefHeight="32"/>
+            <VBox spacing="2" alignment="CENTER_LEFT">
+                <Label text="AGENCY" styleClass="agency-header-eyebrow"/>
+                <Label fx:id="agencyNameLabel" text="—" styleClass="agency-header-name"/>
+            </VBox>
             <Region HBox.hgrow="ALWAYS"/>
-            <Label fx:id="agencyNameLabel" styleClass="agency-name-label" text="My Agency"/>
-            <Button text="⟳" styleClass="icon-btn" onAction="#onRefresh"/>
-            <Button fx:id="themeToggleBtn" text="Dark Mode" styleClass="theme-toggle-btn" onAction="#toggleTheme"/>
+            <Button styleClass="agency-icon-btn" text="&#8635;" onAction="#onRefresh"/>
+            <Button fx:id="themeToggleBtn" styleClass="agency-theme-btn" text="Dark Mode" onAction="#toggleTheme"/>
         </HBox>
     </top>
 
-    <!-- ===== MAIN SPLIT ===== -->
     <center>
-        <HBox>
+        <ScrollPane fitToWidth="true" styleClass="agency-scroll">
+            <VBox styleClass="agency-body" alignment="TOP_CENTER">
+                <VBox styleClass="agency-content-column" maxWidth="960" alignment="TOP_LEFT">
+                    <VBox.margin><Insets top="28" right="0" bottom="32" left="0"/></VBox.margin>
 
-            <!-- LEFT: filter tabs -->
-            <VBox styleClass="agency-sidebar" spacing="0" minWidth="180" maxWidth="180">
-                <padding><Insets top="20" right="0" bottom="20" left="0"/></padding>
+                    <HBox spacing="16" alignment="CENTER_LEFT">
+                        <VBox styleClass="stat-card stat-card-pending" spacing="5" prefWidth="200">
+                            <padding><Insets top="16" right="20" bottom="16" left="20"/></padding>
+                            <Label text="PENDING" styleClass="stat-label"/>
+                            <Label fx:id="pendingCount" text="0" styleClass="stat-number"/>
+                            <Label text="Awaiting review" styleClass="stat-sub"/>
+                        </VBox>
+                        <VBox styleClass="stat-card stat-card-approved" spacing="5" prefWidth="200">
+                            <padding><Insets top="16" right="20" bottom="16" left="20"/></padding>
+                            <Label text="APPROVED" styleClass="stat-label"/>
+                            <Label fx:id="approvedCount" text="0" styleClass="stat-number"/>
+                            <Label text="Live on platform" styleClass="stat-sub"/>
+                        </VBox>
+                        <VBox styleClass="stat-card stat-card-rejected" spacing="5" prefWidth="200">
+                            <padding><Insets top="16" right="20" bottom="16" left="20"/></padding>
+                            <Label text="REJECTED" styleClass="stat-label"/>
+                            <Label fx:id="rejectedCount" text="0" styleClass="stat-number"/>
+                            <Label text="Did not pass review" styleClass="stat-sub"/>
+                        </VBox>
+                    </HBox>
 
-                <fx:define>
-                    <ToggleGroup fx:id="filterGroup"/>
-                </fx:define>
+                    <HBox styleClass="agency-filter-bar" alignment="CENTER_LEFT" spacing="8">
+                        <VBox.margin><Insets top="20" bottom="16"/></VBox.margin>
+                        <Label text="VIEW:" styleClass="filter-bar-label"/>
+                        <fx:define><ToggleGroup fx:id="filterGroup"/></fx:define>
+                        <ToggleButton fx:id="allTab"      text="All"      styleClass="filter-tab" toggleGroup="$filterGroup" selected="true" onAction="#onFilterChanged"/>
+                        <ToggleButton fx:id="pendingTab"  text="Pending"  styleClass="filter-tab" toggleGroup="$filterGroup" onAction="#onFilterChanged"/>
+                        <ToggleButton fx:id="approvedTab" text="Approved" styleClass="filter-tab" toggleGroup="$filterGroup" onAction="#onFilterChanged"/>
+                        <ToggleButton fx:id="rejectedTab" text="Rejected" styleClass="filter-tab" toggleGroup="$filterGroup" onAction="#onFilterChanged"/>
+                    </HBox>
 
-                <Label text="Filter" styleClass="agency-filter-title"/>
+                    <VBox fx:id="submissionList" styleClass="agency-submission-list" spacing="12"/>
 
-                <ToggleButton fx:id="pendingTab" text="Pending" toggleGroup="$filterGroup"
-                              selected="true" onAction="#onFilterChanged" maxWidth="Infinity" styleClass="agency-filter-btn"/>
-
-                <ToggleButton fx:id="approvedTab" text="Approved" toggleGroup="$filterGroup"
-                              onAction="#onFilterChanged" maxWidth="Infinity" styleClass="agency-filter-btn"/>
-
+                </VBox>
             </VBox>
-
-
-            <!-- RIGHT: submission list -->
-            <VBox HBox.hgrow="ALWAYS">
-                <ScrollPane fitToWidth="true" styleClass="posts-scroll-pane" VBox.vgrow="ALWAYS">
-                    <VBox fx:id="submissionList" spacing="16" styleClass="agency-list">
-                        <padding><Insets top="24" right="32" bottom="24" left="24"/></padding>
-                    </VBox>
-                </ScrollPane>
-            </VBox>
-
-        </HBox>
+        </ScrollPane>
     </center>
 
 </BorderPane>

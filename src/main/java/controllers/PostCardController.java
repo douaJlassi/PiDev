@@ -108,14 +108,24 @@ public class PostCardController {
         contentLabel.setText(publication.getContent());
 
         // Image
+// Image
         if (publication.hasImage()) {
             File img = new File(publication.getImagePath());
             if (img.exists()) {
                 postImage.setImage(new Image(img.toURI().toString()));
                 imageContainer.setVisible(true);
                 imageContainer.setManaged(true);
-                // Fit image to card width (grid=420, list=680)
                 postImage.setFitWidth(isGridView ? 420 : 680);
+
+                // ── LIGHTBOX: click image to zoom ──────────────────────────────
+                imageContainer.setStyle("-fx-cursor: hand;");
+                imageContainer.setOnMouseClicked(e -> {
+                    e.consume(); // Don't bubble up to the card's detail-view handler
+                    ImageLightboxOverlay.show(
+                            dashboard.getContentContainer(),
+                            postImage.getImage()
+                    );
+                });
             }
         }
 

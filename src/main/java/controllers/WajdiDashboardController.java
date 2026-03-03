@@ -99,6 +99,7 @@ public class WajdiDashboardController {
     private boolean mapLoaded  = false;
     private boolean chatBuilt  = false;
 
+
     @FXML
     public void initialize() {
         // Initialize services

@@ -222,7 +222,11 @@
 }
 .close-detail-btn:hover { -fx-background-color: rgba(255,255,255,0.25); }
 .post-content-panel { -fx-background-color: #13161f; }
-.detail-hero-container { -fx-background-color: #0a0c12; }
+.detail-hero-container {
+    -fx-background-color: transparent;
+    -fx-padding: 20 0 12 0;
+    -fx-effect: none;
+}
 .detail-content-card {
     -fx-background-color: #1a1d27;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 8, 0, 0, 2);
@@ -629,4 +633,27 @@
 .unsplash-suggest-btn:disabled {
     -fx-text-fill: #555a72;
     -fx-border-color: #555a72;
+}
+
+/* ===== POST DETAIL top bar — dark override ===== */
+.detail-top-bar {
+    -fx-background-color: #1a1d27;
+    -fx-border-color: #2e3250;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 6, 0, 0, 2);
+}
+
+.close-detail-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #8b90a7;
+    -fx-border-color: #2e3250;
+}
+
+.close-detail-btn:hover {
+    -fx-background-color: #22263a;
+    -fx-text-fill: #17B3A6;
+    -fx-border-color: #17B3A6;
+}
+
+.detail-hero-image {
+    -fx-effect: none;
 }

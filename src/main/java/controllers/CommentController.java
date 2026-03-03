@@ -91,9 +91,10 @@ public class CommentController {
 
             loadComments(publication, commentsList);
 
+// In CommentController.addComment() — fix the label format
             if (countLabel != null) {
                 int count = commentService.getCommentCount(publication.getPublicationID());
-                countLabel.setText("(" + count + ")");
+                countLabel.setText(String.valueOf(count));  // was: "(" + count + ")"
             }
 
             dashboard.loadPosts();

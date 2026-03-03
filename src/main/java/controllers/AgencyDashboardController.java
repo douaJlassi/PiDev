@@ -126,6 +126,7 @@ public class AgencyDashboardController {
     private VBox buildCard(Publication pub) {
         VBox card = new VBox(12);
         card.getStyleClass().add("agency-submission-card");
+        if (pub.isPending()) card.getStyleClass().add("card-pending"); else if (pub.isApproved()) card.getStyleClass().add("card-approved"); else card.getStyleClass().add("card-rejected");
 
         // Header: avatar + author info + status badge
         HBox header = new HBox(12);
@@ -140,9 +141,9 @@ public class AgencyDashboardController {
                 ? pub.getClient().getUsername()
                 : "Traveler #" + pub.getClient().getClientID();
         Label name = new Label(uname);
-        name.setStyle("-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #e8eaf0;");
+        name.getStyleClass().add("card-author-name");
         Label date = new Label(DATE_FMT.format(pub.getDatePublication()));
-        date.setStyle("-fx-font-size: 11px; -fx-text-fill: #8b90a7;");
+        date.getStyleClass().add("card-author-date");
         info.getChildren().addAll(name, date);
 
         Region spacer = new Region(); HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -151,7 +152,7 @@ public class AgencyDashboardController {
         // Content
         Label content = new Label(pub.getContent());
         content.setWrapText(true);
-        content.setStyle("-fx-font-size: 14px; -fx-text-fill: #c8cad8; -fx-line-spacing: 2;");
+        content.getStyleClass().add("card-content-text");
 
         card.getChildren().addAll(header, content);
 
@@ -169,20 +170,11 @@ public class AgencyDashboardController {
             actions.setPadding(new javafx.geometry.Insets(4, 0, 0, 0));
 
             Button reject = new Button("Reject");
-            reject.setStyle(
-                    "-fx-background-color: transparent; -fx-text-fill: #e74c3c; " +
-                            "-fx-border-color: rgba(231,76,60,0.5); -fx-border-radius: 6; -fx-border-width: 1; " +
-                            "-fx-padding: 7 20; -fx-background-radius: 6; -fx-cursor: hand; -fx-font-weight: 600;");
-            reject.setOnMouseEntered(e -> reject.setStyle(reject.getStyle() + "-fx-background-color: rgba(231,76,60,0.08);"));
-            reject.setOnMouseExited(e -> reject.setStyle(reject.getStyle().replace("-fx-background-color: rgba(231,76,60,0.08);", "")));
+            reject.getStyleClass().add("danger-btn");
             reject.setOnAction(e -> moderate(pub, Publication.Status.REJECTED, card));
 
             Button approve = new Button("Approve");
-            approve.setStyle(
-                    "-fx-background-color: #17B3A6; -fx-text-fill: white; " +
-                            "-fx-padding: 7 20; -fx-background-radius: 6; -fx-cursor: hand; -fx-font-weight: 600;");
-            approve.setOnMouseEntered(e -> approve.setStyle(approve.getStyle() + "-fx-background-color: #0D8F85;"));
-            approve.setOnMouseExited(e -> approve.setStyle(approve.getStyle().replace("-fx-background-color: #0D8F85;", "")));
+            approve.getStyleClass().add("primary-btn");
             approve.setOnAction(e -> moderate(pub, Publication.Status.APPROVED, card));
 
             actions.getChildren().addAll(reject, approve);
@@ -230,7 +222,7 @@ public class AgencyDashboardController {
     // ── Helpers ───────────────────────────────────────────────────────────────
     private Label placeholder(String text) {
         Label l = new Label(text);
-        l.setStyle("-fx-text-fill: #8b90a7; -fx-font-size: 14px; -fx-padding: 32 0;");
+        l.getStyleClass().add("agency-placeholder");
         return l;
     }
 
