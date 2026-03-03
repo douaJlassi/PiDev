@@ -7,6 +7,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import services.PublicationService;
+import javafx.scene.layout.FlowPane;
 
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -27,7 +28,7 @@ public class AgencyDashboardController {
     // ── FXML ─────────────────────────────────────────────────────────────────
     @FXML private Label        agencyNameLabel;
     @FXML private Button       themeToggleBtn;
-    @FXML private VBox         submissionList;
+    @FXML private FlowPane submissionList;  // was VBox
     @FXML private Label        pendingCount;
     @FXML private Label        approvedCount;
     @FXML private Label        rejectedCount;
@@ -125,17 +126,73 @@ public class AgencyDashboardController {
     // ── Submission card ───────────────────────────────────────────────────────
     private VBox buildCard(Publication pub) {
         VBox card = new VBox(12);
+        card.setPrefWidth(320);
+        card.setMaxWidth(320);
+        card.setPrefHeight(280);
         card.getStyleClass().add("agency-submission-card");
-        if (pub.isPending()) card.getStyleClass().add("card-pending"); else if (pub.isApproved()) card.getStyleClass().add("card-approved"); else card.getStyleClass().add("card-rejected");
+        if (pub.isPending())       card.getStyleClass().add("card-pending");
+        else if (pub.isApproved()) card.getStyleClass().add("card-approved");
+        else                       card.getStyleClass().add("card-rejected");
 
-        // Header: avatar + author info + status badge
-        HBox header = new HBox(12);
-        header.setAlignment(Pos.CENTER_LEFT);
+        // ── Status badge top-right ────────────────────────────────────────────
+        HBox topRow = new HBox();
+        topRow.setAlignment(Pos.CENTER_RIGHT);
+        topRow.getChildren().add(statusBadge(pub.getStatus()));
 
-        Region avatar = new Region();
-        avatar.getStyleClass().add("avatar");
-        avatar.setPrefSize(36, 36); avatar.setMinSize(36, 36); avatar.setMaxSize(36, 36);
+        // ── Author row — real avatar ──────────────────────────────────────────
+        HBox authorRow = new HBox(10);
+        authorRow.setAlignment(Pos.CENTER_LEFT);
 
+        // Avatar: try to load image, fall back to teal circle with initial
+        StackPane avatarStack = new StackPane();
+        avatarStack.setPrefSize(36, 36);
+        avatarStack.setMinSize(36, 36);
+        avatarStack.setMaxSize(36, 36);
+
+        // Base circle (always shown as background)
+        javafx.scene.shape.Circle avatarCircle = new javafx.scene.shape.Circle(18);
+        avatarCircle.getStyleClass().add("avatar");
+
+        String avatarPath = pub.getClient().getAvatarPath();
+        boolean avatarLoaded = false;
+
+        if (avatarPath != null && !avatarPath.isBlank()) {
+            try {
+                javafx.scene.image.Image img;
+                if (avatarPath.startsWith("http")) {
+                    img = new javafx.scene.image.Image(avatarPath, 36, 36, true, true, true);
+                } else {
+                    java.io.File f = new java.io.File(avatarPath);
+                    if (f.exists()) {
+                        img = new javafx.scene.image.Image(f.toURI().toString(), 36, 36, true, true);
+                    } else {
+                        img = null;
+                    }
+                }
+                if (img != null && !img.isError()) {
+                    javafx.scene.image.ImageView iv = new javafx.scene.image.ImageView(img);
+                    iv.setFitWidth(36); iv.setFitHeight(36);
+                    iv.setPreserveRatio(true);
+                    // Clip to circle
+                    javafx.scene.shape.Circle clip = new javafx.scene.shape.Circle(18, 18, 18);
+                    iv.setClip(clip);
+                    avatarStack.getChildren().addAll(avatarCircle, iv);
+                    avatarLoaded = true;
+                }
+            } catch (Exception ignored) {}
+        }
+
+        if (!avatarLoaded) {
+            // Fallback: circle + first letter of username
+            String uname = pub.getClient().getUsername();
+            String initial = (uname != null && !uname.isEmpty())
+                    ? String.valueOf(uname.charAt(0)).toUpperCase() : "?";
+            Label initLabel = new Label(initial);
+            initLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15px;");
+            avatarStack.getChildren().addAll(avatarCircle, initLabel);
+        }
+
+        // Author name + date
         VBox info = new VBox(2);
         String uname = pub.getClient().getUsername() != null
                 ? pub.getClient().getUsername()
@@ -146,26 +203,28 @@ public class AgencyDashboardController {
         date.getStyleClass().add("card-author-date");
         info.getChildren().addAll(name, date);
 
-        Region spacer = new Region(); HBox.setHgrow(spacer, Priority.ALWAYS);
-        header.getChildren().addAll(avatar, info, spacer, statusBadge(pub.getStatus()));
+        authorRow.getChildren().addAll(avatarStack, info);
 
-        // Content
+        // ── Content ───────────────────────────────────────────────────────────
         Label content = new Label(pub.getContent());
         content.setWrapText(true);
+        content.setPrefHeight(110);
+        content.setMaxHeight(110);
         content.getStyleClass().add("card-content-text");
+        VBox.setVgrow(content, Priority.ALWAYS);
 
-        card.getChildren().addAll(header, content);
+        card.getChildren().addAll(topRow, authorRow, content);
 
-        // Place tag
+        // ── Place tag ─────────────────────────────────────────────────────────
         if (pub.hasPlace()) {
             Label place = new Label("📍 " + pub.getPlace());
             place.getStyleClass().add("post-place-tag");
             card.getChildren().add(place);
         }
 
-        // Approve / Reject buttons — only for PENDING posts
+        // ── Approve / Reject — pending only ───────────────────────────────────
         if (pub.isPending()) {
-            HBox actions = new HBox(10);
+            HBox actions = new HBox(8);
             actions.setAlignment(Pos.CENTER_RIGHT);
             actions.setPadding(new javafx.geometry.Insets(4, 0, 0, 0));
 
