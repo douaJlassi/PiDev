@@ -21,7 +21,7 @@ public class SupabaseStorageService {
     }
 
     private void loadConfig() {
-        try (InputStream input = getClass().getResourceAsStream("/config.properties")) {
+        try (InputStream input = getClass().getResourceAsStream("/views/config.properties")) {
             Properties prop = new Properties();
             prop.load(input);
             supabaseUrl = prop.getProperty("supabase.url");       // e.g. https://xxxx.supabase.co

@@ -34,7 +34,7 @@ public class VolDetailsController {
 
     public void loadConfig() {
         try (InputStream input = getClass()
-                .getResourceAsStream("/config.properties")) {
+                .getResourceAsStream("/views/config.properties")) {
 
             Properties prop = new Properties();
             prop.load(input);
@@ -75,7 +75,7 @@ btnReserver.setOnAction(e -> {handleReserver();});
     }
     @FXML private void handleBack() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/DashboardServices.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/DashboardServices.fxml"));
             Parent root = loader.load();
             retourBtn.getScene().setRoot(root);
         } catch (IOException e) {
@@ -84,7 +84,7 @@ btnReserver.setOnAction(e -> {handleReserver();});
     }
     @FXML private void handleReserver() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ReservationForm.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/ReservationForm.fxml"));
             Parent root = loader.load();
             AddReservationController addReservationController = loader.getController();
             addReservationController.setIdService(id);

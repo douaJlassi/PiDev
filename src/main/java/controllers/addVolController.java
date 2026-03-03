@@ -67,7 +67,7 @@ public class addVolController {
 
     public void loadConfig() {
         try (InputStream input = getClass()
-                .getResourceAsStream("/config.properties")) {
+                .getResourceAsStream("/views/config.properties")) {
 
             Properties prop = new Properties();
             prop.load(input);
@@ -97,7 +97,7 @@ public class addVolController {
         vol vol = new vol(nom,description,prix,disponibilite,capacite,numeroVol,VilleDepart,VilleArrivee,sqlDateDepart,sqlDateArrive,"vol",imageUrl);
         try {
             service.insertOne(vol);
-            Parent dashboardView = FXMLLoader.load(getClass().getResource("/DashboardServices.fxml"));
+            Parent dashboardView = FXMLLoader.load(getClass().getResource("/views/DashboardServices.fxml"));
             StackPane contentArea = (StackPane) tfNom.getScene().lookup("#contentArea");
             tfNom.getScene().setRoot(dashboardView);
 
@@ -453,7 +453,7 @@ public class addVolController {
     }
     @FXML private void handleBack() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/DashboardServices.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/DashboardServices.fxml"));
             Parent root = loader.load();
             retourBtn.getScene().setRoot(root);
         } catch (IOException e) {

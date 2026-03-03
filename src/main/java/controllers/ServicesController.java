@@ -166,7 +166,7 @@ public class ServicesController implements Initializable {
         // === CASE 1: IT IS A VOL ===
         if (service.getType().equals("vol")) {
             // 1. Load the Vol FXML
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/updateVol.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/updateVol.fxml"));
             try {
                 VolService volService = new VolService();
                 try {
@@ -185,7 +185,7 @@ public class ServicesController implements Initializable {
 
         // === CASE 2: IT IS A HOTEL ===
         else if (service.getType().equals("hotel")) {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/updateHotel.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/updateHotel.fxml"));
             try {
                 HotelService hotelService = new HotelService();
                 try {
@@ -226,7 +226,7 @@ public class ServicesController implements Initializable {
         vol v;
         Hotel h;
         if (s.getType().equals("hotel")) {
-           loader = new FXMLLoader(getClass().getResource("/hotelDetails.fxml"));
+           loader = new FXMLLoader(getClass().getResource("/views/hotelDetails.fxml"));
             try {
                 HotelService hotelService = new HotelService();
                 try {
@@ -245,7 +245,7 @@ public class ServicesController implements Initializable {
             }
         }
         else if (s.getType().equals("vol")) {
-            loader = new FXMLLoader(getClass().getResource("/volsDetails.fxml"));
+            loader = new FXMLLoader(getClass().getResource("/views/volsDetails.fxml"));
             try {
                 VolService volService = new VolService();
                 try {

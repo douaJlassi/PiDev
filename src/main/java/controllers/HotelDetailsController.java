@@ -48,7 +48,7 @@ public class HotelDetailsController {
 
     public void loadConfig() {
         try (InputStream input = getClass()
-                .getResourceAsStream("/config.properties")) {
+                .getResourceAsStream("/views/config.properties")) {
 
             Properties prop = new Properties();
             prop.load(input);
@@ -143,7 +143,7 @@ public class HotelDetailsController {
     @FXML
     private void handleBack() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/DashboardServices.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/DashboardServices.fxml"));
             Parent root = loader.load();
             retourBtn.getScene().setRoot(root);
         } catch (IOException e) {
@@ -153,7 +153,7 @@ public class HotelDetailsController {
     @FXML
     private void handleReserver() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ReservationForm.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/ReservationForm.fxml"));
             Parent root = loader.load();
             AddReservationController addReservationController = loader.getController();
             addReservationController.setIdService(id);
@@ -176,7 +176,7 @@ public class HotelDetailsController {
             String city = lblLocalisation.getText();
 
 
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/countryInfo.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/countryInfo.fxml"));
             Parent root = loader.load();
 
 

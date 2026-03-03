@@ -116,7 +116,7 @@ public class AddReservationController {
     @FXML
     private void handleBack() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/DashboardServices.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/DashboardServices.fxml"));
             Parent root = loader.load();
             tfModePaiement.getScene().setRoot(root);
         } catch (IOException e) {

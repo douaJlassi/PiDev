@@ -190,7 +190,7 @@ public class UpdateHotelController {
             Hotel v = new Hotel(newName, newdescription, newPrice, newdisponibilite, newcapacite, "hotel", newnbetoiles, newlocalisation, newtypechambre,imageUrl);
             try {
                 vs.updateOne(currentService.getNom(), v);
-                Parent dashboardView = FXMLLoader.load(getClass().getResource("/DashboardServices.fxml"));
+                Parent dashboardView = FXMLLoader.load(getClass().getResource("/views/DashboardServices.fxml"));
                 StackPane contentArea = (StackPane) tfNom.getScene().lookup("#contentArea");
                 if (contentArea != null) {
                     contentArea.getChildren().setAll(dashboardView);
@@ -304,7 +304,7 @@ public class UpdateHotelController {
     }
     @FXML private void handleBack() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/DashboardServices.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/DashboardServices.fxml"));
             Parent root = loader.load();
             retourBtn.getScene().setRoot(root);
         } catch (IOException e) {

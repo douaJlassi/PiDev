@@ -221,7 +221,7 @@ public class DashboardServicesController implements Initializable {
     private void handleShowVolForm(ActionEvent event) {
         try {
             // Load the addVol.fxml
-            Parent volForm = FXMLLoader.load(getClass().getResource("/addVol.fxml"));
+            Parent volForm = FXMLLoader.load(getClass().getResource("/views/AddVol.fxml"));
             searchBox.setVisible(false);
             // Clear current view and add the form
             contentArea.getChildren().removeAll(); // Clears everything? No, we want to keep logic simple.
@@ -241,7 +241,7 @@ public class DashboardServicesController implements Initializable {
         searchBox.setVisible(false);
         try {
 
-            Parent HotelForm = FXMLLoader.load(getClass().getResource("/AddHotel.fxml"));
+            Parent HotelForm = FXMLLoader.load(getClass().getResource("/views/AddHotel.fxml"));
 
             contentArea.getChildren().removeAll();
 
@@ -275,7 +275,7 @@ public class DashboardServicesController implements Initializable {
             Services.getStyleClass().add("active-nav-btn");
             Dashboard.getStyleClass().removeAll("active-nav-btn");
             Reservations.getStyleClass().removeAll("active-nav-btn");
-            Parent HotelForm = FXMLLoader.load(getClass().getResource("/Services.fxml"));
+            Parent HotelForm = FXMLLoader.load(getClass().getResource("/views/Services.fxml"));
             contentArea.getChildren().removeAll(); // Clears everything? No, we want to keep logic simple.
             pnlOverview.setVisible(false);
             contentArea.getChildren().add(HotelForm);
@@ -291,7 +291,7 @@ public class DashboardServicesController implements Initializable {
             Services.getStyleClass().removeAll("active-nav-btn");
             Dashboard.getStyleClass().removeAll("active-nav-btn");
             Reservations.getStyleClass().add("active-nav-btn");
-            Parent Reservations = FXMLLoader.load(getClass().getResource("/Reservations.fxml"));
+            Parent Reservations = FXMLLoader.load(getClass().getResource("/views/Reservations.fxml"));
             contentArea.getChildren().removeAll();
             pnlOverview.setVisible(false);
             contentArea.getChildren().add(Reservations);
@@ -354,7 +354,7 @@ public class DashboardServicesController implements Initializable {
         Dashboard.setVisible(false);
         Dashboard.setManaged(false);
         try {
-            Parent servicesView = FXMLLoader.load(getClass().getResource("/Services.fxml"));
+            Parent servicesView = FXMLLoader.load(getClass().getResource("/views/Services.fxml"));
             contentArea.getChildren().setAll(servicesView);
         } catch (IOException e) {
             e.printStackTrace();
@@ -366,7 +366,7 @@ public class DashboardServicesController implements Initializable {
         vol v;
         Hotel h;
         if (s.getType().equals("hotel")) {
-            loader = new FXMLLoader(getClass().getResource("/hotelDetails.fxml"));
+            loader = new FXMLLoader(getClass().getResource("/views/hotelDetails.fxml"));
             try {
                 HotelService hotelService = new HotelService();
                 try {
@@ -385,7 +385,7 @@ public class DashboardServicesController implements Initializable {
             }
         }
         else if (s.getType().equals("vol")) {
-            loader = new FXMLLoader(getClass().getResource("/volsDetails.fxml"));
+            loader = new FXMLLoader(getClass().getResource("/views/volsDetails.fxml"));
             try {
                 VolService volService = new VolService();
                 try {

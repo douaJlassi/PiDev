@@ -1,6 +1,5 @@
 package controllers;
 
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -14,22 +13,12 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import entities.Hotel;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import services.HotelService;
 import services.SupabaseStorageService;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URLEncoder;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.util.Properties;
 
 public class addHotelController {
     String messageErrorNom="";
@@ -108,7 +97,7 @@ public class addHotelController {
         try {
             hs.insertOne(hotel);
 
-            Parent dashboardView = FXMLLoader.load(getClass().getResource("/DashboardServices.fxml"));
+            Parent dashboardView = FXMLLoader.load(getClass().getResource("/views/DashboardServices.fxml"));
             StackPane contentArea = (StackPane) tfNom.getScene().lookup("#contentArea");
             tfNom.getScene().setRoot(dashboardView);
         } catch (SQLException | IOException e) {
@@ -339,7 +328,7 @@ public class addHotelController {
     }
     @FXML private void handleBack() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/DashboardServices.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/DashboardServices.fxml"));
             Parent root = loader.load();
             retourBtn.getScene().setRoot(root);
         } catch (IOException e) {
