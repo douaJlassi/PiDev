@@ -69,7 +69,6 @@ public class ReservationsController implements Initializable {
     private VBox createServiceCard(reservation r) {
         ReservationService Service = new ReservationService();
 
-
         VBox card = new VBox();
         card.getStyleClass().add("service-card");
         card.setPrefWidth(220);
@@ -80,20 +79,28 @@ public class ReservationsController implements Initializable {
         details.setPadding(new Insets(10));
         details.setSpacing(5);
 
-        Label statut = new Label("Status: "+r.getStatut());
+        Label statut = new Label("Status: " + r.getStatut());
         statut.getStyleClass().add("card-type");
 
-        Label paiement = new Label("payment method: "+r.getModePaiement());
+        Label paiement = new Label("payment method: " + r.getModePaiement());
         paiement.getStyleClass().add("card-type");
 
-        Label date = new Label("Reservation Date: "+r.getDateReservation().toString());
+        Label date = new Label("Reservation Date: " + r.getDateReservation().toString());
         date.getStyleClass().add("card-type");
 
         Label name = new Label(r.getNom());
         name.getStyleClass().add("card-title-text");
         name.setWrapText(true);
 
-
+        ServiceService serv = new ServiceService();
+        Label serviceNameLabel;
+        try {
+            String serviceName = serv.getServiceName(r.getIdService());
+            serviceNameLabel = new Label("Service: " + serviceName);
+            serviceNameLabel.getStyleClass().add("card-type");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
 
 
         HBox actions = new HBox();
@@ -109,7 +116,7 @@ public class ReservationsController implements Initializable {
         btnExportPdf.setManaged(r.getStatut().equals("acceptee"));
         btnAccept.setOnAction(event -> {
             try {
-                int id=Service.getIdReservation(r);
+                int id = Service.getIdReservation(r);
                 Service.validerReservation(id);
                 refreshServices();
             } catch (SQLException e) {
@@ -118,7 +125,7 @@ public class ReservationsController implements Initializable {
         });
         btnRefuse.setOnAction(event -> {
             try {
-                int id=Service.getIdReservation(r);
+                int id = Service.getIdReservation(r);
                 Service.RefuserReservation(id);
                 refreshServices();
             } catch (SQLException e) {
@@ -127,7 +134,7 @@ public class ReservationsController implements Initializable {
         });
         btnDelete.setOnAction(event -> {
             try {
-                int id=Service.getIdReservation(r);
+                int id = Service.getIdReservation(r);
                 Service.deletebyId(id);
                 //Service.deleteOne(r);
                 ServiceService service = new ServiceService();
@@ -145,7 +152,7 @@ public class ReservationsController implements Initializable {
                 s = serviceService.selectByNom(serviceName);
                 String type = serviceService.selectByNom(serviceName).getType();
                 System.out.println(type);
-                PdfExportService.exportReservation(r, s,type);
+                PdfExportService.exportReservation(r, s, type);
                 Alert alert = new Alert(Alert.AlertType.INFORMATION, "PDF exported successfully!", ButtonType.OK);
                 alert.show();
             } catch (Exception e) {
@@ -159,13 +166,13 @@ public class ReservationsController implements Initializable {
         }
         btnDelete.getStyleClass().addAll("btn-card-action", "btn-card-delete");
         btnAccept.getStyleClass().addAll("btn-card-action");
-        btnRefuse.getStyleClass().addAll("btn-card-action","btn-card-delete");
+        btnRefuse.getStyleClass().addAll("btn-card-action", "btn-card-delete");
         Pane spacer = new Pane();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        actions.getChildren().addAll( spacer,btnAccept,btnRefuse,btnDelete,btnExportPdf);
+        actions.getChildren().addAll(spacer, btnAccept, btnRefuse, btnDelete, btnExportPdf);
 
-        details.getChildren().addAll(name,statut,paiement,date,actions);
+        details.getChildren().addAll(name, serviceNameLabel, statut, paiement, date, actions);
         card.getChildren().addAll(details);
 
         return card;
