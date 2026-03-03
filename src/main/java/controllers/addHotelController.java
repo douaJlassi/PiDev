@@ -1,5 +1,6 @@
 package controllers;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -13,12 +14,22 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import entities.Hotel;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import services.HotelService;
 import services.SupabaseStorageService;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
+import java.util.Properties;
 
 public class addHotelController {
     String messageErrorNom="";
@@ -75,6 +86,9 @@ public class addHotelController {
     @FXML private ImageView imgPreview;
     @FXML private Label lblErrorPhoto;
     @FXML private Button retourBtn;
+    @FXML private Label lblErrorHotelSearch;
+    private String ApiKey;
+
     private File selectedImageFile;
     String imageUrl;
     @FXML
@@ -332,4 +346,5 @@ public class addHotelController {
             e.printStackTrace();
         }
     }
+
 }

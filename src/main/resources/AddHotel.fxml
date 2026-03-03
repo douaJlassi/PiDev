@@ -90,6 +90,7 @@
                     <Label fx:id="lblErrorLocalisation" managed="false" styleClass="error-label" visible="false" wrapText="true" />
                     <Label fx:id="lblErrorChambre" managed="false" styleClass="error-label" visible="false" wrapText="true" />
                     <Label fx:id="lblErrorPhoto" managed="false" styleClass="error-label" visible="false" wrapText="true" />
+
                 </VBox>
 
                 <!-- Submit Button -->
