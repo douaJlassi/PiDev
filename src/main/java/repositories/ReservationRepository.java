@@ -14,7 +14,7 @@ public class ReservationRepository {
     public ReservationRepository() {
         cnx = MyDBConnexion.getInstance().getConnection();
     }
-    private String agencyStatus;
+    //private String agencyStatus;
 
 
     public int getOrCreateDraftCart(int idClient) {

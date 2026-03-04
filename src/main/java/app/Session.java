@@ -58,11 +58,17 @@ public final class Session {
 
     private static String normalizeRole(String r) {
         if (r == null) return "CLIENT";
+
         String x = r.trim().toUpperCase();
 
-        if (x.contains("ADMIN")) return "ADMIN";
-        if (x.contains("AGENCE") || x.contains("AGENCY")) return "AGENCE";
-        if (x.contains("CLIENT") || x.contains("VOYAGEUR") || x.contains("TRAVEL")) return "CLIENT";
+        if (x.equals("ADMIN"))
+            return "ADMIN";
+
+        if (x.equals("AGENCY") || x.equals("AGENCE"))
+            return "AGENCE";
+
+        if (x.equals("USER") || x.equals("CLIENT"))
+            return "CLIENT";
 
         return "CLIENT";
     }
