@@ -1,5 +1,6 @@
 package controllers;
 
+import entities.Person;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -45,7 +46,13 @@ public class HotelDetailsController {
     int id;
     ServiceService HotelService = new ServiceService();
     private String weatherapiKey;
+    String username;
+    String type;
 
+    void setConnected(String username,String type) {
+       this.username = username;
+        this.type=type;
+    }
     public void loadConfig() {
         try (InputStream input = getClass()
                 .getResourceAsStream("/views/config.properties")) {
@@ -158,6 +165,7 @@ public class HotelDetailsController {
             AddReservationController addReservationController = loader.getController();
             addReservationController.setIdService(id);
             addReservationController.setType("hotel");
+            addReservationController.setConnected(username,type);
             retourBtn.getScene().setRoot(root);
         } catch (IOException e) {
             e.printStackTrace();

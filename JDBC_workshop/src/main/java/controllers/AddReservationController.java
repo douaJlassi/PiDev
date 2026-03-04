@@ -1,5 +1,6 @@
 package controllers;
 
+import entities.Person;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -58,9 +59,12 @@ public class AddReservationController {
     private int idService;
     private String Type;
     VolService volService = new VolService();
-    public void setType(String Type){
-        this.Type = Type;
-        tfNom.setText(connectedUser.getNom()+" "+connectedUser.getPrenom());
+    String username;
+    String type;
+    void setConnected(String username, String type) {
+        this.username = username;
+        this.type=type;
+        tfNom.setText(username);
         if (Type.equals("vol")) {
             seatMapContainer.setVisible(true);
             seatMapContainer.setManaged(true);
@@ -73,10 +77,14 @@ public class AddReservationController {
 
         }
     }
+    public void setType(String Type){
+        this.Type = Type;
+
+    }
     public void setIdService(int id){this.idService = id;}
 
 
-    user connectedUser=new user("achref","souli","admin");
+
     @FXML
     void AddReservation(ActionEvent event) {
         if (isInputValid()) {
