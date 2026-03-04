@@ -19,7 +19,7 @@ public class MessageService {
      * Send a new message
      */
     public void sendMessage(Message message) throws SQLException {
-        String req = "INSERT INTO message (sender_id, receiver_id, message, timestamp, is_read, conversation_id) " +
+        String req = "INSERT INTO messages (sender_id, receiver_id, message, timestamp, is_read, conversation_id) " +
                 "VALUES (?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = cnx.prepareStatement(req)) {
@@ -49,7 +49,7 @@ public class MessageService {
      */
     public List<String> getUserConversations(int userId) throws SQLException {
         List<String> conversations = new ArrayList<>();
-        String req = "SELECT DISTINCT conversation_id FROM message " +
+        String req = "SELECT DISTINCT conversation_id FROM messages " +
                 "WHERE sender_id = ? OR receiver_id = ? " +
                 "GROUP BY conversation_id " +
                 "ORDER BY MAX(timestamp) DESC";
@@ -72,7 +72,7 @@ public class MessageService {
      */
     public List<String> getAllAdminConversations() throws SQLException {
         List<String> conversations = new ArrayList<>();
-        String req = "SELECT DISTINCT conversation_id FROM message " +
+        String req = "SELECT DISTINCT conversation_id FROM messages " +
                 "GROUP BY conversation_id " +
                 "ORDER BY MAX(timestamp) DESC";
 
@@ -91,7 +91,7 @@ public class MessageService {
      */
     public List<Message> getConversationMessages(String conversationId) throws SQLException {
         List<Message> messages = new ArrayList<>();
-        String req = "SELECT * FROM message WHERE conversation_id = ? ORDER BY timestamp ASC";
+        String req = "SELECT * FROM messages WHERE conversation_id = ? ORDER BY timestamp ASC";
 
         try (PreparedStatement ps = cnx.prepareStatement(req)) {
             ps.setString(1, conversationId);
@@ -117,7 +117,7 @@ public class MessageService {
      * Mark conversation as read for a user
      */
     public void markConversationAsRead(String conversationId, int userId) throws SQLException {
-        String req = "UPDATE message SET is_read = 1 WHERE conversation_id = ? AND receiver_id = ? AND is_read = 0";
+        String req = "UPDATE messages SET is_read = 1 WHERE conversation_id = ? AND receiver_id = ? AND is_read = 0";
 
         try (PreparedStatement ps = cnx.prepareStatement(req)) {
             ps.setString(1, conversationId);
@@ -134,7 +134,7 @@ public class MessageService {
      */
     public List<Message> getUnreadMessagesForUser(int userId) throws SQLException {
         List<Message> unreadMessages = new ArrayList<>();
-        String req = "SELECT * FROM message WHERE receiver_id = ? AND is_read = 0 ORDER BY timestamp DESC";
+        String req = "SELECT * FROM messages WHERE receiver_id = ? AND is_read = 0 ORDER BY timestamp DESC";
 
         try (PreparedStatement ps = cnx.prepareStatement(req)) {
             ps.setInt(1, userId);

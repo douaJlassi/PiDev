@@ -30,6 +30,10 @@ import java.util.Optional;
 
 public class ShowprofileController {
 
+    // Add these FXML fields
+    @FXML private ToggleButton fingerprintButton;
+    @FXML private VBox fingerprintSetup;
+
     @FXML
     private Circle profileAvatar;
     @FXML
@@ -204,6 +208,7 @@ public class ShowprofileController {
             // Load 2FA and Face ID status from database
             loadTwoFAStatus();
             loadFaceIDStatus();
+            loadFingerprintStatus();
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -1006,6 +1011,145 @@ public class ShowprofileController {
             faceIDButton.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: hand;");
             faceIDSetup.setVisible(true);
             faceIDSetup.setManaged(true);
+        }
+    }
+
+
+    @FXML
+    public void handleFingerprint() {
+        // Get the current state - toggle button's selected property
+        boolean newState = fingerprintButton.isSelected();
+
+        System.out.println("Fingerprint button clicked - new state: " + (newState ? "ON" : "OFF"));
+
+        if (newState) {
+            // User wants to enable fingerprint
+            fingerprintButton.setText("ON");
+            fingerprintButton.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: hand;");
+
+            // Show confirmation dialog
+            Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+            confirm.setTitle("Enable Fingerprint");
+            confirm.setHeaderText("Set up Fingerprint Authentication");
+            confirm.setContentText("This will open the fingerprint enrollment dialog. Make sure your fingerprint sensor is connected.\n\nContinue?");
+
+            Optional<ButtonType> result = confirm.showAndWait();
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                setupFingerprint();
+            } else {
+                // User cancelled, revert the toggle
+                fingerprintButton.setSelected(false);
+                fingerprintButton.setText("OFF");
+                fingerprintButton.setStyle("-fx-background-color: #ff5e62; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: hand;");
+            }
+        } else {
+            // User wants to disable fingerprint
+            fingerprintButton.setText("OFF");
+            fingerprintButton.setStyle("-fx-background-color: #ff5e62; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: hand;");
+
+            // Confirm before disabling
+            Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+            confirm.setTitle("Disable Fingerprint");
+            confirm.setHeaderText("Disable Fingerprint Authentication");
+            confirm.setContentText("Are you sure you want to disable fingerprint authentication?");
+
+            Optional<ButtonType> result = confirm.showAndWait();
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                disableFingerprint();
+            } else {
+                // User cancelled, revert the toggle
+                fingerprintButton.setSelected(true);
+                fingerprintButton.setText("ON");
+                fingerprintButton.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: hand;");
+            }
+        }
+    }
+
+    private void setupFingerprint() {
+        try {
+            FingerprintDialog dialog = new FingerprintDialog();
+            boolean success = dialog.showAndWait(currentUser.getId());
+
+            if (success) {
+                // Save a dummy byte array to indicate fingerprint is enabled
+                byte[] fingerprintData = new byte[]{1}; // Just a marker
+                personService.saveFingerprintData(currentUser.getId(), fingerprintData);
+
+                // Update UI
+                fingerprintButton.setSelected(true);
+                fingerprintButton.setText("ON");
+                fingerprintButton.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: hand;");
+                fingerprintSetup.setVisible(true);
+                fingerprintSetup.setManaged(true);
+
+                showAlert("Success", "Fingerprint has been set up successfully!", Alert.AlertType.INFORMATION);
+            } else {
+                // Enrollment failed or was cancelled
+                fingerprintButton.setSelected(false);
+                fingerprintButton.setText("OFF");
+                fingerprintButton.setStyle("-fx-background-color: #ff5e62; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: hand;");
+
+                showAlert("Info", "Fingerprint setup was cancelled or failed.", Alert.AlertType.WARNING);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to save fingerprint data: " + e.getMessage(), Alert.AlertType.ERROR);
+
+            // Revert UI
+            fingerprintButton.setSelected(false);
+            fingerprintButton.setText("OFF");
+            fingerprintButton.setStyle("-fx-background-color: #ff5e62; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: hand;");
+        }
+    }
+
+    private void disableFingerprint() {
+        try {
+            // Remove fingerprint data from database
+            personService.saveFingerprintData(currentUser.getId(), null);
+
+            showAlert("Success", "Fingerprint has been disabled.", Alert.AlertType.INFORMATION);
+
+            // Update UI
+            fingerprintButton.setSelected(false);
+            fingerprintButton.setText("OFF");
+            fingerprintButton.setStyle("-fx-background-color: #ff5e62; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: hand;");
+            fingerprintSetup.setVisible(false);
+            fingerprintSetup.setManaged(false);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to disable fingerprint: " + e.getMessage(), Alert.AlertType.ERROR);
+
+            // Revert UI
+            fingerprintButton.setSelected(true);
+            fingerprintButton.setText("ON");
+            fingerprintButton.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: hand;");
+            fingerprintSetup.setVisible(true);
+            fingerprintSetup.setManaged(true);
+        }
+    }
+
+    // Update loadFingerprintStatus method
+    private void loadFingerprintStatus() {
+        try {
+            byte[] fingerprintData = personService.getFingerprintData(currentUser.getId());
+            boolean fingerprintEnabled = (fingerprintData != null && fingerprintData.length > 0);
+
+            if (fingerprintEnabled) {
+                fingerprintButton.setSelected(true);
+                fingerprintButton.setText("ON");
+                fingerprintButton.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: hand;");
+                fingerprintSetup.setVisible(true);
+                fingerprintSetup.setManaged(true);
+            } else {
+                fingerprintButton.setSelected(false);
+                fingerprintButton.setText("OFF");
+                fingerprintButton.setStyle("-fx-background-color: #ff5e62; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: hand;");
+                fingerprintSetup.setVisible(false);
+                fingerprintSetup.setManaged(false);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 }

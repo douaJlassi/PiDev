@@ -356,7 +356,28 @@
                             <Button text="Start Registration" style="-fx-background-color: #0FA5A2; -fx-text-fill: white; -fx-padding: 10 30; -fx-background-radius: 25; -fx-font-weight: bold; -fx-cursor: hand; -fx-margin: 10;"/>
                         </VBox>
                     </VBox>
-                    <!-- QR Code Button -->
+
+
+                    <!-- Fingerprint -->
+                    <VBox spacing="15" style="-fx-padding: 20 0 0 0;">
+                        <Label text="Fingerprint Authentication" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C;"/>
+                        <HBox spacing="20" alignment="CENTER_LEFT">
+                            <Label text="Enable fingerprint for quick login:" style="-fx-font-size: 14px; -fx-text-fill: #666;"/>
+                            <ToggleButton fx:id="fingerprintButton" text="OFF"
+                                          style="-fx-background-color: #ff5e62; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: hand;"
+                                          onAction="#handleFingerprint"/>
+                            <Label text="Use your fingerprint sensor for authentication" style="-fx-font-size: 12px; -fx-text-fill: #999; -fx-font-style: italic;"/>
+                        </HBox>
+
+                        <!-- Fingerprint Setup -->
+                        <VBox fx:id="fingerprintSetup" visible="false" managed="false" style="-fx-padding: 20; -fx-background-color: #f8f9fa; -fx-background-radius: 10; -fx-border-color: #e0e0e0; -fx-border-radius: 10;" alignment="CENTER">
+                            <Label text="👆" style="-fx-font-size: 48px;"/>
+                            <Label text="Fingerprint Setup" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C; -fx-padding: 10;"/>
+                            <Label text="Place your finger on the connected fingerprint sensor" style="-fx-font-size: 14px; -fx-text-fill: #666;"/>
+                            <Label text="Make sure the sensor is connected via USB" style="-fx-font-size: 12px; -fx-text-fill: #999; -fx-font-style: italic; -fx-padding: 5;"/>
+                            <ProgressIndicator prefWidth="50" prefHeight="50" visible="false"/>
+                        </VBox>
+                    </VBox>
 
                     <!-- QR Code Section -->
                     <HBox spacing="15" alignment="CENTER_LEFT" style="-fx-padding: 20 0 0 0;">
