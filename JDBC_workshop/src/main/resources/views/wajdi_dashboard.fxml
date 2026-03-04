@@ -14,7 +14,7 @@
 
     <!-- ═══ LEFT SIDEBAR ═══ -->
     <left>
-        <VBox styleClass="sidebar" prefWidth="220" minWidth="220" maxWidth="220" spacing="0">
+        <VBox fx:id="sidebarPane" styleClass="sidebar" prefWidth="220" minWidth="220" maxWidth="220" spacing="0">
 
             <!-- User info (logo removed, user moved to top) -->
             <VBox styleClass="sidebar-user-area" alignment="CENTER" spacing="8">
