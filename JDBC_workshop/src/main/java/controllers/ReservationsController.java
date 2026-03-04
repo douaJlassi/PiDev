@@ -21,13 +21,25 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class ReservationsController implements Initializable {
-    user connectedUser=new user("achref","souli","admin");
-    /*user connectedUser;
+   // user connectedUser=new user("achref","souli","admin");
+   // user connectedUser;
+    String username;
+    String type;
     void setConnectedUser(Person person) {
-        connectedUser.setNom(person.getUsername());
-        connectedUser.setPrenom("");
-        connectedUser.setType(person.getRole());
-    }*/
+      username = person.getUsername();
+      type=person.getRole();
+        if (type.equals("USER")) {
+            allReservations = getDummyData();
+            List<reservation> filtered= allReservations.stream()
+                    .filter(r ->r.getNom().equals(username) )
+                    .toList();
+            renderServices(filtered);
+
+        }
+        else if (type.equals("ADMIN")) {
+            allReservations = getDummyData();
+            renderServices(allReservations);}
+    }
 
     @FXML
     private FlowPane cardsContainer;
@@ -37,17 +49,7 @@ public class ReservationsController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        if (connectedUser.getType().equals("user")) {
-            allReservations = getDummyData();
-            List<reservation> filtered= allReservations.stream()
-                    .filter(r ->r.getNom().equals(connectedUser.getNom()+" "+connectedUser.getPrenom()) )
-                    .toList();
-            renderServices(filtered);
 
-        }
-        else {
-        allReservations = getDummyData();
-            renderServices(allReservations);}
     }
     public void refreshServices() {
         allReservations = getDummyData();
@@ -167,7 +169,7 @@ public class ReservationsController implements Initializable {
                 alert.show();
             }
         });
-        if (connectedUser.getType().equals("user")) {
+        if (type.equals("ADMIN")) {
             btnAccept.setVisible(false);
             btnRefuse.setVisible(false);
         }

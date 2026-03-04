@@ -1175,7 +1175,10 @@ public class MainPageController {
     private void showServicesView() {
         try {
 
-            Parent root = FXMLLoader.load(getClass().getResource("/views/Services.fxml"));
+            FXMLLoader loader  = new FXMLLoader(getClass().getResource("/views/Services.fxml"));
+            Parent root = loader.load();
+            ServicesController servicesController = loader.getController();
+            servicesController.setConnectedUser(currentUser);
             mainBorderPane.setCenter(root);
             refreshBadge();
         } catch (IOException e) {
@@ -1185,9 +1188,12 @@ public class MainPageController {
     @FXML
     private void showReservationsView() {
         try {
-            /*ReservationsController reservationsC = new ReservationsController();
-            reservationsC.setConnectedUser(currentUser);*/
-            Parent root = FXMLLoader.load(getClass().getResource("/views/Reservations.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/Reservations.fxml"));
+            Parent root = loader.load();
+
+            ReservationsController reservationsC = loader.getController();
+            reservationsC.setConnectedUser(currentUser);
+
             mainBorderPane.setCenter(root);
             refreshBadge();
         } catch (IOException e) {

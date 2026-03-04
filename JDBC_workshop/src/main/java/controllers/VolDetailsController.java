@@ -31,7 +31,13 @@ public class VolDetailsController {
     int id;
     ServiceService volService = new ServiceService();
     private String weatherapiKey;
+    String username;
+    String type;
 
+    void setConnected(String username,String type) {
+        this.username = username;
+        this.type=type;
+    }
     public void loadConfig() {
         try (InputStream input = getClass()
                 .getResourceAsStream("/views/config.properties")) {
@@ -89,6 +95,7 @@ btnReserver.setOnAction(e -> {handleReserver();});
             AddReservationController addReservationController = loader.getController();
             addReservationController.setIdService(id);
             addReservationController.setType("vol");
+            addReservationController.setConnected(username,type);
             retourBtn.getScene().setRoot(root);
         } catch (IOException e) {
             e.printStackTrace();

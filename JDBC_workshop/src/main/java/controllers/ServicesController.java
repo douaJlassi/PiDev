@@ -1,5 +1,6 @@
 package controllers;
 
+import entities.*;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -13,10 +14,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 
-import entities.Hotel;
-import entities.service;
-import entities.user;
-import entities.vol;
+import org.bytedeco.javacpp.Loader;
 import services.HotelService;
 import services.ServiceService;
 import services.SupabaseStorageService;
@@ -31,8 +29,15 @@ import java.util.ResourceBundle;
 
 public class ServicesController implements Initializable {
    // user connectedUser=new user("achref","souli","admin");
-    user connectedUser=new user("achref","souli","user");
-
+    //user connectedUser=new user("achref","souli","user");
+    String username;
+    String type;
+    void setConnectedUser(Person person) {
+        username = person.getUsername();
+        type=person.getRole();
+        allServices = getDummyData();
+        renderServices(allServices);
+    }
     @FXML
     private FlowPane cardsContainer;
 
@@ -43,8 +48,7 @@ public class ServicesController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        allServices = getDummyData();
-        renderServices(allServices);
+
     }
     public void refreshServices() {
         allServices = getDummyData();
@@ -139,12 +143,14 @@ public class ServicesController implements Initializable {
                 throw new RuntimeException(e);
             }
         });
-        if (connectedUser.getType().equals("user")) {
+        if (type.equals("USER")) {
             btnDelete.setVisible(false);
             btnEdit.setVisible(false);
         }
         btnDelete.getStyleClass().addAll("btn-card-action", "btn-card-delete");
-        card.setOnMouseClicked(event -> {showDetails(s);});
+        card.setOnMouseClicked(event -> {showDetails(s);
+
+        });
         Pane spacer = new Pane();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
@@ -238,6 +244,7 @@ public class ServicesController implements Initializable {
                 HotelDetailsController controller = loader.getController();
                 controller.setHotelData(h);
                 controller.setHotelData(h);
+                controller.setConnected(username, String.valueOf(type));
                 cardsContainer.getScene().setRoot(root);
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
@@ -256,6 +263,7 @@ public class ServicesController implements Initializable {
                 root = loader.load();
                 VolDetailsController controller = loader.getController();
                 controller.setVolData(v);
+                controller.setConnected(username, String.valueOf(type));
                 cardsContainer.getScene().setRoot(root);
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
