@@ -5,10 +5,14 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.SVGPath?>
 
+<?import java.net.URL?>
 <BorderPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="controllers.OffersGridController"
             styleClass="dash-content">
+    <stylesheets>
+        <URL value="@../css/app.css" />
+    </stylesheets>
 
     <padding>
         <Insets top="16" right="16" bottom="16" left="16"/>

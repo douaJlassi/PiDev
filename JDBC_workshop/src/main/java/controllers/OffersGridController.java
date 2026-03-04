@@ -32,6 +32,7 @@ public class OffersGridController {
 
     @FXML
     public void initialize() {
+
         // default filter: agency sees only its offers
         if (Session.isAgency()) {
             currentFilter.getAgencyIds().clear();

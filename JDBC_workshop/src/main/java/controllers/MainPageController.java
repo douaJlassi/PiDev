@@ -124,6 +124,7 @@ public class MainPageController {
         Platform.runLater(() -> {
             refreshBadge();
         });
+        app.Session.loginAs(40,"USER");
 
         personService = new PersonService();
         profileService = new ProfileService();

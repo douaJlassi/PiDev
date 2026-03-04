@@ -689,6 +689,8 @@ public class AjouterPersonne {
 
             if (user != null) {
                 System.out.println("Login successful for user: " + user.getUsername() + " with role: " + user.getRole());
+                app.Session.loginAs(user.getId(), user.getRole());
+
 
                 // Check if 2FA is enabled
                 boolean twoFAEnabled = personService.isTwoFactorEnabled(user.getId());
@@ -708,6 +710,7 @@ public class AjouterPersonne {
                         showLoginError("Failed to send verification code. Please try again.");
                     }
                 } else {
+
                     // No 2FA, proceed with normal login
                     completeLogin(user);
                 }
@@ -720,6 +723,7 @@ public class AjouterPersonne {
             e.printStackTrace();
             showLoginError("Database error");
         }
+
     }
 
     private void completeLogin(Person user) throws SQLException {
@@ -740,14 +744,8 @@ public class AjouterPersonne {
 
         // Create session
         SessionManager.createSession(user);
-        app.Session.loginPerson(
-                user.getId(),
-                user.getUsername(),
-                user.getLastName(),
-                user.getEmail(),
-                user.getUsername(),
-                user.getRole()
-        );
+        app.Session.loginAs(user.getId(), user.getRole());
+
 
         // Navigate to main page with loading animation
         navigateToDashboardWithLoading(user);

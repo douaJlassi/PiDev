@@ -6,10 +6,15 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.SVGPath?>
 
+<?import java.net.URL?>
 <VBox xmlns:fx="http://javafx.com/fxml/1"
       xmlns="http://javafx.com/javafx/17"
       fx:controller="controllers.OfferCardController"
+
       spacing="10" prefWidth="280" styleClass="card">
+    <stylesheets>
+        <URL value="@../css/app.css" />
+    </stylesheets>
 
     <padding>
         <Insets top="12" right="12" bottom="12" left="12"/>

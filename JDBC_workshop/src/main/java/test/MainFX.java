@@ -60,7 +60,7 @@ public class MainFX extends Application {
         try {
             System.out.println("Loading FXML...");
             //FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/AjouterPersonne.fxml"));
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/AjouterPersonne.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/mainpage.fxml"));
             Parent root = loader.load();
             System.out.println("FXML loaded successfully");
 
@@ -70,6 +70,8 @@ public class MainFX extends Application {
             primaryStage.setScene(scene);
             primaryStage.setTitle("Rehletna.tn - Login");
             primaryStage.show();
+            scene.getStylesheets().add(getClass().getResource("/css/app.css").toExternalForm());
+
 
             System.out.println("Application started successfully!");
 
