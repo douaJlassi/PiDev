@@ -1,7 +1,9 @@
 package controllers;
 
 import entities.Client;
+import entities.Person;
 import entities.Publication;
+import utils.SessionManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -27,6 +29,7 @@ import java.util.stream.Collectors;
  */
 public class WajdiDashboardController {
 
+    @FXML private VBox     sidebarPane;
     @FXML private HBox     masonryGrid;
     @FXML private VBox     masonryCol1;
     @FXML private VBox     masonryCol2;
@@ -100,6 +103,13 @@ public class WajdiDashboardController {
     private boolean chatBuilt  = false;
 
 
+    public void setEmbedded() {
+        if (sidebarPane != null) {
+            sidebarPane.setVisible(false);
+            sidebarPane.setManaged(false);
+        }
+    }
+
     @FXML
     public void initialize() {
         // Initialize services
@@ -107,10 +117,13 @@ public class WajdiDashboardController {
         commentService = new CommentService();
         likeService = new LikeService();
 
-        // Initialize current user (replace with actual session management)
-        currentUser = new Client();
-        currentUser.setClientID(1);
-        currentUser.setUsername("Traveler");
+        // Initialize current user from session
+        Person p = SessionManager.getCurrentUser();
+        if (p != null) {
+            currentUser = Client.fromPerson(p);
+        } else {
+            currentUser = new Client(0, "Guest", null);
+        }
 
         // Populate sidebar
         if (sidebarUsername != null) {

@@ -427,6 +427,11 @@ public class MainPageController {
             settingsBtn.setOnAction(event -> showMessage("arja3 ghodwa !"));
         }
 
+        // Feed button action
+        if (activitiesBtn != null) {
+            activitiesBtn.setOnAction(event -> showPostsView());
+        }
+
         // Chat button action
         if (chatButton != null) {
             chatButton.setOnAction(event -> handleChatButton());
@@ -1161,6 +1166,20 @@ public class MainPageController {
         }
 
     }
+
+    private void showPostsView() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/wajdi_dashboard.fxml"));
+            Parent root = loader.load();
+            WajdiDashboardController ctrl = loader.getController();
+            ctrl.setEmbedded();
+            mainBorderPane.setCenter(root);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to load posts view: " + e.getMessage());
+        }
+    }
+
     @FXML
     private void showChatView() {
         try {
