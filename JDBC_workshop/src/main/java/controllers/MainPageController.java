@@ -42,6 +42,7 @@ import java.util.List;
 
 public class MainPageController {
 
+
     @FXML
     private Circle userAvatar;
     @FXML
@@ -90,6 +91,7 @@ public class MainPageController {
     @FXML
     private Button aiClassifierBtn;
 
+
     // Ad components
     private Popup adPopup;
     private Timeline adTimeline;
@@ -118,6 +120,7 @@ public class MainPageController {
     private int currentUserId =11;
     @FXML
     public void initialize() {
+
         Platform.runLater(() -> {
             refreshBadge();
         });
@@ -134,6 +137,35 @@ public class MainPageController {
         if (coinCollectionBox != null) {
             coinCollectionBox.setVisible(false);
         }
+    }
+    private void loadPage(String fxml) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
+            Parent root = loader.load();
+
+            root.getStylesheets().add(
+                    getClass().getResource("/css/app.css").toExternalForm()
+            );
+
+            contentArea.getChildren().setAll(root);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    @FXML
+    private void showExploreOffers() {
+        loadPage("/fxml/VoyageurOffersGrid.fxml");
+    }
+
+    @FXML
+    private void showCartView() {
+        loadPage("/fxml/CartView.fxml");
+    }
+
+    @FXML
+    private void showMyReservations() {
+        loadPage("/fxml/MyReservations.fxml");
     }
 
     private void setupAvatarClickHandler() {

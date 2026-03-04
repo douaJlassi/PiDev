@@ -57,7 +57,7 @@
                 <version>0.0.8</version>
                 <configuration>
                     <mainClass>
-                        Main.MainFx
+                        test.MainFX
                     </mainClass>
                 </configuration>
             </plugin>

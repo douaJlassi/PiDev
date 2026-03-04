@@ -63,26 +63,58 @@
                 </Button>
 
                 <!-- Activities Button -->
-                <Button fx:id="activitiesBtn"
+<!--                <Button fx:id="activitiesBtn"-->
+<!--                        style="-fx-background-color: transparent; -fx-text-fill: #666; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 25; -fx-cursor: hand;">-->
+<!--                    <graphic>-->
+<!--                        <HBox spacing="8" alignment="CENTER">-->
+<!--                            <Label text="🏞" style="-fx-font-size: 16px;"/>-->
+<!--                            <Label text="Activities" style="-fx-font-size: 14px;"/>-->
+<!--                        </HBox>-->
+<!--                    </graphic>-->
+<!--                </Button>-->
+                <Button fx:id="exploreOffersBtn"
+                        onAction="#showExploreOffers"
                         style="-fx-background-color: transparent; -fx-text-fill: #666; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 25; -fx-cursor: hand;">
                     <graphic>
                         <HBox spacing="8" alignment="CENTER">
-                            <Label text="🏞" style="-fx-font-size: 16px;"/>
-                            <Label text="Activities" style="-fx-font-size: 14px;"/>
+                            <Label text="🌍" style="-fx-font-size: 16px;"/>
+                            <Label text="Explore Offers" style="-fx-font-size: 14px;"/>
                         </HBox>
                     </graphic>
                 </Button>
 
-                <!-- My Bookings Button -->
-                <Button fx:id="reservationsBtn"
+                <Button fx:id="myCartBtn"
+                     onAction="#showCartView"
                         style="-fx-background-color: transparent; -fx-text-fill: #666; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 25; -fx-cursor: hand;">
                     <graphic>
                         <HBox spacing="8" alignment="CENTER">
-                            <Label text="📅" style="-fx-font-size: 16px;"/>
-                            <Label text="My Bookings" style="-fx-font-size: 14px;"/>
+                            <Label text="🛒" style="-fx-font-size: 16px;"/>
+                            <Label text="My Cart" style="-fx-font-size: 14px;"/>
                         </HBox>
                     </graphic>
                 </Button>
+
+                <Button fx:id="myReservationsBtn"
+                        onAction="#showMyReservations"
+                        style="-fx-background-color: transparent; -fx-text-fill: #666; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 25; -fx-cursor: hand;">
+                    <graphic>
+                        <HBox spacing="8" alignment="CENTER">
+                            <Label text="📦" style="-fx-font-size: 16px;"/>
+                            <Label text="My Reservations" style="-fx-font-size: 14px;"/>
+                        </HBox>
+                    </graphic>
+                </Button>
+
+<!--                &lt;!&ndash; My Bookings Button &ndash;&gt;-->
+<!--                <Button fx:id="reservationsBtn"-->
+<!--                        style="-fx-background-color: transparent; -fx-text-fill: #666; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 25; -fx-cursor: hand;">-->
+<!--                    <graphic>-->
+<!--                        <HBox spacing="8" alignment="CENTER">-->
+<!--                            <Label text="📅" style="-fx-font-size: 16px;"/>-->
+<!--                            <Label text="My Bookings" style="-fx-font-size: 14px;"/>-->
+<!--                        </HBox>-->
+<!--                    </graphic>-->
+<!--                </Button>-->
 
                 <!-- Messages Button -->
                 <Button fx:id="messagesBtn"
@@ -106,15 +138,15 @@
                         </HBox>
                     </graphic>
                 </Button>
-                <Button fx:id="reservationBtn" onAction="#showReservationsView"
-                        style="-fx-background-color: transparent; -fx-text-fill: #666; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 25; -fx-cursor: hand;">
-                    <graphic>
-                        <HBox spacing="8" alignment="CENTER">
-                            <Label text="💻" style="-fx-font-size: 16px;"/>
-                            <Label text="Reservations" style="-fx-font-size: 14px;"/>
-                        </HBox>
-                    </graphic>
-                </Button>
+<!--                <Button fx:id="reservationBtn" onAction="#showReservationsView"-->
+<!--                        style="-fx-background-color: transparent; -fx-text-fill: #666; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 25; -fx-cursor: hand;">-->
+<!--                    <graphic>-->
+<!--                        <HBox spacing="8" alignment="CENTER">-->
+<!--                            <Label text="💻" style="-fx-font-size: 16px;"/>-->
+<!--                            <Label text="Reservations" style="-fx-font-size: 14px;"/>-->
+<!--                        </HBox>-->
+<!--                    </graphic>-->
+<!--                </Button>-->
 
                 <!-- Settings Button -->
                 <Button fx:id="settingsBtn"

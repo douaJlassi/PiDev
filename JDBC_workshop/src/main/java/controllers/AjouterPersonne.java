@@ -740,6 +740,14 @@ public class AjouterPersonne {
 
         // Create session
         SessionManager.createSession(user);
+        app.Session.loginPerson(
+                user.getId(),
+                user.getUsername(),
+                user.getLastName(),
+                user.getEmail(),
+                user.getUsername(),
+                user.getRole()
+        );
 
         // Navigate to main page with loading animation
         navigateToDashboardWithLoading(user);
