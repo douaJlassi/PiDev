@@ -1,6 +1,7 @@
 package entities;
 
 import java.sql.Date;
+import java.sql.Timestamp; // Add this import
 import java.util.Objects;
 import java.io.Serializable;
 
@@ -18,7 +19,19 @@ public class Person implements Serializable {
     private String username;
     private String status;
     private boolean twoFactorEnabled;
+    private String twoFactorCode;      // ADD THIS
+    private Timestamp twoFactorExpiry; // ADD THIS
     private byte[] faceData;
+    private byte[] fingerprintData;
+
+    // Getter and Setter for fingerprintData
+    public byte[] getFingerprintData() {
+        return fingerprintData;
+    }
+
+    public void setFingerprintData(byte[] fingerprintData) {
+        this.fingerprintData = fingerprintData;
+    }
 
     // Constructors
     public Person() {}
@@ -35,6 +48,8 @@ public class Person implements Serializable {
         this.username = username;
         this.status = "offline";
         this.twoFactorEnabled = false;
+        this.twoFactorCode = null;      // ADD THIS
+        this.twoFactorExpiry = null;    // ADD THIS
     }
 
     // Getters and Setters
@@ -67,6 +82,13 @@ public class Person implements Serializable {
 
     public boolean isTwoFactorEnabled() { return twoFactorEnabled; }
     public void setTwoFactorEnabled(boolean twoFactorEnabled) { this.twoFactorEnabled = twoFactorEnabled; }
+
+    // ADD THESE GETTERS AND SETTERS
+    public String getTwoFactorCode() { return twoFactorCode; }
+    public void setTwoFactorCode(String twoFactorCode) { this.twoFactorCode = twoFactorCode; }
+
+    public Timestamp getTwoFactorExpiry() { return twoFactorExpiry; }
+    public void setTwoFactorExpiry(Timestamp twoFactorExpiry) { this.twoFactorExpiry = twoFactorExpiry; }
 
     public byte[] getFaceData() { return faceData; }
     public void setFaceData(byte[] faceData) { this.faceData = faceData; }

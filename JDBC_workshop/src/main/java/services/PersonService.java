@@ -47,11 +47,32 @@ public class PersonService implements CRUD<Person> {
                 person.setTwoFactorEnabled(false);
             }
 
+            // Set two factor code
+            try {
+                person.setTwoFactorCode(rs.getString("two_factor_code"));
+            } catch (SQLException e) {
+                person.setTwoFactorCode(null);
+            }
+
+            // Set two factor expiry
+            try {
+                person.setTwoFactorExpiry(rs.getTimestamp("two_factor_expiry"));
+            } catch (SQLException e) {
+                person.setTwoFactorExpiry(null);
+            }
+
             // Set face data
             try {
                 person.setFaceData(rs.getBytes("face_data"));
             } catch (SQLException e) {
                 person.setFaceData(null);
+            }
+
+            // Set fingerprint data
+            try {
+                person.setFingerprintData(rs.getBytes("fingerprint_data"));
+            } catch (SQLException e) {
+                person.setFingerprintData(null);
             }
 
             return person;
@@ -76,22 +97,11 @@ public class PersonService implements CRUD<Person> {
     public List<Person> getOnlineUsers() throws SQLException {
         List<Person> onlineUsers = new ArrayList<>();
         String req = "SELECT * FROM `user` WHERE status='online'";
-        Statement st = cnx.createStatement();
-        ResultSet rs = st.executeQuery(req);
-
-        while (rs.next()) {
-            Person p = new Person(
-                    rs.getInt("id"),
-                    rs.getString("name"),
-                    rs.getString("last_name"),
-                    rs.getString("email"),
-                    rs.getString("password"),
-                    rs.getDate("date"),
-                    rs.getString("role"),
-                    rs.getString("username")
-            );
-            p.setStatus(rs.getString("status"));
-            onlineUsers.add(p);
+        try (Statement st = cnx.createStatement();
+             ResultSet rs = st.executeQuery(req)) {
+            while (rs.next()) {
+                onlineUsers.add(mapPerson(rs));
+            }
         }
         return onlineUsers;
     }
@@ -102,22 +112,11 @@ public class PersonService implements CRUD<Person> {
     public List<Person> getOfflineUsers() throws SQLException {
         List<Person> offlineUsers = new ArrayList<>();
         String req = "SELECT * FROM `user` WHERE status='offline' OR status IS NULL";
-        Statement st = cnx.createStatement();
-        ResultSet rs = st.executeQuery(req);
-
-        while (rs.next()) {
-            Person p = new Person(
-                    rs.getInt("id"),
-                    rs.getString("name"),
-                    rs.getString("last_name"),
-                    rs.getString("email"),
-                    rs.getString("password"),
-                    rs.getDate("date"),
-                    rs.getString("role"),
-                    rs.getString("username")
-            );
-            p.setStatus(rs.getString("status") != null ? rs.getString("status") : "offline");
-            offlineUsers.add(p);
+        try (Statement st = cnx.createStatement();
+             ResultSet rs = st.executeQuery(req)) {
+            while (rs.next()) {
+                offlineUsers.add(mapPerson(rs));
+            }
         }
         return offlineUsers;
     }
@@ -129,79 +128,72 @@ public class PersonService implements CRUD<Person> {
                 person.getLastName() + "', '" +
                 person.getEmail() + "', '" +
                 person.getPassword() + "', '" +
-                person.getDate() + "', '" +
+                new java.sql.Date(person.getDate().getTime()) + "', '" +
                 person.getRole() + "', '" +
                 person.getUsername() + "', 'offline')";
-        Statement st = cnx.createStatement();
-        st.executeUpdate(req);
+        try (Statement st = cnx.createStatement()) {
+            st.executeUpdate(req);
+        }
     }
 
     public void insertOneUpdated(Person person) throws SQLException {
         String req = "INSERT INTO `user` (name, last_name, email, password, date, role, username, status) VALUES "
                 + "(?, ?, ?, ?, ?, ?, ?, 'offline')";
 
-        PreparedStatement ps = cnx.prepareStatement(req);
-
-        ps.setString(1, person.getName());
-        ps.setString(2, person.getLastName());
-        ps.setString(3, person.getEmail());
-        ps.setString(4, person.getPassword());
-        ps.setDate(5, person.getDate());
-        ps.setString(6, person.getRole());
-        ps.setString(7, person.getUsername());
-
-        ps.executeUpdate();
+        try (PreparedStatement ps = cnx.prepareStatement(req)) {
+            ps.setString(1, person.getName());
+            ps.setString(2, person.getLastName());
+            ps.setString(3, person.getEmail());
+            ps.setString(4, person.getPassword());
+            ps.setDate(5, new java.sql.Date(person.getDate().getTime()));
+            ps.setString(6, person.getRole());
+            ps.setString(7, person.getUsername());
+            ps.executeUpdate();
+        }
     }
 
     @Override
     public void updateOne(Person person) throws SQLException {
-        String req = "UPDATE `user` SET name=?, last_name=?, email=?, password=?, date=?, role=?, username=?, status=? WHERE id=?";
-        PreparedStatement ps = cnx.prepareStatement(req);
+        String req = "UPDATE `user` SET name=?, last_name=?, email=?, password=?, date=?, role=?, username=?, status=?, two_factor_enabled=?, two_factor_code=?, two_factor_expiry=?, face_data=?, fingerprint_data=? WHERE id=?";
+        try (PreparedStatement ps = cnx.prepareStatement(req)) {
+            ps.setString(1, person.getName());
+            ps.setString(2, person.getLastName());
+            ps.setString(3, person.getEmail());
+            ps.setString(4, person.getPassword());
+            ps.setDate(5, new java.sql.Date(person.getDate().getTime()));
+            ps.setString(6, person.getRole());
+            ps.setString(7, person.getUsername());
+            ps.setString(8, person.getStatus() != null ? person.getStatus() : "offline");
+            ps.setBoolean(9, person.isTwoFactorEnabled());
+            ps.setString(10, person.getTwoFactorCode());
+            ps.setTimestamp(11, person.getTwoFactorExpiry());
+            ps.setBytes(12, person.getFaceData());
+            ps.setBytes(13, person.getFingerprintData());
+            ps.setInt(14, person.getId());
 
-        ps.setString(1, person.getName());
-        ps.setString(2, person.getLastName());
-        ps.setString(3, person.getEmail());
-        ps.setString(4, person.getPassword());
-        ps.setDate(5, person.getDate());
-        ps.setString(6, person.getRole());
-        ps.setString(7, person.getUsername());
-        ps.setString(8, person.getStatus() != null ? person.getStatus() : "offline");
-        ps.setInt(9, person.getId());
-
-        ps.executeUpdate();
+            ps.executeUpdate();
+        }
     }
 
     @Override
     public void deleteOne(Person person) throws SQLException {
         String req = "DELETE FROM `user` WHERE id=?";
-        PreparedStatement ps = cnx.prepareStatement(req);
-        ps.setInt(1, person.getId());
-        ps.executeUpdate();
+        try (PreparedStatement ps = cnx.prepareStatement(req)) {
+            ps.setInt(1, person.getId());
+            ps.executeUpdate();
+        }
     }
 
     @Override
     public List<Person> selectALL() throws SQLException {
         List<Person> userList = new ArrayList<>();
-
         String req = "SELECT * FROM `user`";
-        Statement st = cnx.createStatement();
-        ResultSet rs = st.executeQuery(req);
-
-        while (rs.next()) {
-            Person p = new Person(
-                    rs.getInt("id"),
-                    rs.getString("name"),
-                    rs.getString("last_name"),
-                    rs.getString("email"),
-                    rs.getString("password"),
-                    rs.getDate("date"),
-                    rs.getString("role"),
-                    rs.getString("username")
-            );
-            p.setStatus(rs.getString("status") != null ? rs.getString("status") : "offline");
-            userList.add(p);
+        try (Statement st = cnx.createStatement();
+             ResultSet rs = st.executeQuery(req)) {
+            while (rs.next()) {
+                userList.add(mapPerson(rs));
+            }
         }
-
         return userList;
     }
 
@@ -211,22 +203,11 @@ public class PersonService implements CRUD<Person> {
     public List<Person> getAdminUsers() throws SQLException {
         List<Person> adminList = new ArrayList<>();
         String req = "SELECT * FROM `user` WHERE LOWER(role) LIKE '%admin%'";
-        Statement st = cnx.createStatement();
-        ResultSet rs = st.executeQuery(req);
-
-        while (rs.next()) {
-            Person p = new Person(
-                    rs.getInt("id"),
-                    rs.getString("name"),
-                    rs.getString("last_name"),
-                    rs.getString("email"),
-                    rs.getString("password"),
-                    rs.getDate("date"),
-                    rs.getString("role"),
-                    rs.getString("username")
-            );
-            p.setStatus(rs.getString("status") != null ? rs.getString("status") : "offline");
-            adminList.add(p);
+        try (Statement st = cnx.createStatement();
+             ResultSet rs = st.executeQuery(req)) {
+            while (rs.next()) {
+                adminList.add(mapPerson(rs));
+            }
         }
         return adminList;
     }
@@ -236,12 +217,13 @@ public class PersonService implements CRUD<Person> {
      */
     public boolean isTwoFactorEnabled(int userId) throws SQLException {
         String req = "SELECT two_factor_enabled FROM `user` WHERE id = ?";
-        PreparedStatement ps = cnx.prepareStatement(req);
-        ps.setInt(1, userId);
-        ResultSet rs = ps.executeQuery();
-
-        if (rs.next()) {
-            return rs.getBoolean("two_factor_enabled");
+        try (PreparedStatement ps = cnx.prepareStatement(req)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getBoolean("two_factor_enabled");
+                }
+            }
         }
         return false;
     }
@@ -251,10 +233,11 @@ public class PersonService implements CRUD<Person> {
      */
     public void save2FACode(int userId, String code) throws SQLException {
         String req = "UPDATE `user` SET two_factor_code = ?, two_factor_expiry = DATE_ADD(NOW(), INTERVAL 5 MINUTE) WHERE id = ?";
-        PreparedStatement ps = cnx.prepareStatement(req);
-        ps.setString(1, code);
-        ps.setInt(2, userId);
-        ps.executeUpdate();
+        try (PreparedStatement ps = cnx.prepareStatement(req)) {
+            ps.setString(1, code);
+            ps.setInt(2, userId);
+            ps.executeUpdate();
+        }
     }
 
     /**
@@ -262,15 +245,16 @@ public class PersonService implements CRUD<Person> {
      */
     public boolean verify2FACode(int userId, String code) throws SQLException {
         String req = "SELECT * FROM `user` WHERE id = ? AND two_factor_code = ? AND two_factor_expiry > NOW()";
-        PreparedStatement ps = cnx.prepareStatement(req);
-        ps.setInt(1, userId);
-        ps.setString(2, code);
-        ResultSet rs = ps.executeQuery();
-
-        if (rs.next()) {
-            // Clear the code after successful verification
-            clear2FACode(userId);
-            return true;
+        try (PreparedStatement ps = cnx.prepareStatement(req)) {
+            ps.setInt(1, userId);
+            ps.setString(2, code);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    // Clear the code after successful verification
+                    clear2FACode(userId);
+                    return true;
+                }
+            }
         }
         return false;
     }
@@ -280,9 +264,10 @@ public class PersonService implements CRUD<Person> {
      */
     public void clear2FACode(int userId) throws SQLException {
         String req = "UPDATE `user` SET two_factor_code = NULL, two_factor_expiry = NULL WHERE id = ?";
-        PreparedStatement ps = cnx.prepareStatement(req);
-        ps.setInt(1, userId);
-        ps.executeUpdate();
+        try (PreparedStatement ps = cnx.prepareStatement(req)) {
+            ps.setInt(1, userId);
+            ps.executeUpdate();
+        }
     }
 
     /**
@@ -290,10 +275,11 @@ public class PersonService implements CRUD<Person> {
      */
     public void setTwoFactorEnabled(int userId, boolean enabled) throws SQLException {
         String req = "UPDATE `user` SET two_factor_enabled = ? WHERE id = ?";
-        PreparedStatement ps = cnx.prepareStatement(req);
-        ps.setInt(1, enabled ? 1 : 0);
-        ps.setInt(2, userId);
-        ps.executeUpdate();
+        try (PreparedStatement ps = cnx.prepareStatement(req)) {
+            ps.setInt(1, enabled ? 1 : 0);
+            ps.setInt(2, userId);
+            ps.executeUpdate();
+        }
     }
 
     /**
@@ -301,48 +287,17 @@ public class PersonService implements CRUD<Person> {
      */
     public Person getUserById(int userId) throws SQLException {
         String req = "SELECT * FROM `user` WHERE id = ?";
-        PreparedStatement ps = cnx.prepareStatement(req);
-        ps.setInt(1, userId);
-        ResultSet rs = ps.executeQuery();
-
-        if (rs.next()) {
-            Person person = new Person(
-                    rs.getInt("id"),
-                    rs.getString("name"),
-                    rs.getString("last_name"),
-                    rs.getString("email"),
-                    rs.getString("password"),
-                    rs.getDate("date"),
-                    rs.getString("role"),
-                    rs.getString("username")
-            );
-            person.setStatus(rs.getString("status") != null ? rs.getString("status") : "offline");
-
-            // Set two factor enabled
-            try {
-                person.setTwoFactorEnabled(rs.getBoolean("two_factor_enabled"));
-            } catch (SQLException e) {
-                person.setTwoFactorEnabled(false);
+        try (PreparedStatement ps = cnx.prepareStatement(req)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapPerson(rs);
+                }
             }
-
-            // Set face data
-            try {
-                person.setFaceData(rs.getBytes("face_data"));
-            } catch (SQLException e) {
-                person.setFaceData(null);
-            }
-
-            return person;
         }
         return null;
     }
 
-    /**
-     * Save face data for a user
-     */
-    /**
-     * Save face data for a user with better error handling
-     */
     /**
      * Save face data for a user - simplified version
      */
@@ -371,31 +326,16 @@ public class PersonService implements CRUD<Person> {
     }
 
     /**
-     * Add face_data column to user table if it doesn't exist
-     */
-    private void addFaceDataColumn() throws SQLException {
-        try {
-            String sql = "ALTER TABLE `user` ADD COLUMN face_data LONGBLOB NULL";
-            try (Statement st = cnx.createStatement()) {
-                st.execute(sql);
-                System.out.println("✅ face_data column added to user table");
-            }
-        } catch (SQLException e) {
-            System.err.println("Failed to add face_data column: " + e.getMessage());
-            // Column might already exist
-        }
-    }
-
-    /**
      * Get face data for a user
      */
     public byte[] getFaceData(int userId) throws SQLException {
         String query = "SELECT face_data FROM `user` WHERE id = ?";
         try (PreparedStatement ps = cnx.prepareStatement(query)) {
             ps.setInt(1, userId);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getBytes("face_data");
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getBytes("face_data");
+                }
             }
         }
         return null;
@@ -404,16 +344,9 @@ public class PersonService implements CRUD<Person> {
     /**
      * Find user by face data
      */
-    /**
-     * Find user by face data
-     */
     public Person findUserByFaceData(byte[] capturedFace) throws SQLException {
         // First check if face_data column exists
-        DatabaseMetaData metaData = cnx.getMetaData();
-        ResultSet columns = metaData.getColumns(null, null, "user", "face_data");
-        boolean columnExists = columns.next();
-
-        if (!columnExists) {
+        if (!columnExists("face_data")) {
             System.out.println("face_data column does not exist in user table");
             return null;
         }
@@ -459,6 +392,16 @@ public class PersonService implements CRUD<Person> {
     }
 
     /**
+     * Check if a column exists in the user table
+     */
+    private boolean columnExists(String columnName) throws SQLException {
+        DatabaseMetaData metaData = cnx.getMetaData();
+        try (ResultSet columns = metaData.getColumns(null, null, "user", columnName)) {
+            return columns.next();
+        }
+    }
+
+    /**
      * Map ResultSet to Person object
      */
     private Person mapPerson(ResultSet rs) throws SQLException {
@@ -471,7 +414,28 @@ public class PersonService implements CRUD<Person> {
         person.setDate(rs.getDate("date"));
         person.setRole(rs.getString("role"));
         person.setUsername(rs.getString("username"));
-        person.setTwoFactorEnabled(rs.getBoolean("two_factor_enabled"));
+        person.setStatus(rs.getString("status") != null ? rs.getString("status") : "offline");
+
+        // Set two factor enabled
+        try {
+            person.setTwoFactorEnabled(rs.getBoolean("two_factor_enabled"));
+        } catch (SQLException e) {
+            person.setTwoFactorEnabled(false);
+        }
+
+        // Set two factor code
+        try {
+            person.setTwoFactorCode(rs.getString("two_factor_code"));
+        } catch (SQLException e) {
+            person.setTwoFactorCode(null);
+        }
+
+        // Set two factor expiry
+        try {
+            person.setTwoFactorExpiry(rs.getTimestamp("two_factor_expiry"));
+        } catch (SQLException e) {
+            person.setTwoFactorExpiry(null);
+        }
 
         // Set face data
         try {
@@ -480,18 +444,25 @@ public class PersonService implements CRUD<Person> {
             person.setFaceData(null);
         }
 
+        // Set fingerprint data
+        try {
+            person.setFingerprintData(rs.getBytes("fingerprint_data"));
+        } catch (SQLException e) {
+            person.setFingerprintData(null);
+        }
+
         return person;
     }
 
-
     public Person getUserByEmail(String email) throws SQLException {
         String req = "SELECT * FROM `user` WHERE email = ?";
-        PreparedStatement ps = cnx.prepareStatement(req);
-        ps.setString(1, email);
-        ResultSet rs = ps.executeQuery();
-
-        if (rs.next()) {
-            return mapPerson(rs);
+        try (PreparedStatement ps = cnx.prepareStatement(req)) {
+            ps.setString(1, email);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapPerson(rs);
+                }
+            }
         }
         return null;
     }
@@ -501,12 +472,13 @@ public class PersonService implements CRUD<Person> {
      */
     public boolean emailExists(String email) throws SQLException {
         String req = "SELECT COUNT(*) FROM `user` WHERE email = ?";
-        PreparedStatement ps = cnx.prepareStatement(req);
-        ps.setString(1, email);
-        ResultSet rs = ps.executeQuery();
-
-        if (rs.next()) {
-            return rs.getInt(1) > 0;
+        try (PreparedStatement ps = cnx.prepareStatement(req)) {
+            ps.setString(1, email);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
         }
         return false;
     }
@@ -516,17 +488,17 @@ public class PersonService implements CRUD<Person> {
      */
     public Person findByEmailOrUsername(String emailOrUsername) throws SQLException {
         String req = "SELECT * FROM `user` WHERE email = ? OR username = ?";
-        PreparedStatement ps = cnx.prepareStatement(req);
-        ps.setString(1, emailOrUsername);
-        ps.setString(2, emailOrUsername);
-        ResultSet rs = ps.executeQuery();
-
-        if (rs.next()) {
-            return mapPerson(rs);
+        try (PreparedStatement ps = cnx.prepareStatement(req)) {
+            ps.setString(1, emailOrUsername);
+            ps.setString(2, emailOrUsername);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapPerson(rs);
+                }
+            }
         }
         return null;
     }
-
 
     /**
      * Check if username is available
@@ -535,13 +507,118 @@ public class PersonService implements CRUD<Person> {
         String query = "SELECT COUNT(*) FROM `user` WHERE username = ?";
         try (PreparedStatement ps = cnx.prepareStatement(query)) {
             ps.setString(1, username);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1) == 0;
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) == 0;
+                }
             }
         }
         return false;
     }
 
+    // ==================== FINGERPRINT METHODS ====================
 
+    /**
+     * Save fingerprint data for a user
+     */
+    public void saveFingerprintData(int userId, byte[] fingerprintData) throws SQLException {
+        // First check if fingerprint_data column exists
+        if (!columnExists("fingerprint_data")) {
+            System.out.println("⚠️ fingerprint_data column does not exist, adding it...");
+            addFingerprintColumn();
+        }
+
+        String query = "UPDATE `user` SET fingerprint_data = ? WHERE id = ?";
+        try (PreparedStatement ps = cnx.prepareStatement(query)) {
+            if (fingerprintData != null && fingerprintData.length > 0) {
+                ps.setBytes(1, fingerprintData);
+                System.out.println("📸 Saving fingerprint data for user ID: " + userId + ", size: " + fingerprintData.length + " bytes");
+            } else {
+                ps.setNull(1, Types.BLOB);
+                System.out.println("Removing fingerprint data for user ID: " + userId);
+            }
+            ps.setInt(2, userId);
+
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("✅ Fingerprint data saved successfully for user ID: " + userId);
+            }
+        }
+    }
+
+    /**
+     * Get fingerprint data for a user
+     */
+    public byte[] getFingerprintData(int userId) throws SQLException {
+        if (!columnExists("fingerprint_data")) {
+            return null;
+        }
+
+        String query = "SELECT fingerprint_data FROM `user` WHERE id = ?";
+        try (PreparedStatement ps = cnx.prepareStatement(query)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getBytes("fingerprint_data");
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Get all users with fingerprint data
+     */
+    public List<Person> getUsersWithFingerprint() throws SQLException {
+        List<Person> users = new ArrayList<>();
+
+        if (!columnExists("fingerprint_data")) {
+            System.out.println("fingerprint_data column does not exist");
+            return users;
+        }
+
+        String query = "SELECT * FROM `user` WHERE fingerprint_data IS NOT NULL";
+
+        try (Statement st = cnx.createStatement();
+             ResultSet rs = st.executeQuery(query)) {
+
+            while (rs.next()) {
+                users.add(mapPerson(rs));
+            }
+        }
+        return users;
+    }
+
+    /**
+     * Get user by fingerprint data ID (simulated - in real implementation,
+     * this would search the fingerprint sensor's database)
+     */
+    public Person getUserByFingerprintId(int fingerprintId) throws SQLException {
+        // In a real implementation, you would have a mapping between fingerprint IDs and user IDs
+        // For simulation, we'll just return a random user with fingerprint data
+        List<Person> usersWithFingerprint = getUsersWithFingerprint();
+
+        if (!usersWithFingerprint.isEmpty()) {
+            // For simulation, return the first user with fingerprint data
+            // In reality, you'd match the fingerprintId to a specific user
+            return usersWithFingerprint.get(0);
+        }
+        return null;
+    }
+
+    /**
+     * Add fingerprint_data column to user table if it doesn't exist
+     */
+    private void addFingerprintColumn() throws SQLException {
+        try {
+            String sql = "ALTER TABLE `user` ADD COLUMN fingerprint_data LONGBLOB NULL";
+            try (Statement st = cnx.createStatement()) {
+                st.execute(sql);
+                System.out.println("✅ fingerprint_data column added to user table");
+            }
+        } catch (SQLException e) {
+            System.err.println("Failed to add fingerprint_data column: " + e.getMessage());
+            // Column might already exist
+        }
+    }
 }

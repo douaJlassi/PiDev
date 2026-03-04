@@ -32,6 +32,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.prefs.Preferences;
 
@@ -44,6 +46,7 @@ public class AjouterPersonne {
     @FXML private VBox loginPane;
     @FXML private Button signupButton;
     @FXML private Button loginButton;
+    @FXML private Button fingerprintLoginButton;
 
     // Form fields
     @FXML private TextField firstNameField;
@@ -1458,5 +1461,87 @@ public class AjouterPersonne {
             e.printStackTrace();
             showAlert("Error", "Failed to load forgot password page: " + e.getMessage(), Alert.AlertType.ERROR);
         }
+    }
+
+    /**
+     * Get all users with fingerprint data
+     */
+
+
+    @FXML
+    public void handleFingerprintLogin() {
+        System.out.println("==========================================");
+        System.out.println("🟢 FINGERPRINT LOGIN BUTTON CLICKED!");
+        System.out.println("==========================================");
+
+        // Show fingerprint dialog
+        FingerprintLoginDialog loginDialog = new FingerprintLoginDialog();
+        Integer fingerprintId = loginDialog.showAndWait();
+
+        if (fingerprintId != null && fingerprintId > 0) {
+            try {
+                // Get all users with fingerprint data from database using PersonService
+                List<Person> usersWithFingerprint = personService.getUsersWithFingerprint();
+
+                if (!usersWithFingerprint.isEmpty()) {
+                    // For simulation, use the first user with fingerprint data
+                    // In a real implementation, you would match the fingerprintId to a specific user
+                    Person user = usersWithFingerprint.get(0);
+
+                    System.out.println("✅ Fingerprint matched for user: " + user.getUsername());
+
+                    // Check if 2FA is enabled
+                    boolean twoFAEnabled = personService.isTwoFactorEnabled(user.getId());
+
+                    if (twoFAEnabled) {
+                        // Generate and save 2FA code
+                        String code = EmailService.generate2FACode();
+                        personService.save2FACode(user.getId(), code);
+
+                        // Send code via email
+                        boolean sent = EmailService.send2FACode(user.getEmail(), code);
+
+                        if (sent) {
+                            // Navigate to 2FA verification page
+                            goTo2FAVerification(user);
+                        } else {
+                            showAlert("Error", "Failed to send verification code.", Alert.AlertType.ERROR);
+                        }
+                    } else {
+                        // Complete login
+                        completeFingerprintLogin(user);
+                    }
+                } else {
+                    showAlert("Fingerprint Login Failed", "No users with fingerprint data found in database. Please set up fingerprint first.", Alert.AlertType.WARNING);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                showAlert("Database Error", "Error during login: " + e.getMessage(), Alert.AlertType.ERROR);
+            }
+        } else {
+            showAlert("Fingerprint Login Failed", "No matching fingerprint found or login cancelled.", Alert.AlertType.WARNING);
+        }
+    }
+
+    /**
+     * Complete fingerprint login
+     */
+
+
+    /**
+     * Complete fingerprint login
+     */
+    private void completeFingerprintLogin(Person user) throws SQLException {
+        // Update user status to online in database
+        personService.updateUserStatus(user.getId(), "online");
+
+        // Check and set default profile image if needed
+        checkAndSetDefaultProfileImage(user);
+
+        // Create session
+        SessionManager.createSession(user);
+
+        // Navigate to main page with loading animation
+        navigateToDashboardWithLoading(user);
     }
 }

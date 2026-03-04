@@ -319,6 +319,23 @@
                         <DropShadow color="#00000066" radius="8" spread="0.3" offsetX="2" offsetY="2"/>
                     </effect>
                 </Button>
+                <!-- Fingerprint Login Button -->
+                <Button fx:id="fingerprintLoginButton"
+                        text="🔑 Login with Fingerprint"
+                        onAction="#handleFingerprintLogin"
+                        prefWidth="220"
+                        prefHeight="48"
+                        style="-fx-background-color: linear-gradient(to right,#2ecc71,#27ae60);
+               -fx-text-fill:white;
+               -fx-font-weight:bold;
+               -fx-font-size: 16px;
+               -fx-background-radius: 24;
+               -fx-cursor: hand;
+               -fx-margin: 10 0 0 0;">
+                    <effect>
+                        <DropShadow color="#2ecc7166" radius="8" spread="0.3" offsetX="2" offsetY="2"/>
+                    </effect>
+                </Button>
 
                 <!-- Divider -->
                 <HBox alignment="CENTER" spacing="10" style="-fx-padding: 5 0;">
