@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane fx:id="borderPane" prefHeight="850.0" prefWidth="1300.0"
+            stylesheets="@style.css" styleClass="dash-root"
+            xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controllers.DashboardGuideController">
+
+    <!-- ══════════════════════════ SIDEBAR -->
+    <left>
+        <VBox prefWidth="268" spacing="0" styleClass="dash-sidebar">
+            <padding><Insets top="32" right="20" bottom="28" left="20" /></padding>
+
+            <HBox alignment="CENTER_LEFT" spacing="13" styleClass="dash-brand-row">
+                <StackPane styleClass="dash-brand-icon">
+                    <Text text="🧭" style="-fx-font-size:22px;" />
+                </StackPane>
+                <VBox spacing="1">
+                    <Label text="VoyagePro" styleClass="dash-brand-name" />
+                    <Label text="Espace Guide" styleClass="dash-brand-sub" />
+                </VBox>
+            </HBox>
+
+            <Region styleClass="dash-sidebar-rule" prefHeight="1" maxWidth="999" />
+            <Region prefHeight="22" />
+
+            <VBox styleClass="dash-profile-card" alignment="CENTER" spacing="10">
+                <StackPane>
+                    <Circle fx:id="profileCircle" radius="34" styleClass="dash-avatar-ring" />
+                    <Label text="G" styleClass="dash-avatar-letter" />
+                </StackPane>
+                <VBox alignment="CENTER" spacing="4">
+                    <Text fx:id="userNameText" text="Julian Le Guide" styleClass="dash-profile-name" />
+                    <StackPane styleClass="dash-guide-badge">
+                        <Label text="✦  GUIDE CERTIFIÉ" styleClass="dash-guide-badge-text" />
+                    </StackPane>
+                </VBox>
+            </VBox>
+
+            <Region prefHeight="26" />
+            <Label text="NAVIGATION" styleClass="dash-nav-group" />
+            <Region prefHeight="8" />
+
+            <VBox spacing="3" VBox.vgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" spacing="12" styleClass="dash-nav-item">
+                    <StackPane styleClass="dash-nav-icon"><Text text="🏠" styleClass="dash-nav-emoji" /></StackPane>
+                    <Label text="Dashboard" styleClass="dash-nav-label" />
+                </HBox>
+                <HBox alignment="CENTER_LEFT" spacing="12" styleClass="dash-nav-item-active">
+                    <StackPane styleClass="dash-nav-icon-active"><Text text="📋" styleClass="dash-nav-emoji" /></StackPane>
+                    <Label text="Mes Activités" styleClass="dash-nav-label-active" />
+                    <Region HBox.hgrow="ALWAYS" />
+                    <StackPane styleClass="dash-nav-pill"><Label text="12" styleClass="dash-nav-pill-text" /></StackPane>
+                </HBox>
+                <HBox alignment="CENTER_LEFT" spacing="12" styleClass="dash-nav-item">
+                    <StackPane styleClass="dash-nav-icon"><Text text="📅" styleClass="dash-nav-emoji" /></StackPane>
+                    <Label text="Réservations" styleClass="dash-nav-label" />
+                </HBox>
+                <HBox alignment="CENTER_LEFT" spacing="12" styleClass="dash-nav-item">
+                    <StackPane styleClass="dash-nav-icon"><Text text="💬" styleClass="dash-nav-emoji" /></StackPane>
+                    <Label text="Messagerie" styleClass="dash-nav-label" />
+                    <Region HBox.hgrow="ALWAYS" />
+                    <StackPane styleClass="dash-notif-dot" />
+                </HBox>
+                <Region prefHeight="14" />
+                <Label text="PARAMÈTRES" styleClass="dash-nav-group" />
+                <Region prefHeight="6" />
+                <HBox alignment="CENTER_LEFT" spacing="12" styleClass="dash-nav-item">
+                    <StackPane styleClass="dash-nav-icon"><Text text="⚙" styleClass="dash-nav-emoji" /></StackPane>
+                    <Label text="Configuration" styleClass="dash-nav-label" />
+                </HBox>
+            </VBox>
+
+            <Region VBox.vgrow="ALWAYS" />
+            <Button maxWidth="999" styleClass="dash-logout-btn" text="→  Déconnexion" />
+        </VBox>
+    </left>
+
+    <!-- ══════════════════════════ MAIN -->
+    <center>
+        <VBox spacing="0" styleClass="dash-main">
+
+            <!-- TOP BAR -->
+            <HBox alignment="CENTER_LEFT" spacing="18" styleClass="dash-topbar">
+                <VBox spacing="3" HBox.hgrow="ALWAYS">
+                    <HBox spacing="6" alignment="CENTER_LEFT">
+                        <Label text="Guide" styleClass="dash-breadcrumb-muted" />
+                        <Text text="›" styleClass="dash-breadcrumb-sep" />
+                        <Label text="Mes Activités" styleClass="dash-breadcrumb-active" />
+                    </HBox>
+                    <Text text="Mes Activités" styleClass="dash-topbar-title" />
+                </VBox>
+                <Button styleClass="dash-btn-add" text="＋  Nouvelle Activité" onAction="#handleNouvelleActivite" />
+                <Button styleClass="dash-btn-calendar" text="📅  Calendrier" onAction="#handleCalendar" />
+                <StackPane styleClass="dash-topbar-avatar-wrap">
+                    <Circle radius="21" styleClass="dash-topbar-avatar" />
+                    <Label text="G" styleClass="dash-topbar-avatar-letter" />
+                </StackPane>
+            </HBox>
+
+            <!-- NOTIFICATION PANE -->
+            <StackPane fx:id="notificationPane" prefHeight="50" style="-fx-background-color: transparent;" />
+
+            <!-- ══ BODY ══ -->
+            <VBox spacing="0" VBox.vgrow="ALWAYS" styleClass="dash-body">
+                <!-- ── STAT CARDS ── -->
+                <HBox spacing="16" styleClass="dash-stats-row">
+
+                    <!-- Carte Total activités -->
+                    <VBox fx:id="carteTotalActivites" styleClass="dash-stat-card" HBox.hgrow="ALWAYS">
+                        <Region styleClass="dash-stat-stripe dash-stripe-blue" prefHeight="4" maxWidth="9999" />
+                        <VBox styleClass="dash-stat-inner" spacing="10">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <StackPane styleClass="dash-stat-icon dash-icon-blue">
+                                    <Text text="📋" style="-fx-font-size:17px;" />
+                                </StackPane>
+                                <Label text="Total activités" styleClass="dash-stat-label" HBox.hgrow="ALWAYS" />
+                                <StackPane styleClass="dash-trend-up">
+                                    <Label text="↑ 2" styleClass="dash-trend-text" />
+                                </StackPane>
+                            </HBox>
+                            <Label fx:id="totalActivitesStat" text="0" styleClass="dash-stat-value" />
+                            <Label text="ce mois-ci" styleClass="dash-stat-sublabel" />
+                        </VBox>
+                    </VBox>
+
+                    <!-- Carte Actives -->
+                    <VBox fx:id="carteActives" styleClass="dash-stat-card" HBox.hgrow="ALWAYS">
+                        <Region styleClass="dash-stat-stripe dash-stripe-green" prefHeight="4" maxWidth="9999" />
+                        <VBox styleClass="dash-stat-inner" spacing="10">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <StackPane styleClass="dash-stat-icon dash-icon-green">
+                                    <Text text="✅" style="-fx-font-size:17px;" />
+                                </StackPane>
+                                <Label text="Actives" styleClass="dash-stat-label" HBox.hgrow="ALWAYS" />
+                                <StackPane styleClass="dash-trend-neutral">
+                                    <Label text="67%" styleClass="dash-trend-text-n" />
+                                </StackPane>
+                            </HBox>
+                            <Label fx:id="activesStat" text="0" styleClass="dash-stat-value" />
+                            <Label text="sur 12 publiées" styleClass="dash-stat-sublabel" />
+                        </VBox>
+                    </VBox>
+
+                    <!-- Carte Réservations -->
+                    <VBox fx:id="carteReservations" styleClass="dash-stat-card" HBox.hgrow="ALWAYS">
+                        <Region styleClass="dash-stat-stripe dash-stripe-gold" prefHeight="4" maxWidth="9999" />
+                        <VBox styleClass="dash-stat-inner" spacing="10">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <StackPane styleClass="dash-stat-icon dash-icon-gold">
+                                    <Text text="👥" style="-fx-font-size:17px;" />
+                                </StackPane>
+                                <Label text="Réservations" styleClass="dash-stat-label" HBox.hgrow="ALWAYS" />
+                                <StackPane styleClass="dash-trend-up">
+                                    <Label text="↑ 5" styleClass="dash-trend-text" />
+                                </StackPane>
+                            </HBox>
+                            <Label fx:id="reservationsStat" text="0" styleClass="dash-stat-value" />
+                            <Label text="voyageurs confirmés" styleClass="dash-stat-sublabel" />
+                        </VBox>
+                    </VBox>
+
+                    <!-- Carte Revenus -->
+                    <VBox fx:id="carteRevenus" styleClass="dash-stat-card" HBox.hgrow="ALWAYS">
+                        <Region styleClass="dash-stat-stripe dash-stripe-purple" prefHeight="4" maxWidth="9999" />
+                        <VBox styleClass="dash-stat-inner" spacing="10">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <StackPane styleClass="dash-stat-icon dash-icon-purple">
+                                    <Text text="💰" style="-fx-font-size:17px;" />
+                                </StackPane>
+                                <Label text="Revenus" styleClass="dash-stat-label" HBox.hgrow="ALWAYS" />
+                                <StackPane styleClass="dash-trend-up">
+                                    <Label text="↑ 12%" styleClass="dash-trend-text" />
+                                </StackPane>
+                            </HBox>
+                            <Label fx:id="revenusStat" text="0 DT" styleClass="dash-stat-value" />
+                            <Label text="gains ce mois" styleClass="dash-stat-sublabel" />
+                        </VBox>
+                    </VBox>
+                </HBox>
+
+                <!-- ── CONTENT PANEL ── -->
+                <VBox spacing="0" VBox.vgrow="ALWAYS" styleClass="dash-content-panel">
+
+                    <!-- Panel Header -->
+                    <HBox styleClass="dash-panel-header" alignment="CENTER_LEFT" spacing="16">
+
+                        <!-- Title + count -->
+                        <HBox alignment="CENTER_LEFT" spacing="10" HBox.hgrow="ALWAYS">
+                            <StackPane styleClass="dash-section-bar" />
+                            <VBox spacing="2">
+                                <HBox alignment="CENTER_LEFT" spacing="8">
+                                    <Text text="Liste des Activités" styleClass="dash-section-heading" />
+                                    <StackPane styleClass="dash-count-chip">
+                                        <Label text="12" styleClass="dash-count-chip-text" />
+                                    </StackPane>
+                                </HBox>
+                                <Label text="Gérez et modifiez vos excursions" styleClass="dash-section-sub" />
+                            </VBox>
+                        </HBox>
+
+                        <!-- Filters right-aligned -->
+                        <HBox spacing="10" alignment="CENTER_RIGHT">
+                            <StackPane styleClass="dash-filter-icon-wrap">
+                                <Text text="📅" style="-fx-font-size:13px;" />
+                            </StackPane>
+                            <DatePicker fx:id="dateFilter" promptText="JJ / MM / AAAA"
+                                        styleClass="dash-datepicker" prefWidth="165" />
+                            <Button fx:id="clearDateFilterButton" styleClass="dash-btn-clear" text="✕  Effacer" />
+                            <Label fx:id="pageInfoLabel" text="12 activités"
+                                   styleClass="dash-page-info" />
+                        </HBox>
+                    </HBox>
+
+                    <!-- Liste des activités -->
+                    <ListView fx:id="activitiesListView" VBox.vgrow="ALWAYS" styleClass="dash-list" />
+
+                </VBox>
+            </VBox>
+        </VBox>
+
+    </center>
+</BorderPane>

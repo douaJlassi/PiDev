@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>   <!-- ← IMPORT OBLIGATOIRE -->
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+
+<VBox spacing="15" xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.ReservationDetailsController"
+      style="-fx-padding: 24; -fx-background-color: #f8fafc;">
+
+    <!-- En‑tête avec titre et compteur -->
+    <HBox alignment="CENTER_LEFT" spacing="12">
+        <Text text="📋" style="-fx-font-size: 24px;" />
+        <Label text="Détails des réservations"
+               style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #0f172a;" />
+        <Region HBox.hgrow="ALWAYS" />   <!-- ← utilisation correcte -->
+        <Label fx:id="totalReservationsLabel" text="0 réservation(s)"
+               style="-fx-background-color: #e2e8f0; -fx-background-radius: 20; -fx-padding: 4 12;
+                      -fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #334155;" />
+    </HBox>
+
+    <!-- Tableau des réservations -->
+    <TableView fx:id="reservationsTable" VBox.vgrow="ALWAYS" prefHeight="400"
+               style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 2);">
+        <columns>
+            <TableColumn fx:id="colNom" text="Nom Client" prefWidth="170"/>
+            <TableColumn fx:id="colEmail" text="Email" prefWidth="220"/>
+            <TableColumn fx:id="colTelephone" text="Téléphone" prefWidth="130"/>
+            <TableColumn fx:id="colNbPlaces" text="Places" prefWidth="80"/>
+            <TableColumn fx:id="colMontant" text="Montant (DT)" prefWidth="110"/>
+        </columns>
+    </TableView>
+
+    <!-- Boutons d'action -->
+    <HBox alignment="CENTER_RIGHT" spacing="10">
+        <Button text="Exporter PDF" onAction="#handleExportPDF"
+                style="-fx-background-color: #10b981; -fx-text-fill: white; -fx-font-weight: bold;
+                       -fx-background-radius: 8; -fx-padding: 8 24; -fx-cursor: hand;" />
+        <Button text="Fermer" onAction="#handleClose"
+                style="-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-font-weight: bold;
+                       -fx-background-radius: 8; -fx-padding: 8 24; -fx-cursor: hand;" />
+    </HBox>
+</VBox>
