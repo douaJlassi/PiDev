@@ -1,3 +1,5 @@
+// COPY / PASTE VERSION
+
 package repositories;
 
 import entities.*;
@@ -13,11 +15,9 @@ public class AgencyAnalyticsRepository {
 
     private final Connection cnx = MyDBConnexion.getInstance().getConnection();
 
-    // KPI: revenue, confirmed bookings, pending lines, approval rate
     public AgencyAnalyticsKpi loadKpis(int idAgence) {
         AgencyAnalyticsKpi k = new AgencyAnalyticsKpi();
 
-        // Revenue + confirmed bookings (CONFIRME only)
         String sqlRevenue = """
             SELECT
               COALESCE(SUM(lp.prixUnitaire),0) AS revenue,
@@ -29,7 +29,6 @@ public class AgencyAnalyticsRepository {
               AND r.statut = 'CONFIRME'
         """;
 
-        // Pending lines (reservation pending + line pending)
         String sqlPending = """
             SELECT COUNT(*) AS pendingLines
             FROM lignepanier lp
@@ -40,16 +39,15 @@ public class AgencyAnalyticsRepository {
               AND lp.agencyStatus = 'ENATTENTE'
         """;
 
-        // Approval rate: APPROUVEE / (APPROUVEE + REFUSEE) * 100
         String sqlApproval = """
-    SELECT
-      SUM(CASE WHEN lp.agencyStatus='APPROUVEE' THEN 1 ELSE 0 END) AS approved,
-      SUM(CASE WHEN lp.agencyStatus='REFUSEE'   THEN 1 ELSE 0 END) AS refused
-    FROM lignepanier lp
-    JOIN offre o ON o.idOffre = lp.idOffre
-    JOIN reservation r ON r.idReservation = lp.idReservation
-    WHERE o.idAgence = ?
-""";
+            SELECT
+              SUM(CASE WHEN lp.agencyStatus='APPROUVEE' THEN 1 ELSE 0 END) AS approved,
+              SUM(CASE WHEN lp.agencyStatus='REFUSEE'   THEN 1 ELSE 0 END) AS refused
+            FROM lignepanier lp
+            JOIN offre o ON o.idOffre = lp.idOffre
+            JOIN reservation r ON r.idReservation = lp.idReservation
+            WHERE o.idAgence = ?
+        """;
 
         try (PreparedStatement ps = cnx.prepareStatement(sqlRevenue)) {
             ps.setInt(1, idAgence);
@@ -90,7 +88,6 @@ public class AgencyAnalyticsRepository {
         return k;
     }
 
-    // Revenue per day (last 30 days) - CONFIRME only
     public List<AgencyRevenuePoint> revenueLast30Days(int idAgence) {
         String sql = """
             SELECT DATE(r.dateReservation) AS day, COALESCE(SUM(lp.prixUnitaire),0) AS revenue
@@ -118,7 +115,6 @@ public class AgencyAnalyticsRepository {
             throw new RuntimeException("Error revenueLast30Days: " + e.getMessage(), e);
         }
 
-        // Fill missing days with 0 so the chart looks continuous
         return fillMissingDays(list, 30);
     }
 
@@ -136,7 +132,6 @@ public class AgencyAnalyticsRepository {
         return out;
     }
 
-    // Top offers by revenue (CONFIRME only)
     public List<AgencyTopOffer> topOffersByRevenue(int idAgence, int limit) {
         String sql = """
             SELECT o.idOffre, o.titre, COALESCE(SUM(lp.prixUnitaire),0) AS revenue
@@ -169,7 +164,6 @@ public class AgencyAnalyticsRepository {
         return list;
     }
 
-    // Status distribution for current pending requests (ENATTENTE reservations)
     public List<javafx.scene.chart.PieChart.Data> statusDistribution(int idAgence) {
         String sql = """
             SELECT lp.agencyStatus AS st, COUNT(*) AS cnt
@@ -198,25 +192,24 @@ public class AgencyAnalyticsRepository {
         return list;
     }
 
-    // Top clients by revenue (CONFIRME only)
     public List<AgencyTopClient> topClients(int idAgence, int limit) {
         String sql = """
-            SELECT\s
-                     r.idClient AS idClient,
-                     u.nom AS nom,
-                     u.prenom AS prenom,
-                     u.telephone AS telephone,
-                     COUNT(DISTINCT r.idReservation) AS bookings,
-                     COALESCE(SUM(lp.prixUnitaire),0) AS revenue
-                   FROM lignepanier lp
-                   JOIN offre o ON o.idOffre = lp.idOffre
-                   JOIN reservation r ON r.idReservation = lp.idReservation
-                   JOIN user u ON u.idUser = r.idClient
-                   WHERE o.idAgence = ?
-                     AND r.statut='CONFIRME'
-                   GROUP BY r.idClient, u.nom, u.prenom, u.telephone
-                   ORDER BY revenue DESC
-                   LIMIT ?
+            SELECT
+              r.idClient AS idClient,
+              u.last_name AS nom,
+              u.name AS prenom,
+              NULL AS telephone,
+              COUNT(DISTINCT r.idReservation) AS bookings,
+              COALESCE(SUM(lp.prixUnitaire),0) AS revenue
+            FROM lignepanier lp
+            JOIN offre o ON o.idOffre = lp.idOffre
+            JOIN reservation r ON r.idReservation = lp.idReservation
+            JOIN user u ON u.id = r.idClient
+            WHERE o.idAgence = ?
+              AND r.statut='CONFIRME'
+            GROUP BY r.idClient, u.last_name, u.name
+            ORDER BY revenue DESC
+            LIMIT ?
         """;
 
         List<AgencyTopClient> list = new ArrayList<>();
@@ -229,10 +222,12 @@ public class AgencyAnalyticsRepository {
                     c.setIdClient(rs.getInt("idClient"));
                     c.setBookings(rs.getInt("bookings"));
                     c.setRevenue(rs.getBigDecimal("revenue"));
+
                     String nom = rs.getString("nom");
                     String prenom = rs.getString("prenom");
                     String fullName = ((prenom == null ? "" : prenom) + " " + (nom == null ? "" : nom)).trim();
                     c.setFullName(fullName.isEmpty() ? "Client" : fullName);
+
                     c.setTelephone(rs.getString("telephone"));
                     list.add(c);
                 }

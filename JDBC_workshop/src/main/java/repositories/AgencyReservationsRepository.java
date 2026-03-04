@@ -1,3 +1,5 @@
+// COPY / PASTE VERSION
+
 package repositories;
 
 import entities.*;
@@ -20,10 +22,10 @@ public class AgencyReservationsRepository implements IAgencyReservationsReposito
       r.idClient             AS idClient,
       r.statut               AS reservationStatus,
 
-      u.nom                  AS nom,
-      u.prenom               AS prenom,
+      u.last_name            AS nom,
+      u.name                 AS prenom,
       u.email                AS email,
-      u.telephone            AS telephone,
+      NULL                   AS telephone,
 
       lp.idOffre             AS idOffre,
       o.titre                AS offerTitle,
@@ -35,7 +37,7 @@ public class AgencyReservationsRepository implements IAgencyReservationsReposito
     FROM lignepanier lp
     JOIN offre o ON o.idOffre = lp.idOffre
     JOIN reservation r ON r.idReservation = lp.idReservation
-    JOIN user u ON u.idUser = r.idClient
+    JOIN user u ON u.id = r.idClient
     WHERE o.idAgence = ?
     ORDER BY lp.idReservation DESC
 """;
@@ -64,10 +66,10 @@ public class AgencyReservationsRepository implements IAgencyReservationsReposito
                     x.setAgencyStatut(agStatus == null ? AgencyStatut.ENATTENTE : AgencyStatut.valueOf(agStatus));
 
                     x.setRefusalReason(rs.getString("refusalReason"));
+
                     String nom = rs.getString("nom");
                     String prenom = rs.getString("prenom");
                     String email = rs.getString("email");
-                    x.setClientPhone(rs.getString("telephone"));
 
                     String fullName = ((prenom == null ? "" : prenom) + " " + (nom == null ? "" : nom)).trim();
                     if (fullName.isEmpty()) fullName = (email == null ? "Client" : email);
@@ -88,10 +90,6 @@ public class AgencyReservationsRepository implements IAgencyReservationsReposito
         return list;
     }
 
-    /**
-     * Approve ONLY the line (no email here).
-     * Immutable after CONFIRME due to r.statut='ENATTENTE'.
-     */
     @Override
     public boolean approveLine(int idAgence, int idReservation, int idOffre) {
 
@@ -119,10 +117,6 @@ public class AgencyReservationsRepository implements IAgencyReservationsReposito
         }
     }
 
-    /**
-     * Reject line with a reason (stored).
-     * Immutable after CONFIRME due to r.statut='ENATTENTE'.
-     */
     @Override
     public boolean rejectLine(int idAgence, int idReservation, int idOffre, String reason) {
 
@@ -151,10 +145,6 @@ public class AgencyReservationsRepository implements IAgencyReservationsReposito
         }
     }
 
-    /**
-     * True if all lines are approved.
-     * Handles NULL safely.
-     */
     public boolean isReservationFullyApproved(int idReservation) {
         String sql = """
             SELECT COUNT(*) 
@@ -173,11 +163,6 @@ public class AgencyReservationsRepository implements IAgencyReservationsReposito
         }
     }
 
-    /**
-     * Confirm reservation ONLY if it is fully approved.
-     * Returns true ONLY if status actually changed ENATTENTE -> CONFIRME now.
-     * This is what prevents duplicate emails (no extra column needed).
-     */
     public boolean confirmReservationIfFullyApproved(int idReservation) {
         if (!isReservationFullyApproved(idReservation)) return false;
 
@@ -196,10 +181,6 @@ public class AgencyReservationsRepository implements IAgencyReservationsReposito
         }
     }
 
-    /**
-     * Convenience: approve line then attempt confirmation.
-     * Returns true ONLY if reservation became CONFIRME now.
-     */
     public boolean approveLineAndConfirmIfReady(int idAgence, int idReservation, int idOffre) {
         boolean ok = approveLine(idAgence, idReservation, idOffre);
         if (!ok) return false;

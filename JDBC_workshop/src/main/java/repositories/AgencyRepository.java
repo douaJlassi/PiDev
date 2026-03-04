@@ -1,3 +1,5 @@
+// COPY / PASTE VERSION
+
 package repositories;
 
 import entities.OffreAgency;
@@ -17,7 +19,13 @@ public class AgencyRepository {
 
     public List<OffreAgency> findAllValidated() {
         List<OffreAgency> list = new ArrayList<>();
-        String sql = "SELECT idUser, nomAgence FROM agence WHERE validationAdmin=1 ORDER BY nomAgence";
+
+        String sql = """
+            SELECT id AS idUser, name AS nomAgence
+            FROM user
+            WHERE role = 'AGENCE'
+            ORDER BY name
+        """;
 
         try (PreparedStatement ps = cnx.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -28,12 +36,11 @@ public class AgencyRepository {
                 a.setNomAgence(rs.getString("nomAgence"));
                 list.add(a);
             }
+
         } catch (SQLException e) {
             throw new RuntimeException("Error findAllValidated agencies: " + e.getMessage(), e);
         }
 
         return list;
     }
-
 }
-
