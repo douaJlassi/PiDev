@@ -10,27 +10,23 @@ public class AudioRecorder {
     public void start(File destFile) {
         new Thread(() -> {
             try {
-                // --- SOLUTION : Format Voix Standard (16kHz est supporté par 99% des micros) ---
-                AudioFormat format = new AudioFormat(16000.0f, 16, 1, true, false);
+                AudioFormat format = new AudioFormat(44100.0f, 16, 1, true, false);
                 DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
 
-                // Si le format n'est pas supporté, on tente le format universel de base
-                if (!AudioSystem.isLineSupported(info)) {
-                    System.err.println("⚠️ Format 16kHz non supporté, tentative en 8kHz...");
-                    format = new AudioFormat(8000.0f, 8, 1, true, false);
-                    info = new DataLine.Info(TargetDataLine.class, format);
-                }
-
                 line = (TargetDataLine) AudioSystem.getLine(info);
+
+                if (line.isOpen()) line.close();
+
                 line.open(format);
                 line.start();
 
-                System.out.println("🎙 Enregistrement démarré...");
+                System.out.println("🎙 Enregistrement forcé démarré...");
                 AudioInputStream ais = new AudioInputStream(line);
                 AudioSystem.write(ais, fileType, destFile);
 
+            } catch (LineUnavailableException e) {
+                System.err.println("❌ Erreur : Le micro est déjà utilisé par une autre application (Teams, Discord, ou une ancienne instance Java).");
             } catch (Exception ex) {
-                System.err.println("❌ Erreur Micro : " + ex.getMessage());
                 ex.printStackTrace();
             }
         }).start();

@@ -13,7 +13,7 @@ public class MainFX extends Application {
         launch(args);
     }
 
-    @Override
+    /*@Override
     public void start(Stage stage) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/MainLayout.fxml"));
         try {
@@ -25,8 +25,8 @@ public class MainFX extends Application {
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
-    }
-   /* @Override
+    }*/
+    @Override
     public void start(Stage stage) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/MainLayoutBack.fxml"));
         try {
@@ -38,5 +38,5 @@ public class MainFX extends Application {
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
-    }*/
+    }
 }

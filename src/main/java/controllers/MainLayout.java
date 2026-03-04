@@ -28,7 +28,7 @@ public class MainLayout {
     @FXML
     private Label lblBadge;
     private ServiceMessage serMsg = new ServiceMessage();
-    private int currentUserId =11;
+    private int currentUserId =12;
 
     private static MainLayout instance;
     public static MainLayout getInstance() {

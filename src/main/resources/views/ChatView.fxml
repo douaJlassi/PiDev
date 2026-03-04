@@ -7,11 +7,16 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.effect.DropShadow?>
 
+<?import javafx.scene.text.Text?>
+<?import java.net.URL?>
 <HBox prefHeight="800.0" prefWidth="1200.0"
       style="-fx-background-color: #EEF2F7;"
       xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="controllers.ChatView">
+    <stylesheets>
+        <URL value="@../styles/menu.css" />
+    </stylesheets>
     <children>
 
         <VBox prefWidth="300.0"
@@ -156,12 +161,20 @@
                                      -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 8, 0, 0, 2);
                                      -fx-padding: 0 12 0 20;">
                             <children>
-                                <StackPane prefWidth="42" prefHeight="42" minWidth="42" minHeight="42">
+                                <StackPane fx:id="headerAvatarPane" prefWidth="42" prefHeight="55" minWidth="42" minHeight="48" >
                                     <children>
-                                        <Circle radius="19" fill="#E3ECF7" />
+                                        <!-- Le cercle de fond (on change la couleur pour le Teal de ta liste) -->
+                                        <Circle fx:id="profileCircle" radius="21" fill="#10A5A5" />
+
+                                        <!-- Le texte des initiales (on ajoute un fx:id pour le remplir dynamiquement) -->
+                                        <Text fx:id="profileInitials" fill="WHITE" text="??">
+                                            <style>-fx-font-weight: bold; -fx-font-size: 14px;</style>
+                                        </Text>
+
+                                        <!-- Ton indicateur de statut (inchangé, juste ajusté en position) -->
                                         <Circle fx:id="circleStatus" fill="#2ecc71" radius="6.0"
                                                 stroke="WHITE" strokeType="INSIDE" strokeWidth="2.0"
-                                                translateX="12" translateY="12">
+                                                translateX="14" translateY="14">
                                             <effect><DropShadow color="#2ecc7166" radius="4.0" /></effect>
                                         </Circle>
                                     </children>
@@ -180,12 +193,14 @@
                                 <Pane HBox.hgrow="ALWAYS" />
 
                                 <!-- Menu options -->
-                                <MenuButton fx:id="btnOptions" mnemonicParsing="false"
+                                <MenuButton fx:id="btnOptions"
+                                            styleClass="btn-options"
+                                            mnemonicParsing="false"
                                             style="-fx-background-color: transparent;
-                                                   -fx-cursor: hand;
-                                                   -fx-background-radius: 8;" text="">
+                                            -fx-cursor: hand;
+                                            -fx-background-radius: 8;" text="">
                                     <graphic>
-                                        <Label text="⋮" style="-fx-font-size: 22; -fx-text-fill: #7f8c8d;" />
+                                        <Label text="⋮" style="-fx-font-size: 22; -fx-text-fill: rgba(255,255,255,0.7);" />
                                     </graphic>
                                     <items></items>
                                 </MenuButton>
@@ -254,7 +269,7 @@
                         </StackPane>
 
                         <!-- Zone de saisie -->
-                        <HBox fx:id="inputArea" alignment="CENTER" prefHeight="68.0" spacing="8.0"
+                        <HBox fx:id="inputArea" alignment="CENTER" prefHeight="75.0" spacing="8.0"
                               style="-fx-background-color: white;
                                      -fx-border-color: #E8EEF4;
                                      -fx-border-width: 1 0 0 0;

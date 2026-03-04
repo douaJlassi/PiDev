@@ -90,7 +90,7 @@ public class ChatView {
     private ServiceMessage serMsg = new ServiceMessage();
     private final ServiceUtilisateur serUser = new ServiceUtilisateur();
     private final ServiceParticipantConversation spc = new ServiceParticipantConversation();
-    private int currentUserId = 11;
+    private int currentUserId = 12;
     private Utilisateur userConnecte;
     private boolean isGroupMode = false;
     private Set<Utilisateur> selectedUsers = new HashSet<>();
@@ -98,7 +98,7 @@ public class ChatView {
     private Button btnConfirmGroup;
 
     private static final String UPLOAD_DIR = System.getProperty("user.dir") + "/uploads/";
-    private static final String UPLOAD_DIR_VOICE = System.getProperty("user.dir") + "/uploadVoice/";
+    private static final String UPLOAD_DIR_VOICE = System.getProperty("user.dir") + File.separator + "uploadVoice" + File.separator;
 
     @FXML
     private Button btnAddFile;
@@ -117,6 +117,7 @@ public class ChatView {
 
     @FXML
     private Button btnLocation;
+    @FXML private Text profileInitials;
 
     @FXML
     public void initialize() {
@@ -215,32 +216,64 @@ public class ChatView {
             e.printStackTrace();
         }
     }
-
+    @FXML private StackPane headerAvatarPane;
     private void afficherDiscussion(Conversation conv) {
         vboxMessages.getChildren().clear();
 
         try {
             String nomAafficher = serConv.getNomAffichage(conv, currentUserId);
             lblNomContact.setText(nomAafficher);
-            mettreAJourStatut(conv);
-            configurerMenuOptions(conv);
+            String initials = getInitials(nomAafficher);
+
+            headerAvatarPane.getChildren().clear();
 
             if (conv.getTypeConversation() == TypeConversation.GROUPE) {
+                Circle cBack = new Circle(15, Color.web("#bdc3c7"));
+                cBack.setStroke(Color.WHITE);
+                cBack.setStrokeWidth(2);
+
+                Circle cFront = new Circle(15, Color.web("#10A5A5"));
+                cFront.setStroke(Color.WHITE);
+                cFront.setStrokeWidth(2);
+
+                Text tGroup = new Text(initials.substring(0, 1).toUpperCase());
+                tGroup.setFill(Color.WHITE);
+                tGroup.setStyle("-fx-font-weight: bold; -fx-font-size: 11;");
+
+                StackPane frontGroup = new StackPane(cFront, tGroup);
+                headerAvatarPane.getChildren().addAll(cBack, frontGroup);
+
+                StackPane.setAlignment(cBack, Pos.TOP_RIGHT);
+                StackPane.setAlignment(frontGroup, Pos.BOTTOM_LEFT);
+
                 circleStatus.setVisible(false);
                 circleStatus.setManaged(false);
-                circleStatus.setOpacity(0);
             } else {
+                Circle circle = new Circle(21, Color.web("#10A5A5"));
+                Text txt = new Text(initials);
+                txt.setFill(Color.WHITE);
+                txt.setStyle("-fx-font-weight: bold; -fx-font-size: 14;");
+
+                headerAvatarPane.getChildren().addAll(circle, txt, circleStatus);
+
                 circleStatus.setVisible(true);
                 circleStatus.setManaged(true);
                 circleStatus.setOpacity(1);
+                circleStatus.setTranslateX(14);
+                circleStatus.setTranslateY(14);
             }
+
+            mettreAJourStatut(conv);
+            configurerMenuOptions(conv);
 
             List<Messages> messages = serMsg.selectByConversation(conv.getIdConversation());
             for (Messages m : messages) {
                 boolean isMoi = (m.getExpediteur().getIdUtilisateur() == currentUserId);
                 renderMessage(m, isMoi);
             }
+
             Platform.runLater(() -> scrollPaneMessages.setVvalue(1.0));
+
             boolean active = spc.isUserActiveInConversation(currentUserId, conv.getIdConversation());
             if (active) {
                 inputArea.setVisible(true);
@@ -253,7 +286,9 @@ public class ChatView {
                 paneQuitte.setVisible(true);
                 paneQuitte.setManaged(true);
             }
+
             handleCloseMedia();
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -277,13 +312,11 @@ public class ChatView {
     }
 
     private void prepareUserSelectionList() {
-        // 1. Gestion de la visibilité des panneaux
         chatArea.setVisible(false);
         chatArea.setManaged(false);
         paneDefault.setVisible(true);
         paneDefault.setManaged(true);
 
-        // On montre les outils de recherche
         userSearchField.setVisible(true);
         userSearchField.setManaged(true);
         listAllUsers.setVisible(true);
@@ -461,12 +494,12 @@ public class ChatView {
                 "-fx-border-radius: 10; " +
                 "-fx-background-radius: 10;");
         Platform.runLater(() -> {
-        Node headerPanel = dp.lookup(".header-panel");
-        if (headerPanel != null) {
-            headerPanel.setStyle("-fx-background-color: #0D3B66; -fx-background-radius: 10 10 0 0;");
-            Label headerLabel = (Label) dp.lookup(".header-panel > .label");
-            if (headerLabel != null) headerLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
-        }
+            Node headerPanel = dp.lookup(".header-panel");
+            if (headerPanel != null) {
+                headerPanel.setStyle("-fx-background-color: #0D3B66; -fx-background-radius: 10 10 0 0;");
+                Label headerLabel = (Label) dp.lookup(".header-panel > .label");
+                if (headerLabel != null) headerLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
+            }
         });
         Button okBtn = (Button) dp.lookupButton(ButtonType.OK);
         if (okBtn != null) {
@@ -543,24 +576,39 @@ public class ChatView {
         HBox lineContainer = new HBox(10);
         lineContainer.setPadding(new Insets(8, 15, 8, 15));
 
-        ImageView avatarView = new ImageView();
-        try {
-            Image img = new Image(getClass().getResourceAsStream("/images/default_user.png"));
-            avatarView.setImage(img);
-        } catch (Exception e) { System.err.println("Avatar introuvable"); }
-        avatarView.setFitHeight(35);
-        avatarView.setFitWidth(35);
-        avatarView.setClip(new Circle(17.5, 17.5, 17.5));
+        StackPane avatarContainer = new StackPane();
+        avatarContainer.setPrefSize(35, 35);
+        avatarContainer.setMaxSize(35, 35);
+
+        String senderName = msg.getExpediteur().getPrenom() + " " + msg.getExpediteur().getNom();
+        String initials = getInitials(senderName);
+
+        Circle circle = new Circle(17.5, Color.web("#10A5A5"));
+        Text txt = new Text(initials);
+        txt.setFill(Color.WHITE);
+        txt.setStyle("-fx-font-weight: bold; -fx-font-size: 11;");
+        avatarContainer.getChildren().addAll(circle, txt);
 
         if (msg.isDeleted()) {
-            VBox bubbleDeleted = new VBox(new Label("🚫 Ce message a été supprimé"));
-            bubbleDeleted.setPadding(new Insets(10));
-            bubbleDeleted.setStyle("-fx-background-color: rgba(255, 255, 255, 0.4); -fx-background-radius: 12; -fx-border-color: #bdc3c7; -fx-border-style: dashed; -fx-border-radius: 12;");
-            ((Label)bubbleDeleted.getChildren().get(0)).setStyle("-fx-text-fill: #95a5a6; -fx-font-style: italic; -fx-font-size: 12px;");
+            HBox bubbleDeleted = new HBox(8);
+            bubbleDeleted.setPadding(new Insets(10, 14, 10, 14));
+            bubbleDeleted.setAlignment(Pos.CENTER_LEFT);
+            bubbleDeleted.setStyle(
+                    "-fx-background-color: rgba(255,255,255,0.25); " +
+                            "-fx-background-radius: 12; " +
+                            "-fx-border-color: rgba(150,150,150,0.3); " +
+                            "-fx-border-style: dashed; " +
+                            "-fx-border-radius: 12;"
+            );
+            Label icon = new Label("🚫");
+            icon.setStyle("-fx-font-size: 13;");
+            Label lbl = new Label("Ce message a été supprimé");
+            lbl.setStyle("-fx-text-fill: #95a5a6; -fx-font-style: italic; -fx-font-size: 12px;");
+            bubbleDeleted.getChildren().addAll(icon, lbl);
 
             StackPane stack = new StackPane(bubbleDeleted);
             lineContainer.setAlignment(isMoi ? Pos.CENTER_RIGHT : Pos.CENTER_LEFT);
-            lineContainer.getChildren().addAll(isMoi ? stack : avatarView, isMoi ? avatarView : stack);
+            lineContainer.getChildren().addAll(isMoi ? stack : avatarContainer, isMoi ? avatarContainer : stack);
             vboxMessages.getChildren().add(lineContainer);
             return;
         }
@@ -571,23 +619,55 @@ public class ChatView {
             try {
                 File file = new File(UPLOAD_DIR + msg.getUrlFichier());
                 ImageView imgView = new ImageView(new Image(file.toURI().toString()));
-                imgView.setFitWidth(250); imgView.setPreserveRatio(true);
+                imgView.setFitWidth(240);
+                imgView.setPreserveRatio(true);
                 imgView.setCursor(Cursor.HAND);
+
+                Rectangle clip = new Rectangle(240, 160);
+                clip.setArcWidth(14); clip.setArcHeight(14);
+                imgView.setClip(clip);
+
+                imgView.setStyle("-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 8, 0, 0, 2);");
                 imgView.setOnMouseClicked(e -> { try { java.awt.Desktop.getDesktop().open(file); } catch (Exception ex) {} });
                 visualContent = imgView;
             } catch (Exception e) { visualContent = new Label("[Image introuvable]"); }
         }
+
         else if (msg.getTypeMessage() == TypeMessage.FICHIER && msg.getUrlFichier() != null) {
-            HBox fileBox = new HBox(10);
+            HBox fileBox = new HBox(12);
             fileBox.setAlignment(Pos.CENTER_LEFT);
-            fileBox.setPadding(new Insets(8));
+            fileBox.setPadding(new Insets(10, 14, 10, 14));
             fileBox.setCursor(Cursor.HAND);
-            Label icon = new Label("📄"); icon.setStyle("-fx-font-size: 18;");
-            Label fileName = new Label(msg.getContenu()); fileName.setUnderline(true);
-            fileBox.getChildren().addAll(icon, fileName);
+            fileBox.setStyle(
+                    "-fx-background-color: " + (isMoi ? "rgba(255,255,255,0.12)" : "rgba(16,165,165,0.08)") + "; " +
+                            "-fx-background-radius: 10;"
+            );
+
+            StackPane iconCircle = new StackPane();
+            iconCircle.setPrefSize(38, 38);
+            iconCircle.setStyle(
+                    "-fx-background-color: " + (isMoi ? "rgba(255,255,255,0.2)" : "#E0F7FA") + "; " +
+                            "-fx-background-radius: 50;"
+            );
+            Label icon = new Label("📄");
+            icon.setStyle("-fx-font-size: 18;");
+            iconCircle.getChildren().add(icon);
+
+            VBox fileInfo = new VBox(2);
+            Label fileName = new Label(msg.getContenu());
+            fileName.setStyle(
+                    "-fx-font-size: 13px; -fx-font-weight: bold; " +
+                            "-fx-text-fill: " + (isMoi ? "white" : "#2c3e50") + ";"
+            );
+            Label fileLabel = new Label("Appuyer pour ouvrir");
+            fileLabel.setStyle("-fx-font-size: 10px; -fx-text-fill: " + (isMoi ? "rgba(255,255,255,0.6)" : "#7f8c8d") + ";");
+            fileInfo.getChildren().addAll(fileName, fileLabel);
+
+            fileBox.getChildren().addAll(iconCircle, fileInfo);
             fileBox.setOnMouseClicked(e -> { try { java.awt.Desktop.getDesktop().open(new File(UPLOAD_DIR + msg.getUrlFichier())); } catch (Exception ex) {} });
             visualContent = fileBox;
         }
+
         else if (msg.getTypeMessage() == TypeMessage.LOCATION && msg.getUrlFichier() != null) {
             String[] parts = msg.getUrlFichier().split("\\|");
             String coords = parts[0];
@@ -604,58 +684,99 @@ public class ChatView {
                         ImageView mapView = new ImageView(new Image(imgFile.toURI().toString()));
                         mapView.setFitWidth(250);
                         mapView.setPreserveRatio(true);
-
                         Rectangle clip = new Rectangle();
-                        clip.setWidth(250);
-                        clip.setHeight(150);
-                        clip.setArcHeight(20);
-                        clip.setArcWidth(20);
+                        clip.setWidth(250); clip.setHeight(150);
+                        clip.setArcHeight(20); clip.setArcWidth(20);
                         mapView.setClip(clip);
-
                         locContainer.getChildren().add(mapView);
                     }
-                } catch (Exception e) {
-                    System.err.println("Erreur chargement image carte : " + e.getMessage());
-                }
+                } catch (Exception e) { System.err.println("Erreur chargement image carte : " + e.getMessage()); }
             }
 
             Label lblLink = new Label("📍 Voir l'emplacement sur Maps");
             lblLink.setUnderline(true);
             lblLink.setFont(Font.font("System", FontWeight.BOLD, 12));
-
-            if (isMoi) {
-                lblLink.setStyle("-fx-text-fill: white;");
-            } else {
-                lblLink.setStyle("-fx-text-fill: #0D3B66;");
-            }
-
+            lblLink.setStyle("-fx-text-fill: " + (isMoi ? "white" : "#0D3B66") + ";");
             locContainer.getChildren().add(lblLink);
 
             locContainer.setOnMouseClicked(e -> {
                 try {
                     String url = "https://www.google.com/maps/search/?api=1&query=" + coords;
                     java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
+                } catch (Exception ex) { ex.printStackTrace(); }
             });
 
             visualContent = locContainer;
         }
+
         else if (msg.getTypeMessage() == TypeMessage.AUDIO && msg.getUrlFichier() != null) {
-            HBox audioBox = new HBox(10);
+            HBox audioBox = new HBox(12);
             audioBox.setAlignment(Pos.CENTER_LEFT);
-            audioBox.setPadding(new Insets(5, 10, 5, 10));
+            audioBox.setPadding(new Insets(10, 16, 10, 12));
 
             Button btnPlay = new Button("▶");
-            btnPlay.setStyle("-fx-background-color: #10A5A5; -fx-text-fill: white; -fx-background-radius: 50; -fx-cursor: hand;");
+            btnPlay.setPrefSize(38, 38);
+            btnPlay.setStyle(
+                    "-fx-background-color: " + (isMoi ? "rgba(255,255,255,0.25)" : "#10A5A5") + "; " +
+                            "-fx-text-fill: white; " +
+                            "-fx-background-radius: 50; " +
+                            "-fx-font-size: 13px; " +
+                            "-fx-cursor: hand;"
+            );
+
+            HBox waveBox = new HBox(3);
+            waveBox.setAlignment(Pos.CENTER);
+            int[] heights = {8, 14, 20, 16, 10, 18, 12, 22, 14, 9, 17, 13};
+            List<Rectangle> bars = new java.util.ArrayList<>();
+
+            for (int h : heights) {
+                Rectangle bar = new Rectangle(3, h);
+                bar.setArcWidth(3); bar.setArcHeight(3);
+                bar.setFill(Color.web(isMoi ? "rgba(255,255,255,0.7)" : "#10A5A5"));
+                bars.add(bar);
+                waveBox.getChildren().add(bar);
+            }
+
+            audioBox.setOnMouseEntered(ev -> {
+                for (int i = 0; i < bars.size(); i++) {
+                    Rectangle bar = bars.get(i);
+                    javafx.animation.ScaleTransition st = new javafx.animation.ScaleTransition(
+                            javafx.util.Duration.millis(300 + i * 40), bar
+                    );
+                    st.setFromY(1.0); st.setToY(1.5);
+                    st.setCycleCount(javafx.animation.Animation.INDEFINITE);
+                    st.setAutoReverse(true);
+                    st.play();
+                    bar.setUserData(st);
+                }
+            });
+
+            audioBox.setOnMouseExited(ev -> {
+                for (Rectangle bar : bars) {
+                    if (bar.getUserData() instanceof javafx.animation.ScaleTransition) {
+                        ((javafx.animation.ScaleTransition) bar.getUserData()).stop();
+                        bar.setScaleY(1.0);
+                    }
+                }
+            });
 
             Label lblAudio = new Label("Message vocal");
-            lblAudio.setFont(new Font("System", 13));
+            lblAudio.setStyle(
+                    "-fx-font-size: 11px; " +
+                            "-fx-text-fill: " + (isMoi ? "rgba(255,255,255,0.6)" : "#7f8c8d") + ";"
+            );
+
+            VBox waveAndLabel = new VBox(4, waveBox, lblAudio);
+            waveAndLabel.setAlignment(Pos.CENTER_LEFT);
 
             btnPlay.setOnAction(e -> {
                 try {
-                    File file = new File(UPLOAD_DIR_VOICE + msg.getUrlFichier());
+                    File file = new File(UPLOAD_DIR_VOICE, msg.getUrlFichier().trim());
+                    if (!file.exists()) {
+                        System.err.println("❌ Fichier AUDIO introuvable !");
+                        System.err.println("Chemin tenté : " + file.getAbsolutePath());
+                        return;
+                    }
                     javafx.scene.media.Media hit = new javafx.scene.media.Media(file.toURI().toString());
                     javafx.scene.media.MediaPlayer mediaPlayer = new javafx.scene.media.MediaPlayer(hit);
                     if (btnPlay.getText().equals("▶")) {
@@ -667,12 +788,14 @@ public class ChatView {
                 } catch (Exception ex) { System.err.println("Erreur lecture audio"); }
             });
 
-            audioBox.getChildren().addAll(btnPlay, lblAudio);
+            audioBox.getChildren().addAll(btnPlay, waveAndLabel);
             visualContent = audioBox;
         }
+
         else {
             Label lblContent = new Label(msg.getContenu());
-            lblContent.setWrapText(true); lblContent.setFont(new Font("System", 14));
+            lblContent.setWrapText(true);
+            lblContent.setFont(new Font("System", 14));
             visualContent = lblContent;
         }
 
@@ -713,34 +836,57 @@ public class ChatView {
         if (isMoi) {
             lineContainer.setAlignment(Pos.CENTER_RIGHT);
             lblSenderName.setStyle("-fx-text-fill: #8ECAE6;");
-            bubble.setStyle("-fx-background-color: #0D3B66; -fx-background-radius: 15 15 0 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 1);");
+            bubble.setStyle(
+                    "-fx-background-color: linear-gradient(to bottom right, #0D3B66, #0a2f55); " +
+                            "-fx-background-radius: 18 18 4 18; " +
+                            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 8, 0, 0, 3);"
+            );
 
             if (visualContent instanceof Label) ((Label) visualContent).setStyle("-fx-text-fill: white;");
             if (visualContent instanceof HBox) {
                 ((HBox) visualContent).lookupAll(".label").forEach(n -> n.setStyle("-fx-text-fill: white;"));
             }
 
-            lblTime.setStyle("-fx-text-fill: #bdc3c7;");
-            menuIcon.setStyle("-fx-text-fill: white;");
+            lblTime.setStyle("-fx-text-fill: rgba(255,255,255,0.5);");
+            menuIcon.setStyle("-fx-text-fill: rgba(255,255,255,0.8);");
+
             Label lblStatus = new Label(msg.isLu() ? "✓✓" : "✓");
-            lblStatus.setStyle(msg.isLu() ? "-fx-text-fill: #10A5A5; -fx-font-weight: bold;" : "-fx-text-fill: #bdc3c7;");
+            lblStatus.setStyle(msg.isLu()
+                    ? "-fx-text-fill: #10A5A5; -fx-font-weight: bold;"
+                    : "-fx-text-fill: rgba(255,255,255,0.4);"
+            );
             footerPart.getChildren().add(lblStatus);
-            lineContainer.getChildren().addAll(bubbleStack, avatarView);
-        } else {
+            lineContainer.getChildren().addAll(bubbleStack, avatarContainer);
+        }
+
+        else {
             lineContainer.setAlignment(Pos.CENTER_LEFT);
             lblSenderName.setStyle("-fx-text-fill: #10A5A5;");
-            bubble.setStyle("-fx-background-color: white; -fx-background-radius: 15 15 15 0; -fx-border-color: #E0E0E0; -fx-border-width: 0.5; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);");
+            bubble.setStyle(
+                    "-fx-background-color: white; " +
+                            "-fx-background-radius: 4 18 18 18; " +
+                            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 2);"
+            );
+
             if (visualContent instanceof Label) ((Label) visualContent).setStyle("-fx-text-fill: #2c3e50;");
             lblTime.setStyle("-fx-text-fill: #7f8c8d;");
             msgMenu.setVisible(false);
 
             Button btnReact = new Button();
-            Label emojiIcon = new Label("☺"); emojiIcon.setStyle("-fx-font-family: 'Segoe UI Emoji'; -fx-font-size: 20; -fx-text-fill: #7f8c8d;");
+            Label emojiIcon = new Label("☺");
+            emojiIcon.setStyle("-fx-font-family: 'Segoe UI Emoji'; -fx-font-size: 20; -fx-text-fill: #7f8c8d;");
             btnReact.setGraphic(emojiIcon);
-            btnReact.setStyle("-fx-background-color: white; -fx-background-radius: 50; -fx-border-color: #eee; -fx-border-radius: 50; -fx-cursor: hand; -fx-padding: 5;");
+            btnReact.setStyle(
+                    "-fx-background-color: white; " +
+                            "-fx-background-radius: 50; " +
+                            "-fx-border-color: #eee; " +
+                            "-fx-border-radius: 50; " +
+                            "-fx-cursor: hand; " +
+                            "-fx-padding: 5;"
+            );
             btnReact.setOnAction(e -> showReactionMenu(btnReact, msg, bubbleStack));
 
-            lineContainer.getChildren().addAll(avatarView, bubbleStack, btnReact);
+            lineContainer.getChildren().addAll(avatarContainer, bubbleStack, btnReact);
         }
 
         if (msg.getReaction() != null && !msg.getReaction().isEmpty()) {
@@ -869,35 +1015,49 @@ public class ChatView {
                     cellRoot.setPadding(new Insets(10, 15, 10, 15));
                     cellRoot.setStyle("-fx-border-color: #f1f2f6; -fx-border-width: 0 0 1 0; -fx-cursor: hand;");
 
-                    // --- 1. LOGIQUE DE L'AVATAR (Reste identique) ---
                     StackPane avatarContainer = new StackPane();
                     avatarContainer.setPrefSize(45, 45);
+                    avatarContainer.setMaxSize(45, 45);
+
                     String displayName = serConv.getNomAffichage(conv, currentUserId);
                     String initials = getInitials(displayName);
+
                     if (conv.getTypeConversation() == TypeConversation.GROUPE) {
-                        Circle c1 = new Circle(14, Color.web("#bdc3c7"));
-                        c1.setStroke(Color.WHITE); c1.setStrokeWidth(2);
-                        Circle c2 = new Circle(14, Color.web("#10A5A5"));
-                        c2.setStroke(Color.WHITE); c2.setStrokeWidth(2);
-                        StackPane.setAlignment(c1, Pos.TOP_RIGHT);
-                        StackPane.setAlignment(c2, Pos.BOTTOM_LEFT);
-                        Text t1 = new Text(initials.substring(0, 1).toUpperCase());
-                        t1.setFill(Color.WHITE); t1.setStyle("-fx-font-weight: bold; -fx-font-size: 10;");
-                        avatarContainer.getChildren().addAll(c1, c2, t1);
+                        Circle cBack = new Circle(15, Color.web("#bdc3c7"));
+                        cBack.setStroke(Color.WHITE);
+                        cBack.setStrokeWidth(2);
+
+                        Circle cFront = new Circle(15, Color.web("#10A5A5"));
+                        cFront.setStroke(Color.WHITE);
+                        cFront.setStrokeWidth(2);
+
+                        Text tGroup = new Text(initials.substring(0, 1).toUpperCase());
+                        tGroup.setFill(Color.WHITE);
+                        tGroup.setStyle("-fx-font-weight: bold; -fx-font-size: 11;");
+
+                        StackPane frontGroup = new StackPane(cFront, tGroup);
+
+                        avatarContainer.getChildren().addAll(cBack, frontGroup);
+
+                        StackPane.setAlignment(cBack, Pos.TOP_RIGHT);
+                        StackPane.setMargin(cBack, new Insets(2, 2, 0, 0));
+                        StackPane.setAlignment(frontGroup, Pos.BOTTOM_LEFT);
+                        StackPane.setMargin(frontGroup, new Insets(0, 0, 2, 2));
+
                     } else {
                         Circle circle = new Circle(20, Color.web("#10A5A5"));
                         Text txt = new Text(initials);
-                        txt.setFill(Color.WHITE); txt.setStyle("-fx-font-weight: bold; -fx-font-size: 12;");
+                        txt.setFill(Color.WHITE);
+                        txt.setStyle("-fx-font-weight: bold; -fx-font-size: 13;");
                         avatarContainer.getChildren().addAll(circle, txt);
                     }
-
-                    // --- 2. CONTENEUR DE TEXTE ---
                     VBox textContainer = new VBox(3);
                     HBox.setHgrow(textContainer, Priority.ALWAYS);
+
                     HBox topRow = new HBox();
                     topRow.setAlignment(Pos.CENTER_LEFT);
 
-                    Label lblName = new Label(serConv.getNomAffichage(conv, currentUserId));
+                    Label lblName = new Label(displayName);
                     lblName.setStyle("-fx-text-fill: #0D3B66; -fx-font-size: 14px; -fx-font-weight: bold;");
 
                     Region spacer = new Region();
@@ -910,8 +1070,6 @@ public class ChatView {
                     Label lblLastMsg = new Label();
                     lblLastMsg.setEllipsisString("...");
                     lblLastMsg.setMaxWidth(180);
-
-                    // --- 3. LOGIQUE DE REMPLISSAGE (Mise à jour ici) ---
                     try {
                         Messages last = serMsg.selectLastMessage(conv.getIdConversation());
 
@@ -928,11 +1086,10 @@ public class ChatView {
                         } else {
                             lblLastMsg.setText("Aucun message...");
                             lblLastMsg.setStyle("-fx-text-fill: #10A5A5; -fx-font-style: italic; -fx-font-size: 12px;");
-
                             lblTime.setText(conv.getDateCreation().format(DateTimeFormatter.ofPattern("dd/MM")));
                         }
                     } catch (SQLException e) {
-                        lblLastMsg.setText("Erreur chargement...");
+                        lblLastMsg.setText("Erreur...");
                     }
 
                     textContainer.getChildren().addAll(topRow, lblLastMsg);
@@ -1006,36 +1163,48 @@ public class ChatView {
     private void configurerMenuOptions(Conversation conv) {
         btnOptions.getItems().clear();
 
-        MenuItem itemSupprimer = new MenuItem(" Supprimer la discussion");
-        itemSupprimer.setGraphic(new Label("🗑️"));
-        itemSupprimer.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
-        itemSupprimer.setOnAction(e -> handleSupprimerConversation(conv));
-        MenuItem itemMedia = new MenuItem(" 📎 Voir les fichiers");
+        MenuItem itemMedia = creerMenuItem("📎  Voir les fichiers", null);
         itemMedia.setOnAction(e -> handleShowMedia());
+
+        MenuItem itemSupprimer = creerMenuItem("🗑   Supprimer la discussion", "menu-item-danger");
+        itemSupprimer.setOnAction(e -> handleSupprimerConversation(conv));
+
         btnOptions.getItems().add(itemMedia);
 
         if (conv.getTypeConversation() == TypeConversation.GROUPE) {
-            MenuItem itemModifier = new MenuItem(" Modifier le nom");
-            itemModifier.setGraphic(new Label("✏️"));
+
+            MenuItem itemModifier = creerMenuItem("✏️  Modifier le nom", null);
             itemModifier.setOnAction(e -> handleModifierNomGroupe(conv));
 
-            MenuItem itemVoirMembres = new MenuItem(" Voir les membres");
-            itemVoirMembres.setGraphic(new Label("👥"));
+            MenuItem itemVoirMembres = creerMenuItem("👥  Voir les membres", null);
             itemVoirMembres.setOnAction(e -> handleVoirMembres(conv));
 
-            MenuItem itemAjouter = new MenuItem(" Ajouter un membre");
-            itemAjouter.setGraphic(new Label("👤+"));
+            MenuItem itemAjouter = creerMenuItem("👤  Ajouter un membre", null);
             itemAjouter.setOnAction(e -> handleAjouterMembre(conv));
 
-            MenuItem itemQuitter = new MenuItem(" Quitter le groupe");
-            itemQuitter.setGraphic(new Label("🚪"));
-            itemQuitter.setStyle("-fx-text-fill: #f39c12;");
+            MenuItem itemQuitter = creerMenuItem("🚪  Quitter le groupe", "menu-item-warning");
             itemQuitter.setOnAction(e -> handleQuitterGroupe(conv));
 
-            btnOptions.getItems().addAll(itemModifier, itemVoirMembres, itemAjouter, itemQuitter, new SeparatorMenuItem(), itemSupprimer);
+            btnOptions.getItems().addAll(
+                    itemModifier,
+                    itemVoirMembres,
+                    itemAjouter,
+                    new SeparatorMenuItem(),
+                    itemQuitter,
+                    new SeparatorMenuItem(),
+                    itemSupprimer
+            );
         } else {
-            btnOptions.getItems().addAll(itemSupprimer);
+            btnOptions.getItems().add(itemSupprimer);
         }
+    }
+
+    private MenuItem creerMenuItem(String texte, String styleClass) {
+        MenuItem item = new MenuItem(texte);
+        if (styleClass != null) {
+            item.getStyleClass().add(styleClass);
+        }
+        return item;
     }
 
     private void handleModifierNomGroupe(Conversation conv) {
@@ -1497,11 +1666,9 @@ public class ChatView {
 
     @FXML
     private void startRecording() {
-        // 1. On prépare le fichier dans 'uploads'
         String fileName = "voice_" + System.currentTimeMillis() + ".wav";
-        currentAudioFile = new File(UPLOAD_DIR + fileName);
+        currentAudioFile = new File(UPLOAD_DIR_VOICE + fileName);
 
-        // 2. On change le style du bouton pour montrer que ça enregistre
         btnMic.setStyle("-fx-background-color: #c0392b; -fx-background-radius: 50; -fx-scale-x: 1.2; -fx-scale-y: 1.2;");
 
         recorder.start(currentAudioFile);
@@ -1509,35 +1676,45 @@ public class ChatView {
 
     @FXML
     private void stopRecording() {
+        // 1. Arrêter le micro physiquement
         recorder.stop();
-
         btnMic.setStyle("-fx-background-color: #0077B6; -fx-background-radius: 50;");
 
+        // 2. Récupérer la conversation actuelle
+        Conversation currentConv = listConversations.getSelectionModel().getSelectedItem();
+        if (currentConv == null) return;
+
+        // 3. CRÉATION IMMÉDIATE DE L'OBJET (en mémoire)
+        Messages m = new Messages();
+        m.setContenu("🎤 Message Vocal");
+        m.setTypeMessage(TypeMessage.AUDIO);
+        m.setUrlFichier(currentAudioFile.getName());
+        m.setDateEnvoi(LocalDateTime.now());
+        m.setConversation(currentConv);
+        m.setExpediteur(userConnecte);
+
+        // 4. AFFICHAGE INSTANTANÉ (On n'attend pas la DB !)
+        renderMessage(m, true);
+        Platform.runLater(() -> scrollPaneMessages.setVvalue(1.0));
+
+        // 5. SAUVEGARDE EN ARRIÈRE-PLAN (Thread séparé)
         new Thread(() -> {
             try {
-                Thread.sleep(500);
+                // Petit délai de sécurité (200ms suffisent) pour que le fichier .wav soit fini d'écrire
+                Thread.sleep(200);
 
+                // Insertion en base de données
+                serMsg.insertOne(m);
+
+                // Mise à jour de la liste de gauche (le dernier message) sans clignotement
                 Platform.runLater(() -> {
-                    try {
-                        Messages m = new Messages();
-                        m.setContenu("🎤 Message Vocal");
-                        m.setTypeMessage(TypeMessage.AUDIO);
-                        m.setUrlFichier(currentAudioFile.getName());
-                        m.setDateEnvoi(LocalDateTime.now());
-                        m.setConversation(listConversations.getSelectionModel().getSelectedItem());
-                        m.setExpediteur(userConnecte);
-
-                        serMsg.insertOne(m);
-
-                        loadConversations();
-                        listConversations.getSelectionModel().select(m.getConversation());
-
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
+                    loadConversations();
+                    listConversations.getSelectionModel().select(currentConv);
+                    listConversations.refresh();
                 });
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+
+            } catch (Exception e) {
+                System.err.println("Erreur lors de la sauvegarde du vocal : " + e.getMessage());
             }
         }).start();
     }
@@ -1561,7 +1738,6 @@ public class ChatView {
             Object lon = engine.executeScript("window.selectedLon");
 
             if (lat != null && !lat.toString().equals("null")) {
-                // Snapshot pour la bulle (Style WhatsApp)
                 WritableImage snapshot = webView.snapshot(new SnapshotParameters(), null);
                 String imgName = "map_" + System.currentTimeMillis() + ".png";
                 try {
@@ -1604,4 +1780,5 @@ public class ChatView {
             loadConversations();
         } catch (SQLException e) { e.printStackTrace(); }
     }
+
 }
