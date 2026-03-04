@@ -7,6 +7,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import services.PublicationService;
+import javafx.scene.layout.FlowPane;
 
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -27,7 +28,7 @@ public class AgencyDashboardController {
     // ── FXML ─────────────────────────────────────────────────────────────────
     @FXML private Label        agencyNameLabel;
     @FXML private Button       themeToggleBtn;
-    @FXML private VBox         submissionList;
+    @FXML private FlowPane submissionList;  // was VBox
     @FXML private Label        pendingCount;
     @FXML private Label        approvedCount;
     @FXML private Label        rejectedCount;
@@ -125,64 +126,114 @@ public class AgencyDashboardController {
     // ── Submission card ───────────────────────────────────────────────────────
     private VBox buildCard(Publication pub) {
         VBox card = new VBox(12);
+        card.setPrefWidth(320);
+        card.setMaxWidth(320);
+        card.setPrefHeight(280);
         card.getStyleClass().add("agency-submission-card");
+        if (pub.isPending())       card.getStyleClass().add("card-pending");
+        else if (pub.isApproved()) card.getStyleClass().add("card-approved");
+        else                       card.getStyleClass().add("card-rejected");
 
-        // Header: avatar + author info + status badge
-        HBox header = new HBox(12);
-        header.setAlignment(Pos.CENTER_LEFT);
+        // ── Status badge top-right ────────────────────────────────────────────
+        HBox topRow = new HBox();
+        topRow.setAlignment(Pos.CENTER_RIGHT);
+        topRow.getChildren().add(statusBadge(pub.getStatus()));
 
-        Region avatar = new Region();
-        avatar.getStyleClass().add("avatar");
-        avatar.setPrefSize(36, 36); avatar.setMinSize(36, 36); avatar.setMaxSize(36, 36);
+        // ── Author row — real avatar ──────────────────────────────────────────
+        HBox authorRow = new HBox(10);
+        authorRow.setAlignment(Pos.CENTER_LEFT);
 
+        // Avatar: try to load image, fall back to teal circle with initial
+        StackPane avatarStack = new StackPane();
+        avatarStack.setPrefSize(36, 36);
+        avatarStack.setMinSize(36, 36);
+        avatarStack.setMaxSize(36, 36);
+
+        // Base circle (always shown as background)
+        javafx.scene.shape.Circle avatarCircle = new javafx.scene.shape.Circle(18);
+        avatarCircle.getStyleClass().add("avatar");
+
+        String avatarPath = pub.getClient().getAvatarPath();
+        boolean avatarLoaded = false;
+
+        if (avatarPath != null && !avatarPath.isBlank()) {
+            try {
+                javafx.scene.image.Image img;
+                if (avatarPath.startsWith("http")) {
+                    img = new javafx.scene.image.Image(avatarPath, 36, 36, true, true, true);
+                } else {
+                    java.io.File f = new java.io.File(avatarPath);
+                    if (f.exists()) {
+                        img = new javafx.scene.image.Image(f.toURI().toString(), 36, 36, true, true);
+                    } else {
+                        img = null;
+                    }
+                }
+                if (img != null && !img.isError()) {
+                    javafx.scene.image.ImageView iv = new javafx.scene.image.ImageView(img);
+                    iv.setFitWidth(36); iv.setFitHeight(36);
+                    iv.setPreserveRatio(true);
+                    // Clip to circle
+                    javafx.scene.shape.Circle clip = new javafx.scene.shape.Circle(18, 18, 18);
+                    iv.setClip(clip);
+                    avatarStack.getChildren().addAll(avatarCircle, iv);
+                    avatarLoaded = true;
+                }
+            } catch (Exception ignored) {}
+        }
+
+        if (!avatarLoaded) {
+            // Fallback: circle + first letter of username
+            String uname = pub.getClient().getUsername();
+            String initial = (uname != null && !uname.isEmpty())
+                    ? String.valueOf(uname.charAt(0)).toUpperCase() : "?";
+            Label initLabel = new Label(initial);
+            initLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15px;");
+            avatarStack.getChildren().addAll(avatarCircle, initLabel);
+        }
+
+        // Author name + date
         VBox info = new VBox(2);
         String uname = pub.getClient().getUsername() != null
                 ? pub.getClient().getUsername()
                 : "Traveler #" + pub.getClient().getClientID();
         Label name = new Label(uname);
-        name.setStyle("-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #e8eaf0;");
+        name.getStyleClass().add("card-author-name");
         Label date = new Label(DATE_FMT.format(pub.getDatePublication()));
-        date.setStyle("-fx-font-size: 11px; -fx-text-fill: #8b90a7;");
+        date.getStyleClass().add("card-author-date");
         info.getChildren().addAll(name, date);
 
-        Region spacer = new Region(); HBox.setHgrow(spacer, Priority.ALWAYS);
-        header.getChildren().addAll(avatar, info, spacer, statusBadge(pub.getStatus()));
+        authorRow.getChildren().addAll(avatarStack, info);
 
-        // Content
+        // ── Content ───────────────────────────────────────────────────────────
         Label content = new Label(pub.getContent());
         content.setWrapText(true);
-        content.setStyle("-fx-font-size: 14px; -fx-text-fill: #c8cad8; -fx-line-spacing: 2;");
+        content.setPrefHeight(110);
+        content.setMaxHeight(110);
+        content.getStyleClass().add("card-content-text");
+        VBox.setVgrow(content, Priority.ALWAYS);
 
-        card.getChildren().addAll(header, content);
+        card.getChildren().addAll(topRow, authorRow, content);
 
-        // Place tag
+        // ── Place tag ─────────────────────────────────────────────────────────
         if (pub.hasPlace()) {
             Label place = new Label("📍 " + pub.getPlace());
             place.getStyleClass().add("post-place-tag");
             card.getChildren().add(place);
         }
 
-        // Approve / Reject buttons — only for PENDING posts
+        // ── Approve / Reject — pending only ───────────────────────────────────
         if (pub.isPending()) {
-            HBox actions = new HBox(10);
+            HBox actions = new HBox(8);
             actions.setAlignment(Pos.CENTER_RIGHT);
             actions.setPadding(new javafx.geometry.Insets(4, 0, 0, 0));
 
             Button reject = new Button("Reject");
-            reject.setStyle(
-                    "-fx-background-color: transparent; -fx-text-fill: #e74c3c; " +
-                            "-fx-border-color: rgba(231,76,60,0.5); -fx-border-radius: 6; -fx-border-width: 1; " +
-                            "-fx-padding: 7 20; -fx-background-radius: 6; -fx-cursor: hand; -fx-font-weight: 600;");
-            reject.setOnMouseEntered(e -> reject.setStyle(reject.getStyle() + "-fx-background-color: rgba(231,76,60,0.08);"));
-            reject.setOnMouseExited(e -> reject.setStyle(reject.getStyle().replace("-fx-background-color: rgba(231,76,60,0.08);", "")));
+            reject.getStyleClass().add("danger-btn");
             reject.setOnAction(e -> moderate(pub, Publication.Status.REJECTED, card));
 
             Button approve = new Button("Approve");
-            approve.setStyle(
-                    "-fx-background-color: #17B3A6; -fx-text-fill: white; " +
-                            "-fx-padding: 7 20; -fx-background-radius: 6; -fx-cursor: hand; -fx-font-weight: 600;");
-            approve.setOnMouseEntered(e -> approve.setStyle(approve.getStyle() + "-fx-background-color: #0D8F85;"));
-            approve.setOnMouseExited(e -> approve.setStyle(approve.getStyle().replace("-fx-background-color: #0D8F85;", "")));
+            approve.getStyleClass().add("primary-btn");
             approve.setOnAction(e -> moderate(pub, Publication.Status.APPROVED, card));
 
             actions.getChildren().addAll(reject, approve);
@@ -230,7 +281,7 @@ public class AgencyDashboardController {
     // ── Helpers ───────────────────────────────────────────────────────────────
     private Label placeholder(String text) {
         Label l = new Label(text);
-        l.setStyle("-fx-text-fill: #8b90a7; -fx-font-size: 14px; -fx-padding: 32 0;");
+        l.getStyleClass().add("agency-placeholder");
         return l;
     }
 

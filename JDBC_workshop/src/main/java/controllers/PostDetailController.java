@@ -3,13 +3,11 @@ package controllers;
 import entities.Publication;
 import entities.WeatherData;
 import javafx.animation.FadeTransition;
+import javafx.animation.ScaleTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -130,21 +128,41 @@ public class PostDetailController {
         // Content
         postContentLabel.setText(publication.getContent());
 
-        // Image
+// Image — wait for layout then bind width
+// Image
         if (publication.hasImage()) {
             File img = new File(publication.getImagePath());
             if (img.exists()) {
                 postImage.setImage(new Image(img.toURI().toString()));
                 imageContainer.setVisible(true);
                 imageContainer.setManaged(true);
+
+                javafx.application.Platform.runLater(() -> {
+                    javafx.application.Platform.runLater(() -> {
+                        double w = imageContainer.getWidth();
+                        if (w > 0) {
+                            setupImage(w);
+                        } else {
+                            imageContainer.widthProperty().addListener(new javafx.beans.value.ChangeListener<Number>() {
+                                @Override
+                                public void changed(javafx.beans.value.ObservableValue<? extends Number> obs,
+                                                    Number oldW, Number newW) {
+                                    if (newW.doubleValue() > 0) {
+                                        setupImage(newW.doubleValue());
+                                        imageContainer.widthProperty().removeListener(this);
+                                    }
+                                }
+                            });
+                        }
+                    });
+                });
             }
         }
 
-        // Stats — query real counts from DB (publication.getLikes() is not populated from feed)
+        // Stats — always query DB for accurate counts
         int likesCount    = dashboard.getLikeController().getLikeCount(publication.getPublicationID());
         int commentsCount = dashboard.getCommentController().getCommentCount(publication.getPublicationID());
 
-        // Always show both stat labels so the bar is never empty
         likesStatLabel.setText("♥ " + likesCount);
         likesStatLabel.setVisible(true);
         likesStatLabel.setManaged(true);
@@ -155,14 +173,76 @@ public class PostDetailController {
         // Like button
         dashboard.getLikeController().initButton(likeBtn, publication);
 
-        // Load comments
-        dashboard.getCommentController().loadComments(
-                publication, commentsList);
+        // Comments panel header count pill
+        commentCountLabel.setText(String.valueOf(commentsCount));
 
-        // Enable comment post button when text entered
-        commentTextField.textProperty().addListener((obs, old, newVal) -> {
-            commentPostBtn.setDisable(newVal == null || newVal.trim().isEmpty());
+        // Load comments list
+        dashboard.getCommentController().loadComments(publication, commentsList);
+
+        // Enable comment post button only when text is entered
+        commentTextField.textProperty().addListener((obs, old, newVal) ->
+                commentPostBtn.setDisable(newVal == null || newVal.trim().isEmpty()));
+    }
+
+    private void applyRoundedClip(ImageView iv) {
+        javafx.scene.shape.Rectangle clip = new javafx.scene.shape.Rectangle();
+        clip.setArcWidth(16);
+        clip.setArcHeight(16);
+        clip.widthProperty().bind(iv.fitWidthProperty());
+        // Height must track the actual rendered bounds, not fitHeight
+        iv.boundsInLocalProperty().addListener((obs, o, n) -> {
+            clip.setHeight(n.getHeight());
         });
+        // Set initial height in case bounds already have a value
+        clip.setHeight(iv.getBoundsInLocal().getHeight());
+        iv.setClip(clip);
+    }
+
+    private void applyHoverZoom(ImageView iv) {
+        // Wrap in a clip-respecting container — scale from center
+        iv.setStyle("-fx-cursor: hand;");
+
+        ScaleTransition zoomIn = new ScaleTransition(Duration.millis(200), iv);
+        zoomIn.setToX(1.04);
+        zoomIn.setToY(1.04);
+        zoomIn.setInterpolator(javafx.animation.Interpolator.EASE_OUT);
+
+        ScaleTransition zoomOut = new ScaleTransition(Duration.millis(180), iv);
+        zoomOut.setToX(1.0);
+        zoomOut.setToY(1.0);
+        zoomOut.setInterpolator(javafx.animation.Interpolator.EASE_OUT);
+
+        iv.setOnMouseEntered(e -> { zoomOut.stop(); zoomIn.play(); });
+        iv.setOnMouseExited(e ->  { zoomIn.stop();  zoomOut.play(); });
+
+        // Click still opens lightbox
+        iv.setOnMouseClicked(e -> {
+            e.consume();
+            ImageLightboxOverlay.show(dashboard.getContentContainer(), iv.getImage());
+        });
+    }
+    private void setupImage(double containerWidth) {
+        // Image fills ~85% of container width — dominant, not boxed
+        double imgW = containerWidth * 0.85;
+        double imgH = 420; // tall hero — dominates the top half
+
+        postImage.setFitWidth(imgW);
+        postImage.setFitHeight(imgH);
+
+        // Rounded corners via clip
+        applyRoundedClip(postImage);
+
+        // Programmatic shadow — bypasses ScrollPane clipping
+        javafx.scene.effect.DropShadow shadow = new javafx.scene.effect.DropShadow();
+        shadow.setColor(javafx.scene.paint.Color.rgb(0, 0, 0, 0.35));
+        shadow.setRadius(20);
+        shadow.setSpread(0.05);
+        shadow.setOffsetX(0);
+        shadow.setOffsetY(6);
+        postImage.setEffect(shadow);
+
+        // Hover zoom
+        applyHoverZoom(postImage);
     }
 
     // ────────────────────────────────────────────────────────────────────────
@@ -179,7 +259,7 @@ public class PostDetailController {
             return;
         }
 
-        // Don't fetch weather for very old posts (>30 days)
+        // Don't fetch weather for very old posts (>7 days)
         long postAgeHours = (System.currentTimeMillis() -
                 publication.getDatePublication().getTime()) / (1000 * 60 * 60);
         if (postAgeHours > 720) {
@@ -259,21 +339,19 @@ public class PostDetailController {
         commentTextField.requestFocus();
     }
 
+    // In PostDetailController — fix onCommentSubmit to pass the header label
     @FXML
     private void onCommentSubmit() {
         String text = commentTextField.getText();
         if (text == null || text.trim().isEmpty()) return;
 
         dashboard.getCommentController().addComment(
-                publication, text.trim(), commentsList, commentCountLabel);
+                publication, text.trim(), commentsList, commentCountLabel); // ← was missing commentCountLabel
 
         commentTextField.clear();
 
-        // Scroll to bottom
         commentsList.layout();
-        if (commentsList.getParent() instanceof javafx.scene.control.ScrollPane) {
-            javafx.scene.control.ScrollPane sp =
-                    (javafx.scene.control.ScrollPane) commentsList.getParent();
+        if (commentsList.getParent() instanceof ScrollPane sp) {
             sp.setVvalue(1.0);
         }
     }

@@ -204,63 +204,66 @@
 }
 
 /* ===== POST DETAIL VIEW ===== */
-/* ===== POST DETAIL — dark ===== */
+/* ===== POST DETAIL — dark (editorial) ===== */
 .post-detail-view {
-    -fx-background-color: #1a1d27;
+    -fx-background-color: #13161f;
 }
 .split-view {
-    -fx-background-color: #1a1d27;
+    -fx-background-color: #13161f;
 }
 .detail-top-bar {
     -fx-background-color: #0D9E92;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 4, 0, 0, 1);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 6, 0, 0, 2);
 }
-.detail-title {
-    -fx-text-fill: white;
-}
+.detail-title { -fx-text-fill: white; }
 .close-detail-btn {
     -fx-background-color: rgba(255,255,255,0.15);
     -fx-text-fill: white;
 }
-.close-detail-btn:hover {
-    -fx-background-color: rgba(255,255,255,0.25);
+.close-detail-btn:hover { -fx-background-color: rgba(255,255,255,0.25); }
+.post-content-panel { -fx-background-color: #13161f; }
+.detail-hero-container {
+    -fx-background-color: transparent;
+    -fx-padding: 20 0 12 0;
+    -fx-effect: none;
 }
-.detail-author-name {
-    -fx-text-fill: #e8eaf0;
-}
-.detail-post-text {
-    -fx-text-fill: #c8cad8;
-}
-.post-content-panel {
+.detail-content-card {
     -fx-background-color: #1a1d27;
-    -fx-border-color: #2e3250;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 8, 0, 0, 2);
 }
+.detail-author-name { -fx-text-fill: #e8eaf0; }
+.detail-author-hero { -fx-text-fill: white; }
+.detail-author-name-sa { -fx-text-fill: #e8eaf0; }
+.detail-date-sa { -fx-text-fill: #555a72; }
+.detail-post-text { -fx-text-fill: #c8cad8; }
+.detail-sep { -fx-background-color: #2e3250; }
 .comments-panel {
-    -fx-background-color: #13161f;
+    -fx-background-color: #0f1117;
+    -fx-border-color: #2e3250;
 }
 .comments-panel-header {
     -fx-background-color: #1a1d27;
     -fx-border-color: #2e3250;
 }
-.comments-panel-title {
-    -fx-text-fill: #e8eaf0;
-}
-.comments-count-label {
-    -fx-text-fill: #555a72;
-}
+.comments-panel-title { -fx-text-fill: #e8eaf0; }
 .comment-input-row {
-    -fx-background-color: #13161f;
+    -fx-background-color: #1a1d27;
     -fx-border-color: #2e3250;
 }
 .comment-text-field {
     -fx-background-color: #22263a;
-    -fx-border-color: #2e3250;
     -fx-text-fill: #e8eaf0;
     -fx-prompt-text-fill: #555a72;
 }
-.comments-list {
-    -fx-background-color: #13161f;
+.comment-text-field:focused {
+    -fx-background-color: #2a2f45;
+    -fx-border-color: #17B3A6;
 }
+.comment-post-btn:disabled {
+    -fx-background-color: #22263a;
+    -fx-text-fill: #555a72;
+}
+.comments-list { -fx-background-color: #0f1117; }
 
 /* ===== COMMENT ITEMS ===== */
 .comment-item {
@@ -505,20 +508,6 @@
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 4, 0, 0, 1);
 }
 
-/* Close button on dark map header */
-.map-header .close-detail-btn {
-    -fx-background-color: #22263a;
-    -fx-text-fill: #e8eaf0;
-    -fx-border-color: #2e3250;
-    -fx-border-width: 1;
-    -fx-border-radius: 50;
-}
-.map-header .close-detail-btn:hover {
-    -fx-background-color: rgba(220,38,38,0.15);
-    -fx-text-fill: #f87171;
-    -fx-border-color: rgba(220,38,38,0.3);
-}
-
 .map-header-title {
     -fx-text-fill: #e8eaf0;
 }
@@ -644,4 +633,27 @@
 .unsplash-suggest-btn:disabled {
     -fx-text-fill: #555a72;
     -fx-border-color: #555a72;
+}
+
+/* ===== POST DETAIL top bar — dark override ===== */
+.detail-top-bar {
+    -fx-background-color: #1a1d27;
+    -fx-border-color: #2e3250;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 6, 0, 0, 2);
+}
+
+.close-detail-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #8b90a7;
+    -fx-border-color: #2e3250;
+}
+
+.close-detail-btn:hover {
+    -fx-background-color: #22263a;
+    -fx-text-fill: #17B3A6;
+    -fx-border-color: #17B3A6;
+}
+
+.detail-hero-image {
+    -fx-effect: none;
 }
