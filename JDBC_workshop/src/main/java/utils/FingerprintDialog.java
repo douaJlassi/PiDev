@@ -18,6 +18,7 @@ public class FingerprintDialog {
 
     private Stage dialogStage;
     private boolean success = false;
+    private int slotId = -1;
     private Label statusLabel;
     private ProgressIndicator progressIndicator;
     private Button enrollBtn;
@@ -27,12 +28,25 @@ public class FingerprintDialog {
     private int userId;
     private FingerprintInterface fpUtil;
 
-    public boolean showAndWait(int userId) {
+    public static class EnrollmentResult {
+        private boolean success;
+        private int slotId;
+
+        public EnrollmentResult(boolean success, int slotId) {
+            this.success = success;
+            this.slotId = slotId;
+        }
+
+        public boolean isSuccess() { return success; }
+        public int getSlotId() { return slotId; }
+    }
+
+    public EnrollmentResult showAndWait(int userId) {
         this.userId = userId;
         this.personService = new PersonService();
         createDialog();
         dialogStage.showAndWait();
-        return success;
+        return new EnrollmentResult(success, slotId);
     }
 
     private void createDialog() {
@@ -89,14 +103,10 @@ public class FingerprintDialog {
                 "📋 IMPORTANT INSTRUCTIONS:\n" +
                         "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
                         "1. Click 'Start Enrollment' to connect to Arduino\n" +
-                        "2. OPEN THE ARDUINO SERIAL MONITOR (Tools → Serial Monitor)\n" +
-                        "3. When you see 'Entrez l'ID' in the Serial Monitor, TYPE: " + userId + "\n" +
-                        "4. Follow the Arduino prompts:\n" +
-                        "   • Place your finger when asked\n" +
-                        "   • Remove when asked\n" +
-                        "   • Place the SAME finger again\n" +
-                        "5. Wait for 'ENREGISTREMENT RÉUSSI' message\n" +
-                        "6. The fingerprint will be saved automatically in the database\n" +
+                        "2. Place your finger when prompted\n" +
+                        "3. Remove when asked\n" +
+                        "4. Place the SAME finger again\n" +
+                        "5. Wait for success message\n" +
                         "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         );
         instructionLabel.setStyle("-fx-text-fill: #FEC74C; -fx-font-size: 14px; -fx-font-weight: bold;");
@@ -171,7 +181,7 @@ public class FingerprintDialog {
                 logMessage("✅ Connected to fingerprint sensor");
                 logMessage("");
                 logMessage("🤖 AUTOMATIC ENROLLMENT PROCESS:");
-                logMessage("1. Java will automatically send ID: " + userId);
+                logMessage("1. Java will automatically find an available slot");
                 logMessage("2. Place your finger when prompted");
                 logMessage("3. Remove when asked");
                 logMessage("4. Place the SAME finger again");
@@ -183,21 +193,21 @@ public class FingerprintDialog {
                     statusLabel.setStyle("-fx-text-fill: #2ecc71; -fx-font-size: 14px;");
                 });
 
-                // Start enrollment - this will automatically send the ID
-                boolean enrolled = fpUtil.enrollFingerprint(userId);
+                // Start enrollment - this will return the actual slot ID on success
+                int actualSlotId = fpUtil.enrollFingerprint(userId);
 
-                if (enrolled) {
+                if (actualSlotId > 0) {
                     logMessage("");
-                    logMessage("🎉 FINGERPRINT ENROLLMENT SUCCESSFUL!");
-                    logMessage("💾 Saving to database...");
+                    logMessage("🎉 FINGERPRINT ENROLLMENT SUCCESSFUL! Slot #" + actualSlotId);
 
                     try {
-                        // Save to database only AFTER Arduino confirms success
+                        // Save to database with the actual slot ID from Arduino
                         byte[] fingerprintData = new byte[]{1};
-                        personService.saveFingerprintData(userId, fingerprintData);
-                        fpUtil.addMapping(userId, userId);
+                        personService.saveFingerprintData(userId, fingerprintData, actualSlotId);
 
-                        logMessage("✅ Fingerprint data saved to database for user ID: " + userId);
+                        logMessage("✅ Fingerprint data saved to database for user ID: " + userId + " in slot #" + actualSlotId);
+
+                        slotId = actualSlotId;
 
                         Platform.runLater(() -> {
                             progressIndicator.setVisible(false);

@@ -1474,21 +1474,17 @@ public class AjouterPersonne {
         System.out.println("🟢 FINGERPRINT LOGIN BUTTON CLICKED!");
         System.out.println("==========================================");
 
-        // Show fingerprint dialog
+        // Show fingerprint dialog with email verification
         FingerprintLoginDialog loginDialog = new FingerprintLoginDialog();
-        Integer fingerprintId = loginDialog.showAndWait();
+        Integer userId = loginDialog.showAndWait();
 
-        if (fingerprintId != null && fingerprintId > 0) {
+        if (userId != null && userId > 0) {
             try {
-                // Get all users with fingerprint data from database using PersonService
-                List<Person> usersWithFingerprint = personService.getUsersWithFingerprint();
+                // Get user by ID
+                Person user = personService.getUserById(userId);
 
-                if (!usersWithFingerprint.isEmpty()) {
-                    // For simulation, use the first user with fingerprint data
-                    // In a real implementation, you would match the fingerprintId to a specific user
-                    Person user = usersWithFingerprint.get(0);
-
-                    System.out.println("✅ Fingerprint matched for user: " + user.getUsername());
+                if (user != null) {
+                    System.out.println("✅ Email and fingerprint verified for user: " + user.getUsername());
 
                     // Check if 2FA is enabled
                     boolean twoFAEnabled = personService.isTwoFactorEnabled(user.getId());
@@ -1512,14 +1508,14 @@ public class AjouterPersonne {
                         completeFingerprintLogin(user);
                     }
                 } else {
-                    showAlert("Fingerprint Login Failed", "No users with fingerprint data found in database. Please set up fingerprint first.", Alert.AlertType.WARNING);
+                    showAlert("Error", "User not found.", Alert.AlertType.ERROR);
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
                 showAlert("Database Error", "Error during login: " + e.getMessage(), Alert.AlertType.ERROR);
             }
         } else {
-            showAlert("Fingerprint Login Failed", "No matching fingerprint found or login cancelled.", Alert.AlertType.WARNING);
+            showAlert("Fingerprint Login Failed", "Email verification failed or login cancelled.", Alert.AlertType.WARNING);
         }
     }
 

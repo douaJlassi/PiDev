@@ -12,6 +12,7 @@ public class FingerprintSocket implements FingerprintInterface {
     private boolean connected = false;
     private String connectedPort = "";
     private Map<Integer, Integer> fingerprintToUserMap = new HashMap<>();
+    private int lastUsedSlotId = -1;
 
     private static final String HOST = "localhost";
     private static final int PORT = 9999;
@@ -104,30 +105,43 @@ public class FingerprintSocket implements FingerprintInterface {
     }
 
     @Override
-    public boolean enrollFingerprint(int userId) {
-        if (!connected) return false;
+    public int enrollFingerprint(int userId) {
+        if (!connected) return -1;
 
         System.out.println("📝 Starting fingerprint enrollment for user ID: " + userId);
 
-        sendCommand("e");
+        // First, get available slot (in a real implementation, this would come from the bridge)
+        // For simulation, we'll find the first available slot
+        int slotId = 1;
+        while (fingerprintToUserMap.containsKey(slotId) && slotId <= 150) {
+            slotId++;
+        }
+
+        System.out.println("🔢 Using fingerprint slot #" + slotId);
+
+        // Send enrollment command with the slot ID
+        sendCommand("e" + slotId);
+
         String response = readResponse(5000);
 
-        if (response != null && response.contains("Entrez l'ID")) {
-            sendCommand(String.valueOf(userId));
-            response = readResponse(30000); // Wait for enrollment to complete
+        if (response != null && (response.contains("Entrez l'ID") || response.contains("ENREGISTREMENT"))) {
+            // Wait for enrollment to complete
+            response = readResponse(30000);
 
             boolean success = response != null &&
                     (response.contains("ENREGISTREMENT RÉUSSI") ||
                             response.contains("🎉"));
 
             if (success) {
-                fingerprintToUserMap.put(userId, userId);
+                fingerprintToUserMap.put(slotId, userId);
+                lastUsedSlotId = slotId;
+                System.out.println("✅ Fingerprint enrolled successfully in slot #" + slotId);
+                return slotId;
             }
-
-            return success;
         }
 
-        return false;
+        System.out.println("❌ Enrollment failed");
+        return -1;
     }
 
     @Override
@@ -140,13 +154,14 @@ public class FingerprintSocket implements FingerprintInterface {
         String response = readResponse(30000);
 
         if (response != null && response.contains("TROUVÉE")) {
-            // Extract ID from response
             int id = extractIdFromResponse(response);
             if (id > 0) {
+                System.out.println("✅ Found fingerprint in slot #" + id);
                 return id;
             }
         }
 
+        System.out.println("❌ No fingerprint found");
         return -1;
     }
 
@@ -160,8 +175,13 @@ public class FingerprintSocket implements FingerprintInterface {
         if (response != null && response.contains("Entrez l'ID")) {
             sendCommand(String.valueOf(fingerprintId));
             response = readResponse(30000);
-
-            return response != null && response.contains("AUTORISÉ");
+            boolean verified = response != null && response.contains("AUTORISÉ");
+            if (verified) {
+                System.out.println("✅ Fingerprint verified for slot #" + fingerprintId);
+            } else {
+                System.out.println("❌ Verification failed for slot #" + fingerprintId);
+            }
+            return verified;
         }
 
         return false;
@@ -177,8 +197,12 @@ public class FingerprintSocket implements FingerprintInterface {
         if (response != null && response.contains("ID à supprimer")) {
             sendCommand(String.valueOf(fingerprintId));
             response = readResponse(5000);
-
-            return response != null && response.contains("succès");
+            boolean success = response != null && response.contains("succès");
+            if (success) {
+                fingerprintToUserMap.remove(fingerprintId);
+                System.out.println("✅ Deleted fingerprint slot #" + fingerprintId);
+            }
+            return success;
         }
 
         return false;
@@ -187,6 +211,7 @@ public class FingerprintSocket implements FingerprintInterface {
     @Override
     public void addMapping(int fingerprintId, int userId) {
         fingerprintToUserMap.put(fingerprintId, userId);
+        System.out.println("✅ Mapping added: slot #" + fingerprintId + " -> user " + userId);
     }
 
     @Override
@@ -216,7 +241,8 @@ public class FingerprintSocket implements FingerprintInterface {
                 if (line.contains("ID:")) {
                     String[] parts = line.split("ID:");
                     if (parts.length > 1) {
-                        return Integer.parseInt(parts[1].trim().split(" ")[0]);
+                        String idStr = parts[1].trim().split(" ")[0];
+                        return Integer.parseInt(idStr);
                     }
                 }
             }
@@ -227,7 +253,6 @@ public class FingerprintSocket implements FingerprintInterface {
     }
 
     public static String[] getAvailablePorts() {
-        // Return the configured Arduino port
         return new String[]{"COM3 (Arduino)"};
     }
 }

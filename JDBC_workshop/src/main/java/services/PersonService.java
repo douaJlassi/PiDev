@@ -423,32 +423,18 @@ public class PersonService implements CRUD<Person> {
             person.setTwoFactorEnabled(false);
         }
 
-        // Set two factor code
-        try {
-            person.setTwoFactorCode(rs.getString("two_factor_code"));
-        } catch (SQLException e) {
-            person.setTwoFactorCode(null);
-        }
-
-        // Set two factor expiry
-        try {
-            person.setTwoFactorExpiry(rs.getTimestamp("two_factor_expiry"));
-        } catch (SQLException e) {
-            person.setTwoFactorExpiry(null);
-        }
-
-        // Set face data
-        try {
-            person.setFaceData(rs.getBytes("face_data"));
-        } catch (SQLException e) {
-            person.setFaceData(null);
-        }
-
         // Set fingerprint data
         try {
             person.setFingerprintData(rs.getBytes("fingerprint_data"));
         } catch (SQLException e) {
             person.setFingerprintData(null);
+        }
+
+        // Set fingerprint slot ID
+        try {
+            person.setFingerprintSlotId(rs.getInt("fingerprint_slot_id"));
+        } catch (SQLException e) {
+            person.setFingerprintSlotId(-1);
         }
 
         return person;
@@ -521,27 +507,56 @@ public class PersonService implements CRUD<Person> {
     /**
      * Save fingerprint data for a user
      */
-    public void saveFingerprintData(int userId, byte[] fingerprintData) throws SQLException {
+    /**
+     * Save fingerprint data for a user with slot ID
+     */
+    public void saveFingerprintData(int userId, byte[] fingerprintData, int fingerprintSlotId) throws SQLException {
         // First check if fingerprint_data column exists
         if (!columnExists("fingerprint_data")) {
-            System.out.println("⚠️ fingerprint_data column does not exist, adding it...");
             addFingerprintColumn();
         }
 
-        String query = "UPDATE `user` SET fingerprint_data = ? WHERE id = ?";
+        // Check if fingerprint_slot_id column exists
+        if (!columnExists("fingerprint_slot_id")) {
+            addFingerprintSlotColumn();
+        }
+
+        String query = "UPDATE `user` SET fingerprint_data = ?, fingerprint_slot_id = ? WHERE id = ?";
         try (PreparedStatement ps = cnx.prepareStatement(query)) {
             if (fingerprintData != null && fingerprintData.length > 0) {
                 ps.setBytes(1, fingerprintData);
-                System.out.println("📸 Saving fingerprint data for user ID: " + userId + ", size: " + fingerprintData.length + " bytes");
+                ps.setInt(2, fingerprintSlotId);
+                System.out.println("📸 Saving fingerprint for user ID: " + userId + " in slot #" + fingerprintSlotId);
             } else {
                 ps.setNull(1, Types.BLOB);
+                ps.setNull(2, Types.INTEGER);
                 System.out.println("Removing fingerprint data for user ID: " + userId);
             }
-            ps.setInt(2, userId);
+            ps.setInt(3, userId);
 
             int rowsAffected = ps.executeUpdate();
             if (rowsAffected > 0) {
                 System.out.println("✅ Fingerprint data saved successfully for user ID: " + userId);
+            } else {
+                System.err.println("❌ No rows affected - user ID " + userId + " not found");
+            }
+        }
+    }
+
+    /**
+     * Add fingerprint_slot_id column if it doesn't exist
+     */
+    private void addFingerprintSlotColumn() throws SQLException {
+        try {
+            String sql = "ALTER TABLE `user` ADD COLUMN fingerprint_slot_id INT NULL";
+            try (Statement st = cnx.createStatement()) {
+                st.execute(sql);
+                System.out.println("✅ fingerprint_slot_id column added to user table");
+            }
+        } catch (SQLException e) {
+            // Column might already exist
+            if (!e.getMessage().contains("Duplicate column")) {
+                throw e;
             }
         }
     }
@@ -577,18 +592,22 @@ public class PersonService implements CRUD<Person> {
             return users;
         }
 
+        // Make sure we're selecting users that have both fingerprint_data AND fingerprint_slot_id
         String query = "SELECT * FROM `user` WHERE fingerprint_data IS NOT NULL";
 
         try (Statement st = cnx.createStatement();
              ResultSet rs = st.executeQuery(query)) {
 
             while (rs.next()) {
-                users.add(mapPerson(rs));
+                Person p = mapPerson(rs);
+                users.add(p);
+                System.out.println("📋 DB - Found user with fingerprint: ID=" + p.getId() +
+                        ", email=" + p.getEmail() +
+                        ", slot=" + p.getFingerprintSlotId());
             }
         }
         return users;
     }
-
     /**
      * Get user by fingerprint data ID (simulated - in real implementation,
      * this would search the fingerprint sensor's database)

@@ -1067,46 +1067,36 @@ public class ShowprofileController {
     }
 
     private void setupFingerprint() {
-        try {
-            FingerprintDialog dialog = new FingerprintDialog();
-            boolean success = dialog.showAndWait(currentUser.getId());
+        FingerprintDialog dialog = new FingerprintDialog();
+        FingerprintDialog.EnrollmentResult result = dialog.showAndWait(currentUser.getId());
 
-            if (success) {
-                // Save a dummy byte array to indicate fingerprint is enabled
-                byte[] fingerprintData = new byte[]{1}; // Just a marker
-                personService.saveFingerprintData(currentUser.getId(), fingerprintData);
+        if (result.isSuccess()) {
+            int slotId = result.getSlotId();
+            System.out.println("✅ Fingerprint enrolled in slot #" + slotId);
 
-                // Update UI
-                fingerprintButton.setSelected(true);
-                fingerprintButton.setText("ON");
-                fingerprintButton.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: hand;");
-                fingerprintSetup.setVisible(true);
-                fingerprintSetup.setManaged(true);
+            // Update UI - note: the data is already saved in the dialog
+            fingerprintButton.setSelected(true);
+            fingerprintButton.setText("ON");
+            fingerprintButton.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: hand;");
+            fingerprintSetup.setVisible(true);
+            fingerprintSetup.setManaged(true);
 
-                showAlert("Success", "Fingerprint has been set up successfully!", Alert.AlertType.INFORMATION);
-            } else {
-                // Enrollment failed or was cancelled
-                fingerprintButton.setSelected(false);
-                fingerprintButton.setText("OFF");
-                fingerprintButton.setStyle("-fx-background-color: #ff5e62; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: hand;");
-
-                showAlert("Info", "Fingerprint setup was cancelled or failed.", Alert.AlertType.WARNING);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            showAlert("Error", "Failed to save fingerprint data: " + e.getMessage(), Alert.AlertType.ERROR);
-
-            // Revert UI
+            showAlert("Success", "Fingerprint has been set up successfully in slot #" + slotId + "!", Alert.AlertType.INFORMATION);
+        } else {
+            // Enrollment failed or was cancelled
             fingerprintButton.setSelected(false);
             fingerprintButton.setText("OFF");
             fingerprintButton.setStyle("-fx-background-color: #ff5e62; -fx-text-fill: white; -fx-padding: 8 20; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: hand;");
+
+            showAlert("Info", "Fingerprint setup was cancelled or failed.", Alert.AlertType.WARNING);
         }
     }
 
     private void disableFingerprint() {
         try {
             // Remove fingerprint data from database
-            personService.saveFingerprintData(currentUser.getId(), null);
+            // FIX: Use the 3-parameter method with null data and -1 slot ID
+            personService.saveFingerprintData(currentUser.getId(), null, -1);
 
             showAlert("Success", "Fingerprint has been disabled.", Alert.AlertType.INFORMATION);
 

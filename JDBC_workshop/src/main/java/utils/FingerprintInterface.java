@@ -7,7 +7,10 @@ public interface FingerprintInterface {
     void disconnect();
     void sendCommand(String command);
     String readResponse(int timeoutMs);
-    boolean enrollFingerprint(int userId);
+
+    // Change this to return int (slot ID) instead of boolean
+    int enrollFingerprint(int userId);  // Returns slot ID on success, -1 on failure
+
     int searchFingerprint();
     boolean verifyFingerprintId(int fingerprintId);
     boolean deleteFingerprint(int fingerprintId);
@@ -16,10 +19,4 @@ public interface FingerprintInterface {
     Map<Integer, Integer> getAllMappings();
     boolean isConnected();
     String getConnectedPort();
-
-    // Static method to get available ports (different implementations)
-    static String[] getAvailablePorts() {
-        // This will be overridden by implementations
-        return new String[0];
-    }
 }

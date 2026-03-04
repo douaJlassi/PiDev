@@ -1,7 +1,7 @@
 package entities;
 
 import java.sql.Date;
-import java.sql.Timestamp; // Add this import
+import java.sql.Timestamp;
 import java.util.Objects;
 import java.io.Serializable;
 
@@ -19,18 +19,28 @@ public class Person implements Serializable {
     private String username;
     private String status;
     private boolean twoFactorEnabled;
-    private String twoFactorCode;      // ADD THIS
-    private Timestamp twoFactorExpiry; // ADD THIS
+    private String twoFactorCode;
+    private Timestamp twoFactorExpiry;
     private byte[] faceData;
     private byte[] fingerprintData;
+    private int fingerprintSlotId = -1;  // ADD THIS - default -1 means no slot assigned
 
-    // Getter and Setter for fingerprintData
+    // Getters and Setters
     public byte[] getFingerprintData() {
         return fingerprintData;
     }
 
     public void setFingerprintData(byte[] fingerprintData) {
         this.fingerprintData = fingerprintData;
+    }
+
+    // ADD THIS Getter and Setter for fingerprintSlotId
+    public int getFingerprintSlotId() {
+        return fingerprintSlotId;
+    }
+
+    public void setFingerprintSlotId(int fingerprintSlotId) {
+        this.fingerprintSlotId = fingerprintSlotId;
     }
 
     // Constructors
@@ -48,11 +58,12 @@ public class Person implements Serializable {
         this.username = username;
         this.status = "offline";
         this.twoFactorEnabled = false;
-        this.twoFactorCode = null;      // ADD THIS
-        this.twoFactorExpiry = null;    // ADD THIS
+        this.twoFactorCode = null;
+        this.twoFactorExpiry = null;
+        this.fingerprintSlotId = -1;  // Initialize to -1
     }
 
-    // Getters and Setters
+    // Getters and Setters for existing fields
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
@@ -83,7 +94,6 @@ public class Person implements Serializable {
     public boolean isTwoFactorEnabled() { return twoFactorEnabled; }
     public void setTwoFactorEnabled(boolean twoFactorEnabled) { this.twoFactorEnabled = twoFactorEnabled; }
 
-    // ADD THESE GETTERS AND SETTERS
     public String getTwoFactorCode() { return twoFactorCode; }
     public void setTwoFactorCode(String twoFactorCode) { this.twoFactorCode = twoFactorCode; }
 
@@ -104,6 +114,7 @@ public class Person implements Serializable {
                 ", username='" + username + '\'' +
                 ", status='" + status + '\'' +
                 ", twoFactorEnabled=" + twoFactorEnabled +
+                ", fingerprintSlotId=" + fingerprintSlotId +
                 '}';
     }
 
