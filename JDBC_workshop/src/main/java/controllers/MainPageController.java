@@ -1,5 +1,6 @@
 package controllers;
 
+import app.Session;
 import javafx.animation.KeyFrame;
 import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
@@ -44,23 +45,40 @@ public class MainPageController {
 
 
     @FXML
+    private VBox topSection;
+
+    @FXML
+    private Button manageOffersBtn;
+
+    @FXML
+    private Button manageBannersBtn;
+
+    @FXML
+    private Button manageReservationsBtn;
+
+    @FXML
+    private Button archivedOffersBtn;
+    @FXML
+    private VBox agencySidebar;
+    @FXML
     private Circle userAvatar;
     @FXML
     private ImageView userAvatarImage;
     @FXML
     private Label userNameLabel;
+
     @FXML
     private Label userRoleLabel;
     @FXML
     private Button dashboardBtn;
     @FXML
-    private Button activitiesBtn;
+    private Button exploreOffersBtn;
     @FXML
     private Button reservationsBtn;
     @FXML
     private Button messagesBtn;
     @FXML
-    private Button favoritesBtn;
+    private Button myReservatiosnBtn;
     @FXML
     private Button settingsBtn;
     @FXML
@@ -124,7 +142,7 @@ public class MainPageController {
         Platform.runLater(() -> {
             refreshBadge();
         });
-        app.Session.loginAs(40,"USER");
+        //app.Session.loginAs(40,"USER");
 
         personService = new PersonService();
         profileService = new ProfileService();
@@ -154,18 +172,68 @@ public class MainPageController {
             e.printStackTrace();
         }
     }
+
+    private void configureSessionUI() {
+        boolean isUser = Session.isClient();
+        boolean isAgency = Session.isAgency();
+        if (topSection != null) {
+            topSection.setVisible(!isAgency);
+            topSection.setManaged(!isAgency);
+        }
+
+        // hide top buttons when normal user
+        if (dashboardBtn != null) {
+            dashboardBtn.setVisible(!isUser);
+            dashboardBtn.setManaged(!isUser);
+        }
+
+        if (reservationsBtn != null) {
+            reservationsBtn.setVisible(!isUser);
+            reservationsBtn.setManaged(!isUser);
+        }
+        if (messagesBtn != null) {
+            messagesBtn.setVisible(!isUser);
+            messagesBtn.setManaged(!isUser);
+        }
+
+        if (settingsBtn != null) {
+            settingsBtn.setVisible(!isUser);
+            settingsBtn.setManaged(!isUser);
+        }
+
+        // show left agency sidebar only for agency
+        if (agencySidebar != null) {
+            agencySidebar.setVisible(isAgency);
+            agencySidebar.setManaged(isAgency);
+        }
+
+        // hide client buttons when agency
+        if (exploreOffersBtn != null) {
+            exploreOffersBtn.setVisible(!isAgency);
+            exploreOffersBtn.setManaged(!isAgency);
+        }
+        if (myReservatiosnBtn != null) {
+            myReservatiosnBtn.setVisible(!isAgency);
+            myReservatiosnBtn.setManaged(!isAgency);
+        }
+    }
     @FXML
     private void showExploreOffers() {
-        loadPage("/fxml/VoyageurOffersGrid.fxml");
+
+        if(Session.isClient()){
+            loadPage("/fxml/VoyageurOffersGrid.fxml");
+        }
     }
 
     @FXML
     private void showCartView() {
+        if(Session.isClient())
         loadPage("/fxml/CartView.fxml");
     }
 
     @FXML
     private void showMyReservations() {
+        if(Session.isClient())
         loadPage("/fxml/MyReservations.fxml");
     }
 
@@ -384,6 +452,49 @@ public class MainPageController {
             System.out.println("Chat popup closed");
         }
     }
+    @FXML
+    private void showManageOffersView() {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/fxml/OffersGrid.fxml"));
+            mainBorderPane.setCenter(root);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to load offers view: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void showManageBannersView() {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/fxml/AgencyActualites.fxml"));
+            mainBorderPane.setCenter(root);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to load banners view: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void showAgencyReservationsView() {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/fxml/AgencyReservations.fxml"));
+            mainBorderPane.setCenter(root);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to load reservations view: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void showArchivedOffersView() {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/fxml/ArchivedOffersGrid.fxml"));
+            mainBorderPane.setCenter(root);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to load archived offers view: " + e.getMessage());
+        }
+    }
 
     private void setupButtonActions() {
         // Dashboard button action
@@ -403,17 +514,27 @@ public class MainPageController {
         if (aiClassifierBtn != null) {
             aiClassifierBtn.setOnAction(event -> openAIClassifier());
         }
+        if (manageOffersBtn != null) {
+            manageOffersBtn.setOnAction(event -> showManageOffersView());
+        }
+
+        if (manageBannersBtn != null) {
+            manageBannersBtn.setOnAction(event -> showManageBannersView());
+        }
+
+        if (manageReservationsBtn != null) {
+            manageReservationsBtn.setOnAction(event -> showAgencyReservationsView());
+        }
+
+        if (archivedOffersBtn != null) {
+            archivedOffersBtn.setOnAction(event -> showArchivedOffersView());
+        }
 
 
         // Activities button action
-        if (activitiesBtn != null) {
-            activitiesBtn.setOnAction(event -> showMessage("arja3 ghodwa !"));
-        }
 
         // My Bookings button action
-        if (reservationsBtn != null) {
-            reservationsBtn.setOnAction(event -> showMessage("arja3 ghodwa !"));
-        }
+
 
         // Messages button action
         if (messagesBtn != null) {
@@ -428,10 +549,7 @@ public class MainPageController {
             settingsBtn.setOnAction(event -> showMessage("arja3 ghodwa !"));
         }
 
-        // Feed button action
-        if (activitiesBtn != null) {
-            activitiesBtn.setOnAction(event -> showPostsView());
-        }
+
 
         // Chat button action
         if (chatButton != null) {
@@ -445,10 +563,8 @@ public class MainPageController {
 
         // Add hover effects
         addHoverEffect(dashboardBtn);
-        addHoverEffect(activitiesBtn);
         addHoverEffect(reservationsBtn);
         addHoverEffect(messagesBtn);
-        addHoverEffect(favoritesBtn);
         addHoverEffect(settingsBtn);
         addHoverEffect(logoutBtn);
 
@@ -530,6 +646,8 @@ public class MainPageController {
             System.err.println("User is null in setUserData");
             return;
         }
+        configureSessionUI();   // ADD THIS
+
 
         updateUserInterface();
         loadProfileImage();
@@ -946,7 +1064,7 @@ public class MainPageController {
 
                 isAdmin = lowerRole.equals("admin") ||
                         lowerRole.equals("administrator") ||
-                        lowerRole.contains("admin");
+                        lowerRole.contains("admin") || lowerRole.contains("AGENCY");
             }
 
             dashboardBtn.setVisible(isAdmin);

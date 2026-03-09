@@ -3,41 +3,101 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-
 <?import javafx.scene.shape.SVGPath?>
+
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="controllers.AgencyActualitesController"
-      spacing="15" styleClass="dash-content">
+      spacing="15"
+      style="-fx-background-color:#F6F8FB;">
 
     <padding>
         <Insets top="25" right="25" bottom="25" left="25"/>
     </padding>
 
     <HBox alignment="CENTER_LEFT" spacing="12">
+
         <VBox HBox.hgrow="ALWAYS">
-            <Label text="My Banners" styleClass="h1" style="-fx-font-size: 22px;"/>
-            <Label text="Manage your published actualités (lifetime / clicks)" styleClass="dash-muted"/>
+
+            <Label text="My Banners"
+                   style="
+                   -fx-font-size:22px;
+                   -fx-font-weight:800;
+                   -fx-text-fill:#0F172A;
+                   "/>
+
+            <Label text="Manage your published actualités (lifetime / clicks)"
+                   style="
+                   -fx-text-fill:#6B7280;
+                   -fx-font-size:13px;
+                   "/>
+
         </VBox>
 
-        <Button onAction="#onRefresh" styleClass="btn-ghost" prefHeight="40" prefWidth="40">
+        <Button onAction="#onRefresh"
+                prefHeight="40"
+                prefWidth="40"
+                style="
+                -fx-background-color:transparent;
+                -fx-border-color:#E5E7EB;
+                -fx-border-radius:10;
+                -fx-background-radius:10;
+                -fx-cursor:hand;
+                -fx-padding:8 12 8 12;
+                ">
+
             <graphic>
                 <SVGPath content="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"
-                         fill="#64748B" scaleX="0.8" scaleY="0.8"/>
+                         fill="#64748B"
+                         scaleX="0.8"
+                         scaleY="0.8"/>
             </graphic>
-            <tooltip><Tooltip text="Refresh Offers"/></tooltip>
+
+            <tooltip>
+                <Tooltip text="Refresh Offers"/>
+            </tooltip>
+
         </Button>
 
     </HBox>
 
-    <TableView fx:id="table" VBox.vgrow="ALWAYS" styleClass="modern-table">
+    <TableView fx:id="table"
+               VBox.vgrow="ALWAYS"
+               style="
+               -fx-background-color:white;
+               -fx-background-radius:15;
+               -fx-border-radius:15;
+               -fx-border-color:#E2E8F0;
+               -fx-border-width:1;
+               ">
+
         <columns>
-            <TableColumn fx:id="colPreview" text="Preview" prefWidth="170"/>
-            <TableColumn fx:id="colTitle" text="Title" prefWidth="260"/>
-            <TableColumn fx:id="colClicks" text="Clicks" prefWidth="90"/>
-            <TableColumn fx:id="colEndsAt" text="Ends At" prefWidth="170"/>
-            <TableColumn fx:id="colStatus" text="Status" prefWidth="110"/>
-            <TableColumn fx:id="colActions" text="Actions" prefWidth="220"/>
+
+            <TableColumn fx:id="colPreview"
+                         text="Preview"
+                         prefWidth="170"/>
+
+            <TableColumn fx:id="colTitle"
+                         text="Title"
+                         prefWidth="260"/>
+
+            <TableColumn fx:id="colClicks"
+                         text="Clicks"
+                         prefWidth="90"/>
+
+            <TableColumn fx:id="colEndsAt"
+                         text="Ends At"
+                         prefWidth="170"/>
+
+            <TableColumn fx:id="colStatus"
+                         text="Status"
+                         prefWidth="110"/>
+
+            <TableColumn fx:id="colActions"
+                         text="Actions"
+                         prefWidth="220"/>
+
         </columns>
+
     </TableView>
 
 </VBox>

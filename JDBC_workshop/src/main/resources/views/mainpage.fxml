@@ -18,7 +18,7 @@
 
     <!-- Top Bar with Logo, Horizontal Menu and Profile -->
     <top>
-        <VBox spacing="0">
+        <VBox fx:id="topSection" spacing="0">
             <!-- Top Bar with Logo and Profile -->
             <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-background-color: white; -fx-padding: 15 30; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 0);">
                 <!-- Logo -->
@@ -221,6 +221,55 @@
             </HBox>
         </VBox>
     </top>
+    <left>
+        <VBox fx:id="agencySidebar" spacing="15" style="-fx-background-color: white; -fx-padding: 20 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 0); -fx-border-color: #f0f0f0; -fx-border-width: 0 1 0 0;">
+            <children>
+                <Label text="MANAGEMENT" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #aaa; -fx-padding: 0 0 10 10;"/>
+
+                <Button fx:id="manageOffersBtn" alignment="CENTER_LEFT" prefWidth="200"
+                        style="-fx-background-color: #0FA5A2; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 12 20; -fx-background-radius: 12; -fx-cursor: hand;">
+                    <graphic>
+                        <HBox spacing="12" alignment="CENTER_LEFT">
+                            <Label text="📝" style="-fx-font-size: 16px;"/>
+                            <Label text="Manage Offers" style="-fx-text-fill: white;"/>
+                        </HBox>
+                    </graphic>
+                </Button>
+
+                <Button fx:id="manageBannersBtn" alignment="CENTER_LEFT" prefWidth="200"
+                        style="-fx-background-color: transparent; -fx-text-fill: #1D4D7C; -fx-font-size: 14px; -fx-padding: 12 20; -fx-background-radius: 12; -fx-cursor: hand;">
+                    <graphic>
+                        <HBox spacing="12" alignment="CENTER_LEFT">
+                            <Label text="🖼" style="-fx-font-size: 16px;"/>
+                            <Label text="Banners"/>
+                        </HBox>
+                    </graphic>
+                </Button>
+
+                <Button fx:id="manageReservationsBtn" alignment="CENTER_LEFT" prefWidth="200"
+                        style="-fx-background-color: transparent; -fx-text-fill: #1D4D7C; -fx-font-size: 14px; -fx-padding: 12 20; -fx-background-radius: 12; -fx-cursor: hand;">
+                    <graphic>
+                        <HBox spacing="12" alignment="CENTER_LEFT">
+                            <Label text="📅" style="-fx-font-size: 16px;"/>
+                            <Label text="Reservations"/>
+                        </HBox>
+                    </graphic>
+                </Button>
+
+                <Separator prefWidth="180" style="-fx-padding: 10 0;"/>
+
+                <Button fx:id="archivedOffersBtn" alignment="CENTER_LEFT" prefWidth="200"
+                        style="-fx-background-color: transparent; -fx-text-fill: #666; -fx-font-size: 14px; -fx-padding: 12 20; -fx-background-radius: 12; -fx-cursor: hand;">
+                    <graphic>
+                        <HBox spacing="12" alignment="CENTER_LEFT">
+                            <Label text="📁" style="-fx-font-size: 16px;"/>
+                            <Label text="Archived Offers"/>
+                        </HBox>
+                    </graphic>
+                </Button>
+            </children>
+        </VBox>
+    </left>
 
     <!-- Center Content - Empty (ready for dynamic content) -->
     <center>

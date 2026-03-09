@@ -3,49 +3,141 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-
 <?import javafx.scene.shape.SVGPath?>
-<VBox spacing="20" styleClass="dash-content"
+
+<VBox spacing="20"
       xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="controllers.OffreReservationDetailsController">
+      fx:controller="controllers.OffreReservationDetailsController"
+      style="-fx-background-color:#F6F8FB; -fx-font-family:'Segoe UI';">
 
     <padding>
         <Insets top="25" right="25" bottom="25" left="25"/>
     </padding>
 
-    <!-- Header -->
-    <VBox spacing="6" style="-fx-background-color: white; -fx-padding: 18; -fx-background-radius: 14; -fx-border-color: #E7ECF3; -fx-border-radius: 14;">
+    <!-- HEADER CARD -->
+
+    <VBox spacing="6"
+          style="-fx-background-color:white;
+                 -fx-padding:18;
+                 -fx-background-radius:14;
+                 -fx-border-color:#E7ECF3;
+                 -fx-border-radius:14;">
+
         <HBox spacing="12" alignment="CENTER_LEFT">
-            <Button text="← Back" onAction="#onBack" styleClass="btn-ghost"/>
-            <Label fx:id="titleLbl" text="Reservation #0" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+
+            <!-- BACK BUTTON -->
+
+            <Button text="← Back"
+                    onAction="#onBack"
+                    style="-fx-background-color:transparent;
+                           -fx-border-color:#E5E7EB;
+                           -fx-border-radius:10;
+                           -fx-text-fill:#0F172A;
+                           -fx-cursor:hand;" />
+
+            <Label fx:id="titleLbl"
+                   text="Reservation #0"
+                   style="-fx-font-size:18px;
+                          -fx-font-weight:bold;
+                          -fx-text-fill:#0F172A;" />
+
             <Region HBox.hgrow="ALWAYS"/>
-            <Label fx:id="statusLbl" text="STATUS" styleClass="status-pill"/>
+
+            <!-- STATUS BADGE -->
+
+            <Label fx:id="statusLbl"
+                   text="STATUS"
+                   style="-fx-padding:3 12;
+                          -fx-background-radius:15;
+                          -fx-font-size:10px;
+                          -fx-font-weight:bold;
+                          -fx-background-color:rgba(245,158,11,0.15);
+                          -fx-text-fill:#b45309;" />
+
         </HBox>
 
         <HBox spacing="18">
-            <Label fx:id="totalLbl" text="Total: 0 TND" />
-            <Label fx:id="payLbl" text="Payment: CASH" />
-            <Label fx:id="dateLbl" text="Date: -" />
+
+            <Label fx:id="totalLbl"
+                   text="Total: 0 TND"
+                   style="-fx-font-weight:bold;
+                          -fx-text-fill:#0F172A;" />
+
+            <Label fx:id="payLbl"
+                   text="Payment: CASH"
+                   style="-fx-text-fill:#475569;" />
+
+            <Label fx:id="dateLbl"
+                   text="Date: -"
+                   style="-fx-text-fill:#475569;" />
+
         </HBox>
+
     </VBox>
 
-    <!-- Items -->
-    <TableView fx:id="itemsTable" VBox.vgrow="ALWAYS" styleClass="modern-table">
+
+    <!-- ITEMS TABLE -->
+
+    <TableView fx:id="itemsTable"
+               VBox.vgrow="ALWAYS"
+               style="-fx-background-color:white;
+                      -fx-background-radius:14;
+                      -fx-border-radius:14;
+                      -fx-border-color:rgba(0,0,0,0.08);">
+
         <columns>
-            <TableColumn fx:id="colTitle" text="OFFER" prefWidth="200"/>
-            <TableColumn fx:id="colPrice" text="PRICE" prefWidth="120"/>
-            <TableColumn fx:id="colAgencyStatus" text="AGENCY STATUS" prefWidth="160"/>
-            <TableColumn fx:id="colDecisionAt" text="DECISION AT" prefWidth="170"/>
-            <TableColumn fx:id="colReason" text="REASON" prefWidth="360"/>
-            <TableColumn fx:id="colAction" text="ACTION" prefWidth="120"/>
+
+            <TableColumn fx:id="colTitle"
+                         text="OFFER"
+                         prefWidth="200"/>
+
+            <TableColumn fx:id="colPrice"
+                         text="PRICE"
+                         prefWidth="120"/>
+
+            <TableColumn fx:id="colAgencyStatus"
+                         text="AGENCY STATUS"
+                         prefWidth="160"/>
+
+            <TableColumn fx:id="colDecisionAt"
+                         text="DECISION AT"
+                         prefWidth="170"/>
+
+            <TableColumn fx:id="colReason"
+                         text="REASON"
+                         prefWidth="360"/>
+
+            <TableColumn fx:id="colAction"
+                         text="ACTION"
+                         prefWidth="120"/>
+
         </columns>
+
     </TableView>
 
-    <!-- Buttons -->
+
+    <!-- FOOTER BUTTONS -->
+
     <HBox alignment="CENTER_RIGHT" spacing="10">
-        <Button fx:id="cancelBtn" text="Cancel Request" onAction="#onCancelRequest" styleClass="btn-action-danger"/>
-        <Button text="Close" onAction="#onBack" style="-fx-background-color: rgba(27, 183, 177, 0.1); -fx-background-radius: 10; -fx-padding: 8;"/>
+
+        <Button fx:id="cancelBtn"
+                text="Cancel Request"
+                onAction="#onCancelRequest"
+                style="-fx-background-color:#FEE2E2;
+                       -fx-text-fill:#EF4444;
+                       -fx-font-weight:bold;
+                       -fx-background-radius:10;
+                       -fx-cursor:hand;" />
+
+        <Button text="Close"
+                onAction="#onBack"
+                style="-fx-background-color:rgba(27,183,177,0.1);
+                       -fx-background-radius:10;
+                       -fx-padding:8;
+                       -fx-text-fill:#0F172A;
+                       -fx-cursor:hand;" />
+
     </HBox>
 
 </VBox>

@@ -6,76 +6,193 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.SVGPath?>
 
-<?import java.net.URL?>
 <VBox xmlns:fx="http://javafx.com/fxml/1"
       xmlns="http://javafx.com/javafx/17"
       fx:controller="controllers.OfferCardController"
-
-      spacing="10" prefWidth="280" styleClass="card">
-    <stylesheets>
-        <URL value="@../css/app.css" />
-    </stylesheets>
+      spacing="10"
+      prefWidth="280"
+      style="-fx-background-color:white;
+             -fx-background-radius:14;
+             -fx-border-radius:14;
+             -fx-border-color:#E5E7EB;
+             -fx-padding:12;
+             -fx-effect:dropshadow(gaussian, rgba(0,0,0,0.10), 14, 0.25, 0, 4);">
 
     <padding>
         <Insets top="12" right="12" bottom="12" left="12"/>
     </padding>
 
-    <StackPane minHeight="140" prefHeight="140" styleClass="card-image-wrap">
-        <ImageView fx:id="imageView" fitWidth="256" fitHeight="140" preserveRatio="false" smooth="true"/>
-        <Label fx:id="promoRibbonLbl" text="-20%" styleClass="promo-ribbon"
-               StackPane.alignment="TOP_LEFT" visible="false" />
+    <!-- IMAGE AREA -->
+
+    <StackPane minHeight="140"
+               prefHeight="140"
+               style="-fx-background-color:#F3F5F9;
+                      -fx-background-radius:12;
+                      -fx-border-radius:12;
+                      -fx-alignment:center;">
+
+        <ImageView fx:id="imageView"
+                   fitWidth="256"
+                   fitHeight="140"
+                   preserveRatio="false"
+                   smooth="true"/>
+
+        <Label fx:id="promoRibbonLbl"
+               text="-20%"
+               visible="false"
+               StackPane.alignment="TOP_LEFT"
+               style="-fx-background-color:#F4A61D;
+                      -fx-text-fill:white;
+                      -fx-font-weight:900;
+                      -fx-padding:6 10;
+                      -fx-background-radius:10;
+                      -fx-effect:dropshadow(gaussian, rgba(0,0,0,0.18), 10,0.25,0,2);
+                      -fx-translate-x:8;
+                      -fx-translate-y:8;"/>
     </StackPane>
 
+
+    <!-- TEXT CONTENT -->
+
     <VBox spacing="5">
-        <Label fx:id="titleLbl" text="Title" styleClass="card-title" />
+
+        <Label fx:id="titleLbl"
+               text="Title"
+               style="-fx-font-size:15px;
+                      -fx-font-weight:800;
+                      -fx-text-fill:#0F172A;"/>
 
         <HBox spacing="10" alignment="BASELINE_LEFT">
-            <Label fx:id="priceLbl" text="0.00 TND" styleClass="card-price" />
+
+            <Label fx:id="priceLbl"
+                   text="0.00 TND"
+                   style="-fx-font-size:12px;
+                          -fx-font-weight:900;
+                          -fx-text-fill:#F4A61D;"/>
 
             <StackPane fx:id="promoContainer" alignment="CENTER_LEFT">
-                <Label fx:id="originalPriceLbl" styleClass="price-original" />
-                <Region mouseTransparent="true" prefHeight="1" maxHeight="1"
-                        style="-fx-background-color: #FF0000;"
-                        StackPane.alignment="CENTER" />
+
+                <Label fx:id="originalPriceLbl"
+                       style="-fx-text-fill:#6B7280;
+                              -fx-opacity:0.9;
+                              -fx-strikethrough:true;
+                              -fx-font-weight:700;" />
+
+                <Region mouseTransparent="true"
+                        prefHeight="1"
+                        maxHeight="1"
+                        style="-fx-background-color:#FF0000;"
+                        StackPane.alignment="CENTER"/>
+
             </StackPane>
+
         </HBox>
 
-        <Label fx:id="datesLbl" text="Dates" styleClass="card-muted" />
-        <Label fx:id="agencyLbl" text="Agency" styleClass="card-muted" />
+        <Label fx:id="datesLbl"
+               text="Dates"
+               style="-fx-text-fill:#6B7280;" />
+
+        <Label fx:id="agencyLbl"
+               text="Agency"
+               style="-fx-text-fill:#6B7280;" />
+
     </VBox>
 
+
+    <!-- BUTTONS -->
+
     <HBox spacing="8" alignment="CENTER">
-        <Button onAction="#onDetails" text="Details" styleClass="btn-primary" HBox.hgrow="ALWAYS" maxWidth="Infinity" />
-        <Button fx:id="editBtn" onAction="#onEdit" styleClass="btn-action-edit">
+
+        <Button onAction="#onDetails"
+                text="Details"
+                HBox.hgrow="ALWAYS"
+                maxWidth="Infinity"
+                style="-fx-background-color:#1BB7B1;
+                       -fx-text-fill:white;
+                       -fx-font-weight:800;
+                       -fx-background-radius:10;
+                       -fx-cursor:hand;" />
+
+
+
+        <Button fx:id="editBtn"
+                onAction="#onEdit"
+                style="-fx-background-color:#F5F3FF;
+                       -fx-background-radius:8;
+                       -fx-padding:8;
+                       -fx-cursor:hand;">
+
             <graphic>
                 <SVGPath content="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
-                         fill="#6366F1" scaleX="0.7" scaleY="0.7"/>
+                         fill="#6366F1"
+                         scaleX="0.7"
+                         scaleY="0.7"/>
             </graphic>
-            <tooltip><Tooltip text="Edit Offer"/></tooltip>
+
+            <tooltip>
+                <Tooltip text="Edit Offer"/>
+            </tooltip>
+
         </Button>
 
-        <Button fx:id="addToCartBtn" onAction="#onAddToCart" styleClass="btn-icon-only">
+
+
+        <Button fx:id="addToCartBtn"
+                onAction="#onAddToCart"
+                style="-fx-background-color:#F1F5F9;
+                       -fx-background-radius:10;
+                       -fx-padding:8;
+                       -fx-cursor:hand;">
+
             <graphic>
                 <SVGPath content="M11 9h2V6h3V4h-3V1h-2v3H8v2h3v3zm-4 9c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2zm-8.9-5h7.45c.75 0 1.41-.41 1.75-1.03l3.86-7.01L15.42 4l-3.86 7H7.63L4.22 2H1v2h2l3.6 7.59-1.35 2.44C4.83 14.33 5 15 5 15c0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63z"
-                         fill="#1BB7B1" scaleX="0.7" scaleY="0.7"/>
+                         fill="#1BB7B1"
+                         scaleX="0.7"
+                         scaleY="0.7"/>
             </graphic>
+
         </Button>
-        <Button fx:id="genBannerBtn" onAction="#onGenerateBanner" styleClass="btn-icon-only">
-        <graphic>
-            <SVGPath content="M12,2L14.4,9.6L22,12L14.4,14.4L12,22L9.6,14.4L2,12L9.6,9.6Z"
-                     fill="#1BB7B1"
-                     scaleX="0.8"
-                     scaleY="0.8"/>
-        </graphic>
-        <tooltip>
-            <Tooltip text="Generate marketing banner"/>
-        </tooltip>
-    </Button>
-        <Button fx:id="deleteBtn" onAction="#onDelete" styleClass="btn-action-danger">
+
+
+
+        <Button fx:id="genBannerBtn"
+                onAction="#onGenerateBanner"
+                style="-fx-background-color:#F1F5F9;
+                       -fx-background-radius:10;
+                       -fx-padding:8;
+                       -fx-cursor:hand;">
+
+            <graphic>
+                <SVGPath content="M12,2L14.4,9.6L22,12L14.4,14.4L12,22L9.6,14.4L2,12L9.6,9.6Z"
+                         fill="#1BB7B1"
+                         scaleX="0.8"
+                         scaleY="0.8"/>
+            </graphic>
+
+            <tooltip>
+                <Tooltip text="Generate marketing banner"/>
+            </tooltip>
+
+        </Button>
+
+
+
+        <Button fx:id="deleteBtn"
+                onAction="#onDelete"
+                style="-fx-background-color:#FEE2E2;
+                       -fx-background-radius:10;
+                       -fx-padding:8;
+                       -fx-cursor:hand;">
+
             <graphic>
                 <SVGPath content="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
-                         fill="#EF4444" scaleX="0.7" scaleY="0.7"/>
+                         fill="#EF4444"
+                         scaleX="0.7"
+                         scaleY="0.7"/>
             </graphic>
+
         </Button>
+
     </HBox>
+
 </VBox>
