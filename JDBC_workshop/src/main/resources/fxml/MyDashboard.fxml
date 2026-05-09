@@ -44,6 +44,12 @@
                     </graphic>
                 </Button>
 
+                <Button fx:id="postsBtn" text="Community Posts" onAction="#onGoPosts" styleClass="dash-nav-btn" maxWidth="Infinity">
+                    <graphic>
+                        <SVGPath content="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z" fill="#1BB7B1"/>
+                    </graphic>
+                </Button>
+
                 <Button fx:id="cartBtn" text="My Cart" onAction="#onGoCart" styleClass="dash-nav-btn" maxWidth="Infinity">
                     <graphic>
                         <SVGPath content="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.44C4.83 14.33 5 15 5 15c0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63.14-1.12h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99 2 1.99 2s2-.9 2-2-.9-2-2-2z" fill="#1BB7B1"/>

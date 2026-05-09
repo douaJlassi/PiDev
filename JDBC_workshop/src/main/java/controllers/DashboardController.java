@@ -61,6 +61,8 @@ public class DashboardController {
     @FXML
     private Label favouriteMenuItem;
     @FXML
+    private Label postsMenuItem;
+    @FXML
     private Label messageMenuItem;
     @FXML
     private Label transactionMenuItem;
@@ -271,6 +273,11 @@ public class DashboardController {
             favouriteMenuItem.setStyle("-fx-padding: 12 15; -fx-background-radius: 10; -fx-cursor: hand;");
         }
 
+        if (postsMenuItem != null) {
+            postsMenuItem.setOnMouseClicked(this::handlePostsMenuClick);
+            postsMenuItem.setStyle("-fx-padding: 12 15; -fx-background-radius: 10; -fx-cursor: hand;");
+        }
+
         if (messageMenuItem != null) {
             messageMenuItem.setOnMouseClicked(this::handleMenuClick);
             messageMenuItem.setStyle("-fx-padding: 12 15; -fx-background-radius: 10; -fx-cursor: hand;");
@@ -303,6 +310,7 @@ public class DashboardController {
         addMenuHoverEffect(statsMenuItem);
         addMenuHoverEffect(myTicketsMenuItem);
         addMenuHoverEffect(favouriteMenuItem);
+        addMenuHoverEffect(postsMenuItem);
         addMenuHoverEffect(messageMenuItem);
         addMenuHoverEffect(transactionMenuItem);
         addMenuHoverEffect(bookingsMenuItem);
@@ -324,6 +332,11 @@ public class DashboardController {
     private void handleTodoMenuClick(MouseEvent event) {
         showTodoView();
         updateMenuStyles(todoMenuItem);
+    }
+
+    private void handlePostsMenuClick(MouseEvent event) {
+        showPostsView();
+        updateMenuStyles(postsMenuItem);
     }
 
     private void handleMenuClick(MouseEvent event) {
@@ -367,6 +380,19 @@ public class DashboardController {
         } catch (Exception e) {
             e.printStackTrace();
             showAlert("Error", "Failed to load dashboard: " + e.getMessage());
+        }
+    }
+
+    private void showPostsView() {
+        isUsersViewActive = false;
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/wajdi_dashboard.fxml"));
+            Parent postsView = loader.load();
+            contentArea.getChildren().setAll(postsView);
+            updateMenuStyles(postsMenuItem);
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to load posts view: " + e.getMessage());
         }
     }
 

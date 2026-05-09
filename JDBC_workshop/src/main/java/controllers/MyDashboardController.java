@@ -21,6 +21,7 @@ public class MyDashboardController {
     @FXML private TextField searchTf;
     @FXML private ImageView logoImg;
     @FXML private Button offersBtn;
+    @FXML private Button postsBtn;
     @FXML private Button cartBtn;
     @FXML private Button reservationsBtn;
     @FXML private Button archiveBtn;
@@ -60,6 +61,7 @@ public class MyDashboardController {
         boolean isClient = Session.isClient();
 
         setNavVisible(offersBtn, true);
+        setNavVisible(postsBtn, true);
         setNavVisible(cartBtn, isClient);
         setNavVisible(reservationsBtn, isClient);
         setNavVisible(archiveBtn, isAgency);
@@ -237,6 +239,12 @@ public class MyDashboardController {
     }
 
     @FXML
+    private void onGoPosts() {
+        setActive(postsBtn);
+        loadIntoContent("/views/wajdi_dashboard.fxml");
+    }
+
+    @FXML
     private void onGoCart() {
         if (!Session.isClient()) {
             return;
@@ -354,6 +362,7 @@ public class MyDashboardController {
 
     private void setActive(Button activeBtn) {
         if (offersBtn != null) offersBtn.getStyleClass().remove("active");
+        if (postsBtn != null) postsBtn.getStyleClass().remove("active");
         if (cartBtn != null) cartBtn.getStyleClass().remove("active");
         if (reservationsBtn != null) reservationsBtn.getStyleClass().remove("active");
         if (archiveBtn != null) archiveBtn.getStyleClass().remove("active");

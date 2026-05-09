@@ -61,6 +61,8 @@ public class MainPageController {
     @FXML
     private Button reservationsBtn;
     @FXML
+    private Button postsBtn;
+    @FXML
     private Button messagesBtn;
     @FXML
     private Button favoritesBtn;
@@ -419,6 +421,30 @@ public class MainPageController {
     }
 
     @FXML
+    private void openPostsDashboard() {
+        try {
+            stopAllTimers();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/wajdi_dashboard.fxml"));
+            Parent root = loader.load();
+            contentArea.getChildren().setAll(root);
+            Scene scene = contentArea.getScene();
+            if (scene != null) {
+                String css = getClass().getResource("/css/app.css").toExternalForm();
+                if (!scene.getStylesheets().contains(css)) {
+                    scene.getStylesheets().add(css);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Navigation error");
+            alert.setHeaderText(null);
+            alert.setContentText("Cannot open Posts dashboard: " + e.getMessage());
+            alert.showAndWait();
+        }
+    }
+
+    @FXML
     private void handleAvatarClick(MouseEvent event) {
         try {
             System.out.println("Avatar clicked, opening profile page");
@@ -519,6 +545,11 @@ public class MainPageController {
             reservationsBtn.setOnAction(event -> showMessage("arja3 ghodwa !"));
         }
 
+        // Posts button action
+        if (postsBtn != null) {
+            postsBtn.setOnAction(event -> openPostsDashboard());
+        }
+
         // Messages button action
         if (messagesBtn != null) {
             messagesBtn.setOnAction(event -> showMessage("arja3 ghodwa !"));
@@ -548,6 +579,7 @@ public class MainPageController {
         addHoverEffect(dashboardBtn);
         addHoverEffect(activitiesBtn);
         addHoverEffect(reservationsBtn);
+        addHoverEffect(postsBtn);
         addHoverEffect(messagesBtn);
         addHoverEffect(favoritesBtn);
         addHoverEffect(settingsBtn);
