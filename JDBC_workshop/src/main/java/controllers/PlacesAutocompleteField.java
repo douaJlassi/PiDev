@@ -32,7 +32,7 @@ import java.util.TimerTask;
  * field.setPromptText("Enter location...");
  *
  * // Get selected place
- * String placeId = field.getSelectedPlaceId();      // e.g., "282402156"
+ * String placeId = field.getSelectedPlaceId(); // e.g., "282402156"
  * String displayName = field.getSelectedPlaceName(); // e.g., "Tunis, Tunisia"
  *
  * // Or just get the text user typed (if they didn't select from dropdown)
@@ -54,11 +54,12 @@ public class PlacesAutocompleteField extends TextField {
 
     // Configuration
     private static final int DEBOUNCE_DELAY_MS = 300; // Wait 300ms after typing stops
-    private static final int MIN_CHARS = 2;           // Minimum characters before search
-    private static final int MAX_SUGGESTIONS = 5;     // Maximum dropdown items
+    private static final int MIN_CHARS = 2; // Minimum characters before search
+    private static final int MAX_SUGGESTIONS = 5; // Maximum dropdown items
 
     // Loading indicator
     private boolean isLoading = false;
+    private boolean isProgrammaticChange = false;
 
     // ── Constructor ───────────────────────────────────────────────────────────
 
@@ -99,6 +100,9 @@ public class PlacesAutocompleteField extends TextField {
     // ── Text Change Handler ───────────────────────────────────────────────────
 
     private void onTextChanged(String newText) {
+        if (isProgrammaticChange)
+            return;
+
         // Cancel any pending debounce timer
         if (debounceTimer != null) {
             debounceTimer.cancel();
@@ -198,24 +202,17 @@ public class PlacesAutocompleteField extends TextField {
         container.setStyle(
                 "-fx-padding: 10 14; " +
                         "-fx-cursor: hand; " +
-                        "-fx-background-color: white;"
-        );
+                        "-fx-background-color: white;");
 
-        container.setOnMouseEntered(e ->
-                container.setStyle(
-                        "-fx-padding: 10 14; " +
-                                "-fx-cursor: hand; " +
-                                "-fx-background-color: #f0f2f5;"
-                )
-        );
+        container.setOnMouseEntered(e -> container.setStyle(
+                "-fx-padding: 10 14; " +
+                        "-fx-cursor: hand; " +
+                        "-fx-background-color: #f0f2f5;"));
 
-        container.setOnMouseExited(e ->
-                container.setStyle(
-                        "-fx-padding: 10 14; " +
-                                "-fx-cursor: hand; " +
-                                "-fx-background-color: white;"
-                )
-        );
+        container.setOnMouseExited(e -> container.setStyle(
+                "-fx-padding: 10 14; " +
+                        "-fx-cursor: hand; " +
+                        "-fx-background-color: white;"));
 
         // Create menu item
         CustomMenuItem menuItem = new CustomMenuItem(container, false);
@@ -237,10 +234,10 @@ public class PlacesAutocompleteField extends TextField {
         this.selectedPlaceName = place.getDescription();
 
         // Update text field with selected place name
+        isProgrammaticChange = true;
         setText(place.getDisplayText());
-
-        // Move cursor to end
         positionCaret(getText().length());
+        isProgrammaticChange = false;
     }
 
     // ── Loading & Error States ────────────────────────────────────────────────
@@ -253,8 +250,7 @@ public class PlacesAutocompleteField extends TextField {
                 "-fx-text-fill: #65676b; " +
                         "-fx-font-size: 13px; " +
                         "-fx-padding: 10 14; " +
-                        "-fx-font-style: italic;"
-        );
+                        "-fx-font-style: italic;");
 
         CustomMenuItem loadingItem = new CustomMenuItem(loadingLabel, false);
         suggestionsPopup.getItems().add(loadingItem);
@@ -272,8 +268,7 @@ public class PlacesAutocompleteField extends TextField {
                 "-fx-text-fill: #8a8d91; " +
                         "-fx-font-size: 13px; " +
                         "-fx-padding: 10 14; " +
-                        "-fx-font-style: italic;"
-        );
+                        "-fx-font-style: italic;");
 
         CustomMenuItem noResultsItem = new CustomMenuItem(noResultsLabel, false);
         suggestionsPopup.getItems().add(noResultsItem);
@@ -333,13 +328,27 @@ public class PlacesAutocompleteField extends TextField {
 
     /**
      * Programmatically set a place (useful for editing existing posts)
-     * @param placeId The place ID
+     * 
+     * @param placeId     The place ID
      * @param displayName The display name to show in the field
      */
     public void setSelectedPlace(String placeId, String displayName) {
         this.selectedPlaceId = placeId;
         this.selectedPlaceName = displayName;
+        isProgrammaticChange = true;
         setText(displayName);
+        isProgrammaticChange = false;
+    }
+
+    /**
+     * Programmatically set just the text (no known placeId)
+     */
+    public void setManualText(String text) {
+        this.selectedPlaceId = null;
+        this.selectedPlaceName = null;
+        isProgrammaticChange = true;
+        setText(text);
+        isProgrammaticChange = false;
     }
 
     /**

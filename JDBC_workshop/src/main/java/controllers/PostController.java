@@ -18,14 +18,14 @@ import java.sql.SQLException;
  */
 public class PostController {
 
-    private final PublicationService  publicationService;
-    private final Client              currentUser;
+    private final PublicationService publicationService;
+    private final Client currentUser;
     private final WajdiDashboardController dashboard;
 
     public PostController(PublicationService svc, Client user, WajdiDashboardController dash) {
         this.publicationService = svc;
-        this.currentUser        = user;
-        this.dashboard          = dash;
+        this.currentUser = user;
+        this.dashboard = dash;
     }
 
     // ── Card factory ─────────────────────────────────────────────────────────
@@ -39,13 +39,13 @@ public class PostController {
             card.setMaxHeight(javafx.scene.layout.Region.USE_PREF_SIZE);
 
             Rectangle clip = new Rectangle(isGridView ? 420 : 680, 0);
-            clip.setArcWidth(12); clip.setArcHeight(12);
+            clip.setArcWidth(12);
+            clip.setArcHeight(12);
             clip.heightProperty().bind(card.heightProperty());
             card.setClip(clip);
 
             card.setStyle("-fx-cursor: hand;");
-            card.setOnMouseClicked(e ->
-                    new PostDetailController(publication, dashboard).show());
+            card.setOnMouseClicked(e -> new PostDetailController(publication, dashboard).show());
 
             PostCardController ctrl = loader.getController();
             ctrl.init(publication, isGridView, dashboard);
@@ -65,21 +65,27 @@ public class PostController {
             CreatePostController form = loader.getController();
             form.init(dashboard, null);
 
-            Dialog<Publication> dialog = buildDialog("Create Post", "Share", content);
+            Dialog<Publication> dialog = buildDialog("Create Post", "Share", content, form);
             Button shareBtn = okButton(dialog);
             shareBtn.setDisable(true);
             form.getContentArea().textProperty().addListener(
                     (obs, o, n) -> shareBtn.setDisable(n.trim().isEmpty()));
 
-            dialog.setResultConverter(bt ->
-                    bt.getButtonData() == ButtonBar.ButtonData.OK_DONE
-                            ? form.buildPublication() : null);
+            dialog.setResultConverter(bt -> bt.getButtonData() == ButtonBar.ButtonData.OK_DONE
+                    ? form.buildPublication()
+                    : null);
 
             dialog.showAndWait().ifPresent(pub -> {
-                try { publicationService.insertOne(pub); dashboard.loadPosts(); }
-                catch (SQLException ex) { dashboard.showError("Failed to create post: " + ex.getMessage()); }
+                try {
+                    publicationService.insertOne(pub);
+                    dashboard.loadPosts();
+                } catch (SQLException ex) {
+                    dashboard.showError("Failed to create post: " + ex.getMessage());
+                }
             });
-        } catch (IOException e) { dashboard.showError("Could not open dialog: " + e.getMessage()); }
+        } catch (IOException e) {
+            dashboard.showError("Could not open dialog: " + e.getMessage());
+        }
     }
 
     // ── Edit dialog ───────────────────────────────────────────────────────────
@@ -90,7 +96,7 @@ public class PostController {
             CreatePostController form = loader.getController();
             form.init(dashboard, publication);
 
-            Dialog<Publication> dialog = buildDialog("Edit Post", "Update", content);
+            Dialog<Publication> dialog = buildDialog("Edit Post", "Update", content, form);
             dialog.setResultConverter(bt -> {
                 if (bt.getButtonData() == ButtonBar.ButtonData.OK_DONE) {
                     form.populateExisting(publication);
@@ -100,10 +106,16 @@ public class PostController {
             });
 
             dialog.showAndWait().ifPresent(pub -> {
-                try { publicationService.updateOne(pub); dashboard.loadPosts(); }
-                catch (SQLException ex) { dashboard.showError("Failed to update post: " + ex.getMessage()); }
+                try {
+                    publicationService.updateOne(pub);
+                    dashboard.loadPosts();
+                } catch (SQLException ex) {
+                    dashboard.showError("Failed to update post: " + ex.getMessage());
+                }
             });
-        } catch (IOException e) { dashboard.showError("Could not open dialog: " + e.getMessage()); }
+        } catch (IOException e) {
+            dashboard.showError("Could not open dialog: " + e.getMessage());
+        }
     }
 
     // ── Delete ────────────────────────────────────────────────────────────────
@@ -116,15 +128,19 @@ public class PostController {
         confirm.showAndWait()
                 .filter(r -> r == ButtonType.OK)
                 .ifPresent(r -> {
-                    try { publicationService.deleteOne(publication); dashboard.loadPosts(); }
-                    catch (SQLException ex) { dashboard.showError("Failed to delete: " + ex.getMessage()); }
+                    try {
+                        publicationService.deleteOne(publication);
+                        dashboard.loadPosts();
+                    } catch (SQLException ex) {
+                        dashboard.showError("Failed to delete: " + ex.getMessage());
+                    }
                 });
     }
 
     // ── Context menu (called from PostCardController) ─────────────────────────
     public void showPostMenu(Publication publication, Button anchor) {
         ContextMenu menu = new ContextMenu();
-        MenuItem edit   = new MenuItem("Edit Post");
+        MenuItem edit = new MenuItem("Edit Post");
         MenuItem delete = new MenuItem("Delete Post");
         edit.setOnAction(e -> showEditDialog(publication));
         delete.setOnAction(e -> deletePost(publication));
@@ -138,12 +154,28 @@ public class PostController {
     }
 
     private Dialog<Publication> buildDialog(String title, String okLabel,
-                                            javafx.scene.Parent content) {
+            javafx.scene.Parent content, CreatePostController form) {
         Dialog<Publication> d = new Dialog<>();
-        d.setTitle(title); d.setHeaderText(null);
+        d.setTitle(title);
+        d.setHeaderText(null);
         ButtonType ok = new ButtonType(okLabel, ButtonBar.ButtonData.OK_DONE);
         d.getDialogPane().getButtonTypes().addAll(ok, ButtonType.CANCEL);
-        d.getDialogPane().setContent(content);
+
+        // Hide the in-form buttons so we don't duplicate the dialog buttons
+        if (form != null && form.getFormActionBar() != null) {
+            form.getFormActionBar().setVisible(false);
+            form.getFormActionBar().setManaged(false);
+        }
+
+        // Wrap the content in a ScrollPane so the dialog itself doesn't grow unbounded
+        ScrollPane scrollWrapper = new ScrollPane(content);
+        scrollWrapper.setFitToWidth(true);
+        scrollWrapper.setFitToHeight(false);
+        scrollWrapper.setPrefHeight(500); // Reasonable height that fits on most screens
+        scrollWrapper.setStyle(
+                "-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;");
+
+        d.getDialogPane().setContent(scrollWrapper);
         d.getDialogPane().setPrefWidth(540);
         ThemeManager.get().applyToPane(d.getDialogPane());
         d.getDialogPane().getStyleClass().add("create-post-dialog");

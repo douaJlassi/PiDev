@@ -11,6 +11,11 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.ImagePattern;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Stop;
 import javafx.scene.shape.Circle;
 import services.WeatherService;
 
@@ -30,54 +35,70 @@ import java.text.SimpleDateFormat;
 public class PostCardController {
 
     // ── Header ──────────────────────────────────────────────────────────────
-    @FXML private Circle   avatarCircle;
-    @FXML private Label    authorNameLabel;
-    @FXML private Label    dateLabel;
-    @FXML private Label    placeLabel;
-    @FXML private Button   menuBtn;
-    @FXML private HBox     metaBox;      // second-row container for place+weather
+    @FXML
+    private Circle avatarCircle;
+    @FXML
+    private Label authorNameLabel;
+    @FXML
+    private Label dateLabel;
+    @FXML
+    private Label placeLabel;
+    @FXML
+    private Button menuBtn;
+    @FXML
+    private HBox metaBox; // second-row container for place+weather
 
     // ── PHASE 4B: Weather badge ─────────────────────────────────────────────
-    @FXML private HBox     weatherBadge;
-    @FXML private ImageView weatherIcon;
-    @FXML private Label    weatherText;
+    @FXML
+    private HBox weatherBadge;
+    @FXML
+    private ImageView weatherIcon;
+    @FXML
+    private Label weatherText;
 
     // ── Stats bar ────────────────────────────────────────────────────────────
-    @FXML private HBox     statsBar;     // hidden when no likes or comments
+    @FXML
+    private HBox statsBar; // hidden when no likes or comments
 
     // ── Content ──────────────────────────────────────────────────────────────
-    @FXML private Label    contentLabel;
+    @FXML
+    private Label contentLabel;
 
     // ── Image ────────────────────────────────────────────────────────────────
-    @FXML private VBox     imageContainer;
-    @FXML private ImageView postImage;
+    @FXML
+    private VBox imageContainer;
+    @FXML
+    private ImageView postImage;
 
     // ── Stats ────────────────────────────────────────────────────────────────
-    @FXML private Label    likesStatLabel;
-    @FXML private Label    commentsStatLabel;
+    @FXML
+    private Label likesStatLabel;
+    @FXML
+    private Label commentsStatLabel;
 
     // ── Actions ──────────────────────────────────────────────────────────────
-    @FXML private Button   likeBtn;
-    @FXML private Button   commentBtn;
+    @FXML
+    private Button likeBtn;
+    @FXML
+    private Button commentBtn;
 
     // ── Injected by PostController after load ────────────────────────────────
-    private Publication         publication;
-    private boolean             isGridView;
+    private Publication publication;
+    private boolean isGridView;
     private WajdiDashboardController dashboard;
 
     // PHASE 4B: Weather service (shared instance for caching)
     private static final WeatherService weatherService = new WeatherService();
 
-    private static final SimpleDateFormat DATE_FMT =
-            new SimpleDateFormat("MMM dd 'at' hh:mm a");
+    private static final SimpleDateFormat DATE_FMT = new SimpleDateFormat("MMM dd 'at' hh:mm a");
 
     // ────────────────────────────────────────────────────────────────────────
     // Called by PostController after FXMLLoader.load()
     // ────────────────────────────────────────────────────────────────────────
     public void init(Publication pub, boolean gridView, WajdiDashboardController dash) {
         this.publication = pub;
-        this.isGridView  = gridView;
-        this.dashboard   = dash;
+        this.isGridView = gridView;
+        this.dashboard = dash;
 
         bindData();
 
@@ -91,24 +112,53 @@ public class PostCardController {
     private void bindData() {
         // Author
         String username = publication.getClient().getUsername();
-        authorNameLabel.setText(username != null ? username
+        authorNameLabel.setText(username != null && !username.isEmpty() ? username
                 : "Traveler #" + publication.getClient().getClientID());
+
+        // Avatar — fill with user image or teal gradient
+        String avatarPath = publication.getClient().getAvatarPath();
+        if (avatarPath != null && !avatarPath.isEmpty()) {
+            try {
+                File avatarFile = new File(avatarPath);
+                if (avatarFile.exists()) {
+                    Image avatarImg = new Image(avatarFile.toURI().toString());
+                    avatarCircle.setFill(new ImagePattern(avatarImg));
+                } else {
+                    avatarCircle.setFill(new LinearGradient(
+                            0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
+                            new Stop(0, Color.web("#17B3A6")),
+                            new Stop(1, Color.web("#4DD4C7"))));
+                }
+            } catch (Exception e) {
+                avatarCircle.setFill(new LinearGradient(
+                        0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
+                        new Stop(0, Color.web("#17B3A6")),
+                        new Stop(1, Color.web("#4DD4C7"))));
+            }
+        } else {
+            avatarCircle.setFill(new LinearGradient(
+                    0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
+                    new Stop(0, Color.web("#17B3A6")),
+                    new Stop(1, Color.web("#4DD4C7"))));
+        }
 
         // Date
         dateLabel.setText(DATE_FMT.format(publication.getDatePublication()));
 
         // Place — show second row (metaBox) containing place tag + weather
         if (publication.getPlace() != null && !publication.getPlace().isEmpty()) {
-            placeLabel.setVisible(true); placeLabel.setManaged(true);
+            placeLabel.setVisible(true);
+            placeLabel.setManaged(true);
             placeLabel.setText("📍 " + publication.getPlace());
-            metaBox.setVisible(true);    metaBox.setManaged(true);
+            metaBox.setVisible(true);
+            metaBox.setManaged(true);
         }
 
         // Content
         contentLabel.setText(publication.getContent());
 
         // Image
-// Image
+        // Image
         if (publication.hasImage()) {
             File img = new File(publication.getImagePath());
             if (img.exists()) {
@@ -123,14 +173,13 @@ public class PostCardController {
                     e.consume(); // Don't bubble up to the card's detail-view handler
                     ImageLightboxOverlay.show(
                             dashboard.getContentContainer(),
-                            postImage.getImage()
-                    );
+                            postImage.getImage());
                 });
             }
         }
 
         // Stats — only show the bar when there is something to display
-        int likesCount    = publication.getLikes()    != null ? publication.getLikes().size()    : 0;
+        int likesCount = publication.getLikes() != null ? publication.getLikes().size() : 0;
         int commentsCount = publication.getComments() != null ? publication.getComments().size() : 0;
 
         if (likesCount > 0) {
@@ -198,8 +247,6 @@ public class PostCardController {
                     return null;
                 });
     }
-
-
 
     /**
      * Display weather badge with icon and temperature

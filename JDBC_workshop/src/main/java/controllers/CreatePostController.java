@@ -42,36 +42,53 @@ import java.util.Map;
  * - Falls back to plain text if user doesn't select from dropdown
  *
  * PostController calls:
- *   1. formCtrl.init(dashboard, existing)   — inject data
- *   2. formCtrl.getContentArea()            — wire the Share/Update enable guard
- *   3. formCtrl.buildPublication()          — on confirm in create mode
- *      formCtrl.populateExisting(pub)       — on confirm in edit mode
+ * 1. formCtrl.init(dashboard, existing) — inject data
+ * 2. formCtrl.getContentArea() — wire the Share/Update enable guard
+ * 3. formCtrl.buildPublication() — on confirm in create mode
+ * formCtrl.populateExisting(pub) — on confirm in edit mode
  */
 public class CreatePostController {
 
-    @FXML private Circle    userAvatarCircle;
-    @FXML private Label     usernameLabel;
-    @FXML private Label     audienceLabel;
-    @FXML private TextArea  contentArea;
-    @FXML private StackPane imagePreviewBox;
-    @FXML private ImageView imagePreview;
-    @FXML private VBox      placeFieldContainer;  // Container for custom field (since FXML can't instantiate custom controls)
-    @FXML private ComboBox<Map.Entry<Integer,String>> agencyCombo;
-    @FXML private HBox      agencyInfoBanner;
-    @FXML private Label     agencyBannerText;
-    @FXML private Button    photoBtn;
+    @FXML
+    private Circle userAvatarCircle;
+    @FXML
+    private Label usernameLabel;
+    @FXML
+    private Label audienceLabel;
+    @FXML
+    private TextArea contentArea;
+    @FXML
+    private StackPane imagePreviewBox;
+    @FXML
+    private ImageView imagePreview;
+    @FXML
+    private VBox placeFieldContainer; // Container for custom field (since FXML can't instantiate custom controls)
+    @FXML
+    private ComboBox<Map.Entry<Integer, String>> agencyCombo;
+    @FXML
+    private HBox agencyInfoBanner;
+    @FXML
+    private Label agencyBannerText;
+    @FXML
+    private Button photoBtn;
+    @FXML
+    private HBox formActionBar;
+    @FXML
+    private Button formCancelBtn;
+    @FXML
+    private Button formSubmitBtn;
 
     private static final String UPLOAD_DIR = "uploads/images/";
 
     /** Loaded from DB in init(). Key = agencyID, Value = agency name. */
-    private final Map<Integer,String> AGENCIES = new LinkedHashMap<>();
+    private final Map<Integer, String> AGENCIES = new LinkedHashMap<>();
 
     private WajdiDashboardController dashboard;
     private File selectedImageFile;
 
     // Unsplash integration
     private final UnsplashService unsplashService = new UnsplashService();
-    private Button                suggestPhotoBtn; // injected programmatically
+    private Button suggestPhotoBtn; // injected programmatically
 
     // PHASE 3: Custom autocomplete field (created programmatically)
     private PlacesAutocompleteField placeField;
@@ -92,10 +109,13 @@ public class CreatePostController {
 
         // Agency combo
         agencyCombo.setConverter(new StringConverter<>() {
-            public String toString(Map.Entry<Integer,String> e) {
+            public String toString(Map.Entry<Integer, String> e) {
                 return e == null ? "" : e.getValue();
             }
-            public Map.Entry<Integer,String> fromString(String s) { return null; }
+
+            public Map.Entry<Integer, String> fromString(String s) {
+                return null;
+            }
         });
         // Load real agencies from database
         AGENCIES.put(0, "No agency — post publicly");
@@ -122,7 +142,7 @@ public class CreatePostController {
                     placeField.setSelectedPlace(existing.getPlaceId(), existing.getPlace());
                 } else {
                     // No place_id: just set the text (user typed it manually)
-                    placeField.setText(existing.getPlace());
+                    placeField.setManualText(existing.getPlace());
                 }
             }
 
@@ -160,14 +180,16 @@ public class CreatePostController {
         suggestPhotoBtn.setManaged(false);
         suggestPhotoBtn.setOnAction(e -> onSuggestPhoto());
 
-        // Show the button once the user has typed at least 2 chars in the location field
+        // Show the button once the user has typed at least 2 chars in the location
+        // field
         placeField.textProperty().addListener((obs, oldVal, newVal) -> {
             boolean hasLocation = newVal != null && newVal.trim().length() >= 2;
             suggestPhotoBtn.setVisible(hasLocation);
             suggestPhotoBtn.setManaged(hasLocation);
         });
 
-        // Add to container (replaces what would have been <TextField fx:id="placeField"/> in FXML)
+        // Add to container (replaces what would have been <TextField
+        // fx:id="placeField"/> in FXML)
         placeFieldContainer.getChildren().clear();
         placeFieldContainer.getChildren().addAll(placeField, suggestPhotoBtn);
     }
@@ -191,7 +213,7 @@ public class CreatePostController {
         FileChooser fc = new FileChooser();
         fc.setTitle("Select Photo");
         fc.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("Images", "*.png","*.jpg","*.jpeg","*.gif"));
+                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.gif"));
         Stage stage = (Stage) photoBtn.getScene().getWindow();
         File file = fc.showOpenDialog(stage);
         if (file != null) {
@@ -210,7 +232,8 @@ public class CreatePostController {
      */
     private void onSuggestPhoto() {
         String location = placeField.getLocationText();
-        if (location == null || location.trim().isEmpty()) return;
+        if (location == null || location.trim().isEmpty())
+            return;
 
         // Disable button and show loading state while fetching
         suggestPhotoBtn.setDisable(true);
@@ -254,7 +277,8 @@ public class CreatePostController {
                     Platform.runLater(() -> {
                         suggestPhotoBtn.setDisable(false);
                         suggestPhotoBtn.setText("✦ Suggest Photo");
-                        if (dashboard != null) dashboard.showError("Photo fetch failed: " + err.getMessage());
+                        if (dashboard != null)
+                            dashboard.showError("Photo fetch failed: " + err.getMessage());
                     });
                     return null;
                 });
@@ -270,7 +294,7 @@ public class CreatePostController {
 
             // Sanitise location for use in filename
             String safeName = location.replaceAll("[^a-zA-Z0-9_\\-]", "_").toLowerCase();
-            String filename  = System.currentTimeMillis() + "_unsplash_" + safeName + ".jpg";
+            String filename = System.currentTimeMillis() + "_unsplash_" + safeName + ".jpg";
             java.nio.file.Path target = Paths.get(UPLOAD_DIR + filename);
 
             // Stream from Unsplash URL directly to disk
@@ -305,9 +329,25 @@ public class CreatePostController {
     // ─────────────────────────────────────────────────────────────────────────
     // Called by WajdiDashboardController (slide-in panel)
     // ─────────────────────────────────────────────────────────────────────────
-    public TextArea getContentArea() { return contentArea; }
+    public TextArea getContentArea() {
+        return contentArea;
+    }
 
-    public boolean hasContent() { return !contentArea.getText().trim().isEmpty(); }
+    public Button getFormSubmitBtn() {
+        return formSubmitBtn;
+    }
+
+    public Button getFormCancelBtn() {
+        return formCancelBtn;
+    }
+
+    public javafx.scene.layout.HBox getFormActionBar() {
+        return formActionBar;
+    }
+
+    public boolean hasContent() {
+        return !contentArea.getText().trim().isEmpty();
+    }
 
     /** Build a brand-new Publication from the form (create mode). */
     public Publication buildPublication() {
@@ -317,9 +357,8 @@ public class CreatePostController {
                 contentArea.getText().trim(),
                 new Date(),
                 uploadIfNeeded(),
-                blankToNull(getLocationText()),  // PHASE 3: Use helper method
-                selectedAgencyId()
-        );
+                blankToNull(getLocationText()), // PHASE 3: Use helper method
+                selectedAgencyId());
 
         // PHASE 3: Set place_id if user selected from autocomplete
         if (placeField.hasSelectedPlace()) {
@@ -343,10 +382,12 @@ public class CreatePostController {
         }
 
         int newAgency = selectedAgencyId();
-        if (newAgency != p.getAgencyId()) p.setAgencyId(newAgency);
+        if (newAgency != p.getAgencyId())
+            p.setAgencyId(newAgency);
         if (selectedImageFile != null) {
             String path = uploadIfNeeded();
-            if (path != null) p.setImagePath(path);
+            if (path != null)
+                p.setImagePath(path);
         }
     }
 
@@ -356,7 +397,8 @@ public class CreatePostController {
 
     /**
      * PHASE 3: Get location text (selected name or typed text)
-     * - If user selected from dropdown: returns selected name (e.g., "Tunis, Tunisia")
+     * - If user selected from dropdown: returns selected name (e.g., "Tunis,
+     * Tunisia")
      * - If user typed manually: returns typed text (e.g., "My Secret Beach")
      */
     private String getLocationText() {
@@ -380,7 +422,8 @@ public class CreatePostController {
     }
 
     private String uploadIfNeeded() {
-        if (selectedImageFile == null) return null;
+        if (selectedImageFile == null)
+            return null;
         try {
             Files.createDirectories(Paths.get(UPLOAD_DIR));
             String name = System.currentTimeMillis() + "_" + selectedImageFile.getName();
@@ -389,7 +432,8 @@ public class CreatePostController {
             return UPLOAD_DIR + name;
         } catch (IOException e) {
             e.printStackTrace();
-            if (dashboard != null) dashboard.showError("Image upload failed: " + e.getMessage());
+            if (dashboard != null)
+                dashboard.showError("Image upload failed: " + e.getMessage());
             return null;
         }
     }

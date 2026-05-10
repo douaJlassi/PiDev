@@ -13,6 +13,10 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Stop;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 import services.WeatherService;
@@ -23,8 +27,8 @@ import java.text.SimpleDateFormat;
 
 /**
  * PostDetailController — two roles:
- *  1. fx:controller for post_detail.fxml (FXML fields + handlers)
- *  2. Loaded programmatically by PostController via show()
+ * 1. fx:controller for post_detail.fxml (FXML fields + handlers)
+ * 2. Loaded programmatically by PostController via show()
  *
  * The FXML carries all layout; this class only binds data and wires events.
  *
@@ -36,52 +40,73 @@ import java.text.SimpleDateFormat;
 public class PostDetailController {
 
     // ── FXML fields ───────────────────────────────────────────────────────────
-    @FXML private Button    closeBtn;
+    @FXML
+    private Button closeBtn;
 
     // Left panel
-    @FXML private Circle    authorAvatar;
-    @FXML private Label     authorNameLabel;
-    @FXML private Label     dateLabel;
-    @FXML private Label     placeLabel;
-    @FXML private Label     postContentLabel;
-    @FXML private VBox      imageContainer;
-    @FXML private ImageView postImage;
-    @FXML private Label     likesStatLabel;
-    @FXML private Label     commentsStatLabel;
-    @FXML private Button    likeBtn;
-    @FXML private Button    commentBtn2;
+    @FXML
+    private Circle authorAvatar;
+    @FXML
+    private Label authorNameLabel;
+    @FXML
+    private Label dateLabel;
+    @FXML
+    private Label placeLabel;
+    @FXML
+    private Label postContentLabel;
+    @FXML
+    private VBox imageContainer;
+    @FXML
+    private ImageView postImage;
+    @FXML
+    private Label likesStatLabel;
+    @FXML
+    private Label commentsStatLabel;
+    @FXML
+    private Button likeBtn;
+    @FXML
+    private Button commentBtn2;
 
     // Place+weather wrapper row & stats bar (matched to redesigned FXML)
-    @FXML private HBox      placeWeatherRow;
+    @FXML
+    private HBox placeWeatherRow;
     // PHASE 4C: Weather badge
-    @FXML private HBox      weatherBadge;
-    @FXML private ImageView weatherIcon;
-    @FXML private Label     weatherText;
-    @FXML private Label     weatherDescription;
+    @FXML
+    private HBox weatherBadge;
+    @FXML
+    private ImageView weatherIcon;
+    @FXML
+    private Label weatherText;
+    @FXML
+    private Label weatherDescription;
 
     // Right panel
-    @FXML private Label     commentCountLabel;
-    @FXML private TextField commentTextField;
-    @FXML private Button    commentPostBtn;
-    @FXML private VBox      commentsList;
+    @FXML
+    private Label commentCountLabel;
+    @FXML
+    private TextField commentTextField;
+    @FXML
+    private Button commentPostBtn;
+    @FXML
+    private VBox commentsList;
 
     // ── Injected state ────────────────────────────────────────────────────────
-    private Publication         publication;
+    private Publication publication;
     private WajdiDashboardController dashboard;
-    private BorderPane          detailView; // root node of the loaded FXML
+    private BorderPane detailView; // root node of the loaded FXML
 
     // PHASE 4C: Weather service (shared instance for caching)
     private static final WeatherService weatherService = new WeatherService();
 
-    private static final SimpleDateFormat DATE_FMT =
-            new SimpleDateFormat("MMMM dd, yyyy 'at' hh:mm a");
+    private static final SimpleDateFormat DATE_FMT = new SimpleDateFormat("MMMM dd, yyyy 'at' hh:mm a");
 
     // ── Constructor ── used by PostController (programmatic entry) ────────────
-    public PostDetailController() {}
+    public PostDetailController() {
+    }
 
     public PostDetailController(Publication pub, WajdiDashboardController dash) {
         this.publication = pub;
-        this.dashboard   = dash;
+        this.dashboard = dash;
     }
 
     // ── show() — loads FXML, injects data, adds overlay ──────────────────────
@@ -101,7 +126,8 @@ public class PostDetailController {
             dashboard.getContentContainer().getChildren().add(detailView);
 
             FadeTransition fade = new FadeTransition(Duration.millis(220), detailView);
-            fade.setFromValue(0); fade.setToValue(1);
+            fade.setFromValue(0);
+            fade.setToValue(1);
             fade.play();
 
         } catch (IOException e) {
@@ -114,9 +140,15 @@ public class PostDetailController {
     private void bindData() {
         // Author
         String username = publication.getClient().getUsername();
-        authorNameLabel.setText(username != null ? username
+        authorNameLabel.setText(username != null && !username.isEmpty() ? username
                 : "Traveler #" + publication.getClient().getClientID());
         dateLabel.setText(DATE_FMT.format(publication.getDatePublication()));
+
+        // Avatar — fill with teal gradient
+        authorAvatar.setFill(new LinearGradient(
+                0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
+                new Stop(0, Color.web("#17B3A6")),
+                new Stop(1, Color.web("#4DD4C7"))));
 
         // Place
         if (publication.getPlace() != null && !publication.getPlace().isEmpty()) {
@@ -128,8 +160,8 @@ public class PostDetailController {
         // Content
         postContentLabel.setText(publication.getContent());
 
-// Image — wait for layout then bind width
-// Image
+        // Image — wait for layout then bind width
+        // Image
         if (publication.hasImage()) {
             File img = new File(publication.getImagePath());
             if (img.exists()) {
@@ -146,7 +178,7 @@ public class PostDetailController {
                             imageContainer.widthProperty().addListener(new javafx.beans.value.ChangeListener<Number>() {
                                 @Override
                                 public void changed(javafx.beans.value.ObservableValue<? extends Number> obs,
-                                                    Number oldW, Number newW) {
+                                        Number oldW, Number newW) {
                                     if (newW.doubleValue() > 0) {
                                         setupImage(newW.doubleValue());
                                         imageContainer.widthProperty().removeListener(this);
@@ -160,7 +192,7 @@ public class PostDetailController {
         }
 
         // Stats — always query DB for accurate counts
-        int likesCount    = dashboard.getLikeController().getLikeCount(publication.getPublicationID());
+        int likesCount = dashboard.getLikeController().getLikeCount(publication.getPublicationID());
         int commentsCount = dashboard.getCommentController().getCommentCount(publication.getPublicationID());
 
         likesStatLabel.setText("♥ " + likesCount);
@@ -180,8 +212,8 @@ public class PostDetailController {
         dashboard.getCommentController().loadComments(publication, commentsList);
 
         // Enable comment post button only when text is entered
-        commentTextField.textProperty().addListener((obs, old, newVal) ->
-                commentPostBtn.setDisable(newVal == null || newVal.trim().isEmpty()));
+        commentTextField.textProperty().addListener(
+                (obs, old, newVal) -> commentPostBtn.setDisable(newVal == null || newVal.trim().isEmpty()));
     }
 
     private void applyRoundedClip(ImageView iv) {
@@ -212,8 +244,14 @@ public class PostDetailController {
         zoomOut.setToY(1.0);
         zoomOut.setInterpolator(javafx.animation.Interpolator.EASE_OUT);
 
-        iv.setOnMouseEntered(e -> { zoomOut.stop(); zoomIn.play(); });
-        iv.setOnMouseExited(e ->  { zoomIn.stop();  zoomOut.play(); });
+        iv.setOnMouseEntered(e -> {
+            zoomOut.stop();
+            zoomIn.play();
+        });
+        iv.setOnMouseExited(e -> {
+            zoomIn.stop();
+            zoomOut.play();
+        });
 
         // Click still opens lightbox
         iv.setOnMouseClicked(e -> {
@@ -221,6 +259,7 @@ public class PostDetailController {
             ImageLightboxOverlay.show(dashboard.getContentContainer(), iv.getImage());
         });
     }
+
     private void setupImage(double containerWidth) {
         // Image fills ~85% of container width — dominant, not boxed
         double imgW = containerWidth * 0.85;
@@ -324,7 +363,8 @@ public class PostDetailController {
     @FXML
     private void onClose() {
         FadeTransition fade = new FadeTransition(Duration.millis(180), detailView);
-        fade.setFromValue(1); fade.setToValue(0);
+        fade.setFromValue(1);
+        fade.setToValue(0);
         fade.setOnFinished(e -> dashboard.getContentContainer().getChildren().remove(detailView));
         fade.play();
     }
@@ -343,7 +383,8 @@ public class PostDetailController {
     @FXML
     private void onCommentSubmit() {
         String text = commentTextField.getText();
-        if (text == null || text.trim().isEmpty()) return;
+        if (text == null || text.trim().isEmpty())
+            return;
 
         dashboard.getCommentController().addComment(
                 publication, text.trim(), commentsList, commentCountLabel); // ← was missing commentCountLabel

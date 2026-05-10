@@ -6,6 +6,10 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Stop;
 import javafx.scene.shape.Circle;
 
 import java.sql.SQLException;
@@ -16,28 +20,35 @@ import java.sql.SQLException;
  */
 public class CommentItemController {
 
-    @FXML private Circle  avatarCircle;
-    @FXML private Label   usernameLabel;
-    @FXML private Label   timeLabel;
-    @FXML private Label   contentLabel;
-    @FXML private HBox    ownerActions;
-    @FXML private Button  editBtn;
-    @FXML private Button  deleteBtn;
+    @FXML
+    private Circle avatarCircle;
+    @FXML
+    private Label usernameLabel;
+    @FXML
+    private Label timeLabel;
+    @FXML
+    private Label contentLabel;
+    @FXML
+    private HBox ownerActions;
+    @FXML
+    private Button editBtn;
+    @FXML
+    private Button deleteBtn;
 
-    private Comment             comment;
-    private Publication         publication;
+    private Comment comment;
+    private Publication publication;
     private WajdiDashboardController dashboard;
-    private Runnable            onChanged; // callback to reload the list
+    private Runnable onChanged; // callback to reload the list
 
     // ────────────────────────────────────────────────────────────────────────
     // Called by CommentController after FXMLLoader.load()
     // ────────────────────────────────────────────────────────────────────────
     public void init(Comment c, Publication pub,
-                     WajdiDashboardController dash, Runnable onChanged) {
-        this.comment     = c;
+            WajdiDashboardController dash, Runnable onChanged) {
+        this.comment = c;
         this.publication = pub;
-        this.dashboard   = dash;
-        this.onChanged   = onChanged;
+        this.dashboard = dash;
+        this.onChanged = onChanged;
 
         bindData();
     }
@@ -48,7 +59,14 @@ public class CommentItemController {
     private void bindData() {
         String username = comment.getClient().getUsername();
         usernameLabel.setText(username != null && !username.isEmpty()
-                ? username : "Traveler #" + comment.getClient().getClientID());
+                ? username
+                : "Traveler #" + comment.getClient().getClientID());
+
+        // Avatar — fill with teal gradient
+        avatarCircle.setFill(new LinearGradient(
+                0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
+                new Stop(0, Color.web("#17B3A6")),
+                new Stop(1, Color.web("#4DD4C7"))));
 
         timeLabel.setText(comment.getTimeAgo());
         contentLabel.setText(comment.getContent());
@@ -66,7 +84,8 @@ public class CommentItemController {
     private void onEditClicked() {
         // Replace content label with inline TextField
         javafx.scene.control.TextField editField = new javafx.scene.control.TextField(comment.getContent());
-        editField.setStyle("-fx-background-color: #f0f2f5; -fx-border-color: #17B3A6; -fx-border-width: 2; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 8 10; -fx-font-size: 13px;");
+        editField.setStyle(
+                "-fx-background-color: #f0f2f5; -fx-border-color: #17B3A6; -fx-border-width: 2; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 8 10; -fx-font-size: 13px;");
         editField.setOnAction(e -> saveEdit(editField.getText()));
 
         // Replace the contentLabel node with the TextField temporarily
@@ -86,12 +105,14 @@ public class CommentItemController {
     }
 
     private void saveEdit(String newText) {
-        if (newText == null || newText.trim().isEmpty()) return;
+        if (newText == null || newText.trim().isEmpty())
+            return;
         try {
             comment.setContent(newText.trim());
             dashboard.getCommentService().updateOne(comment);
             contentLabel.setText(newText.trim());
-            if (onChanged != null) onChanged.run();
+            if (onChanged != null)
+                onChanged.run();
         } catch (SQLException e) {
             dashboard.showError("Failed to update comment.");
         }
@@ -112,7 +133,8 @@ public class CommentItemController {
                     try {
                         dashboard.getCommentService().deleteOne(comment);
                         dashboard.loadPosts();
-                        if (onChanged != null) onChanged.run();
+                        if (onChanged != null)
+                            onChanged.run();
                     } catch (SQLException e) {
                         dashboard.showError("Failed to delete comment.");
                     }
