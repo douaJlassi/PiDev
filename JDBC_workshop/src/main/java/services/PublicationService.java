@@ -27,17 +27,17 @@ public class PublicationService implements CRUD<Publication> {
             throw new IllegalArgumentException("Publication content cannot be empty");
         }
 
-        String sql = "INSERT INTO publication(content, datePublication, client_id, image_path, place, agency_id, status) " +
-                "VALUES(?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO publication(content, datePublication, user_id, image_path, place, status) "
+                +
+                "VALUES(?, ?, ?, ?, ?, ?)";
 
-        try (PreparedStatement ps = cnx.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement ps = MyDBConnexion.getInstance().getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, p.getContent());
             ps.setTimestamp(2, new Timestamp(p.getDatePublication().getTime()));
             ps.setInt(3, p.getClient().getClientID());
             ps.setString(4, p.getImagePath());
             ps.setString(5, p.getPlace());
-            ps.setInt(6, p.getAgencyId());
-            ps.setString(7, p.getStatus().name());
+            ps.setString(6, p.getStatus().name());
 
             int affectedRows = ps.executeUpdate();
 
@@ -67,7 +67,7 @@ public class PublicationService implements CRUD<Publication> {
 
         String sql = "UPDATE publication SET content=?, image_path=?, place=? WHERE publicationID=?";
 
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (PreparedStatement ps = MyDBConnexion.getInstance().getConnection().prepareStatement(sql)) {
             ps.setString(1, p.getContent());
             ps.setString(2, p.getImagePath());
             ps.setString(3, p.getPlace());
@@ -76,7 +76,8 @@ public class PublicationService implements CRUD<Publication> {
             int affectedRows = ps.executeUpdate();
 
             if (affectedRows == 0) {
-                throw new SQLException("Updating publication failed, no rows affected. Publication ID: " + p.getPublicationID());
+                throw new SQLException(
+                        "Updating publication failed, no rows affected. Publication ID: " + p.getPublicationID());
             }
         }
     }
@@ -93,13 +94,14 @@ public class PublicationService implements CRUD<Publication> {
 
         String sql = "DELETE FROM publication WHERE publicationID=?";
 
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (PreparedStatement ps = MyDBConnexion.getInstance().getConnection().prepareStatement(sql)) {
             ps.setInt(1, p.getPublicationID());
 
             int affectedRows = ps.executeUpdate();
 
             if (affectedRows == 0) {
-                throw new SQLException("Deleting publication failed, no rows affected. Publication ID: " + p.getPublicationID());
+                throw new SQLException(
+                        "Deleting publication failed, no rows affected. Publication ID: " + p.getPublicationID());
             }
         }
     }
@@ -109,14 +111,14 @@ public class PublicationService implements CRUD<Publication> {
         List<Publication> list = new ArrayList<>();
 
         // Front office only shows APPROVED posts
-        String sql = "SELECT p.*, c.username, c.avatarPath " +
+        String sql = "SELECT p.*, u.username, NULL as avatarPath " +
                 "FROM publication p " +
-                "LEFT JOIN client c ON p.client_id = c.clientID " +
+                "LEFT JOIN user u ON p.user_id = u.id " +
                 "WHERE p.status = 'APPROVED' " +
                 "ORDER BY p.datePublication DESC";
 
-        try (Statement st = cnx.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
+        try (Statement st = MyDBConnexion.getInstance().getConnection().createStatement();
+                ResultSet rs = st.executeQuery(sql)) {
 
             while (rs.next()) {
                 list.add(mapRow(rs));
@@ -128,25 +130,14 @@ public class PublicationService implements CRUD<Publication> {
 
     /** Back-office: all posts for a given agency, regardless of status. */
     public List<Publication> selectByAgency(int agencyId) throws SQLException {
-        List<Publication> list = new ArrayList<>();
-        String sql = "SELECT p.*, c.username, c.avatarPath " +
-                "FROM publication p " +
-                "LEFT JOIN client c ON p.client_id = c.clientID " +
-                "WHERE p.agency_id = ? " +
-                "ORDER BY p.status ASC, p.datePublication DESC";
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
-            ps.setInt(1, agencyId);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) list.add(mapRow(rs));
-            }
-        }
-        return list;
+        // Disabled for pi2XD.sql compatibility
+        return new ArrayList<>();
     }
 
     /** Update just the moderation status of a post. */
     public void updateStatus(int publicationID, Publication.Status status) throws SQLException {
         String sql = "UPDATE publication SET status = ? WHERE publicationID = ?";
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (PreparedStatement ps = MyDBConnexion.getInstance().getConnection().prepareStatement(sql)) {
             ps.setString(1, status.name());
             ps.setInt(2, publicationID);
             ps.executeUpdate();
@@ -155,7 +146,7 @@ public class PublicationService implements CRUD<Publication> {
 
     private Publication mapRow(ResultSet rs) throws SQLException {
         Client c = new Client();
-        c.setClientID(rs.getInt("client_id"));
+        c.setClientID(rs.getInt("user_id"));
         c.setUsername(rs.getString("username"));
         c.setAvatarPath(rs.getString("avatarPath"));
 
@@ -165,11 +156,10 @@ public class PublicationService implements CRUD<Publication> {
                 rs.getString("content"),
                 new Date(rs.getTimestamp("datePublication").getTime()),
                 rs.getString("image_path"),
-                rs.getString("place")
-        );
-        p.setAgencyId(rs.getInt("agency_id"));
+                rs.getString("place"));
         String statusStr = rs.getString("status");
-        if (statusStr != null) p.setStatus(Publication.Status.valueOf(statusStr));
+        if (statusStr != null)
+            p.setStatus(Publication.Status.valueOf(statusStr));
         return p;
     }
 
@@ -177,24 +167,17 @@ public class PublicationService implements CRUD<Publication> {
      * Get a single publication by ID
      */
     public Publication selectById(int publicationID) throws SQLException {
-        String sql = "SELECT * FROM publication WHERE publicationID=?";
+        String sql = "SELECT p.*, u.username, NULL as avatarPath " +
+                "FROM publication p " +
+                "LEFT JOIN user u ON p.user_id = u.id " +
+                "WHERE p.publicationID=?";
 
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (PreparedStatement ps = MyDBConnexion.getInstance().getConnection().prepareStatement(sql)) {
             ps.setInt(1, publicationID);
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    Client c = new Client();
-                    c.setClientID(rs.getInt("client_id"));
-
-                    return new Publication(
-                            c,
-                            rs.getInt("publicationID"),
-                            rs.getString("content"),
-                            new Date(rs.getTimestamp("datePublication").getTime()),
-                            rs.getString("image_path"),
-                            rs.getString("place")
-                    );
+                    return mapRow(rs);
                 }
             }
         }
@@ -208,26 +191,17 @@ public class PublicationService implements CRUD<Publication> {
     public List<Publication> selectByClient(int clientID) throws SQLException {
         List<Publication> list = new ArrayList<>();
 
-        String sql = "SELECT * FROM publication WHERE client_id=? ORDER BY datePublication DESC";
+        String sql = "SELECT p.*, u.username, NULL as avatarPath " +
+                "FROM publication p " +
+                "LEFT JOIN user u ON p.user_id = u.id " +
+                "WHERE p.user_id=? ORDER BY p.datePublication DESC";
 
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (PreparedStatement ps = MyDBConnexion.getInstance().getConnection().prepareStatement(sql)) {
             ps.setInt(1, clientID);
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    Client c = new Client();
-                    c.setClientID(rs.getInt("client_id"));
-
-                    Publication p = new Publication(
-                            c,
-                            rs.getInt("publicationID"),
-                            rs.getString("content"),
-                            new Date(rs.getTimestamp("datePublication").getTime()),
-                            rs.getString("image_path"),
-                            rs.getString("place")
-                    );
-
-                    list.add(p);
+                    list.add(mapRow(rs));
                 }
             }
         }
@@ -241,25 +215,17 @@ public class PublicationService implements CRUD<Publication> {
     public List<Publication> selectWithImages() throws SQLException {
         List<Publication> list = new ArrayList<>();
 
-        String sql = "SELECT * FROM publication WHERE image_path IS NOT NULL AND image_path != '' ORDER BY datePublication DESC";
+        String sql = "SELECT p.*, u.username, NULL as avatarPath " +
+                "FROM publication p " +
+                "LEFT JOIN user u ON p.user_id = u.id " +
+                "WHERE p.image_path IS NOT NULL AND p.image_path != '' " +
+                "ORDER BY p.datePublication DESC";
 
-        try (Statement st = cnx.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
+        try (Statement st = MyDBConnexion.getInstance().getConnection().createStatement();
+                ResultSet rs = st.executeQuery(sql)) {
 
             while (rs.next()) {
-                Client c = new Client();
-                c.setClientID(rs.getInt("client_id"));
-
-                Publication p = new Publication(
-                        c,
-                        rs.getInt("publicationID"),
-                        rs.getString("content"),
-                        new Date(rs.getTimestamp("datePublication").getTime()),
-                        rs.getString("image_path"),
-                        rs.getString("place")
-                );
-
-                list.add(p);
+                list.add(mapRow(rs));
             }
         }
 
@@ -272,28 +238,20 @@ public class PublicationService implements CRUD<Publication> {
     public List<Publication> searchPublications(String keyword) throws SQLException {
         List<Publication> list = new ArrayList<>();
 
-        String sql = "SELECT * FROM publication WHERE content LIKE ? OR place LIKE ? ORDER BY datePublication DESC";
+        String sql = "SELECT p.*, u.username, NULL as avatarPath " +
+                "FROM publication p " +
+                "LEFT JOIN user u ON p.user_id = u.id " +
+                "WHERE p.content LIKE ? OR p.place LIKE ? " +
+                "ORDER BY p.datePublication DESC";
 
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (PreparedStatement ps = MyDBConnexion.getInstance().getConnection().prepareStatement(sql)) {
             String searchPattern = "%" + keyword + "%";
             ps.setString(1, searchPattern);
             ps.setString(2, searchPattern);
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    Client c = new Client();
-                    c.setClientID(rs.getInt("client_id"));
-
-                    Publication p = new Publication(
-                            c,
-                            rs.getInt("publicationID"),
-                            rs.getString("content"),
-                            new Date(rs.getTimestamp("datePublication").getTime()),
-                            rs.getString("image_path"),
-                            rs.getString("place")
-                    );
-
-                    list.add(p);
+                    list.add(mapRow(rs));
                 }
             }
         }
@@ -307,8 +265,8 @@ public class PublicationService implements CRUD<Publication> {
     public int getPublicationCount() throws SQLException {
         String sql = "SELECT COUNT(*) as count FROM publication";
 
-        try (Statement st = cnx.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
+        try (Statement st = MyDBConnexion.getInstance().getConnection().createStatement();
+                ResultSet rs = st.executeQuery(sql)) {
 
             if (rs.next()) {
                 return rs.getInt("count");
@@ -324,26 +282,17 @@ public class PublicationService implements CRUD<Publication> {
     public List<Publication> getRecentPublications(int limit) throws SQLException {
         List<Publication> list = new ArrayList<>();
 
-        String sql = "SELECT * FROM publication ORDER BY datePublication DESC LIMIT ?";
+        String sql = "SELECT p.*, u.username, NULL as avatarPath " +
+                "FROM publication p " +
+                "LEFT JOIN user u ON p.user_id = u.id " +
+                "ORDER BY p.datePublication DESC LIMIT ?";
 
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (PreparedStatement ps = MyDBConnexion.getInstance().getConnection().prepareStatement(sql)) {
             ps.setInt(1, limit);
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    Client c = new Client();
-                    c.setClientID(rs.getInt("client_id"));
-
-                    Publication p = new Publication(
-                            c,
-                            rs.getInt("publicationID"),
-                            rs.getString("content"),
-                            new Date(rs.getTimestamp("datePublication").getTime()),
-                            rs.getString("image_path"),
-                            rs.getString("place")
-                    );
-
-                    list.add(p);
+                    list.add(mapRow(rs));
                 }
             }
         }

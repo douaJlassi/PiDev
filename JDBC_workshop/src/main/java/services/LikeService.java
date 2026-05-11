@@ -23,9 +23,9 @@ public class LikeService implements CRUD<Like> {
             throw new IllegalArgumentException("Like cannot be null");
         }
 
-        String sql = "INSERT INTO `like`(publicationID, client_id) VALUES(?, ?)";
+        String sql = "INSERT INTO `like`(publicationID, user_id) VALUES(?, ?)";
 
-        try (PreparedStatement ps = cnx.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement ps = MyDBConnexion.getInstance().getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, like.getPublicationID());
             ps.setInt(2, like.getClient().getClientID());
 
@@ -63,7 +63,7 @@ public class LikeService implements CRUD<Like> {
 
         String sql = "DELETE FROM `like` WHERE likeID=?";
 
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (PreparedStatement ps = MyDBConnexion.getInstance().getConnection().prepareStatement(sql)) {
             ps.setInt(1, like.getLikeID());
 
             int affectedRows = ps.executeUpdate();
@@ -80,12 +80,12 @@ public class LikeService implements CRUD<Like> {
 
         String sql = "SELECT * FROM `like`";
 
-        try (Statement st = cnx.createStatement();
+        try (Statement st = MyDBConnexion.getInstance().getConnection().createStatement();
              ResultSet rs = st.executeQuery(sql)) {
 
             while (rs.next()) {
                 Client client = new Client();
-                client.setClientID(rs.getInt("client_id"));
+                client.setClientID(rs.getInt("user_id"));
 
                 Publication publication = new Publication();
                 publication.setPublicationID(rs.getInt("publicationID"));
@@ -113,13 +113,13 @@ public class LikeService implements CRUD<Like> {
 
         String sql = "SELECT * FROM `like` WHERE publicationID=?";
 
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (PreparedStatement ps = MyDBConnexion.getInstance().getConnection().prepareStatement(sql)) {
             ps.setInt(1, publicationID);
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     Client client = new Client();
-                    client.setClientID(rs.getInt("client_id"));
+                    client.setClientID(rs.getInt("user_id"));
 
                     Publication publication = new Publication();
                     publication.setPublicationID(rs.getInt("publicationID"));
@@ -146,7 +146,7 @@ public class LikeService implements CRUD<Like> {
     public int getLikeCount(int publicationID) throws SQLException {
         String sql = "SELECT COUNT(*) as count FROM `like` WHERE publicationID=?";
 
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (PreparedStatement ps = MyDBConnexion.getInstance().getConnection().prepareStatement(sql)) {
             ps.setInt(1, publicationID);
 
             try (ResultSet rs = ps.executeQuery()) {
@@ -163,9 +163,9 @@ public class LikeService implements CRUD<Like> {
      * Check if a user has liked a publication
      */
     public boolean hasUserLiked(int publicationID, int clientID) throws SQLException {
-        String sql = "SELECT COUNT(*) as count FROM `like` WHERE publicationID=? AND client_id=?";
+        String sql = "SELECT COUNT(*) as count FROM `like` WHERE publicationID=? AND user_id=?";
 
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (PreparedStatement ps = MyDBConnexion.getInstance().getConnection().prepareStatement(sql)) {
             ps.setInt(1, publicationID);
             ps.setInt(2, clientID);
 
@@ -183,16 +183,16 @@ public class LikeService implements CRUD<Like> {
      * Get the like object for a specific user and publication
      */
     public Like getUserLike(int publicationID, int clientID) throws SQLException {
-        String sql = "SELECT * FROM `like` WHERE publicationID=? AND client_id=?";
+        String sql = "SELECT * FROM `like` WHERE publicationID=? AND user_id=?";
 
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (PreparedStatement ps = MyDBConnexion.getInstance().getConnection().prepareStatement(sql)) {
             ps.setInt(1, publicationID);
             ps.setInt(2, clientID);
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     Client client = new Client();
-                    client.setClientID(rs.getInt("client_id"));
+                    client.setClientID(rs.getInt("user_id"));
 
                     Publication publication = new Publication();
                     publication.setPublicationID(rs.getInt("publicationID"));
@@ -243,15 +243,15 @@ public class LikeService implements CRUD<Like> {
     public List<Like> getLikesByUser(int clientID) throws SQLException {
         List<Like> list = new ArrayList<>();
 
-        String sql = "SELECT * FROM `like` WHERE client_id=?";
+        String sql = "SELECT * FROM `like` WHERE user_id=?";
 
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (PreparedStatement ps = MyDBConnexion.getInstance().getConnection().prepareStatement(sql)) {
             ps.setInt(1, clientID);
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     Client client = new Client();
-                    client.setClientID(rs.getInt("client_id"));
+                    client.setClientID(rs.getInt("user_id"));
 
                     Publication publication = new Publication();
                     publication.setPublicationID(rs.getInt("publicationID"));
@@ -278,7 +278,7 @@ public class LikeService implements CRUD<Like> {
     public void deleteLikesByPublication(int publicationID) throws SQLException {
         String sql = "DELETE FROM `like` WHERE publicationID=?";
 
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (PreparedStatement ps = MyDBConnexion.getInstance().getConnection().prepareStatement(sql)) {
             ps.setInt(1, publicationID);
             ps.executeUpdate();
         }

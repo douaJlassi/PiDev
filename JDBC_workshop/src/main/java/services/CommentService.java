@@ -28,9 +28,9 @@ public class CommentService implements CRUD<Comment> {
             throw new IllegalArgumentException("Comment content cannot be empty");
         }
 
-        String sql = "INSERT INTO comment(publicationID, client_id, content, commentDate) VALUES(?, ?, ?, ?)";
+        String sql = "INSERT INTO comment(publicationID, user_id, content, commentDate) VALUES(?, ?, ?, ?)";
 
-        try (PreparedStatement ps = cnx.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement ps = MyDBConnexion.getInstance().getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, comment.getPublicationID());
             ps.setInt(2, comment.getClient().getClientID());
             ps.setString(3, comment.getContent());
@@ -64,14 +64,15 @@ public class CommentService implements CRUD<Comment> {
 
         String sql = "UPDATE comment SET content=? WHERE commentID=?";
 
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (PreparedStatement ps = MyDBConnexion.getInstance().getConnection().prepareStatement(sql)) {
             ps.setString(1, comment.getContent());
             ps.setInt(2, comment.getCommentID());
 
             int affectedRows = ps.executeUpdate();
 
             if (affectedRows == 0) {
-                throw new SQLException("Updating comment failed, no rows affected. Comment ID: " + comment.getCommentID());
+                throw new SQLException(
+                        "Updating comment failed, no rows affected. Comment ID: " + comment.getCommentID());
             }
         }
     }
@@ -88,13 +89,14 @@ public class CommentService implements CRUD<Comment> {
 
         String sql = "DELETE FROM comment WHERE commentID=?";
 
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (PreparedStatement ps = MyDBConnexion.getInstance().getConnection().prepareStatement(sql)) {
             ps.setInt(1, comment.getCommentID());
 
             int affectedRows = ps.executeUpdate();
 
             if (affectedRows == 0) {
-                throw new SQLException("Deleting comment failed, no rows affected. Comment ID: " + comment.getCommentID());
+                throw new SQLException(
+                        "Deleting comment failed, no rows affected. Comment ID: " + comment.getCommentID());
             }
         }
     }
@@ -103,28 +105,16 @@ public class CommentService implements CRUD<Comment> {
     public List<Comment> selectALL() throws SQLException {
         List<Comment> list = new ArrayList<>();
 
-        String sql = "SELECT * FROM comment ORDER BY commentDate DESC";
+        String sql = "SELECT cm.*, u.username " +
+                "FROM comment cm " +
+                "LEFT JOIN user u ON cm.user_id = u.id " +
+                "ORDER BY cm.commentDate DESC";
 
-        try (Statement st = cnx.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
+        try (Statement st = MyDBConnexion.getInstance().getConnection().createStatement();
+                ResultSet rs = st.executeQuery(sql)) {
 
             while (rs.next()) {
-                Client client = new Client();
-                client.setClientID(rs.getInt("client_id"));
-
-                Publication publication = new Publication();
-                publication.setPublicationID(rs.getInt("publicationID"));
-
-                Comment comment = new Comment(
-                        client,
-                        publication,
-                        rs.getInt("commentID"),
-                        rs.getInt("publicationID"),
-                        rs.getString("content"),
-                        new Date(rs.getTimestamp("commentDate").getTime())
-                );
-
-                list.add(comment);
+                list.add(mapRow(rs));
             }
         }
 
@@ -137,34 +127,17 @@ public class CommentService implements CRUD<Comment> {
     public List<Comment> getCommentsByPublication(int publicationID) throws SQLException {
         List<Comment> list = new ArrayList<>();
 
-        String sql = "SELECT cm.*, c.username, c.avatarPath " +
+        String sql = "SELECT cm.*, u.username " +
                 "FROM comment cm " +
-                "LEFT JOIN client c ON cm.client_id = c.clientID " +
+                "LEFT JOIN user u ON cm.user_id = u.id " +
                 "WHERE cm.publicationID=? ORDER BY cm.commentDate ASC";
 
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (PreparedStatement ps = MyDBConnexion.getInstance().getConnection().prepareStatement(sql)) {
             ps.setInt(1, publicationID);
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    Client client = new Client();
-                    client.setClientID(rs.getInt("client_id"));
-                    client.setUsername(rs.getString("username"));
-                    client.setAvatarPath(rs.getString("avatarPath"));
-
-                    Publication publication = new Publication();
-                    publication.setPublicationID(rs.getInt("publicationID"));
-
-                    Comment comment = new Comment(
-                            client,
-                            publication,
-                            rs.getInt("commentID"),
-                            rs.getInt("publicationID"),
-                            rs.getString("content"),
-                            new Date(rs.getTimestamp("commentDate").getTime())
-                    );
-
-                    list.add(comment);
+                    list.add(mapRow(rs));
                 }
             }
         }
@@ -178,7 +151,7 @@ public class CommentService implements CRUD<Comment> {
     public int getCommentCount(int publicationID) throws SQLException {
         String sql = "SELECT COUNT(*) as count FROM comment WHERE publicationID=?";
 
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (PreparedStatement ps = MyDBConnexion.getInstance().getConnection().prepareStatement(sql)) {
             ps.setInt(1, publicationID);
 
             try (ResultSet rs = ps.executeQuery()) {
@@ -195,27 +168,17 @@ public class CommentService implements CRUD<Comment> {
      * Get a single comment by ID
      */
     public Comment getCommentById(int commentID) throws SQLException {
-        String sql = "SELECT * FROM comment WHERE commentID=?";
+        String sql = "SELECT cm.*, u.username " +
+                "FROM comment cm " +
+                "LEFT JOIN user u ON cm.user_id = u.id " +
+                "WHERE cm.commentID=?";
 
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (PreparedStatement ps = MyDBConnexion.getInstance().getConnection().prepareStatement(sql)) {
             ps.setInt(1, commentID);
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    Client client = new Client();
-                    client.setClientID(rs.getInt("client_id"));
-
-                    Publication publication = new Publication();
-                    publication.setPublicationID(rs.getInt("publicationID"));
-
-                    return new Comment(
-                            client,
-                            publication,
-                            rs.getInt("commentID"),
-                            rs.getInt("publicationID"),
-                            rs.getString("content"),
-                            new Date(rs.getTimestamp("commentDate").getTime())
-                    );
+                    return mapRow(rs);
                 }
             }
         }
@@ -229,29 +192,17 @@ public class CommentService implements CRUD<Comment> {
     public List<Comment> getCommentsByUser(int clientID) throws SQLException {
         List<Comment> list = new ArrayList<>();
 
-        String sql = "SELECT * FROM comment WHERE client_id=? ORDER BY commentDate DESC";
+        String sql = "SELECT cm.*, u.username " +
+                "FROM comment cm " +
+                "LEFT JOIN user u ON cm.user_id = u.id " +
+                "WHERE cm.user_id=? ORDER BY cm.commentDate DESC";
 
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (PreparedStatement ps = MyDBConnexion.getInstance().getConnection().prepareStatement(sql)) {
             ps.setInt(1, clientID);
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    Client client = new Client();
-                    client.setClientID(rs.getInt("client_id"));
-
-                    Publication publication = new Publication();
-                    publication.setPublicationID(rs.getInt("publicationID"));
-
-                    Comment comment = new Comment(
-                            client,
-                            publication,
-                            rs.getInt("commentID"),
-                            rs.getInt("publicationID"),
-                            rs.getString("content"),
-                            new Date(rs.getTimestamp("commentDate").getTime())
-                    );
-
-                    list.add(comment);
+                    list.add(mapRow(rs));
                 }
             }
         }
@@ -265,7 +216,7 @@ public class CommentService implements CRUD<Comment> {
     public void deleteCommentsByPublication(int publicationID) throws SQLException {
         String sql = "DELETE FROM comment WHERE publicationID=?";
 
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (PreparedStatement ps = MyDBConnexion.getInstance().getConnection().prepareStatement(sql)) {
             ps.setInt(1, publicationID);
             ps.executeUpdate();
         }
@@ -277,33 +228,45 @@ public class CommentService implements CRUD<Comment> {
     public List<Comment> getRecentComments(int limit) throws SQLException {
         List<Comment> list = new ArrayList<>();
 
-        String sql = "SELECT * FROM comment ORDER BY commentDate DESC LIMIT ?";
+        String sql = "SELECT cm.*, u.username " +
+                "FROM comment cm " +
+                "LEFT JOIN user u ON cm.user_id = u.id " +
+                "ORDER BY cm.commentDate DESC LIMIT ?";
 
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (PreparedStatement ps = MyDBConnexion.getInstance().getConnection().prepareStatement(sql)) {
             ps.setInt(1, limit);
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    Client client = new Client();
-                    client.setClientID(rs.getInt("client_id"));
-
-                    Publication publication = new Publication();
-                    publication.setPublicationID(rs.getInt("publicationID"));
-
-                    Comment comment = new Comment(
-                            client,
-                            publication,
-                            rs.getInt("commentID"),
-                            rs.getInt("publicationID"),
-                            rs.getString("content"),
-                            new Date(rs.getTimestamp("commentDate").getTime())
-                    );
-
-                    list.add(comment);
+                    list.add(mapRow(rs));
                 }
             }
         }
 
         return list;
+    }
+
+    /**
+     * Shared row mapper for Comment queries that join the user table.
+     */
+    private Comment mapRow(ResultSet rs) throws SQLException {
+        Client client = new Client();
+        client.setClientID(rs.getInt("user_id"));
+        try {
+            client.setUsername(rs.getString("username"));
+        } catch (SQLException ignored) {
+            // username column not in every query
+        }
+
+        Publication publication = new Publication();
+        publication.setPublicationID(rs.getInt("publicationID"));
+
+        return new Comment(
+                client,
+                publication,
+                rs.getInt("commentID"),
+                rs.getInt("publicationID"),
+                rs.getString("content"),
+                new Date(rs.getTimestamp("commentDate").getTime()));
     }
 }
