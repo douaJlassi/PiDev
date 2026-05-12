@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.shape.SVGPath?>
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="controllers.CartItemCardController"
+      spacing="0"
+      styleClass="cart-item-card"
+      prefWidth="650">
+
+    <padding>
+        <Insets top="10" right="15" bottom="10" left="10"/>
+    </padding>
+
+    <HBox spacing="15" alignment="CENTER_LEFT">
+        <StackPane styleClass="card-image-wrap" prefWidth="100" prefHeight="70">
+            <ImageView fx:id="img" fitWidth="100" fitHeight="70" preserveRatio="false" />
+        </StackPane>
+
+        <VBox spacing="4" HBox.hgrow="ALWAYS">
+            <Label fx:id="titleLbl" styleClass="card-title" style="-fx-font-size: 15px;" text="Summer Escape to Djerba"/>
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="Unit Price:" styleClass="dash-muted" style="-fx-font-size: 11px;"/>
+                <Label fx:id="priceLbl" styleClass="price" style="-fx-font-size: 13px;" text="450.000 TND"/>
+            </HBox>
+        </VBox>
+
+        <VBox alignment="CENTER_RIGHT" spacing="10">
+            <Button onAction="#onRemove" styleClass="btn-remove-icon">
+                <graphic>
+                    <SVGPath content="M9 3V4H4V6H5V19C5 20.1 5.9 21 7 21H17C18.1 21 19 20.1 19 19V6H20V4H15V3H9M7 6H17V19H7V6M9 8V17H11V8H9M13 8V17H15V8H13Z"
+                             fill="#EF4444" scaleX="0.8" scaleY="0.8" />
+                </graphic>
+            </Button>
+            <Label text="In Cart" styleClass="badge-service" style="-fx-font-size: 9px; -fx-padding: 2 6;"/>
+        </VBox>
+    </HBox>
+</VBox>

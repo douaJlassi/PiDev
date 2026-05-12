@@ -1,0 +1,44 @@
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.chart.BarChart?>
+<ScrollPane fitToWidth="true" style="-fx-background-color: #F4F7F6;" stylesheets="/styles/backofficeLocal.css" xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"  fx:controller="controllers.BackOfficeLocalController">
+    <content>
+        <VBox spacing="20" style="-fx-padding: 20;">
+            <children>
+                <HBox spacing="20" alignment="CENTER">
+                    <children>
+                        <VBox alignment="CENTER" prefHeight="150" prefWidth="200" style="-fx-background-color: white; -fx-background-radius: 15;">
+                            <children>
+                                <Label text="Total Conversations" textFill="#95a5a6" />
+                                <Label fx:id="lblTotalConv" text="0" textFill="#0d3b66" style="-fx-font-size: 40; -fx-font-weight: bold;" />
+                            </children>
+                        </VBox>
+                        <PieChart fx:id="pieType" title="Chat Type Distribution" prefHeight="300" />
+                    </children>
+                </HBox>
+
+                <HBox spacing="20">
+                    <children>
+                        <BarChart fx:id="barGroupSize" title="Top Groups by Size">
+                            <xAxis><CategoryAxis side="BOTTOM" /></xAxis>
+                            <yAxis><NumberAxis side="LEFT" /></yAxis>
+                        </BarChart>
+                        <PieChart fx:id="pieMedia" title="Message Content Mix" />
+                    </children>
+                </HBox>
+
+                <LineChart fx:id="lineActivity" title="Messaging Traffic over Time">
+                    <xAxis><CategoryAxis side="BOTTOM" /></xAxis>
+                    <yAxis><NumberAxis side="LEFT" /></yAxis>
+                </LineChart>
+            </children>
+        </VBox>
+    </content>
+</ScrollPane>

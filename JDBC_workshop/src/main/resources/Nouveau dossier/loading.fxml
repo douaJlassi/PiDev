@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<StackPane xmlns:fx="http://javafx.com/fxml"
+           fx:controller="controllers.LoadingController"
+           prefWidth="1300"
+           prefHeight="800"
+           style="-fx-background-color: linear-gradient(to bottom right,#0FA5A2,#1D4D7C);">
+
+    <HBox alignment="CENTER" spacing="0">
+
+        <Label fx:id="rehLabel"
+               text="Reh"
+               style="-fx-text-fill:#0FA5A2;
+                      -fx-font-size:72px;
+                      -fx-font-weight:900;" />
+
+        <Label fx:id="letLabel"
+               text="let"
+               visible="false"
+               style="-fx-text-fill:#FEC74C;
+                      -fx-font-size:72px;
+                      -fx-font-weight:900;" />
+
+        <Label fx:id="natnLabel"
+               text="na.tn"
+               visible="false"
+               style="-fx-text-fill:#1D4D7C;
+                      -fx-font-size:72px;
+                      -fx-font-weight:900;" />
+
+    </HBox>
+
+</StackPane>

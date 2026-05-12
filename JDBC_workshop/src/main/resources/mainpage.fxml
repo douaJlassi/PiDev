@@ -12,6 +12,7 @@
             fx:controller="controllers.MainPageController"
             prefWidth="1300"
             prefHeight="800"
+            fx:id="mainBorderPane"
             style="-fx-background-color: #f8faff;">
 
     <!-- Top Bar with Logo, Horizontal Menu and Profile -->
@@ -61,37 +62,53 @@
                 </Button>
 
                 <!-- Activities Button -->
-                <Button fx:id="activitiesBtn"
-                        style="-fx-background-color: transparent; -fx-text-fill: #666; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 25; -fx-cursor: hand;">
+                <Button fx:id="activitieseBtn"
+                        onAction="#openActivitiesDashboard"
+                        style="-fx-background-color: transparent; -fx-text-fill: #222; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 25; -fx-cursor: hand;">
                     <graphic>
                         <HBox spacing="8" alignment="CENTER">
-                            <Label text="🏞" style="-fx-font-size: 16px;"/>
+                            <Label text="🏷" style="-fx-font-size: 16px;"/>
                             <Label text="Activities" style="-fx-font-size: 14px;"/>
                         </HBox>
                     </graphic>
                 </Button>
 
-                <!-- My Bookings Button -->
-                <Button fx:id="reservationsBtn"
-                        style="-fx-background-color: transparent; -fx-text-fill: #666; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 25; -fx-cursor: hand;">
+
+                <Button fx:id="ServicesBtn"
+                        onAction="#openServicesDashboard"
+                        style="-fx-background-color: transparent; -fx-text-fill: #222; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 25; -fx-cursor: hand;">
                     <graphic>
                         <HBox spacing="8" alignment="CENTER">
-                            <Label text="📅" style="-fx-font-size: 16px;"/>
-                            <Label text="My Bookings" style="-fx-font-size: 14px;"/>
+                            <Label text="🏷" style="-fx-font-size: 16px;"/>
+                            <Label text="Services" style="-fx-font-size: 14px;"/>
                         </HBox>
                     </graphic>
                 </Button>
 
                 <!-- Messages Button -->
-                <Button fx:id="messagesBtn"
+                <Button fx:id="btnChat" alignment="CENTER_LEFT" mnemonicParsing="false" onAction="#showChatView"
+                        prefHeight="60.0" prefWidth="220.0"
                         style="-fx-background-color: transparent; -fx-text-fill: #666; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 25; -fx-cursor: hand;">
                     <graphic>
-                        <HBox spacing="8" alignment="CENTER">
-                            <Label text="💬" style="-fx-font-size: 16px;"/>
-                            <Label text="Messages" style="-fx-font-size: 14px;"/>
-                            <Circle radius="5" fill="#ff5e62" translateX="3"/>
+                        <HBox alignment="CENTER_LEFT" spacing="15.0">
+                            <children>
+                                <Label style="-fx-text-fill: black; -fx-font-size: 24;" text="💬" alignment="CENTER" />
+                                <Label fx:id="lblBadge" alignment="CENTER" managed="false"
+                                       minHeight="18.0" minWidth="18.0" text="0" visible="false"
+                                       style="-fx-background-color: #e74c3c;
+                                      -fx-text-fill: white;
+                                      -fx-background-radius: 10;
+                                      -fx-font-size: 9;
+                                      -fx-font-weight: bold;
+                                      -fx-translate-x: 12;
+                                      -fx-translate-y: -10;" />
+                                <Label text="Messenger" style="-fx-font-size: 14px;"/>
+                            </children>
                         </HBox>
                     </graphic>
+                    <padding>
+                        <Insets left="15.0" />
+                    </padding>
                 </Button>
 
                 <!-- Favorites Button -->
@@ -101,6 +118,16 @@
                         <HBox spacing="8" alignment="CENTER">
                             <Label text="❤" style="-fx-font-size: 16px;"/>
                             <Label text="Favorites" style="-fx-font-size: 14px;"/>
+                        </HBox>
+                    </graphic>
+                </Button>
+                <Button fx:id="offersBtn"
+                        onAction="#openOffersDashboard"
+                        style="-fx-background-color: transparent; -fx-text-fill: #222; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 25; -fx-cursor: hand;">
+                    <graphic>
+                        <HBox spacing="8" alignment="CENTER">
+                            <Label text="🏷" style="-fx-font-size: 16px;"/>
+                            <Label text="Offers" style="-fx-font-size: 14px;"/>
                         </HBox>
                     </graphic>
                 </Button>

@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.paint.Stop?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.effect.InnerShadow?>
+<?import javafx.scene.effect.Glow?>
+<?import javafx.scene.effect.Bloom?>
+<?import javafx.scene.effect.GaussianBlur?>
+<?import javafx.scene.effect.Reflection?>
+<?import javafx.scene.paint.LinearGradient?>
+<?import javafx.scene.paint.RadialGradient?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Font?>
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="controllers.DashboardController"
+            fx:id="mainBorderPane"
+            prefWidth="1300"
+            prefHeight="800"
+            style="-fx-background-color: #f5f5f5;">
+
+    <!-- Top Bar with Logo and Back Button -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-background-color: white; -fx-padding: 15 30; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
+            <!-- Back to Main Page Button -->
+            <Button fx:id="backToMainBtn" text="← Back to Main Page"
+                    style="-fx-background-color: transparent; -fx-text-fill: #0FA5A2; -fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 8 15; -fx-border-color: #0FA5A2; -fx-border-radius: 20; -fx-border-width: 1;"
+                    onAction="#handleBackToMain">
+                <effect>
+                    <DropShadow color="#0FA5A280" radius="5" offsetX="1" offsetY="1"/>
+                </effect>
+            </Button>
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <!-- Larger Logo Image -->
+            <ImageView fitWidth="180" fitHeight="60" preserveRatio="true">
+                <image>
+                    <Image url="@/image/reh.png" />
+                </image>
+                <effect>
+                    <DropShadow color="#0FA5A2" radius="10" spread="0.3"/>
+                    <Reflection fraction="0.2" topOpacity="0.8" bottomOpacity="0.2"/>
+                </effect>
+            </ImageView>
+        </HBox>
+    </top>
+
+    <!-- Left Sidebar - Vertical Navigation -->
+    <left>
+        <VBox prefWidth="280" spacing="0" style="-fx-background-color: #2c3e50; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 15, 0, 0, 0);">
+
+            <!-- User Info Section -->
+            <VBox spacing="15" alignment="CENTER" style="-fx-padding: 30 20 25 20; -fx-background-color: linear-gradient(to bottom, #34495e, #2c3e50); -fx-border-color: #3d566e; -fx-border-width: 0 0 1 0;">
+
+                <!-- Avatar -->
+                <StackPane>
+                    <Circle fx:id="userAvatar" radius="45" fill="linear-gradient(to bottom right, #0FA5A2, #1D4D7C)"
+                            style="-fx-cursor: hand;" visible="true">
+                        <effect>
+                            <Glow level="0.3"/>
+                            <DropShadow color="#00000080" radius="15" spread="0.3" offsetX="3" offsetY="3"/>
+                            <InnerShadow color="#FFFFFF80" radius="8" choke="0.5"/>
+                        </effect>
+                    </Circle>
+
+                    <ImageView fx:id="userAvatarImage" fitWidth="90" fitHeight="90" preserveRatio="true"
+                               visible="false" style="-fx-cursor: hand;">
+                        <clip>
+                            <Circle radius="45" centerX="45" centerY="45"/>
+                        </clip>
+                        <effect>
+                            <Glow level="0.2"/>
+                            <DropShadow color="#00000080" radius="15" spread="0.3" offsetX="3" offsetY="3"/>
+                            <InnerShadow color="#FFFFFF80" radius="8" choke="0.5"/>
+                        </effect>
+                    </ImageView>
+                </StackPane>
+
+                <!-- Username -->
+                <Label fx:id="userNameLabel" text="wass wass"
+                       style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;">
+                    <effect>
+                        <DropShadow color="#000000B3" radius="6" offsetX="3" offsetY="3"/>
+                        <Glow level="0.1"/>
+                    </effect>
+                </Label>
+
+                <!-- Role -->
+                <Label fx:id="userRoleLabel" text="ADMIN"
+                       style="-fx-font-size: 14px; -fx-text-fill: #FEC74C; -fx-font-weight: bold;">
+                    <effect>
+                        <DropShadow color="#00000080" radius="4" offsetX="2" offsetY="2"/>
+                        <Glow level="0.2"/>
+                    </effect>
+                </Label>
+            </VBox>
+
+            <!-- Vertical Navigation Menu -->
+            <VBox spacing="5" style="-fx-padding: 20 15;">
+                <!-- Dashboard Menu Item - Active -->
+                <Label fx:id="dashboardMenuItem" text="Dashboard"
+                       style="-fx-padding: 12 15; -fx-background-radius: 10; -fx-background-color: #0FA5A2; -fx-font-weight: bold; -fx-text-fill: white; -fx-cursor: hand;"
+                       maxWidth="Infinity">
+                    <effect>
+                        <DropShadow color="#00000080" radius="8" offsetX="2" offsetY="2"/>
+                        <InnerShadow color="#FFFFFFCC" radius="3" choke="0.3"/>
+                    </effect>
+                </Label>
+
+                <!-- Users Menu Item -->
+                <Label fx:id="usersMenuItem" text="Users"
+                       style="-fx-padding: 12 15; -fx-background-radius: 10; -fx-background-color: #34495e; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"
+                       maxWidth="Infinity">
+                    <effect>
+                        <DropShadow color="#00000080" radius="6" offsetX="2" offsetY="2"/>
+                        <InnerShadow color="#FFFFFF33" radius="2"/>
+                    </effect>
+                </Label>
+
+                <Label fx:id="todoMenuItem" text="Todo List"
+                       style="-fx-padding: 12 15; -fx-background-radius: 10; -fx-background-color: #34495e; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"
+                       maxWidth="Infinity">
+                    <effect>
+                        <DropShadow color="#00000080" radius="6" offsetX="2" offsetY="2"/>
+                        <InnerShadow color="#FFFFFF33" radius="2"/>
+                    </effect>
+                </Label>
+
+                <!-- Stats Menu Item -->
+                <Label fx:id="statsMenuItem" text="Stats"
+                       style="-fx-padding: 12 15; -fx-background-radius: 10; -fx-background-color: #34495e; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"
+                       maxWidth="Infinity">
+                    <effect>
+                        <DropShadow color="#00000080" radius="6" offsetX="2" offsetY="2"/>
+                        <InnerShadow color="#FFFFFF33" radius="2"/>
+                    </effect>
+                </Label>
+
+                <!-- My Tickets Menu Item -->
+                <Label fx:id="myTicketsMenuItem" text="Services Dashboard" onMouseClicked="#showDashboardSerices"
+                       style="-fx-padding: 12 15; -fx-background-radius: 10; -fx-background-color: #34495e; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"
+                       maxWidth="Infinity">
+                    <effect>
+                        <DropShadow color="#00000080" radius="6" offsetX="2" offsetY="2"/>
+                        <InnerShadow color="#FFFFFF33" radius="2"/>
+                    </effect>
+                </Label>
+                <Label fx:id="myTicketsMenuItemm" text="Services" onMouseClicked="#showServices"
+                       style="-fx-padding: 12 15; -fx-background-radius: 10; -fx-background-color: #34495e; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"
+                       maxWidth="Infinity">
+                    <effect>
+                        <DropShadow color="#00000080" radius="6" offsetX="2" offsetY="2"/>
+                        <InnerShadow color="#FFFFFF33" radius="2"/>
+                    </effect>
+                </Label>
+                <Label fx:id="myTicketsMenuItemmm" text="Reservations" onMouseClicked="#showReservations"
+                       style="-fx-padding: 12 15; -fx-background-radius: 10; -fx-background-color: #34495e; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"
+                       maxWidth="Infinity">
+                    <effect>
+                        <DropShadow color="#00000080" radius="6" offsetX="2" offsetY="2"/>
+                        <InnerShadow color="#FFFFFF33" radius="2"/>
+                    </effect>
+                </Label>
+                <Label fx:id="btnChat"
+                       text="💬 Dashboard Messenger"
+                       onMouseClicked="#showDashboardMessaging"
+                       maxWidth="Infinity"
+                       style="-fx-padding: 12 15;
+              -fx-background-radius: 10;
+              -fx-background-color: #34495e;
+              -fx-text-fill: white;
+              -fx-font-weight: bold;
+              -fx-cursor: hand;">
+
+                    <effect>
+                        <DropShadow color="#00000080" radius="6" offsetX="2" offsetY="2"/>
+                        <InnerShadow color="#FFFFFF33" radius="2"/>
+                    </effect>
+
+                </Label>
+
+                <!-- Shop Menu Item - Add this after Stats and before My Tickets -->
+                <Label fx:id="shopMenuItem" text="🛒 Shop"
+                       style="-fx-padding: 12 15; -fx-background-radius: 10; -fx-background-color: #34495e; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"
+                       maxWidth="Infinity">
+                    <effect>
+                        <DropShadow color="#00000080" radius="6" offsetX="2" offsetY="2"/>
+                        <InnerShadow color="#FFFFFF33" radius="2"/>
+                    </effect>
+                </Label>
+
+                <!-- Favourite Menu Item -->
+                <Label fx:id="favouriteMenuItem" text="Favourite"
+                       style="-fx-padding: 12 15; -fx-background-radius: 10; -fx-background-color: #34495e; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"
+                       maxWidth="Infinity">
+                    <effect>
+                        <DropShadow color="#00000080" radius="6" offsetX="2" offsetY="2"/>
+                        <InnerShadow color="#FFFFFF33" radius="2"/>
+                    </effect>
+                </Label>
+
+                <!-- Message Menu Item -->
+                <Label fx:id="messageMenuItem" text="Message"
+                       style="-fx-padding: 12 15; -fx-background-radius: 10; -fx-background-color: #34495e; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"
+                       maxWidth="Infinity">
+                    <effect>
+                        <DropShadow color="#00000080" radius="6" offsetX="2" offsetY="2"/>
+                        <InnerShadow color="#FFFFFF33" radius="2"/>
+                    </effect>
+                </Label>
+
+                <!-- Transaction Menu Item -->
+                <Label fx:id="transactionMenuItem" text="Transaction"
+                       style="-fx-padding: 12 15; -fx-background-radius: 10; -fx-background-color: #34495e; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"
+                       maxWidth="Infinity">
+                    <effect>
+                        <DropShadow color="#00000080" radius="6" offsetX="2" offsetY="2"/>
+                        <InnerShadow color="#FFFFFF33" radius="2"/>
+                    </effect>
+                </Label>
+
+                <!-- Bookings Menu Item -->
+                <Label fx:id="bookingsMenuItem" text="Bookings"
+                       style="-fx-padding: 12 15; -fx-background-radius: 10; -fx-background-color: #34495e; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"
+                       maxWidth="Infinity">
+                    <effect>
+                        <DropShadow color="#00000080" radius="6" offsetX="2" offsetY="2"/>
+                        <InnerShadow color="#FFFFFF33" radius="2"/>
+                    </effect>
+                </Label>
+
+
+                <!-- Settings Menu Item -->
+                <Label fx:id="settingsMenuItem" text="Settings"
+                       style="-fx-padding: 12 15; -fx-background-radius: 10; -fx-background-color: #34495e; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"
+                       maxWidth="Infinity">
+                    <effect>
+                        <DropShadow color="#00000080" radius="6" offsetX="2" offsetY="2"/>
+                        <InnerShadow color="#FFFFFF33" radius="2"/>
+                    </effect>
+                </Label>
+
+                <Region prefHeight="50" VBox.vgrow="ALWAYS"/>
+
+                <!-- Logout Button -->
+                <Label fx:id="logoutMenuItem" text="Logout"
+                       style="-fx-padding: 12 15; -fx-background-radius: 10; -fx-background-color: #c0392b; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"
+                       maxWidth="Infinity">
+                    <effect>
+                        <DropShadow color="#000000B3" radius="8" offsetX="3" offsetY="3"/>
+                        <InnerShadow color="#FFFFFFCC" radius="3" choke="0.3"/>
+                        <Glow level="0.2"/>
+                    </effect>
+                </Label>
+            </VBox>
+        </VBox>
+    </left>
+
+    <!-- Center Content -->
+    <center>
+        <StackPane fx:id="contentArea" style="-fx-padding: 20; -fx-background-color: transparent;">
+            <!-- Content will be loaded dynamically -->
+        </StackPane>
+    </center>
+
+</BorderPane>

@@ -4,6 +4,7 @@ import javafx.animation.*;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
+import app.Session;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -240,15 +241,24 @@ public class AjouterPersonne {
      */
     private void checkExistingSession() {
         Person loggedInUser = SessionManager.getCurrentUser();
+
         if (loggedInUser != null) {
-            // User is already logged in, go directly to main page
             System.out.println("Existing session found for user: " + loggedInUser.getUsername());
-            // Use Platform.runLater to ensure UI is ready
+
+            Session.loginPerson(
+                    loggedInUser.getId(),
+                    loggedInUser.getName(),
+                    loggedInUser.getLastName(),
+                    loggedInUser.getEmail(),
+                    loggedInUser.getUsername(),
+                    loggedInUser.getRole()
+            );
+
             javafx.application.Platform.runLater(() -> {
                 goToMainPage(loggedInUser);
             });
+
         } else {
-            // Then check for remembered user if no session
             checkRememberedUser();
         }
     }
@@ -741,6 +751,14 @@ public class AjouterPersonne {
 
         // Create session
         SessionManager.createSession(user);
+        Session.loginPerson(
+                user.getId(),
+                user.getName(),
+                user.getLastName(),
+                user.getEmail(),
+                user.getUsername(),
+                user.getRole()
+        );
 
         // Navigate to main page with loading animation
         navigateToDashboardWithLoading(user);
@@ -1312,6 +1330,14 @@ public class AjouterPersonne {
 
         // Create session
         SessionManager.createSession(user);
+        Session.loginPerson(
+                user.getId(),
+                user.getName(),
+                user.getLastName(),
+                user.getEmail(),
+                user.getUsername(),
+                user.getRole()
+        );
 
         // Navigate to main page with loading animation
         navigateToDashboardWithLoading(user);
@@ -1436,6 +1462,14 @@ public class AjouterPersonne {
 
         // Create session
         SessionManager.createSession(user);
+        Session.loginPerson(
+                user.getId(),
+                user.getName(),
+                user.getLastName(),
+                user.getEmail(),
+                user.getUsername(),
+                user.getRole()
+        );
 
         // Navigate to main page with loading animation
         navigateToDashboardWithLoading(user);
@@ -1536,6 +1570,14 @@ public class AjouterPersonne {
 
         // Create session
         SessionManager.createSession(user);
+        Session.loginPerson(
+                user.getId(),
+                user.getName(),
+                user.getLastName(),
+                user.getEmail(),
+                user.getUsername(),
+                user.getRole()
+        );
 
         // Navigate to main page with loading animation
         navigateToDashboardWithLoading(user);

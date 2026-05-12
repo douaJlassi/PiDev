@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.effect.InnerShadow?>
+<?import javafx.scene.effect.Glow?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controllers.AgencyDashboardController"
+            stylesheets="@../styles/dashboard.css,@../styles/agency.css"
+            styleClass="agency-root"
+            prefWidth="1300" prefHeight="800">
+
+    <!-- ═══ LEFT SIDEBAR — from Dashboard(19).fxml ═══ -->
+    <left>
+        <VBox prefWidth="260" spacing="0"
+              style="-fx-background-color: #2c3e50;
+                     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 15, 0, 0, 0);">
+
+            <!-- User info -->
+            <VBox spacing="12" alignment="CENTER"
+                  style="-fx-padding: 28 20 22 20;
+                         -fx-background-color: linear-gradient(to bottom, #34495e, #2c3e50);
+                         -fx-border-color: #3d566e; -fx-border-width: 0 0 1 0;">
+                <StackPane>
+                    <Circle radius="38"
+                            style="-fx-fill: linear-gradient(to bottom right, #0FA5A2, #1D4D7C);">
+                        <effect><Glow level="0.3"/></effect>
+                    </Circle>
+                    <Label text="A"
+                           style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                </StackPane>
+                <Label fx:id="agencyNameLabel" text="Agency"
+                       style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                <Label text="BACK OFFICE"
+                       style="-fx-font-size: 12px; -fx-text-fill: #17B3A6; -fx-font-weight: bold;"/>
+            </VBox>
+
+            <!-- Navigation -->
+            <VBox spacing="4" style="-fx-padding: 16 12;">
+
+                <!-- Posts Moderation — active -->
+                <Label text="📋  Submissions"
+                       style="-fx-padding: 11 15; -fx-background-radius: 10;
+                              -fx-background-color: #0FA5A2;
+                              -fx-font-weight: bold; -fx-text-fill: white;
+                              -fx-cursor: hand; -fx-font-size: 13px;"
+                       maxWidth="Infinity"/>
+
+                <Label text="📊  Statistics"
+                       style="-fx-padding: 11 15; -fx-background-radius: 10;
+                              -fx-background-color: #34495e;
+                              -fx-text-fill: rgba(255,255,255,0.75);
+                              -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 13px;"
+                       maxWidth="Infinity"/>
+
+                <Label text="👥  Travelers"
+                       style="-fx-padding: 11 15; -fx-background-radius: 10;
+                              -fx-background-color: #34495e;
+                              -fx-text-fill: rgba(255,255,255,0.75);
+                              -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 13px;"
+                       maxWidth="Infinity"/>
+
+                <Label text="⚙️  Settings"
+                       style="-fx-padding: 11 15; -fx-background-radius: 10;
+                              -fx-background-color: #34495e;
+                              -fx-text-fill: rgba(255,255,255,0.75);
+                              -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 13px;"
+                       maxWidth="Infinity"/>
+
+                <Region VBox.vgrow="ALWAYS" prefHeight="40"/>
+
+                <!-- Theme toggle -->
+                <Button fx:id="themeToggleBtn" text="🌙  Dark Mode"
+                        onAction="#toggleTheme" maxWidth="Infinity"
+                        style="-fx-padding: 11 15; -fx-background-radius: 10;
+                               -fx-background-color: rgba(255,193,7,0.12);
+                               -fx-text-fill: #FFC107; -fx-font-weight: 600;
+                               -fx-cursor: hand; -fx-font-size: 13px;
+                               -fx-border-color: rgba(255,193,7,0.3);
+                               -fx-border-radius: 10; -fx-border-width: 1;
+                               -fx-alignment: CENTER_LEFT;"/>
+
+                <Label text="🚪  Logout"
+                       style="-fx-padding: 11 15; -fx-background-radius: 10;
+                              -fx-background-color: #c0392b;
+                              -fx-text-fill: white; -fx-font-weight: bold;
+                              -fx-cursor: hand; -fx-font-size: 13px;"
+                       maxWidth="Infinity"/>
+            </VBox>
+        </VBox>
+    </left>
+
+    <!-- ═══ CENTER CONTENT ═══ -->
+    <center>
+        <VBox style="-fx-background-color: #f5f5f5;">
+
+            <!-- ── Top bar ── -->
+            <HBox alignment="CENTER_LEFT" spacing="16"
+                  style="-fx-background-color: white; -fx-padding: 14 28;
+                         -fx-border-color: #e4e6eb; -fx-border-width: 0 0 1 0;
+                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 6, 0, 0, 2);">
+                <VBox spacing="2">
+                    <Label text="Submissions"
+                           style="-fx-font-size: 18px; -fx-font-weight: 700; -fx-text-fill: #1a2a3a;"/>
+                    <Label text="Review and moderate traveler posts"
+                           style="-fx-font-size: 12px; -fx-text-fill: #8a8d91;"/>
+                </VBox>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button styleClass="icon-btn" text="⟳" onAction="#onRefresh"
+                        style="-fx-font-size: 16px;"/>
+            </HBox>
+
+            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                        style="-fx-background-color: transparent; -fx-background: transparent;">
+                <VBox spacing="24" style="-fx-padding: 24 28;">
+
+                    <!-- ── Stat pills row ── -->
+                    <HBox spacing="16">
+                        <VBox styleClass="stat-card stat-card-pending" spacing="4" prefWidth="180">
+                            <padding><Insets top="14" right="18" bottom="14" left="18"/></padding>
+                            <Label text="PENDING" styleClass="stat-label"/>
+                            <Label fx:id="pendingCount" text="0" styleClass="stat-number"/>
+                            <Label text="Awaiting review" styleClass="stat-sub"/>
+                        </VBox>
+                        <VBox styleClass="stat-card stat-card-approved" spacing="4" prefWidth="180">
+                            <padding><Insets top="14" right="18" bottom="14" left="18"/></padding>
+                            <Label text="APPROVED" styleClass="stat-label"/>
+                            <Label fx:id="approvedCount" text="0" styleClass="stat-number"/>
+                            <Label text="Live on platform" styleClass="stat-sub"/>
+                        </VBox>
+                        <VBox styleClass="stat-card stat-card-rejected" spacing="4" prefWidth="180">
+                            <padding><Insets top="14" right="18" bottom="14" left="18"/></padding>
+                            <Label text="REJECTED" styleClass="stat-label"/>
+                            <Label fx:id="rejectedCount" text="0" styleClass="stat-number"/>
+                            <Label text="Did not pass review" styleClass="stat-sub"/>
+                        </VBox>
+                    </HBox>
+
+                    <!-- ── Filter bar ── -->
+                    <HBox styleClass="agency-filter-bar" alignment="CENTER_LEFT" spacing="8">
+                        <Label text="FILTER:" styleClass="filter-bar-label"/>
+                        <fx:define><ToggleGroup fx:id="filterGroup"/></fx:define>
+                        <ToggleButton fx:id="allTab"      text="All"
+                                      styleClass="filter-tab" toggleGroup="$filterGroup"
+                                      selected="true" onAction="#onFilterChanged"/>
+                        <ToggleButton fx:id="pendingTab"  text="Pending"
+                                      styleClass="filter-tab" toggleGroup="$filterGroup"
+                                      onAction="#onFilterChanged"/>
+                        <ToggleButton fx:id="approvedTab" text="Approved"
+                                      styleClass="filter-tab" toggleGroup="$filterGroup"
+                                      onAction="#onFilterChanged"/>
+                        <ToggleButton fx:id="rejectedTab" text="Rejected"
+                                      styleClass="filter-tab" toggleGroup="$filterGroup"
+                                      onAction="#onFilterChanged"/>
+                    </HBox>
+
+                    <!-- ── Submission grid — 3 columns ── -->
+                    <FlowPane fx:id="submissionList"
+                              hgap="16" vgap="16"
+                              prefWrapLength="900"
+                              style="-fx-background-color: transparent;"/>
+
+                </VBox>
+            </ScrollPane>
+        </VBox>
+    </center>
+
+</BorderPane>

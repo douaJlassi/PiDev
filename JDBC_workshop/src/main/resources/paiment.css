@@ -1,0 +1,129 @@
+.root-pane { -fx-background-color: #0a0a0f; }
+
+.ambient-circle-top {
+    -fx-fill: radial-gradient(center 50% 50%, radius 50%, rgba(83,192,240,0.08), transparent);
+}
+.ambient-circle-bot {
+    -fx-fill: radial-gradient(center 50% 50%, radius 50%, rgba(232,201,126,0.06), transparent);
+}
+
+.modal-overlay { -fx-background-color: transparent; }
+
+/* Amount */
+.amount-display { -fx-padding: 0 0 0 0; }
+.amount-label { -fx-font-family: "Syne"; -fx-font-size: 10px; -fx-letter-spacing: 2px; -fx-text-fill: #8888aa; }
+.amount-value { -fx-font-family: "Syne"; -fx-font-size: 36px; -fx-font-weight: 800; -fx-text-fill: #f0f0f5; }
+.amount-currency { -fx-font-family: "Syne"; -fx-font-size: 18px; -fx-font-weight: 600; -fx-text-fill: #e8c97e; -fx-translate-y: 6; }
+
+/* Card */
+.card-face {
+    -fx-background-radius: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 30, 0, 0, 15);
+}
+.card-front {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #1a1a2e, #16213e, #0f3460);
+}
+.card-back {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #0f3460, #16213e);
+}
+.chip {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #e8c97e, #c8a84b, #f0d98a, #b89a50);
+    -fx-background-radius: 6;
+}
+.brand-red   { -fx-fill: #eb001b; -fx-opacity: 0.9; }
+.brand-yellow { -fx-fill: #f79e1b; -fx-opacity: 0.9; }
+.badge-red   { -fx-fill: #eb001b; }
+.badge-yellow { -fx-fill: #f79e1b; }
+
+.card-number-display {
+    -fx-font-family: "Space Mono"; -fx-font-size: 20px; -fx-letter-spacing: 3px;
+    -fx-text-fill: #f0f0f5;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 8, 0, 0, 2);
+}
+.card-label { -fx-font-size: 9px; -fx-letter-spacing: 2px; -fx-text-fill: rgba(255,255,255,0.4); }
+.card-value { -fx-font-family: "Space Mono"; -fx-font-size: 14px; -fx-text-fill: #f0f0f5; -fx-letter-spacing: 1px; }
+
+.magnetic-strip { -fx-fill: #1a1a1a; }
+.signature-stripe {
+    -fx-background-color: repeating-linear-gradient(90deg, #f0ede0, #f0ede0 8px, #e8d8c8 8px, #e8d8c8 12px);
+    -fx-background-radius: 4;
+}
+.signature-text { -fx-font-family: "Space Mono"; -fx-font-size: 11px; -fx-text-fill: #555; }
+.cvv-box { -fx-background-color: white; -fx-background-radius: 6; }
+.cvv-text { -fx-font-family: "Space Mono"; -fx-font-size: 16px; -fx-font-weight: 700; -fx-text-fill: #1a1a1a; -fx-letter-spacing: 3px; }
+.hologram {
+    -fx-background-color: conic-gradient(#ff6b6b, #ffd93d, #6bcb77, #4d96ff, #ff6bcb, #ff6b6b);
+    -fx-background-radius: 24;
+    -fx-opacity: 0.7;
+}
+
+/* Form */
+.form-container {
+    -fx-background-color: rgba(255,255,255,0.03);
+    -fx-border-color: rgba(255,255,255,0.08);
+    -fx-border-radius: 24;
+    -fx-background-radius: 24;
+    -fx-border-width: 1;
+}
+.title-line { -fx-background-color: #53c0f0; }
+.form-title { -fx-font-family: "Syne"; -fx-font-size: 11px; -fx-letter-spacing: 3px; -fx-text-fill: #53c0f0; }
+
+.field-label { -fx-font-family: "Syne"; -fx-font-size: 10px; -fx-letter-spacing: 2px; -fx-text-fill: #8888aa; }
+.field-icon  { -fx-font-size: 15px; -fx-opacity: 0.5; }
+
+.card-input {
+    -fx-background-color: rgba(255,255,255,0.05);
+    -fx-border-color: rgba(255,255,255,0.12);
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-border-width: 1;
+    -fx-padding: 14 16 14 44;
+    -fx-font-family: "Space Mono";
+    -fx-font-size: 14px;
+    -fx-letter-spacing: 2px;
+    -fx-text-fill: #f0f0f5;
+    -fx-prompt-text-fill: rgba(255,255,255,0.2);
+}
+.card-input:focused {
+    -fx-border-color: #53c0f0;
+    -fx-background-color: rgba(83,192,240,0.05);
+    -fx-effect: dropshadow(gaussian, rgba(83,192,240,0.4), 10, 0, 0, 0);
+}
+
+/* Validation states */
+.valid .card-input   { -fx-border-color: rgba(107,255,184,0.5); }
+.invalid .card-input { -fx-border-color: rgba(255,107,107,0.5); }
+.field-error { -fx-font-size: 10px; -fx-text-fill: #ff6b6b; -fx-padding: 0 0 0 4; }
+
+.security-row  { -fx-opacity: 0.5; }
+.security-badge { -fx-font-family: "Syne"; -fx-font-size: 9px; -fx-letter-spacing: 1.5px; -fx-text-fill: #8888aa; }
+
+/* Buttons */
+.pay-btn {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #53c0f0, #1a8abf);
+    -fx-background-radius: 14;
+    -fx-text-fill: white;
+    -fx-font-family: "Syne";
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-letter-spacing: 2px;
+    -fx-padding: 18;
+    -fx-cursor: hand;
+}
+.pay-btn:hover   { -fx-effect: dropshadow(gaussian, rgba(83,192,240,0.45), 20, 0, 0, 8); }
+.pay-btn:disabled { -fx-opacity: 0.4; }
+.pay-btn-success { -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #6bffb8, #28a77b); }
+
+.cancel-btn {
+    -fx-background-color: transparent;
+    -fx-border-color: rgba(255,255,255,0.1);
+    -fx-border-radius: 14;
+    -fx-background-radius: 14;
+    -fx-border-width: 1;
+    -fx-text-fill: #8888aa;
+    -fx-font-family: "Syne";
+    -fx-font-size: 13px;
+    -fx-padding: 14;
+    -fx-cursor: hand;
+}
+.cancel-btn:hover { -fx-border-color: rgba(255,255,255,0.25); -fx-text-fill: #f0f0f5; }

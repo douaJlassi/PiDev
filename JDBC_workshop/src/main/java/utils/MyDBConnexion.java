@@ -8,7 +8,7 @@ public class MyDBConnexion {
 
     private static final String USERNAME = "root";
     private static final String PASSWORD = "";
-    private static final String URL = "jdbc:mysql://localhost:3306/pidev";
+    private static final String URL = "jdbc:mysql://localhost:3306/test1";
 
     private Connection cnx;
 
@@ -31,6 +31,9 @@ public class MyDBConnexion {
     public static MyDBConnexion getInstance(){
         if (instance == null) instance = new MyDBConnexion();
         return instance;
+    }
+    public Connection getConnection() {
+        return cnx;
     }
 
     public Connection getCnx() {

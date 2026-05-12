@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.geometry.*?>
+
+<?import javafx.scene.text.Font?>
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="controllers.MainPageController"
+            fx:id="mainBorderPane"
+            prefWidth="1300"
+            prefHeight="800"
+            style="-fx-background-color: #f8faff;">
+
+    <!-- Top Bar with Logo, Horizontal Menu and Profile -->
+    <top>
+        <VBox spacing="0">
+            <!-- Top Bar with Logo and Profile -->
+            <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-background-color: white; -fx-padding: 15 30; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 0);">
+                <!-- Logo -->
+                <HBox spacing="0" alignment="CENTER">
+                    <Label text="Reh" textFill="#0FA5A2" style="-fx-font-size: 24px; -fx-font-weight: 900;"/>
+                    <Label text="let" textFill="#FEC74C" style="-fx-font-size: 24px; -fx-font-weight: 900;"/>
+                    <Label text="na.tn" textFill="#1D4D7C" style="-fx-font-size: 24px; -fx-font-weight: 900;"/>
+                </HBox>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <!-- Profile Section (Top Right) -->
+                <HBox spacing="15" alignment="CENTER_RIGHT">
+                    <VBox alignment="CENTER_RIGHT" spacing="2">
+                        <Label fx:id="userNameLabel" text="Alexandre Voyageur" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C;"/>
+                        <Label fx:id="userRoleLabel" text="Premium Member" style="-fx-font-size: 12px; -fx-text-fill: #FEC74C; -fx-font-weight: bold;"/>
+                    </VBox>
+
+                    <StackPane>
+                        <Circle fx:id="userAvatar" radius="25" fill="linear-gradient(to bottom right, #0FA5A2, #1D4D7C)" style="-fx-cursor: hand;"/>
+                        <ImageView fx:id="userAvatarImage" fitWidth="50" fitHeight="50" preserveRatio="false" visible="false" style="-fx-cursor: hand;">
+                            <clip>
+                                <Circle radius="25" centerX="25" centerY="25"/>
+                            </clip>
+                        </ImageView>
+                        <Circle radius="8" fill="#2ecc71" stroke="white" strokeWidth="2" translateX="15" translateY="15"/>
+                    </StackPane>
+                </HBox>
+            </HBox>
+
+            <!-- Horizontal Navigation Menu -->
+            <HBox spacing="10" style="-fx-background-color: white; -fx-padding: 0 30 15 30; -fx-border-color: #f0f0f0; -fx-border-width: 1 0 0 0;" alignment="CENTER_LEFT">
+                <!-- Dashboard Button (only visible for Admin) -->
+                <Button fx:id="dashboardBtn" visible="false" managed="false"
+                        style="-fx-background-color: #e6f7f5; -fx-text-fill: #0FA5A2; -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 25; -fx-cursor: hand;">
+                    <graphic>
+                        <HBox spacing="8" alignment="CENTER">
+                            <Label text="🏠" style="-fx-font-size: 16px;"/>
+                            <Label text="Dashboard" style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+                        </HBox>
+                    </graphic>
+                </Button>
+
+                <!-- Activities Button -->
+                <Button fx:id="activitiesBtn"
+                        style="-fx-background-color: transparent; -fx-text-fill: #666; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 25; -fx-cursor: hand;">
+                    <graphic>
+                        <HBox spacing="8" alignment="CENTER">
+                            <Label text="🏞" style="-fx-font-size: 16px;"/>
+                            <Label text="Activities" style="-fx-font-size: 14px;"/>
+                        </HBox>
+                    </graphic>
+                </Button>
+
+                <!-- My Bookings Button -->
+                <Button fx:id="reservationsBtn"
+                        style="-fx-background-color: transparent; -fx-text-fill: #666; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 25; -fx-cursor: hand;">
+                    <graphic>
+                        <HBox spacing="8" alignment="CENTER">
+                            <Label text="📅" style="-fx-font-size: 16px;"/>
+                            <Label text="My Bookings" style="-fx-font-size: 14px;"/>
+                        </HBox>
+                    </graphic>
+                </Button>
+
+                <!-- Messages Button -->
+                <Button fx:id="messagesBtn"
+                        style="-fx-background-color: transparent; -fx-text-fill: #666; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 25; -fx-cursor: hand;">
+                    <graphic>
+                        <HBox spacing="8" alignment="CENTER">
+                            <Label text="💬" style="-fx-font-size: 16px;"/>
+                            <Label text="Messages" style="-fx-font-size: 14px;"/>
+                            <Circle radius="5" fill="#ff5e62" translateX="3"/>
+                        </HBox>
+                    </graphic>
+                </Button>
+
+                <!-- Favorites Button -->
+                <Button fx:id="favoritesBtn" onAction="#showServicesView"
+                        style="-fx-background-color: transparent; -fx-text-fill: #666; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 25; -fx-cursor: hand;">
+                    <graphic>
+                        <HBox spacing="8" alignment="CENTER">
+                            <Label text="💻" style="-fx-font-size: 16px;"/>
+                            <Label text="Services" style="-fx-font-size: 14px;"/>
+                        </HBox>
+                    </graphic>
+                </Button>
+                <Button fx:id="reservationBtn" onAction="#showReservationsView"
+                        style="-fx-background-color: transparent; -fx-text-fill: #666; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 25; -fx-cursor: hand;">
+                    <graphic>
+                        <HBox spacing="8" alignment="CENTER">
+                            <Label text="💻" style="-fx-font-size: 16px;"/>
+                            <Label text="Reservations" style="-fx-font-size: 14px;"/>
+                        </HBox>
+                    </graphic>
+                </Button>
+
+                <!-- Settings Button -->
+                <Button fx:id="settingsBtn"
+                        style="-fx-background-color: transparent; -fx-text-fill: #666; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 25; -fx-cursor: hand;">
+                    <graphic>
+                        <HBox spacing="8" alignment="CENTER">
+                            <Label text="⚙" style="-fx-font-size: 16px;"/>
+                            <Label text="Settings" style="-fx-font-size: 14px;"/>
+                        </HBox>
+                    </graphic>
+                </Button>
+                <!-- Shop Button - Add this after Settings Button -->
+                <Button fx:id="shopBtn"
+                        style="-fx-background-color: transparent; -fx-text-fill: #666; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 25; -fx-cursor: hand;">
+                    <graphic>
+                        <HBox spacing="8" alignment="CENTER">
+                            <Label text="🛒" style="-fx-font-size: 16px;"/>
+                            <Label text="Shop" style="-fx-font-size: 14px;"/>
+                        </HBox>
+                    </graphic>
+                </Button>
+                <Button fx:id="btnChat" alignment="CENTER_LEFT" mnemonicParsing="false" onAction="#showChatView"
+                        prefHeight="60.0" prefWidth="220.0"
+                        style="-fx-background-color: transparent; -fx-text-fill: #666; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 25; -fx-cursor: hand;">
+                    <graphic>
+                        <HBox alignment="CENTER_LEFT" spacing="15.0">
+                            <children>
+                                <Label style="-fx-text-fill: black; -fx-font-size: 24;" text="💬" alignment="CENTER" />
+                                <Label fx:id="lblBadge" alignment="CENTER" managed="false"
+                                       minHeight="18.0" minWidth="18.0" text="0" visible="false"
+                                       style="-fx-background-color: #e74c3c;
+                                      -fx-text-fill: white;
+                                      -fx-background-radius: 10;
+                                      -fx-font-size: 9;
+                                      -fx-font-weight: bold;
+                                      -fx-translate-x: 12;
+                                      -fx-translate-y: -10;" />
+                                <Label text="Messenger" style="-fx-font-size: 14px;"/>
+                            </children>
+                        </HBox>
+                    </graphic>
+                    <padding>
+                        <Insets left="15.0" />
+                    </padding>
+                </Button>
+
+                <Button fx:id="aiClassifierBtn"
+                        style="-fx-background-color: transparent; -fx-text-fill: #666; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 25; -fx-cursor: hand;">
+                    <graphic>
+                        <HBox spacing="8" alignment="CENTER">
+                            <Label text="🤖" style="-fx-font-size: 16px;"/>
+                            <Label text="AI Guide" style="-fx-font-size: 14px;"/>
+                        </HBox>
+                    </graphic>
+                </Button>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+
+
+                <!-- Logout Button -->
+                <Button fx:id="logoutBtn"
+                        style="-fx-background-color: #fff0f0; -fx-text-fill: #ff5e62; -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 10 25; -fx-background-radius: 25; -fx-cursor: hand;">
+                    <graphic>
+                        <HBox spacing="8" alignment="CENTER">
+                            <Label text="🚪" style="-fx-font-size: 16px;"/>
+                            <Label text="Logout" style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+                        </HBox>
+                    </graphic>
+                </Button>
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- Center Content - Empty (ready for dynamic content) -->
+    <center>
+        <StackPane fx:id="contentArea" style="-fx-background-color: transparent; -fx-padding: 0;">
+            <!-- Content will be loaded dynamically by the controller -->
+        </StackPane>
+    </center>
+
+    <!-- Bottom Section with Coin Collection (Left) and Chat Button (Right) -->
+    <bottom>
+        <HBox alignment="CENTER" spacing="20" style="-fx-padding: 20;">
+            <!-- Coin Collection Box (Left) -->
+            <HBox fx:id="coinCollectionBox" spacing="15" alignment="CENTER_LEFT"
+                  style="-fx-background-color: white; -fx-padding: 10 20; -fx-background-radius: 30; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);"
+                  visible="false">
+
+                <!-- Coin Icon and Count -->
+                <HBox spacing="5" alignment="CENTER">
+                    <Label text="💎" style="-fx-font-size: 20px;"/>
+                    <Label fx:id="coinCountLabel" text="0" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FEC74C;"/>
+                </HBox>
+
+                <Separator orientation="VERTICAL" style="-fx-background-color: #e0e0e0;"/>
+
+                <!-- Timer Progress -->
+                <ProgressIndicator fx:id="coinProgressIndicator" prefWidth="25" prefHeight="25" progress="0"/>
+
+                <!-- Timer Label and Collect Button -->
+                <HBox spacing="10" alignment="CENTER">
+                    <Label fx:id="nextCoinTimerLabel" text="30s" style="-fx-font-size: 14px; -fx-text-fill: #666;"/>
+                    <Button fx:id="collectCoinBtn" text="⚡" disable="true"
+                            style="-fx-background-color: #0FA5A2; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-min-width: 30; -fx-min-height: 30; -fx-background-radius: 15; -fx-cursor: hand;"/>
+                </HBox>
+            </HBox>
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <!-- Chat Button (Right) -->
+            <StackPane>
+                <Button fx:id="chatButton" style="-fx-background-color: #0FA5A2; -fx-background-radius: 30; -fx-min-width: 60; -fx-min-height: 60; -fx-cursor: hand;">
+                    <graphic>
+                        <Label text="💬" style="-fx-font-size: 24px; -fx-text-fill: white;"/>
+                    </graphic>
+                </Button>
+                <Label fx:id="chatUnreadBadge" visible="false"
+                       style="-fx-background-color: #ff5e62; -fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold; -fx-background-radius: 12; -fx-min-width: 24; -fx-min-height: 24; -fx-alignment: center;"
+                       translateX="20" translateY="-20"/>
+            </StackPane>
+        </HBox>
+
+    </bottom>
+    <!-- AI Classifier Button - Add after Shop button -->
+
+</BorderPane>

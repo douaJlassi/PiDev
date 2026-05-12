@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.web.WebView?>
+<?import javafx.scene.text.Font?>
+
+<DialogPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="controllers.PurchaseDialogController"
+            prefWidth="800" prefHeight="600"
+            style="-fx-background-color: #f8faff;">
+
+    <content>
+        <VBox spacing="20" style="-fx-padding: 20;">
+
+            <!-- Header -->
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label text="🛍️" style="-fx-font-size: 32px;"/>
+                <VBox>
+                    <Label fx:id="productNameLabel" text="Complete Your Purchase"
+                           style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #1D4D7C;"/>
+                    <Label fx:id="priceLabel" text="Price: 0 🪙"
+                           style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #FEC74C;"/>
+                </VBox>
+            </HBox>
+
+            <!-- Main Content - Split View -->
+            <SplitPane dividerPositions="0.5" VBox.vgrow="ALWAYS">
+
+                <!-- Left Panel - User Information -->
+                <VBox spacing="15" style="-fx-padding: 10;">
+                    <Label text="👤 Your Information"
+                           style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #0FA5A2;"/>
+
+                    <GridPane hgap="10" vgap="15">
+                        <padding>
+                            <Insets top="10" right="10" bottom="10" left="10"/>
+                        </padding>
+
+                        <Label text="Full Name:" GridPane.rowIndex="0" GridPane.columnIndex="0"
+                               style="-fx-font-weight: bold;"/>
+                        <TextField fx:id="nameField" GridPane.rowIndex="0" GridPane.columnIndex="1"
+                                   promptText="Enter your full name" prefWidth="250"/>
+
+                        <Label text="Email:" GridPane.rowIndex="1" GridPane.columnIndex="0"
+                               style="-fx-font-weight: bold;"/>
+                        <TextField fx:id="emailField" GridPane.rowIndex="1" GridPane.columnIndex="1"
+                                   promptText="Enter your email" prefWidth="250"/>
+
+                        <Label text="Phone:" GridPane.rowIndex="2" GridPane.columnIndex="0"
+                               style="-fx-font-weight: bold;"/>
+                        <TextField fx:id="phoneField" GridPane.rowIndex="2" GridPane.columnIndex="1"
+                                   promptText="Enter your phone number" prefWidth="250"/>
+                    </GridPane>
+
+                    <Separator/>
+
+                    <!-- Selected Address Display -->
+                    <Label text="📍 Selected Address"
+                           style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #0FA5A2;"/>
+
+                    <TextArea fx:id="addressArea" prefRowCount="3" wrapText="true"
+                              style="-fx-background-color: #f0f0f0; -fx-border-color: #ddd; -fx-border-radius: 5;"
+                              promptText="Click on the map to select your delivery address"/>
+
+                    <!-- Delivery Instructions -->
+                    <Label text="📝 Delivery Instructions (Optional)"
+                           style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #666;"/>
+
+                    <TextArea fx:id="instructionsArea" prefRowCount="2" wrapText="true"
+                              promptText="e.g., Leave at the door, Call before delivery, etc."/>
+                </VBox>
+
+                <!-- Right Panel - Map -->
+                <VBox spacing="10" style="-fx-padding: 10;">
+                    <Label text="🗺️ Select Delivery Location"
+                           style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #0FA5A2;"/>
+
+                    <!-- Search Box -->
+                    <HBox spacing="5">
+                        <TextField fx:id="mapSearchField" promptText="Search for a location..."
+                                   HBox.hgrow="ALWAYS"
+                                   style="-fx-padding: 8; -fx-background-radius: 5; -fx-border-color: #ddd; -fx-border-radius: 5;"/>
+                        <Button fx:id="searchLocationBtn" text="🔍 Search"
+                                style="-fx-background-color: #0FA5A2; -fx-text-fill: white; -fx-padding: 8 15; -fx-background-radius: 5; -fx-cursor: hand;"/>
+                    </HBox>
+
+                    <!-- Map View -->
+                    <WebView fx:id="mapView" VBox.vgrow="ALWAYS"
+                             style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #ddd;"/>
+
+                    <!-- Map Controls -->
+                    <HBox spacing="10" alignment="CENTER">
+                        <Button fx:id="getCurrentLocationBtn" text="📍 Use My Location"
+                                style="-fx-background-color: #1D4D7C; -fx-text-fill: white; -fx-padding: 8 15; -fx-background-radius: 5; -fx-cursor: hand;"/>
+                        <Button fx:id="clearLocationBtn" text="🗑️ Clear"
+                                style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-padding: 8 15; -fx-background-radius: 5; -fx-cursor: hand;"/>
+                    </HBox>
+
+                    <!-- Coordinates Display -->
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="Lat: " style="-fx-font-weight: bold;"/>
+                        <Label fx:id="latLabel" text="--"/>
+                        <Label text="Lng: " style="-fx-font-weight: bold;"/>
+                        <Label fx:id="lngLabel" text="--"/>
+                    </HBox>
+                </VBox>
+            </SplitPane>
+        </VBox>
+    </content>
+
+    <ButtonType fx:id="confirmButtonType" text="✅ Confirm Purchase" buttonData="OK_DONE"/>
+    <ButtonType fx:id="cancelButtonType" text="❌ Cancel" buttonData="CANCEL_CLOSE"/>
+
+</DialogPane>

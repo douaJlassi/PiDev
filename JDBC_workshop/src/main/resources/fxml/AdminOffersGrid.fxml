@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.SVGPath?>
+
+<VBox spacing="20" styleClass="dash-content"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="controllers.AdminOffersGridController"
+      stylesheets="@../css/app.css">
+
+    <padding>
+        <Insets top="30" right="30" bottom="30" left="30"/>
+    </padding>
+
+    <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 15; -fx-border-color: #E7ECF3; -fx-border-radius: 15;">
+        <HBox alignment="CENTER_LEFT" spacing="20">
+            <StackPane style="-fx-background-color: #F1F5F9; -fx-background-radius: 10; -fx-padding: 10;">
+                <SVGPath content="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"
+                         fill="#475569" scaleX="0.8" scaleY="0.8"/>
+            </StackPane>
+
+            <VBox HBox.hgrow="ALWAYS">
+                <Label text="Offer Oversight" styleClass="h1" style="-fx-font-size: 22px; -fx-text-fill: #1E293B;"/>
+                <Label fx:id="countLbl" text="Monitoring 0 active listings" styleClass="dash-muted"/>
+            </VBox>
+
+            <Button onAction="#onRefresh" styleClass="btn-ghost" prefHeight="40" prefWidth="40">
+                <graphic>
+                    <SVGPath content="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"
+                             fill="#64748B" scaleX="0.8" scaleY="0.8"/>
+                </graphic>
+                <tooltip><Tooltip text="Refresh Offers"/></tooltip>
+            </Button>
+        </HBox>
+
+        <Separator opacity="0.3"/>
+
+        <HBox spacing="12" alignment="CENTER_LEFT">
+            <Label text="Filter Agency:" style="-fx-font-weight: bold; -fx-text-fill: #64748B; -fx-font-size: 12px;"/>
+            <ComboBox fx:id="agencyCb" promptText="All agencies" onAction="#onAgencyChanged"
+                      prefWidth="250" style="-fx-background-radius: 8; -fx-background-color: #F8FAFC; -fx-border-color: #E2E8F0; -fx-border-radius: 8;"/>
+
+            <Region HBox.hgrow="ALWAYS" />
+
+            <HBox spacing="6" alignment="CENTER" style="-fx-background-color: #F0F9FF; -fx-padding: 6 12; -fx-background-radius: 8;">
+                <SVGPath content="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.47 4.34-2.85 7.92-7 9.15V11.99H5V6.3l7-3.11v8.8z"
+                         fill="#0369A1" scaleX="0.6" scaleY="0.6"/>
+                <Label text="Admin Control" style="-fx-text-fill: #0369A1; -fx-font-size: 11px; -fx-font-weight: bold;"/>
+            </HBox>
+        </HBox>
+    </VBox>
+
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="scroll-pane">
+        <content>
+            <TilePane fx:id="tilePane"
+                      prefColumns="3"
+                      hgap="20"
+                      vgap="25">
+                <padding>
+                    <Insets top="5" right="10" bottom="30" left="10"/>
+                </padding>
+            </TilePane>
+        </content>
+    </ScrollPane>
+
+</VBox>

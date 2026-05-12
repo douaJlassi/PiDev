@@ -62,6 +62,17 @@ public class Person implements Serializable {
         this.twoFactorExpiry = null;
         this.fingerprintSlotId = -1;  // Initialize to -1
     }
+    public Person(int id, String name, String lastName, String email, String password, Date date, String role, String username, String status) {
+        this.id = id;
+        this.name = name;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
+        this.date = date;
+        this.role = role;
+        this.username = username;
+        this.status = "offline";
+    }
 
     // Getters and Setters for existing fields
     public int getId() { return id; }

@@ -3,10 +3,15 @@ package controllers;
 import javafx.animation.KeyFrame;
 import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.control.Alert;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
@@ -14,6 +19,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -29,6 +35,7 @@ import entities.Profile;
 import services.MessageService;
 import services.PersonService;
 import services.ProfileService;
+import services.ServiceMessage;
 import utils.SessionManager;
 
 import java.io.ByteArrayInputStream;
@@ -104,9 +111,23 @@ public class MainPageController {
     private Popup profilePopup;
     private Timeline hoverTimer;
     private double coinRate = 0.1; // Default for standard
-
+    @FXML
+    private Label lblBadge;
+    private ServiceMessage serMsg = new ServiceMessage();
+    @FXML
+    private BorderPane mainBorderPane;
+    private int currentUserId;
     @FXML
     public void initialize() {
+        if (currentUser != null) {
+            this.currentUserId = currentUser.getId();
+            System.out.println("✅ Session active : " + currentUser.getUsername());
+        } else {
+            System.out.println("⚠️ Aucune session, passage en mode test (ID 11)");
+        }
+        Platform.runLater(() -> {
+            refreshBadge();
+        });
         personService = new PersonService();
         profileService = new ProfileService();
         System.out.println("MainPageController initialized");
@@ -142,6 +163,36 @@ public class MainPageController {
             userAvatarImage.setOnMouseExited(event -> stopHoverTimer());
         }
     }
+    @FXML
+    private void showChatView() {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/views/ChatView.fxml"));
+            mainBorderPane.setCenter(root);
+            refreshBadge();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public void refreshBadge() {
+        int count = 0;
+        try {
+            count = serMsg.countUnreadMessages(currentUserId);
+            System.out.println("DEBUG BADGE - Nombre trouvé : " + count);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        if (count > 0) {
+            lblBadge.setText(String.valueOf(count > 99 ? "99+" : count)); // On limite à 99+
+            lblBadge.setVisible(true);
+            lblBadge.setManaged(true);
+        } else {
+            lblBadge.setVisible(false);
+            lblBadge.setManaged(false);
+        }
+
+    }
+
 
     private void startHoverTimer() {
         if (hoverTimer != null) {
@@ -264,6 +315,107 @@ public class MainPageController {
         double y = stage.getY() + userAvatar.localToScene(0, 0).getY() + userAvatar.getScene().getY() + 50;
 
         profilePopup.show(stage, x, y);
+    }
+
+    @FXML
+    private void openOffersDashboard() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/fxml/MyDashboard.fxml")
+            );
+
+            Parent root = loader.load();
+
+            contentArea.getChildren().setAll(root);
+
+            Scene scene = contentArea.getScene();
+
+            if (scene != null) {
+                String css = getClass()
+                        .getResource("/css/app.css")
+                        .toExternalForm();
+
+                if (!scene.getStylesheets().contains(css)) {
+                    scene.getStylesheets().add(css);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Navigation error");
+            alert.setHeaderText(null);
+            alert.setContentText("Cannot open Offers dashboard: " + e.getMessage());
+            alert.showAndWait();
+        }
+    }
+    @FXML
+    private void openActivitiesDashboard() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/GuideActivities.fxml")
+            );
+
+            Parent root = loader.load();
+
+            contentArea.getChildren().setAll(root);
+
+            Scene scene = contentArea.getScene();
+
+            if (scene != null) {
+                String css = getClass()
+                        .getResource("/css/app.css")
+                        .toExternalForm();
+
+                if (!scene.getStylesheets().contains(css)) {
+                    scene.getStylesheets().add(css);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Navigation error");
+            alert.setHeaderText(null);
+            alert.setContentText("Cannot open Offers dashboard: " + e.getMessage());
+            alert.showAndWait();
+        }
+    }
+
+    @FXML
+    private void openServicesDashboard() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/views/DashboardServices.fxml")
+            );
+
+            Parent root = loader.load();
+
+            contentArea.getChildren().setAll(root);
+
+            Scene scene = contentArea.getScene();
+
+            if (scene != null) {
+                String css = getClass()
+                        .getResource("/css/app.css")
+                        .toExternalForm();
+
+                if (!scene.getStylesheets().contains(css)) {
+                    scene.getStylesheets().add(css);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Navigation error");
+            alert.setHeaderText(null);
+            alert.setContentText("Cannot open Offers dashboard: " + e.getMessage());
+            alert.showAndWait();
+        }
     }
 
     @FXML
