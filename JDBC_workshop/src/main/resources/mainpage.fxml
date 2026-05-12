@@ -49,14 +49,15 @@
             </HBox>
 
             <!-- Horizontal Navigation Menu -->
+            <ScrollPane vbarPolicy="NEVER" hbarPolicy="AS_NEEDED" fitToHeight="true" style="-fx-background-color: transparent; -fx-background: transparent; -fx-padding: 0; -fx-border-color: transparent;">
             <HBox spacing="10" style="-fx-background-color: white; -fx-padding: 0 30 15 30; -fx-border-color: #f0f0f0; -fx-border-width: 1 0 0 0;" alignment="CENTER_LEFT">
                 <!-- Dashboard Button (only visible for Admin) -->
                 <Button fx:id="dashboardBtn" visible="false" managed="false"
                         style="-fx-background-color: #e6f7f5; -fx-text-fill: #0FA5A2; -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 25; -fx-cursor: hand;">
                     <graphic>
                         <HBox spacing="8" alignment="CENTER">
-                            <Label text="🏠" style="-fx-font-size: 16px;"/>
-                            <Label text="Dashboard" style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+                            <Label text="🏠" style="-fx-font-size: 16px; -fx-text-fill: #222;"/>
+                            <Label text="Dashboard" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #0FA5A2;"/>
                         </HBox>
                     </graphic>
                 </Button>
@@ -67,8 +68,8 @@
                         style="-fx-background-color: transparent; -fx-text-fill: #222; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 25; -fx-cursor: hand;">
                     <graphic>
                         <HBox spacing="8" alignment="CENTER">
-                            <Label text="🏷" style="-fx-font-size: 16px;"/>
-                            <Label text="Activities" style="-fx-font-size: 14px;"/>
+                            <Label text="🏷" style="-fx-font-size: 16px; -fx-text-fill: #222;"/>
+                            <Label text="Activities" style="-fx-font-size: 14px; -fx-text-fill: #222;"/>
                         </HBox>
                     </graphic>
                 </Button>
@@ -79,8 +80,19 @@
                         style="-fx-background-color: transparent; -fx-text-fill: #222; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 25; -fx-cursor: hand;">
                     <graphic>
                         <HBox spacing="8" alignment="CENTER">
-                            <Label text="🏷" style="-fx-font-size: 16px;"/>
-                            <Label text="Services" style="-fx-font-size: 14px;"/>
+                            <Label text="🏷" style="-fx-font-size: 16px; -fx-text-fill: #222;"/>
+                            <Label text="Services" style="-fx-font-size: 14px; -fx-text-fill: #222;"/>
+                        </HBox>
+                    </graphic>
+                </Button>
+
+                <Button fx:id="postsBtn"
+                        onAction="#openPostsDashboard"
+                        style="-fx-background-color: transparent; -fx-text-fill: #222; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 25; -fx-cursor: hand;">
+                    <graphic>
+                        <HBox spacing="8" alignment="CENTER">
+                            <Label text="👥" style="-fx-font-size: 16px; -fx-text-fill: #222;"/>
+                            <Label text="Posts" style="-fx-font-size: 14px; -fx-text-fill: #222;"/>
                         </HBox>
                     </graphic>
                 </Button>
@@ -102,7 +114,7 @@
                                       -fx-font-weight: bold;
                                       -fx-translate-x: 12;
                                       -fx-translate-y: -10;" />
-                                <Label text="Messenger" style="-fx-font-size: 14px;"/>
+                                <Label text="Messenger" style="-fx-font-size: 14px; -fx-text-fill: #222;"/>
                             </children>
                         </HBox>
                     </graphic>
@@ -116,8 +128,8 @@
                         style="-fx-background-color: transparent; -fx-text-fill: #666; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 25; -fx-cursor: hand;">
                     <graphic>
                         <HBox spacing="8" alignment="CENTER">
-                            <Label text="❤" style="-fx-font-size: 16px;"/>
-                            <Label text="Favorites" style="-fx-font-size: 14px;"/>
+                            <Label text="❤" style="-fx-font-size: 16px; -fx-text-fill: #222;"/>
+                            <Label text="Favorites" style="-fx-font-size: 14px; -fx-text-fill: #222;"/>
                         </HBox>
                     </graphic>
                 </Button>
@@ -126,8 +138,8 @@
                         style="-fx-background-color: transparent; -fx-text-fill: #222; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 25; -fx-cursor: hand;">
                     <graphic>
                         <HBox spacing="8" alignment="CENTER">
-                            <Label text="🏷" style="-fx-font-size: 16px;"/>
-                            <Label text="Offers" style="-fx-font-size: 14px;"/>
+                            <Label text="🏷" style="-fx-font-size: 16px; -fx-text-fill: #222;"/>
+                            <Label text="Offers" style="-fx-font-size: 14px; -fx-text-fill: #222;"/>
                         </HBox>
                     </graphic>
                 </Button>
@@ -137,8 +149,8 @@
                         style="-fx-background-color: transparent; -fx-text-fill: #666; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 25; -fx-cursor: hand;">
                     <graphic>
                         <HBox spacing="8" alignment="CENTER">
-                            <Label text="⚙" style="-fx-font-size: 16px;"/>
-                            <Label text="Settings" style="-fx-font-size: 14px;"/>
+                            <Label text="⚙" style="-fx-font-size: 16px; -fx-text-fill: #222;"/>
+                            <Label text="Settings" style="-fx-font-size: 14px; -fx-text-fill: #222;"/>
                         </HBox>
                     </graphic>
                 </Button>
@@ -147,8 +159,8 @@
                         style="-fx-background-color: transparent; -fx-text-fill: #666; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 25; -fx-cursor: hand;">
                     <graphic>
                         <HBox spacing="8" alignment="CENTER">
-                            <Label text="🛒" style="-fx-font-size: 16px;"/>
-                            <Label text="Shop" style="-fx-font-size: 14px;"/>
+                            <Label text="🛒" style="-fx-font-size: 16px; -fx-text-fill: #222;"/>
+                            <Label text="Shop" style="-fx-font-size: 14px; -fx-text-fill: #222;"/>
                         </HBox>
                     </graphic>
                 </Button>
@@ -156,8 +168,8 @@
                         style="-fx-background-color: transparent; -fx-text-fill: #666; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 25; -fx-cursor: hand;">
                     <graphic>
                         <HBox spacing="8" alignment="CENTER">
-                            <Label text="🤖" style="-fx-font-size: 16px;"/>
-                            <Label text="AI Guide" style="-fx-font-size: 14px;"/>
+                            <Label text="🤖" style="-fx-font-size: 16px; -fx-text-fill: #222;"/>
+                            <Label text="AI Guide" style="-fx-font-size: 14px; -fx-text-fill: #222;"/>
                         </HBox>
                     </graphic>
                 </Button>
@@ -169,12 +181,13 @@
                         style="-fx-background-color: #fff0f0; -fx-text-fill: #ff5e62; -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 10 25; -fx-background-radius: 25; -fx-cursor: hand;">
                     <graphic>
                         <HBox spacing="8" alignment="CENTER">
-                            <Label text="🚪" style="-fx-font-size: 16px;"/>
-                            <Label text="Logout" style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+                            <Label text="🚪" style="-fx-font-size: 16px; -fx-text-fill: #ff5e62;"/>
+                            <Label text="Logout" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #ff5e62;"/>
                         </HBox>
                     </graphic>
                 </Button>
             </HBox>
+            </ScrollPane>
         </VBox>
     </top>
 

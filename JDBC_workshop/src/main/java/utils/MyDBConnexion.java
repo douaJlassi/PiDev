@@ -8,7 +8,7 @@ public class MyDBConnexion {
 
     private static final String USERNAME = "root";
     private static final String PASSWORD = "";
-    private static final String URL = "jdbc:mysql://localhost:3306/test1";
+    private static final String URL = "jdbc:mysql://localhost:3306/pi2";
 
     private Connection cnx;
 
@@ -33,10 +33,18 @@ public class MyDBConnexion {
         return instance;
     }
     public Connection getConnection() {
+        try {
+            if (cnx == null || cnx.isClosed()) {
+                cnx = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+                System.out.println("Connexion re-etablie!");
+            }
+        } catch (SQLException e) {
+            System.err.println("Failed to reconnect: " + e.getMessage());
+        }
         return cnx;
     }
 
     public Connection getCnx() {
-        return cnx;
+        return getConnection();
     }
 }

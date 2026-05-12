@@ -1,7 +1,9 @@
 package controllers;
 
 import entities.Client;
+import entities.Person;
 import entities.Publication;
+import utils.SessionManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -23,19 +25,29 @@ import java.util.stream.Collectors;
 
 /**
  * Main Dashboard Controller - Coordinates all UI components
- * Delegates specific functionality to PostController, CommentController, and LikeController
+ * Delegates specific functionality to PostController, CommentController, and
+ * LikeController
  */
 public class WajdiDashboardController {
 
-    @FXML private HBox     masonryGrid;
-    @FXML private VBox     masonryCol1;
-    @FXML private VBox     masonryCol2;
+    @FXML
+    private VBox sidebarPane;
+    @FXML
+    private HBox masonryGrid;
+    @FXML
+    private VBox masonryCol1;
+    @FXML
+    private VBox masonryCol2;
 
     // FAB + overlay fields (map & chat)
-    @FXML private Button     mapFab;
-    @FXML private Button     chatFab;
-    @FXML private StackPane  mapOverlay;
-    @FXML private HBox       chatPanel;
+    @FXML
+    private Button mapFab;
+    @FXML
+    private Button chatFab;
+    @FXML
+    private StackPane mapOverlay;
+    @FXML
+    private HBox chatPanel;
 
     @FXML
     private VBox postsList;
@@ -62,7 +74,7 @@ public class WajdiDashboardController {
     private TextField searchField;
 
     @FXML
-    private ImageView topLogoImage;
+    private Button backBtn;
 
     @FXML
     private HBox createEditPanel;
@@ -96,9 +108,15 @@ public class WajdiDashboardController {
     private boolean isGridView = true;
 
     // Track whether overlay content has been built (lazy init)
-    private boolean mapLoaded  = false;
-    private boolean chatBuilt  = false;
+    private boolean mapLoaded = false;
+    private boolean chatBuilt = false;
 
+    public void setEmbedded() {
+        if (sidebarPane != null) {
+            sidebarPane.setVisible(false);
+            sidebarPane.setManaged(false);
+        }
+    }
 
     @FXML
     public void initialize() {
@@ -107,10 +125,13 @@ public class WajdiDashboardController {
         commentService = new CommentService();
         likeService = new LikeService();
 
-        // Initialize current user (replace with actual session management)
-        currentUser = new Client();
-        currentUser.setClientID(1);
-        currentUser.setUsername("Traveler");
+        // Initialize current user from session
+        Person p = SessionManager.getCurrentUser();
+        if (p != null) {
+            currentUser = Client.fromPerson(p);
+        } else {
+            currentUser = new Client(0, "Guest", null);
+        }
 
         // Populate sidebar
         if (sidebarUsername != null) {
@@ -121,9 +142,9 @@ public class WajdiDashboardController {
         }
 
         // Initialize sub-controllers
-        postController    = new PostController(publicationService, currentUser, this);
+        postController = new PostController(publicationService, currentUser, this);
         commentController = new CommentController(commentService, currentUser, this);
-        likeController    = new LikeController(likeService, currentUser, this);
+        likeController = new LikeController(likeService, currentUser, this);
 
         setupSearchFilter();
         loadPosts();
@@ -136,8 +157,10 @@ public class WajdiDashboardController {
                 ThemeManager.get().register(s);
             } else {
                 contentContainer.sceneProperty().addListener((obs, oldS, newS) -> {
-                    if (newS != null) ThemeManager.get().register(newS);
-                    if (oldS != null) ThemeManager.get().unregister(oldS);
+                    if (newS != null)
+                        ThemeManager.get().register(newS);
+                    if (oldS != null)
+                        ThemeManager.get().unregister(oldS);
                 });
             }
         });
@@ -152,7 +175,8 @@ public class WajdiDashboardController {
     }
 
     private void filterPosts(String searchTerm) {
-        if (allPosts == null) return;
+        if (allPosts == null)
+            return;
 
         if (searchTerm == null || searchTerm.trim().isEmpty()) {
             displayPosts(allPosts);
@@ -173,7 +197,8 @@ public class WajdiDashboardController {
 
     @FXML
     private void switchToGridView() {
-        if (isGridView) return;
+        if (isGridView)
+            return;
 
         isGridView = true;
         gridViewBtn.getStyleClass().add("active-view");
@@ -191,7 +216,8 @@ public class WajdiDashboardController {
 
     @FXML
     private void switchToListView() {
-        if (!isGridView) return;
+        if (!isGridView)
+            return;
 
         isGridView = false;
         listViewBtn.getStyleClass().add("active-view");
@@ -209,11 +235,45 @@ public class WajdiDashboardController {
 
     @FXML
     private void showCreatePostPanel() {
-        showPostFormPanel(null);  // null = create mode
+        showPostFormPanel(null); // null = create mode
+    }
+
+    /**
+     * Navigate back to the default main-page content.
+     * Removes the posts dashboard from its parent container.
+     */
+    @FXML
+    private void onBackToMain() {
+        // The dashboard is loaded inside contentArea (StackPane) of mainpage.
+        // Remove ourselves to restore the default view.
+        if (contentContainer == null || contentContainer.getScene() == null) return;
+        javafx.scene.Parent root = contentContainer.getScene().getRoot();
+        // Walk up to find the StackPane we live in
+        javafx.scene.Node current = contentContainer.getParent(); // the BorderPane
+        while (current != null) {
+            javafx.scene.Parent parent = current.getParent();
+            if (parent instanceof javafx.scene.layout.StackPane) {
+                ((javafx.scene.layout.StackPane) parent).getChildren().remove(current);
+                return;
+            }
+            current = parent;
+        }
+        // Fallback: reload mainpage.fxml onto the current stage
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
+                    getClass().getResource("/mainpage.fxml"));
+            javafx.scene.Parent mainRoot = loader.load();
+            javafx.stage.Stage stage = (javafx.stage.Stage) contentContainer.getScene().getWindow();
+            stage.setScene(new javafx.scene.Scene(mainRoot));
+            stage.show();
+        } catch (java.io.IOException ex) {
+            ex.printStackTrace();
+        }
     }
 
     /**
      * Show the create/edit post panel as a slide-in from the right.
+     * 
      * @param existing — null for create, populated for edit
      */
     public void showPostFormPanel(Publication existing) {
@@ -224,53 +284,19 @@ public class WajdiDashboardController {
             CreatePostController ctrl = loader.getController();
             ctrl.init(this, existing);
 
-            ScrollPane scrollWrapper = new ScrollPane(form);
-            scrollWrapper.setFitToWidth(true);
-            scrollWrapper.setStyle("-fx-background-color: white; -fx-background: white; -fx-border-color: transparent;");
-            VBox.setVgrow(scrollWrapper, javafx.scene.layout.Priority.ALWAYS);
+            // Override the cpd-root min-width so it fits inside the 480px panel
+            if (form instanceof javafx.scene.layout.Region) {
+                ((javafx.scene.layout.Region) form).setMinWidth(0);
+                ((javafx.scene.layout.Region) form).setPrefWidth(460);
+            }
 
-            VBox wrapper = new VBox(0);
-            wrapper.setStyle("-fx-background-color: white;");
-            wrapper.setPrefWidth(480); wrapper.setMinWidth(480); wrapper.setMaxWidth(480);
-
-            HBox closeBar = new HBox();
-            closeBar.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-            closeBar.setPadding(new javafx.geometry.Insets(14, 16, 14, 16));
-            closeBar.setStyle("-fx-background-color: white; -fx-border-color: #e4e6eb; -fx-border-width: 0 0 1 0;");
-
-            Button closeBtn = new Button("✕");
-            closeBtn.setStyle("-fx-background-color: transparent; -fx-text-fill: #65676b; -fx-font-size: 18px; -fx-font-weight: bold; -fx-padding: 6 12; -fx-background-radius: 50%; -fx-cursor: hand;");
-            closeBtn.setOnAction(e -> hidePostFormPanel());
-
-            javafx.scene.layout.Region spacer1 = new javafx.scene.layout.Region();
-            HBox.setHgrow(spacer1, javafx.scene.layout.Priority.ALWAYS);
-
-            Label title = new Label(existing == null ? "Create Post" : "Edit Post");
-            title.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #050505;");
-
-            javafx.scene.layout.Region spacer2 = new javafx.scene.layout.Region();
-            HBox.setHgrow(spacer2, javafx.scene.layout.Priority.ALWAYS);
-
-            javafx.scene.layout.Region placeholder = new javafx.scene.layout.Region();
-            placeholder.setPrefWidth(36);
-
-            closeBar.getChildren().addAll(closeBtn, spacer1, title, spacer2, placeholder);
-
-            HBox actionBar = new HBox(10);
-            actionBar.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
-            actionBar.setPadding(new javafx.geometry.Insets(14, 20, 14, 20));
-            actionBar.setStyle("-fx-background-color: #f7f8fa; -fx-border-color: #e4e6eb; -fx-border-width: 1 0 0 0;");
-
-            Button cancelBtn = new Button("Cancel");
-            cancelBtn.getStyleClass().add("secondary-btn");
-            cancelBtn.setOnAction(e -> hidePostFormPanel());
-
-            Button submitBtn = new Button(existing == null ? "Share" : "Update");
-            submitBtn.getStyleClass().add("primary-btn");
+            // Set up the in-form submit button text and state
+            Button submitBtn = ctrl.getFormSubmitBtn();
+            submitBtn.setText(existing == null ? "Share" : "Update");
             submitBtn.setDisable(true);
 
-            ctrl.getContentArea().textProperty().addListener((obs, o, n) ->
-                    submitBtn.setDisable(n == null || n.trim().isEmpty()));
+            ctrl.getContentArea().textProperty()
+                    .addListener((obs, o, n) -> submitBtn.setDisable(n == null || n.trim().isEmpty()));
 
             submitBtn.setOnAction(e -> {
                 try {
@@ -288,10 +314,60 @@ public class WajdiDashboardController {
                     showError("Failed: " + ex.getMessage());
                 }
             });
-            actionBar.getChildren().addAll(cancelBtn, submitBtn);
 
-            wrapper.getChildren().addAll(closeBar, scrollWrapper, actionBar);
+            ctrl.getFormCancelBtn().setOnAction(e -> hidePostFormPanel());
+
+            // Simple layout: close bar on top + scrollable form
+            ScrollPane scrollWrapper = new ScrollPane(form);
+            scrollWrapper.setFitToWidth(true);
+            scrollWrapper.setFitToHeight(false);
+            scrollWrapper.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+            scrollWrapper
+                    .setStyle("-fx-background-color: white; -fx-background: white; -fx-border-color: transparent;");
+
+            HBox closeBar = new HBox();
+            closeBar.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+            closeBar.setPadding(new javafx.geometry.Insets(14, 16, 14, 16));
+            closeBar.setStyle("-fx-background-color: white; -fx-border-color: #e4e6eb; -fx-border-width: 0 0 1 0;");
+
+            Button closeBtn = new Button("✕");
+            closeBtn.setStyle(
+                    "-fx-background-color: transparent; -fx-text-fill: #65676b; -fx-font-size: 18px; -fx-font-weight: bold; -fx-padding: 6 12; -fx-background-radius: 50%; -fx-cursor: hand;");
+            closeBtn.setOnAction(e -> hidePostFormPanel());
+
+            javafx.scene.layout.Region spacer1 = new javafx.scene.layout.Region();
+            HBox.setHgrow(spacer1, javafx.scene.layout.Priority.ALWAYS);
+
+            Label title = new Label(existing == null ? "Create Post" : "Edit Post");
+            title.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #050505;");
+
+            javafx.scene.layout.Region spacer2 = new javafx.scene.layout.Region();
+            HBox.setHgrow(spacer2, javafx.scene.layout.Priority.ALWAYS);
+
+            javafx.scene.layout.Region placeholder = new javafx.scene.layout.Region();
+            placeholder.setPrefWidth(36);
+
+            closeBar.getChildren().addAll(closeBtn, spacer1, title, spacer2, placeholder);
+
+            VBox wrapper = new VBox(0, closeBar, scrollWrapper);
+            wrapper.setStyle("-fx-background-color: white;");
+            wrapper.setPrefWidth(480);
+            wrapper.setMinWidth(480);
+            wrapper.setMaxWidth(480);
+            VBox.setVgrow(scrollWrapper, javafx.scene.layout.Priority.ALWAYS);
+
+            // CRITICAL: bind prefHeight and maxHeight to the parent StackPane
+            // so the panel cannot grow taller than the available space.
+            // Without prefHeight binding, layout algorithms might ignore maxHeight.
             createEditPanel.getChildren().setAll(wrapper);
+
+            javafx.scene.layout.StackPane parentStack = (javafx.scene.layout.StackPane) createEditPanel.getParent();
+            if (parentStack != null) {
+                createEditPanel.maxHeightProperty().bind(parentStack.heightProperty());
+                createEditPanel.prefHeightProperty().bind(parentStack.heightProperty());
+                wrapper.maxHeightProperty().bind(parentStack.heightProperty());
+                wrapper.prefHeightProperty().bind(parentStack.heightProperty());
+            }
 
             createEditPanel.setVisible(true);
             createEditPanel.setManaged(true);
@@ -312,6 +388,8 @@ public class WajdiDashboardController {
         slide.setOnFinished(e -> {
             createEditPanel.setVisible(false);
             createEditPanel.setManaged(false);
+            createEditPanel.maxHeightProperty().unbind();
+            createEditPanel.prefHeightProperty().unbind();
         });
         slide.play();
     }
@@ -491,15 +569,41 @@ public class WajdiDashboardController {
     }
 
     // Getters for sub-controllers
-    public Client getCurrentUser()               { return currentUser; }
-    public StackPane getContentContainer()        { return contentContainer; }
-    public PostController getPostController()     { return postController; }
-    public CommentController getCommentController() { return commentController; }
-    public LikeController getLikeController()     { return likeController; }
-    public CommentService getCommentService()     { return commentService; }
-    public LikeService getLikeService()           { return likeService; }
-    public StackPane getMapOverlay()              { return mapOverlay; }
-    public HBox      getChatPanel()               { return chatPanel; }
+    public Client getCurrentUser() {
+        return currentUser;
+    }
+
+    public StackPane getContentContainer() {
+        return contentContainer;
+    }
+
+    public PostController getPostController() {
+        return postController;
+    }
+
+    public CommentController getCommentController() {
+        return commentController;
+    }
+
+    public LikeController getLikeController() {
+        return likeController;
+    }
+
+    public CommentService getCommentService() {
+        return commentService;
+    }
+
+    public LikeService getLikeService() {
+        return likeService;
+    }
+
+    public StackPane getMapOverlay() {
+        return mapOverlay;
+    }
+
+    public HBox getChatPanel() {
+        return chatPanel;
+    }
 
     // ── Map FAB ──────────────────────────────────────────────────────────────
 
@@ -526,14 +630,16 @@ public class WajdiDashboardController {
 
         javafx.animation.FadeTransition ft = new javafx.animation.FadeTransition(
                 Duration.millis(220), mapOverlay);
-        ft.setFromValue(0); ft.setToValue(1);
+        ft.setFromValue(0);
+        ft.setToValue(1);
         ft.play();
     }
 
     public void hideMapView() {
         javafx.animation.FadeTransition ft = new javafx.animation.FadeTransition(
                 Duration.millis(180), mapOverlay);
-        ft.setFromValue(1); ft.setToValue(0);
+        ft.setFromValue(1);
+        ft.setToValue(0);
         ft.setOnFinished(e -> {
             mapOverlay.setVisible(false);
             mapOverlay.setManaged(false);
