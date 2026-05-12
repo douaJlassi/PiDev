@@ -5,6 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.SVGPath?>
 
+<?import javafx.scene.image.ImageView?>
 <VBox spacing="20" styleClass="dash-content" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.OfferDetailsController">
     <padding>
         <Insets top="25" right="25" bottom="25" left="25"/>
@@ -31,7 +32,14 @@
 
                 <VBox styleClass="card" style="-fx-padding: 25; -fx-border-color: -brand-teal; -fx-border-width: 0 0 0 5;">
                     <HBox alignment="CENTER_LEFT" spacing="40">
+                        <ImageView fx:id="offerImg"
+                                   fitWidth="260"
+                                   fitHeight="170"
+                                   preserveRatio="false"
+                                   smooth="true"
+                                   style="-fx-background-radius: 16;" />
                         <VBox spacing="10">
+
                             <Label text="TOTAL TRIP PRICE" styleClass="dash-muted" style="-fx-font-weight: bold; -fx-font-size: 11px;" />
                             <Label fx:id="priceLbl" text="0.000 TND" styleClass="price-teal" style="-fx-font-size: 32px; -fx-font-weight: 900;" />
 

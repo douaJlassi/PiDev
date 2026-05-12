@@ -1,18 +1,20 @@
 package repositories;
 
 import entities.Offre;
-import entities.OffreStatus;
+import entities.OfferFilter;
 import utils.MyDBConnexion;
 
 import java.math.BigDecimal;
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class OffreRepository implements IOffreRepository {
 
     private final Connection cnx;
+
+    private static final String TABLE_NAME = "offer";
 
     public OffreRepository() {
         cnx = MyDBConnexion.getInstance().getConnection();
@@ -21,40 +23,35 @@ public class OffreRepository implements IOffreRepository {
     @Override
     public List<Offre> findAllAdmin() {
         List<Offre> list = new ArrayList<>();
-        String sql =
-                "SELECT o.idOffre, o.titre, o.description, o.prixOriginal, o.prixPromo, o.dateDebut, o.dateFin, " +
-                        "       o.idAgence, o.status, o.imageUrl, a.nomAgence " +
-                        "FROM offre o " +
-                        "JOIN agence a ON a.idUser = o.idAgence " +
-                        "WHERE o.status = 'ACTIVE' " +
-                        "ORDER BY o.idOffre DESC";
 
+        String sql = "SELECT * FROM " + TABLE_NAME +
+                " WHERE status = 'ACTIVE' ORDER BY id DESC";
 
         try (PreparedStatement ps = cnx.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
-            while (rs.next()) list.add(map(rs));
+            while (rs.next()) {
+                list.add(map(rs));
+            }
 
         } catch (SQLException e) {
             throw new RuntimeException("Error findAll offre: " + e.getMessage(), e);
         }
+
         return list;
     }
 
     @Override
     public Offre findById(int idOffre) {
-        String sql =
-                "SELECT o.idOffre, o.titre, o.description, o.prixOriginal, o.prixPromo, o.dateDebut, o.dateFin, " +
-                        "       o.idAgence, o.imageUrl, o.status, a.nomAgence " +
-                        "FROM offre o " +
-                        "JOIN agence a ON a.idUser = o.idAgence " +
-                        "WHERE o.idOffre = ?";
+        String sql = "SELECT * FROM " + TABLE_NAME + " WHERE id = ?";
 
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, idOffre);
+
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? map(rs) : null;
             }
+
         } catch (SQLException e) {
             throw new RuntimeException("Error findById offre: " + e.getMessage(), e);
         }
@@ -62,23 +59,37 @@ public class OffreRepository implements IOffreRepository {
 
     @Override
     public int insert(Offre o) {
-        String sql =
-                "INSERT INTO offre (titre, description, prixOriginal, prixPromo, dateDebut, dateFin, idAgence, imageUrl, status) " +
-                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'ACTIVE')";
+        String sql = "INSERT INTO " + TABLE_NAME +
+                " (title, description, promo_price, original_price, start_date, end_date, status, image_url, capacity, location, created_at, updated_at, user_id) " +
+                " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NULL, ?)";
 
         try (PreparedStatement ps = cnx.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setString(1, o.getTitre());
+
+            ps.setString(1, o.getTitle());
             ps.setString(2, o.getDescription());
 
-// default original to promo if null
-            BigDecimal original = (o.getPrixOriginal() != null) ? o.getPrixOriginal() : o.getPrixPromo();
-            ps.setBigDecimal(3, original);
+            ps.setBigDecimal(3, o.getPromoPrice());
 
-            ps.setBigDecimal(4, o.getPrixPromo());
-            ps.setDate(5, Date.valueOf(o.getDateDebut()));
-            ps.setDate(6, Date.valueOf(o.getDateFin()));
-            ps.setInt(7, o.getIdAgence());
+            BigDecimal original = o.getOriginalPrice() != null
+                    ? o.getOriginalPrice()
+                    : o.getPromoPrice();
+
+            ps.setBigDecimal(4, original);
+
+            ps.setDate(5, o.getStartDate() != null ? Date.valueOf(o.getStartDate()) : null);
+            ps.setDate(6, o.getEndDate() != null ? Date.valueOf(o.getEndDate()) : null);
+
+            ps.setString(7, o.getStatus() != null ? o.getStatus() : "ACTIVE");
             ps.setString(8, o.getImageUrl());
+
+            if (o.getCapacity() != null) {
+                ps.setInt(9, o.getCapacity());
+            } else {
+                ps.setNull(9, Types.INTEGER);
+            }
+
+            ps.setString(10, o.getLocation());
+            ps.setInt(11, o.getUserId());
 
             ps.executeUpdate();
 
@@ -93,19 +104,31 @@ public class OffreRepository implements IOffreRepository {
 
     @Override
     public boolean update(Offre o) {
-        String sql = "UPDATE offre SET titre=?, description=?, prixOriginal=?, prixPromo=?, dateDebut=?, dateFin=?, idAgence=?, imageUrl=? " +
-                "WHERE idOffre=?";
+        String sql = "UPDATE " + TABLE_NAME +
+                " SET title=?, description=?, promo_price=?, original_price=?, start_date=?, end_date=?, " +
+                " status=?, image_url=?, capacity=?, location=?, user_id=?, updated_at=NOW() " +
+                " WHERE id=?";
 
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {
-            ps.setString(1, o.getTitre());
+
+            ps.setString(1, o.getTitle());
             ps.setString(2, o.getDescription());
-            ps.setBigDecimal(3, o.getPrixOriginal());
-            ps.setBigDecimal(4, o.getPrixPromo());
-            ps.setDate(5, Date.valueOf(o.getDateDebut()));
-            ps.setDate(6, Date.valueOf(o.getDateFin()));
-            ps.setInt(7, o.getIdAgence());
+            ps.setBigDecimal(3, o.getPromoPrice());
+            ps.setBigDecimal(4, o.getOriginalPrice());
+            ps.setDate(5, o.getStartDate() != null ? Date.valueOf(o.getStartDate()) : null);
+            ps.setDate(6, o.getEndDate() != null ? Date.valueOf(o.getEndDate()) : null);
+            ps.setString(7, o.getStatus() != null ? o.getStatus() : "ACTIVE");
             ps.setString(8, o.getImageUrl());
-            ps.setInt(9, o.getIdOffre());
+
+            if (o.getCapacity() != null) {
+                ps.setInt(9, o.getCapacity());
+            } else {
+                ps.setNull(9, Types.INTEGER);
+            }
+
+            ps.setString(10, o.getLocation());
+            ps.setInt(11, o.getUserId());
+            ps.setInt(12, o.getId());
 
             return ps.executeUpdate() > 0;
 
@@ -114,43 +137,36 @@ public class OffreRepository implements IOffreRepository {
         }
     }
 
-
-
     @Override
     public boolean deleteSafe(int idOffre) {
-    /* NEW LOGIC:
-       When the user clicks 'Delete/Archive' in the main grid,
-       we ALWAYS just move it to the Archive.
-    */
         return archiveOffre(idOffre);
     }
 
     public boolean archiveOffre(int idOffre) {
-        String sql = "UPDATE offre SET status = 'ARCHIVED' WHERE idOffre = ?";
+        String sql = "UPDATE " + TABLE_NAME +
+                " SET status='ARCHIVED', updated_at=NOW() WHERE id=?";
+
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, idOffre);
             return ps.executeUpdate() > 0;
+
         } catch (SQLException e) {
             throw new RuntimeException("Error archiving offer: " + e.getMessage(), e);
         }
     }
 
-    /**
-     * Call THIS method from your ArchivedOfferCardController (The Hard Delete button)
-     * This follows your logic: Delete if unused, block if used.
-     */
     public boolean confirmPermanentDelete(int idOffre) {
-        // 1. If it IS used in history, we REFUSE to delete it (keep it archived)
         if (isUsedInLignePanier(idOffre)) {
-            System.out.println("Cannot delete: Offer is linked to existing transactions.");
+            System.out.println("Cannot delete: Offer is linked to existing reservations.");
             return false;
         }
 
-        // 2. If it's NOT used, we wipe it from the DB
-        String sql = "DELETE FROM offre WHERE idOffre = ?";
+        String sql = "DELETE FROM " + TABLE_NAME + " WHERE id=?";
+
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, idOffre);
             return ps.executeUpdate() > 0;
+
         } catch (SQLException e) {
             throw new RuntimeException("Error during permanent deletion: " + e.getMessage(), e);
         }
@@ -158,102 +174,114 @@ public class OffreRepository implements IOffreRepository {
 
     @Override
     public boolean isUsedInLignePanier(int idOffre) {
-
-        String sql = "SELECT COUNT(*) FROM lignepanier WHERE idOffre = ?";
+        String sql = "SELECT COUNT(*) FROM reservation WHERE offer_id = ?";
 
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, idOffre);
 
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1) > 0;
-                }
+                return rs.next() && rs.getInt(1) > 0;
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error checking usage: " + e.getMessage(), e);
+            throw new RuntimeException("Error checking offer usage: " + e.getMessage(), e);
         }
-
-        return false;
     }
 
     @Override
     public List<Offre> findAllByAgency(int idAgence) {
         List<Offre> list = new ArrayList<>();
 
-        String sql =
-                "SELECT o.idOffre, o.titre, o.description, o.prixOriginal, o.prixPromo, o.dateDebut, o.dateFin, " +
-                        "       o.idAgence, o.imageUrl, o.status, a.nomAgence " +
-                        "FROM offre o " +
-                        "JOIN agence a ON a.idUser = o.idAgence " +
-                        "WHERE o.idAgence = ? AND o.status = 'ACTIVE' " +
-                        "ORDER BY o.idOffre DESC";
+        String sql = "SELECT * FROM " + TABLE_NAME +
+                " WHERE user_id = ? AND status = 'ACTIVE' ORDER BY id DESC";
 
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, idAgence);
+
             try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) list.add(map(rs));
+                while (rs.next()) {
+                    list.add(map(rs));
+                }
             }
+
         } catch (SQLException e) {
             throw new RuntimeException("Error findAllByAgency offre: " + e.getMessage(), e);
         }
 
         return list;
     }
+
     @Override
     public boolean isOwnedByAgency(int idOffre, int idAgence) {
-        String sql = "SELECT COUNT(*) FROM offre WHERE idOffre=? AND idAgence=?";
+        String sql = "SELECT COUNT(*) FROM " + TABLE_NAME +
+                " WHERE id=? AND user_id=?";
+
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, idOffre);
             ps.setInt(2, idAgence);
+
             try (ResultSet rs = ps.executeQuery()) {
-                rs.next();
-                return rs.getInt(1) > 0;
+                return rs.next() && rs.getInt(1) > 0;
             }
+
         } catch (SQLException e) {
             throw new RuntimeException("Error isOwnedByAgency: " + e.getMessage(), e);
         }
     }
 
     public boolean deleteSafeForAgency(int idOffre, int idAgence) {
-        if (!isOwnedByAgency(idOffre, idAgence)) return false;
+        if (!isOwnedByAgency(idOffre, idAgence)) {
+            return false;
+        }
+
         return deleteSafe(idOffre);
     }
+
     @Override
     public Offre findByIdForAgency(int idOffre, int idAgence) {
-        String sql =
-                "SELECT o.idOffre, o.titre, o.description, o.prixOriginal, o.prixPromo, o.dateDebut, o.dateFin, " +
-                        "       o.idAgence, o.imageUrl, o.status, a.nomAgence " +
-                        "FROM offre o " +
-                        "JOIN agence a ON a.idUser = o.idAgence " +
-                        "WHERE o.idOffre = ? AND o.idAgence = ?";
+        String sql = "SELECT * FROM " + TABLE_NAME +
+                " WHERE id=? AND user_id=?";
 
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, idOffre);
             ps.setInt(2, idAgence);
+
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? map(rs) : null;
             }
+
         } catch (SQLException e) {
             throw new RuntimeException("Error findByIdForAgency: " + e.getMessage(), e);
         }
     }
+
     @Override
     public boolean updateForAgency(Offre o, int idAgence) {
-        String sql =
-                "UPDATE offre SET titre=?, description=?, prixOriginal=?, prixPromo=?, dateDebut=?, dateFin=?, imageUrl=? " +
-                        "WHERE idOffre=? AND idAgence=?";
+        String sql = "UPDATE " + TABLE_NAME +
+                " SET title=?, description=?, promo_price=?, original_price=?, start_date=?, end_date=?, " +
+                " status=?, image_url=?, capacity=?, location=?, updated_at=NOW() " +
+                " WHERE id=? AND user_id=?";
 
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {
-            ps.setString(1, o.getTitre());
+
+            ps.setString(1, o.getTitle());
             ps.setString(2, o.getDescription());
-            ps.setBigDecimal(3, o.getPrixOriginal());
-            ps.setBigDecimal(4, o.getPrixPromo());
-            ps.setDate(5, Date.valueOf(o.getDateDebut()));
-            ps.setDate(6, Date.valueOf(o.getDateFin()));
-            ps.setString(7, o.getImageUrl());
-            ps.setInt(8, o.getIdOffre());
-            ps.setInt(9, idAgence);
+            ps.setBigDecimal(3, o.getPromoPrice());
+            ps.setBigDecimal(4, o.getOriginalPrice());
+            ps.setDate(5, o.getStartDate() != null ? Date.valueOf(o.getStartDate()) : null);
+            ps.setDate(6, o.getEndDate() != null ? Date.valueOf(o.getEndDate()) : null);
+            ps.setString(7, o.getStatus() != null ? o.getStatus() : "ACTIVE");
+            ps.setString(8, o.getImageUrl());
+
+            if (o.getCapacity() != null) {
+                ps.setInt(9, o.getCapacity());
+            } else {
+                ps.setNull(9, Types.INTEGER);
+            }
+
+            ps.setString(10, o.getLocation());
+            ps.setInt(11, o.getId());
+            ps.setInt(12, idAgence);
 
             return ps.executeUpdate() > 0;
 
@@ -266,50 +294,62 @@ public class OffreRepository implements IOffreRepository {
     public List<Offre> findAllAdminByAgency(Integer agencyId) {
         List<Offre> list = new ArrayList<>();
 
-        String base =
-                "SELECT o.idOffre, o.titre, o.description, o.prixPromo, o.dateDebut, o.prixOriginal, o.dateFin, " +
-                        "       o.idAgence, o.imageUrl, o.status, a.nomAgence " +
-                        "FROM offre o " +
-                        "JOIN agence a ON a.idUser = o.idAgence " +
-                        "WHERE o.status='ACTIVE' ";
-
-        String sql = (agencyId == null)
-                ? base + "ORDER BY o.idOffre DESC"
-                : base + "AND o.idAgence = ? ORDER BY o.idOffre DESC";
+        String sql = agencyId == null
+                ? "SELECT * FROM " + TABLE_NAME + " WHERE status='ACTIVE' ORDER BY id DESC"
+                : "SELECT * FROM " + TABLE_NAME + " WHERE status='ACTIVE' AND user_id=? ORDER BY id DESC";
 
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {
-            if (agencyId != null) ps.setInt(1, agencyId);
+
+            if (agencyId != null) {
+                ps.setInt(1, agencyId);
+            }
 
             try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) list.add(map(rs));
+                while (rs.next()) {
+                    list.add(map(rs));
+                }
             }
+
         } catch (SQLException e) {
             throw new RuntimeException("Error findAllAdminByAgency: " + e.getMessage(), e);
         }
+
         return list;
     }
-    public boolean archiveForAgency(int idOffre, int idAgence) {
-        if (!isOwnedByAgency(idOffre, idAgence)) return false;
-        if (isUsedInLignePanier(idOffre)) return false; // keep your integrity rule
 
-        String sql = "UPDATE offre SET status='ARCHIVED' WHERE idOffre=? AND idAgence=?";
+    public boolean archiveForAgency(int idOffre, int idAgence) {
+        if (!isOwnedByAgency(idOffre, idAgence)) {
+            return false;
+        }
+
+        String sql = "UPDATE " + TABLE_NAME +
+                " SET status='ARCHIVED', updated_at=NOW() WHERE id=? AND user_id=?";
+
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, idOffre);
             ps.setInt(2, idAgence);
+
             return ps.executeUpdate() > 0;
+
         } catch (SQLException e) {
             throw new RuntimeException("Error archive offer: " + e.getMessage(), e);
         }
     }
 
     public boolean restoreForAgency(int idOffre, int idAgence) {
-        if (!isOwnedByAgency(idOffre, idAgence)) return false;
+        if (!isOwnedByAgency(idOffre, idAgence)) {
+            return false;
+        }
 
-        String sql = "UPDATE offre SET status='ACTIVE' WHERE idOffre=? AND idAgence=?";
+        String sql = "UPDATE " + TABLE_NAME +
+                " SET status='ACTIVE', updated_at=NOW() WHERE id=? AND user_id=?";
+
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, idOffre);
             ps.setInt(2, idAgence);
+
             return ps.executeUpdate() > 0;
+
         } catch (SQLException e) {
             throw new RuntimeException("Error restore offer: " + e.getMessage(), e);
         }
@@ -317,123 +357,117 @@ public class OffreRepository implements IOffreRepository {
 
     public List<Offre> findArchivedByAgency(int idAgence) {
         List<Offre> list = new ArrayList<>();
-        String sql =
-                "SELECT o.idOffre, o.titre, o.description, o.prixOriginal, o.prixPromo, o.dateDebut, o.dateFin, " +
-                        "       o.idAgence, o.imageUrl, o.status, a.nomAgence " +
-                        "FROM offre o JOIN agence a ON a.idUser=o.idAgence " +
-                        "WHERE o.idAgence=? AND o.status='ARCHIVED' " +
-                        "ORDER BY o.idOffre DESC";
+
+        String sql = "SELECT * FROM " + TABLE_NAME +
+                " WHERE user_id=? AND status='ARCHIVED' ORDER BY id DESC";
+
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, idAgence);
+
             try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) list.add(map(rs));
+                while (rs.next()) {
+                    list.add(map(rs));
+                }
             }
+
         } catch (SQLException e) {
             throw new RuntimeException("Error findArchivedByAgency: " + e.getMessage(), e);
         }
+
         return list;
     }
+
     @Override
     public boolean deleteHardAdmin(int idOffre) {
-        String sql = "DELETE FROM offre WHERE idOffre=?";
+        String sql = "DELETE FROM " + TABLE_NAME + " WHERE id=?";
+
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, idOffre);
             return ps.executeUpdate() > 0;
+
         } catch (SQLException e) {
             throw new RuntimeException("Error deleteHardAdmin: " + e.getMessage(), e);
         }
     }
 
-
-
-    private Offre map(ResultSet rs) throws SQLException {
-        Offre o = new Offre();
-        o.setIdOffre(rs.getInt("idOffre"));
-        o.setTitre(rs.getString("titre"));
-        o.setDescription(rs.getString("description"));
-        o.setPrixOriginal(rs.getBigDecimal("prixOriginal"));
-        o.setPrixPromo(rs.getBigDecimal("prixPromo"));
-
-        Date db = rs.getDate("dateDebut");
-        Date df = rs.getDate("dateFin");
-        o.setDateDebut(db != null ? db.toLocalDate() : LocalDate.now());
-        o.setDateFin(df != null ? df.toLocalDate() : LocalDate.now());
-
-        o.setIdAgence(rs.getInt("idAgence"));
-        o.setImageUrl(rs.getString("imageUrl"));
-        o.setNomAgence(rs.getString("nomAgence"));
-        try {
-            o.setStatus(OffreStatus.valueOf(rs.getString("status")));
-        } catch (SQLException ex) {
-            o.setStatus(OffreStatus.ACTIVE);
-        }
-
-
-        return o;
-    }
     @Override
-    public List<Offre> searchActiveOffers(entities.OfferFilter f) {
+    public List<Offre> searchActiveOffers(OfferFilter f) {
         List<Offre> list = new ArrayList<>();
 
         StringBuilder sql = new StringBuilder(
-                "SELECT o.idOffre, o.titre, o.description, o.prixOriginal, o.prixPromo, o.dateDebut, o.dateFin, " +
-                        "       o.idAgence, o.imageUrl, o.status, a.nomAgence " +
-                        "FROM offre o " +
-                        "JOIN agence a ON a.idUser = o.idAgence " +
-                        "WHERE o.status='ACTIVE' "
+                "SELECT * FROM " + TABLE_NAME + " WHERE status='ACTIVE' "
         );
 
         List<Object> params = new ArrayList<>();
 
-        // keyword
         if (f != null && f.getKeyword() != null && !f.getKeyword().trim().isEmpty()) {
-            sql.append("AND (o.titre LIKE ? OR a.nomAgence LIKE ?) ");
+            sql.append("AND (title LIKE ? OR description LIKE ? OR location LIKE ?) ");
             String like = "%" + f.getKeyword().trim() + "%";
             params.add(like);
             params.add(like);
+            params.add(like);
         }
 
-        // min price
         if (f != null && f.getMinPrice() != null) {
-            sql.append("AND o.prixPromo >= ? ");
+            sql.append("AND promo_price >= ? ");
             params.add(f.getMinPrice());
         }
 
-        // max price
         if (f != null && f.getMaxPrice() != null) {
-            sql.append("AND o.prixPromo <= ? ");
+            sql.append("AND promo_price <= ? ");
             params.add(f.getMaxPrice());
         }
 
-        // date inside offer range
         if (f != null && f.getSelectedDate() != null) {
-            sql.append("AND o.dateDebut <= ? AND o.dateFin >= ? ");
+            sql.append("AND start_date <= ? AND end_date >= ? ");
             params.add(Date.valueOf(f.getSelectedDate()));
             params.add(Date.valueOf(f.getSelectedDate()));
         }
 
-        // agencies IN (...)
-        if (f != null && f.getAgencyIds() != null && !f.getAgencyIds().isEmpty()) {
-            sql.append("AND o.idAgence IN (");
-            sql.append(String.join(",", java.util.Collections.nCopies(f.getAgencyIds().size(), "?")));
+        if (f != null && f.getStatuses() != null && !f.getStatuses().isEmpty()) {
+            sql.append("AND status IN (");
+            sql.append(String.join(",", Collections.nCopies(f.getStatuses().size(), "?")));
             sql.append(") ");
-            for (Integer id : f.getAgencyIds()) params.add(id);
+
+            for (String status : f.getStatuses()) {
+                params.add(status);
+            }
         }
 
-        sql.append("ORDER BY o.idOffre DESC");
+        if (f != null && f.getLocations() != null && !f.getLocations().isEmpty()) {
+            sql.append("AND location IN (");
+            sql.append(String.join(",", Collections.nCopies(f.getLocations().size(), "?")));
+            sql.append(") ");
+
+            for (String location : f.getLocations()) {
+                params.add(location);
+            }
+        }
+
+        sql.append("ORDER BY id DESC");
 
         try (PreparedStatement ps = cnx.prepareStatement(sql.toString())) {
+
             for (int i = 0; i < params.size(); i++) {
                 Object p = params.get(i);
-                if (p instanceof BigDecimal bd) ps.setBigDecimal(i + 1, bd);
-                else if (p instanceof Integer in) ps.setInt(i + 1, in);
-                else if (p instanceof Date d) ps.setDate(i + 1, d);
-                else ps.setString(i + 1, String.valueOf(p));
+
+                if (p instanceof BigDecimal) {
+                    ps.setBigDecimal(i + 1, (BigDecimal) p);
+                } else if (p instanceof Integer) {
+                    ps.setInt(i + 1, (Integer) p);
+                } else if (p instanceof Date) {
+                    ps.setDate(i + 1, (Date) p);
+                } else {
+                    ps.setString(i + 1, String.valueOf(p));
+                }
             }
 
             try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) list.add(map(rs));
+                while (rs.next()) {
+                    list.add(map(rs));
+                }
             }
+
         } catch (SQLException e) {
             throw new RuntimeException("Error searchActiveOffers: " + e.getMessage(), e);
         }
@@ -441,4 +475,36 @@ public class OffreRepository implements IOffreRepository {
         return list;
     }
 
+    private Offre map(ResultSet rs) throws SQLException {
+        Offre o = new Offre();
+
+        o.setId(rs.getInt("id"));
+        o.setTitle(rs.getString("title"));
+        o.setDescription(rs.getString("description"));
+        o.setPromoPrice(rs.getBigDecimal("promo_price"));
+        o.setOriginalPrice(rs.getBigDecimal("original_price"));
+
+        Date startDate = rs.getDate("start_date");
+        Date endDate = rs.getDate("end_date");
+
+        o.setStartDate(startDate != null ? startDate.toLocalDate() : null);
+        o.setEndDate(endDate != null ? endDate.toLocalDate() : null);
+
+        o.setStatus(rs.getString("status"));
+        o.setImageUrl(rs.getString("image_url"));
+
+        Object capacityObj = rs.getObject("capacity");
+        o.setCapacity(capacityObj != null ? ((Number) capacityObj).intValue() : null);
+
+        o.setLocation(rs.getString("location"));
+        o.setUserId(rs.getInt("user_id"));
+
+        Timestamp created = rs.getTimestamp("created_at");
+        Timestamp updated = rs.getTimestamp("updated_at");
+
+        o.setCreatedAt(created != null ? created.toLocalDateTime() : null);
+        o.setUpdatedAt(updated != null ? updated.toLocalDateTime() : null);
+
+        return o;
+    }
 }

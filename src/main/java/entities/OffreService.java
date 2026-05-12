@@ -3,20 +3,41 @@ package entities;
 import java.math.BigDecimal;
 
 public class OffreService {
-    private int idOffre;
-    private int idService;
-    private int quantite;
-    private BigDecimal prixOverride; // nullable
 
-    public int getIdOffre() { return idOffre; }
-    public void setIdOffre(int idOffre) { this.idOffre = idOffre; }
+    private int offerId;
+    private int serviceId;
+    private int quantity;
+    private BigDecimal overridePrice;
 
-    public int getIdService() { return idService; }
-    public void setIdService(int idService) { this.idService = idService; }
+    public int getOfferId() {
+        return offerId;
+    }
 
-    public int getQuantite() { return quantite; }
-    public void setQuantite(int quantite) { this.quantite = quantite; }
+    public void setOfferId(int offerId) {
+        this.offerId = offerId;
+    }
 
-    public BigDecimal getPrixOverride() { return prixOverride; }
-    public void setPrixOverride(BigDecimal prixOverride) { this.prixOverride = prixOverride; }
+    public int getServiceId() {
+        return serviceId;
+    }
+
+    public void setServiceId(int serviceId) {
+        this.serviceId = serviceId;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public BigDecimal getOverridePrice() {
+        return overridePrice;
+    }
+
+    public void setOverridePrice(BigDecimal overridePrice) {
+        this.overridePrice = overridePrice;
+    }
 }

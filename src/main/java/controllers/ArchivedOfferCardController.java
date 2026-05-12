@@ -11,63 +11,170 @@ import repositories.OffreRepository;
 
 public class ArchivedOfferCardController {
 
-    @FXML private Label titleLbl;
-    @FXML private Label priceLbl;
-    @FXML private Label datesLbl;
+    @FXML
+    private Label titleLbl;
+
+    @FXML
+    private Label priceLbl;
+
+    @FXML
+    private Label datesLbl;
 
     private Offre offer;
+
     private Runnable onChanged;
 
-    private final IOffreRepository repo = new OffreRepository();
+    private final IOffreRepository repo =
+            new OffreRepository();
 
-    public void setData(Offre offer, Runnable onChanged) {
+    public void setData(
+            Offre offer,
+            Runnable onChanged
+    ) {
+
         this.offer = offer;
+
         this.onChanged = onChanged;
 
-        titleLbl.setText(offer.getTitre());
-        priceLbl.setText("Price: " + offer.getPrixPromo() + " TND");
-        datesLbl.setText("Dates: " + offer.getDateDebut() + " → " + offer.getDateFin());
+        // ------------------------------------
+        // TITLE
+        // ------------------------------------
+
+        titleLbl.setText(
+                offer.getTitle()
+        );
+
+        // ------------------------------------
+        // PRICE
+        // ------------------------------------
+
+        if (offer.getPromoPrice() != null) {
+
+            priceLbl.setText(
+                    "Price: "
+                            + offer.getPromoPrice()
+                            + " TND"
+            );
+
+        } else {
+
+            priceLbl.setText("Price: ---");
+        }
+
+        // ------------------------------------
+        // DATES
+        // ------------------------------------
+
+        datesLbl.setText(
+                "Dates: "
+                        + offer.getStartDate()
+                        + " → "
+                        + offer.getEndDate()
+        );
     }
 
     @FXML
     private void onRestore() {
-        boolean ok = repo.restoreForAgency(offer.getIdOffre(), Session.getUserId());
+
+        boolean ok =
+                repo.restoreForAgency(
+                        offer.getId(),
+                        Session.getUserId()
+                );
+
         if (!ok) {
-            warn("Restore refused", "This offer is not owned by your agency or no longer exists.");
+
+            warn(
+                    "Restore refused",
+                    "This offer is not owned by your agency or no longer exists."
+            );
+
             return;
         }
-        if (onChanged != null) onChanged.run();
+
+        if (onChanged != null) {
+            onChanged.run();
+        }
     }
 
     @FXML
     private void onDeleteHard() {
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Permanent Deletion");
-        confirm.setContentText("Permanently delete from database?");
 
-        if (confirm.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) return;
+        Alert confirm =
+                new Alert(
+                        Alert.AlertType.CONFIRMATION
+                );
 
-        // Use our new permanent delete logic
-        boolean deleted = repo.confirmPermanentDelete(offer.getIdOffre());
+        confirm.setTitle(
+                "Permanent Deletion"
+        );
+
+        confirm.setHeaderText(null);
+
+        confirm.setContentText(
+                "Permanently delete this offer from database?"
+        );
+
+        if (
+                confirm.showAndWait()
+                        .orElse(ButtonType.CANCEL)
+                        != ButtonType.OK
+        ) {
+            return;
+        }
+
+        boolean deleted =
+                repo.confirmPermanentDelete(
+                        offer.getId()
+                );
 
         if (deleted) {
-            if (onChanged != null) onChanged.run(); // Refresh list
+
+            if (onChanged != null) {
+                onChanged.run();
+            }
+
         } else {
-            // Show the user WHY it wasn't deleted
-            Alert warn = new Alert(Alert.AlertType.WARNING);
-            warn.setTitle("Action Restricted");
-            warn.setHeaderText("Cannot delete this offer");
-            warn.setContentText("This offer is tied to customer history (Reservations/Carts). " +
-                    "It will remain in your Archive to keep your records accurate.");
+
+            Alert warn =
+                    new Alert(
+                            Alert.AlertType.WARNING
+                    );
+
+            warn.setTitle(
+                    "Action Restricted"
+            );
+
+            warn.setHeaderText(
+                    "Cannot delete this offer"
+            );
+
+            warn.setContentText(
+                    "This offer is linked to customer history " +
+                            "(Reservations / Carts). " +
+                            "It will remain archived to preserve records."
+            );
+
             warn.showAndWait();
         }
     }
 
-    private void warn(String title, String msg) {
-        Alert a = new Alert(Alert.AlertType.WARNING);
+    private void warn(
+            String title,
+            String msg
+    ) {
+
+        Alert a =
+                new Alert(
+                        Alert.AlertType.WARNING
+                );
+
         a.setTitle(title);
+
         a.setHeaderText(null);
+
         a.setContentText(msg);
+
         a.showAndWait();
     }
 }

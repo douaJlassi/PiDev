@@ -4,59 +4,156 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class ServiceEntityDetails {
-    // base service
-    private int idService;
-    private String nom;
+
+    // New service fields
+    private int id;
+    private String name;
+    private String type;
     private String description;
-    private BigDecimal prix;
-    private boolean disponibilite;
-    private int capacite;
-    private int idAgence;
+    private BigDecimal basePrice;
+    private boolean available;
+    private Integer capacity;
+    private Integer agencyId;
+    private String imageUrl;
+    private LocalDateTime createdAt;
 
-    // pivot
-    private int quantite;
-    private BigDecimal prixOverride;
+    // Default compatibility values
+    private int quantity = 1;
+    private BigDecimal overridePrice;
 
-    // inferred type
-    private String kind; // "VOL" or "HOTEL" or "SERVICE"
-
-    // VOL
+    // Optional VOL fields, keep them if your vol table still exists
     private String numeroVol;
     private String villeDepart;
     private String villeArrivee;
     private LocalDateTime dateDepart;
     private LocalDateTime dateArrivee;
 
-    // HOTEL
+    // Optional HOTEL fields, keep them if your hotel table still exists
     private Integer nombreEtoiles;
     private String localisation;
     private String typeChambre;
 
+    public ServiceEntityDetails() {
+    }
+
+    // -----------------------------
+    // PRICE HELPERS
+    // -----------------------------
+
     public BigDecimal getPrixApplique() {
-        return (prixOverride != null) ? prixOverride : prix;
+        return overridePrice != null ? overridePrice : basePrice;
     }
 
     public BigDecimal getSousTotal() {
-        if (getPrixApplique() == null) return BigDecimal.ZERO;
-        return getPrixApplique().multiply(BigDecimal.valueOf(quantite));
+        if (getPrixApplique() == null) {
+            return BigDecimal.ZERO;
+        }
+
+        return getPrixApplique().multiply(BigDecimal.valueOf(quantity));
+    }
+
+    // -----------------------------
+    // NEW GETTERS / SETTERS
+    // -----------------------------
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
 
-    public int getIdService() {
-        return idService;
+    public String getName() {
+        return name;
     }
 
-    public void setIdService(int idService) {
-        this.idService = idService;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getNom() {
-        return nom;
+
+    public String getType() {
+        return type;
     }
 
-    public void setNom(String nom) {
-        this.nom = nom;
+    public void setType(String type) {
+        this.type = type;
     }
+
+
+    public BigDecimal getBasePrice() {
+        return basePrice;
+    }
+
+    public void setBasePrice(BigDecimal basePrice) {
+        this.basePrice = basePrice;
+    }
+
+
+    public boolean isAvailable() {
+        return available;
+    }
+
+    public void setAvailable(boolean available) {
+        this.available = available;
+    }
+
+
+    public Integer getCapacity() {
+        return capacity;
+    }
+
+    public void setCapacity(Integer capacity) {
+        this.capacity = capacity;
+    }
+
+
+    public Integer getAgencyId() {
+        return agencyId;
+    }
+
+    public void setAgencyId(Integer agencyId) {
+        this.agencyId = agencyId;
+    }
+
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+
+    public BigDecimal getOverridePrice() {
+        return overridePrice;
+    }
+
+    public void setOverridePrice(BigDecimal overridePrice) {
+        this.overridePrice = overridePrice;
+    }
+
 
     public String getDescription() {
         return description;
@@ -66,54 +163,85 @@ public class ServiceEntityDetails {
         this.description = description;
     }
 
+    // -----------------------------
+    // OLD COMPATIBILITY GETTERS / SETTERS
+    // -----------------------------
+
+    public int getIdService() {
+        return id;
+    }
+
+    public void setIdService(int idService) {
+        this.id = idService;
+    }
+
+    public String getNom() {
+        return name;
+    }
+
+    public void setNom(String nom) {
+        this.name = nom;
+    }
+
+    public BigDecimal getPrix() {
+        return basePrice;
+    }
+
     public void setPrix(BigDecimal prix) {
-        this.prix = prix;
+        this.basePrice = prix;
     }
 
     public boolean isDisponibilite() {
-        return disponibilite;
+        return available;
     }
 
     public void setDisponibilite(boolean disponibilite) {
-        this.disponibilite = disponibilite;
+        this.available = disponibilite;
     }
 
     public int getCapacite() {
-        return capacite;
+        return capacity == null ? 0 : capacity;
     }
 
     public void setCapacite(int capacite) {
-        this.capacite = capacite;
+        this.capacity = capacite;
     }
 
     public int getIdAgence() {
-        return idAgence;
+        return agencyId == null ? 0 : agencyId;
     }
-
 
     public void setIdAgence(int idAgence) {
-        this.idAgence = idAgence;
-    }
-
-    public void setQuantite(int quantite) {
-        this.quantite = quantite;
+        this.agencyId = idAgence;
     }
 
     public int getQuantite() {
-        return quantite;
+        return quantity;
+    }
+
+    public void setQuantite(int quantite) {
+        this.quantity = quantite;
+    }
+
+    public BigDecimal getPrixOverride() {
+        return overridePrice;
     }
 
     public void setPrixOverride(BigDecimal prixOverride) {
-        this.prixOverride = prixOverride;
+        this.overridePrice = prixOverride;
     }
 
     public String getKind() {
-        return kind;
+        return type;
     }
 
     public void setKind(String kind) {
-        this.kind = kind;
+        this.type = kind;
     }
+
+    // -----------------------------
+    // VOL
+    // -----------------------------
 
     public String getNumeroVol() {
         return numeroVol;
@@ -154,6 +282,10 @@ public class ServiceEntityDetails {
     public void setDateArrivee(LocalDateTime dateArrivee) {
         this.dateArrivee = dateArrivee;
     }
+
+    // -----------------------------
+    // HOTEL
+    // -----------------------------
 
     public Integer getNombreEtoiles() {
         return nombreEtoiles;

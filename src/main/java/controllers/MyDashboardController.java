@@ -1,7 +1,6 @@
 package controllers;
 
 import app.Session;
-import entities.OffreAgency;
 import entities.SearchCriteria;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -25,11 +24,10 @@ public class MyDashboardController {
     @FXML private Button cartBtn;
     @FXML private Button reservationsBtn;
     @FXML private Button archiveBtn;
-    @FXML private javafx.scene.control.DatePicker calendarDp;
-    @FXML private javafx.scene.control.TextField minPriceTf;
-    @FXML private javafx.scene.control.TextField maxPriceTf;
-    @FXML private ListView<OffreAgency> agenciesLv;
-    @FXML private javafx.scene.layout.VBox rightPanel;
+    @FXML private DatePicker calendarDp;
+    @FXML private TextField minPriceTf;
+    @FXML private TextField maxPriceTf;
+    @FXML private VBox rightPanel;
     @FXML private Button filtersBtn;
     @FXML private Button bannersBtn;
     @FXML private Button agencyResBtn;
@@ -38,84 +36,39 @@ public class MyDashboardController {
     @FXML private Button aiSearchBtn;
     @FXML private Button analyticsBtn;
 
-    private final repositories.AgencyRepository agencyRepo = new repositories.AgencyRepository();
     private final entities.OfferFilter offerFilter = new entities.OfferFilter();
+
     private Object currentController;
     private boolean rightPanelVisible = true;
 
     @FXML
     public void initialize() {
         initAISection();
-        if (Session.isAgency()) {
-            offerFilter.getAgencyIds().clear();
-            offerFilter.getAgencyIds().add(Session.getUserId()); // agency idUser = idAgence
-            if (aiAgentBox != null) {
-                boolean isClient = Session.isClient();
-                aiAgentBox.setVisible(isClient);
-                aiAgentBox.setManaged(isClient);
-            }
-        }
-        setNavVisible(analyticsBtn, Session.isAgency());
-        // logo
+
         try {
-            var stream = getClass().getResourceAsStream("/images/logo.png"); // put your logo here
-            if (stream != null) logoImg.setImage(new Image(stream));
-        } catch (Exception ignored) {}
-        setNavVisible(agencyResBtn, Session.isAgency());
+            var stream = getClass().getResourceAsStream("/images/logo.png");
+            if (stream != null) {
+                logoImg.setImage(new Image(stream));
+            }
+        } catch (Exception ignored) {
+        }
 
         roleLbl.setText("Role: " + Session.getRole());
         userLbl.setText("User #" + Session.getUserId());
-        boolean isAdmin = Session.isAdmin();
+
         boolean isAgency = Session.isAgency();
         boolean isClient = Session.isClient();
-        boolean showAgencyFilters = isClient || isAdmin;
-
-// agencies list visible only for client/admin
-        if (agenciesLv != null) {
-            agenciesLv.setVisible(showAgencyFilters);
-            agenciesLv.setManaged(showAgencyFilters);
-
-            if (showAgencyFilters) {
-                var agencies = agencyRepo.findAllValidated();
-                agenciesLv.getItems().setAll(agencies);
-
-                // Checkbox cells
-                agenciesLv.setCellFactory(list -> new javafx.scene.control.cell.CheckBoxListCell<OffreAgency>(
-                        (OffreAgency offreAgency) -> {
-                            javafx.beans.property.BooleanProperty prop =
-                                    new javafx.beans.property.SimpleBooleanProperty(
-                                            offerFilter.getAgencyIds().contains(offreAgency.getIdUser())
-                                    );
-
-                            prop.addListener((obs, was, now) -> {
-                                if (now) offerFilter.getAgencyIds().add(offreAgency.getIdUser());
-                                else offerFilter.getAgencyIds().remove(offreAgency.getIdUser());
-                                pushFilterToCurrentView();
-                            });
-
-                            return prop;
-                        },
-                        new javafx.util.StringConverter<OffreAgency>() {
-                            @Override public String toString(OffreAgency a) {
-                                return (a == null) ? "" : a.toString();
-                            }
-                            @Override public OffreAgency fromString(String s) {
-                                return null;
-                            }
-                        }
-                ));
-            }
-        }
-
-        //boolean isClient = Session.isClient();
 
         setNavVisible(offersBtn, true);
         setNavVisible(cartBtn, isClient);
         setNavVisible(reservationsBtn, isClient);
+        setNavVisible(archiveBtn, isAgency);
+        setNavVisible(bannersBtn, isAgency);
+        setNavVisible(agencyResBtn, isAgency);
+        setNavVisible(analyticsBtn, isAgency);
+
         setActive(offersBtn);
-        setNavVisible(archiveBtn, Session.isAgency());
-        //boolean showAgencyFilters = isClient || isAdmin;
-        // Search
+
         if (searchTf != null) {
             searchTf.textProperty().addListener((o, oldV, newV) -> {
                 offerFilter.setKeyword(newV);
@@ -123,7 +76,6 @@ public class MyDashboardController {
             });
         }
 
-// Calendar date filter
         if (calendarDp != null) {
             calendarDp.valueProperty().addListener((o, oldV, newV) -> {
                 offerFilter.setSelectedDate(newV);
@@ -131,38 +83,26 @@ public class MyDashboardController {
             });
         }
 
-// Price min/max
         if (minPriceTf != null) {
             minPriceTf.textProperty().addListener((o, oldV, newV) -> {
                 offerFilter.setMinPrice(parseBigDecimalOrNull(newV));
                 pushFilterToCurrentView();
             });
         }
+
         if (maxPriceTf != null) {
             maxPriceTf.textProperty().addListener((o, oldV, newV) -> {
                 offerFilter.setMaxPrice(parseBigDecimalOrNull(newV));
                 pushFilterToCurrentView();
             });
         }
-        setNavVisible(bannersBtn, Session.isAgency());
-
-
-
-
-
-
-        // default page
 
         loadOffersView();
     }
-    @FXML
-    private void onGoAnalytics() {
-        if (!Session.isAgency()) return;
-        setActive(analyticsBtn);
-        loadIntoContent("/fxml/AgencyAnalytics.fxml");
-    }
+
     private void initAISection() {
         boolean isClient = Session.isClient();
+
         if (aiAgentBox != null) {
             aiAgentBox.setVisible(isClient);
             aiAgentBox.setManaged(isClient);
@@ -172,9 +112,11 @@ public class MyDashboardController {
     @FXML
     private void onAISmartSearch() {
         String query = aiSearchArea.getText();
-        if (query == null || query.isBlank()) return;
 
-        // Loading State
+        if (query == null || query.isBlank()) {
+            return;
+        }
+
         aiSearchBtn.setDisable(true);
         aiSearchBtn.setText("Gemini is thinking...");
 
@@ -196,38 +138,72 @@ public class MyDashboardController {
         task.setOnFailed(e -> {
             aiSearchBtn.setDisable(false);
             aiSearchBtn.setText("Search with Gemini");
-            System.err.println("AI Search Failed: " + task.getException().getMessage());
+
+            if (task.getException() != null) {
+                System.err.println("AI Search Failed: " + task.getException().getMessage());
+            }
         });
 
         new Thread(task).start();
     }
 
     private void applyAICriteria(SearchCriteria sc) {
-        if (sc == null) return;
+        if (sc == null) {
+            return;
+        }
 
-        // 1. Clear current filters first for a "fresh" AI search
         onClearFilters();
 
-        // 2. Map AI results to your OfferFilter object
         if (sc.destination != null) {
             offerFilter.setKeyword(sc.destination);
-            if (searchTf != null) searchTf.setText(sc.destination);
+
+            if (searchTf != null) {
+                searchTf.setText(sc.destination);
+            }
         }
 
         if (sc.maxPrice != null) {
-            java.math.BigDecimal price = java.math.BigDecimal.valueOf(sc.maxPrice);
+            java.math.BigDecimal price =
+                    java.math.BigDecimal.valueOf(sc.maxPrice);
+
             offerFilter.setMaxPrice(price);
-            if (maxPriceTf != null) maxPriceTf.setText(price.toString());
+
+            if (maxPriceTf != null) {
+                maxPriceTf.setText(price.toString());
+            }
         }
 
-        // 3. Push to the Grid View
         pushFilterToCurrentView();
     }
+
+    @FXML
+    private void onGoAnalytics() {
+        if (!Session.isAgency()) {
+            return;
+        }
+
+        setActive(analyticsBtn);
+        loadIntoContent("/fxml/AgencyAnalytics.fxml");
+    }
+
     @FXML
     private void onGoAgencyReservations() {
-        if (!Session.isAgency()) return;
+        if (!Session.isAgency()) {
+            return;
+        }
+
         setActive(agencyResBtn);
         loadIntoContent("/fxml/AgencyReservations.fxml");
+    }
+
+    @FXML
+    private void onGoBanners() {
+        if (!Session.isAgency()) {
+            return;
+        }
+
+        setActive(bannersBtn);
+        loadIntoContent("/fxml/AgencyActualites.fxml");
     }
 
     @FXML
@@ -243,89 +219,86 @@ public class MyDashboardController {
             filtersBtn.setText(rightPanelVisible ? "Filters ◂" : "Filters ▸");
         }
     }
-    @FXML
-    private void onGoBanners() {
-        if (!Session.isAgency()) return;
-        setActive(bannersBtn);
-        loadIntoContent("/fxml/AgencyActualites.fxml");
-    }
 
-    private java.math.BigDecimal parseBigDecimalOrNull(String s) {
-        if (s == null) return null;
-        s = s.trim();
-        if (s.isEmpty()) return null;
-        try { return new java.math.BigDecimal(s); }
-        catch (Exception e) { return null; }
-    }
-    private void setNavVisible(Button btn, boolean visible) {
-        if (btn == null) return;
-        btn.setVisible(visible);
-        btn.setManaged(visible);
-    }
     @FXML
     private void onGoArchive() {
-        if (!Session.isAgency()) return;
-        setActive(archiveBtn); // if you added active highlight
+        if (!Session.isAgency()) {
+            return;
+        }
+
+        setActive(archiveBtn);
         loadIntoContent("/fxml/ArchivedOffersGrid.fxml");
     }
 
-
-    @FXML private void onGoOffers() {
+    @FXML
+    private void onGoOffers() {
         setActive(offersBtn);
         loadOffersView();
     }
 
-    @FXML private void onGoCart() {
-        if (!Session.isClient()) return;
+    @FXML
+    private void onGoCart() {
+        if (!Session.isClient()) {
+            return;
+        }
+
         setActive(cartBtn);
         loadIntoContent("/fxml/CartView.fxml");
     }
 
-    @FXML private void onGoReservations() {
-        if (!Session.isClient()) return;
+    @FXML
+    private void onGoReservations() {
+        if (!Session.isClient()) {
+            return;
+        }
+
         setActive(reservationsBtn);
         loadIntoContent("/fxml/MyReservations.fxml");
     }
 
+    @FXML
+    private void onClearFilters() {
+        offerFilter.setKeyword(null);
+        offerFilter.setMinPrice(null);
+        offerFilter.setMaxPrice(null);
+        offerFilter.setSelectedDate(null);
+
+        offerFilter.getStatuses().clear();
+        offerFilter.getLocations().clear();
+
+        if (searchTf != null) {
+            searchTf.clear();
+        }
+
+        if (minPriceTf != null) {
+            minPriceTf.clear();
+        }
+
+        if (maxPriceTf != null) {
+            maxPriceTf.clear();
+        }
+
+        if (calendarDp != null) {
+            calendarDp.setValue(null);
+        }
+
+        pushFilterToCurrentView();
+    }
 
     private void loadOffersView() {
         String fxml;
-        if (Session.isAdmin()) fxml = "/fxml/AdminOffersGrid.fxml";
-        else if (Session.isAgency()) fxml = "/fxml/OffersGrid.fxml";
-        else fxml = "/fxml/VoyageurOffersGrid.fxml";
+
+        if (Session.isAdmin()) {
+            fxml = "/fxml/AdminOffersGrid.fxml";
+        } else if (Session.isAgency()) {
+            fxml = "/fxml/OffersGrid.fxml";
+        } else {
+            fxml = "/fxml/VoyageurOffersGrid.fxml";
+        }
 
         loadIntoContent(fxml);
     }
 
-    /*private void loadIntoContent(String fxmlPath) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-            Parent view = loader.load();
-            contentHost.getChildren().setAll(view);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }*/
-    /*private void loadIntoContent(String fxmlPath) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-            Parent view = loader.load();
-            contentHost.getChildren().setAll(view);
-
-            Object ctrl = loader.getController();
-
-            // ✅ trigger load for pages that require it
-            if (ctrl instanceof CartViewController c) {
-                c.loadCart();
-            }
-            if (ctrl instanceof MyReservationsController r) {
-                // r.refresh();  // only if you make refresh() public
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }*/
     private void loadIntoContent(String fxmlPath) {
         try {
             boolean isOfferPage =
@@ -335,72 +308,88 @@ public class MyDashboardController {
                             fxmlPath.contains("ArchivedOffersGrid");
 
             setRightPanelVisible(isOfferPage);
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+
+            FXMLLoader loader =
+                    new FXMLLoader(getClass().getResource(fxmlPath));
+
             Parent view = loader.load();
+
             contentHost.getChildren().setAll(view);
 
             currentController = loader.getController();
+
             pushFilterToCurrentView();
 
-            // cart needs manual load
-            if (currentController instanceof controllers.CartViewController c) {
+            if (currentController instanceof CartViewController c) {
                 c.loadCart();
             }
+
             if (currentController instanceof MyReservationsController r) {
-                r.setOnBack(() -> loadOffersView());
+                r.setOnBack(this::loadOffersView);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
     private void setRightPanelVisible(boolean visible) {
         rightPanelVisible = visible;
+
         if (rightPanel != null) {
             rightPanel.setVisible(visible);
             rightPanel.setManaged(visible);
         }
+
         if (filtersBtn != null) {
             filtersBtn.setText(visible ? "Filters ◂" : "Filters ▸");
         }
     }
+
     private void pushFilterToCurrentView() {
         if (currentController instanceof OfferFilterAware aware) {
             aware.applyFilter(offerFilter);
         }
     }
+
     private void setActive(Button activeBtn) {
         if (offersBtn != null) offersBtn.getStyleClass().remove("active");
         if (cartBtn != null) cartBtn.getStyleClass().remove("active");
         if (reservationsBtn != null) reservationsBtn.getStyleClass().remove("active");
-        if (archiveBtn != null) archiveBtn.getStyleClass().remove("active"); // ✅ add this
+        if (archiveBtn != null) archiveBtn.getStyleClass().remove("active");
         if (bannersBtn != null) bannersBtn.getStyleClass().remove("active");
         if (agencyResBtn != null) agencyResBtn.getStyleClass().remove("active");
+        if (analyticsBtn != null) analyticsBtn.getStyleClass().remove("active");
 
         if (activeBtn != null && !activeBtn.getStyleClass().contains("active")) {
             activeBtn.getStyleClass().add("active");
         }
     }
-    @FXML
-    private void onClearFilters() {
-        offerFilter.setKeyword(null);
-        offerFilter.setMinPrice(null);
-        offerFilter.setMaxPrice(null);
-        offerFilter.setSelectedDate(null);
-        offerFilter.getAgencyIds().clear();
-        if (Session.isAgency()) {
-            offerFilter.getAgencyIds().add(Session.getUserId());
+
+    private void setNavVisible(Button btn, boolean visible) {
+        if (btn == null) {
+            return;
         }
-        //offerFilter.getAgencyIds().clear();
 
-        if (searchTf != null) searchTf.clear();
-        if (minPriceTf != null) minPriceTf.clear();
-        if (maxPriceTf != null) maxPriceTf.clear();
-        if (calendarDp != null) calendarDp.setValue(null);
+        btn.setVisible(visible);
+        btn.setManaged(visible);
+    }
 
-        // reset checkboxes by reloading list (easy)
-        if (agenciesLv != null) agenciesLv.refresh();
+    private java.math.BigDecimal parseBigDecimalOrNull(String s) {
+        if (s == null) {
+            return null;
+        }
 
-        pushFilterToCurrentView();
+        s = s.trim();
+
+        if (s.isEmpty()) {
+            return null;
+        }
+
+        try {
+            return new java.math.BigDecimal(s);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

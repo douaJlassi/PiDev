@@ -1,5 +1,3 @@
-// COPY / PASTE VERSION
-
 package repositories;
 
 import entities.*;
@@ -9,81 +7,157 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AgencyReservationsRepository implements IAgencyReservationsRepository {
+public class AgencyReservationsRepository
+        implements IAgencyReservationsRepository {
 
-    private final Connection cnx = MyDBConnexion.getInstance().getConnection();
+    private final Connection cnx =
+            MyDBConnexion
+                    .getInstance()
+                    .getConnection();
 
     @Override
-    public List<AgencyReservationLine> findLinesForAgency(int idAgence) {
+    public List<AgencyReservationLine> findLinesForAgency(
+            int agencyUserId
+    ) {
 
         String sql = """
-    SELECT 
-      r.idReservation        AS idReservation,
-      r.idClient             AS idClient,
-      r.statut               AS reservationStatus,
+            SELECT
+                r.id                    AS reservationId,
+                r.user_id               AS clientId,
+                r.status                AS reservationStatus,
 
-      u.last_name            AS nom,
-      u.name                 AS prenom,
-      u.email                AS email,
-      NULL                   AS telephone,
+                u.last_name             AS nom,
+                u.name                  AS prenom,
+                u.email                 AS email,
 
-      lp.idOffre             AS idOffre,
-      o.titre                AS offerTitle,
-      lp.prixUnitaire        AS prixFinal,
+                o.id                    AS offerId,
+                o.title                 AS offerTitle,
 
-      lp.agencyStatus        AS agencyStatus,
-      lp.refusalReason       AS refusalReason,
-      lp.agencyDecisionAt    AS agencyDecisionAt
-    FROM lignepanier lp
-    JOIN offre o ON o.idOffre = lp.idOffre
-    JOIN reservation r ON r.idReservation = lp.idReservation
-    JOIN user u ON u.id = r.idClient
-    WHERE o.idAgence = ?
-    ORDER BY lp.idReservation DESC
-""";
+                r.total_amount          AS prixFinal,
 
-        List<AgencyReservationLine> list = new ArrayList<>();
+                r.payment_status        AS paymentStatus,
+                r.special_request       AS specialRequest,
+                r.updated_at            AS updatedAt
 
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
-            ps.setInt(1, idAgence);
+            FROM reservation r
 
-            try (ResultSet rs = ps.executeQuery()) {
+            JOIN offer o
+                ON o.id = r.offer_id
+
+            JOIN user u
+                ON u.id = r.user_id
+
+            WHERE o.user_id = ?
+
+            ORDER BY r.id DESC
+        """;
+
+        List<AgencyReservationLine> list =
+                new ArrayList<>();
+
+        try (
+                PreparedStatement ps =
+                        cnx.prepareStatement(sql)
+        ) {
+
+            ps.setInt(1, agencyUserId);
+
+            try (
+                    ResultSet rs =
+                            ps.executeQuery()
+            ) {
+
                 while (rs.next()) {
-                    AgencyReservationLine x = new AgencyReservationLine();
 
-                    x.setIdReservation(rs.getInt("idReservation"));
-                    x.setIdClient(rs.getInt("idClient"));
+                    AgencyReservationLine x =
+                            new AgencyReservationLine();
 
-                    String resStatus = rs.getString("reservationStatus");
-                    x.setReservationStatut(resStatus == null ? null : ReservationStatut.valueOf(resStatus));
+                    x.setIdReservation(
+                            rs.getInt("reservationId")
+                    );
 
-                    x.setIdOffre(rs.getInt("idOffre"));
-                    x.setOfferTitle(rs.getString("offerTitle"));
-                    x.setPrixFinal(rs.getBigDecimal("prixFinal"));
+                    x.setIdClient(
+                            rs.getInt("clientId")
+                    );
 
-                    String agStatus = rs.getString("agencyStatus");
-                    x.setClientPhone(rs.getString("telephone"));
-                    x.setAgencyStatut(agStatus == null ? AgencyStatut.ENATTENTE : AgencyStatut.valueOf(agStatus));
+                    String resStatus =
+                            rs.getString(
+                                    "reservationStatus"
+                            );
 
-                    x.setRefusalReason(rs.getString("refusalReason"));
+                    if (resStatus != null) {
 
-                    String nom = rs.getString("nom");
-                    String prenom = rs.getString("prenom");
-                    String email = rs.getString("email");
+                        try {
 
-                    String fullName = ((prenom == null ? "" : prenom) + " " + (nom == null ? "" : nom)).trim();
-                    if (fullName.isEmpty()) fullName = (email == null ? "Client" : email);
+                            x.setReservationStatut(
+                                    ReservationStatut.valueOf(
+                                            resStatus.toUpperCase()
+                                    )
+                            );
+
+                        } catch (Exception ignored) {
+                        }
+                    }
+
+                    x.setIdOffre(
+                            rs.getInt("offerId")
+                    );
+
+                    x.setOfferTitle(
+                            rs.getString("offerTitle")
+                    );
+
+                    x.setPrixFinal(
+                            rs.getBigDecimal("prixFinal")
+                    );
+
+                    x.setRefusalReason(
+                            rs.getString("specialRequest")
+                    );
+
+                    String nom =
+                            rs.getString("nom");
+
+                    String prenom =
+                            rs.getString("prenom");
+
+                    String email =
+                            rs.getString("email");
+
+                    String fullName =
+                            (
+                                    (prenom == null ? "" : prenom)
+                                            + " "
+                                            + (nom == null ? "" : nom)
+                            ).trim();
+
+                    if (fullName.isEmpty()) {
+                        fullName =
+                                email == null
+                                        ? "Client"
+                                        : email;
+                    }
 
                     x.setClientName(fullName);
 
-                    Timestamp decisionTs = rs.getTimestamp("agencyDecisionAt");
-                    if (decisionTs != null) x.setAgencyDecisionAt(decisionTs.toLocalDateTime());
+                    Timestamp updatedTs =
+                            rs.getTimestamp(
+                                    "updatedAt"
+                            );
+
+                    if (updatedTs != null) {
+
+                        x.setAgencyDecisionAt(
+                                updatedTs.toLocalDateTime()
+                        );
+                    }
 
                     list.add(x);
                 }
             }
 
         } catch (Exception e) {
+
             e.printStackTrace();
         }
 
@@ -91,99 +165,183 @@ public class AgencyReservationsRepository implements IAgencyReservationsReposito
     }
 
     @Override
-    public boolean approveLine(int idAgence, int idReservation, int idOffre) {
+    public boolean approveLine(
+            int agencyUserId,
+            int reservationId,
+            int offerId
+    ) {
 
         String sql = """
-            UPDATE lignepanier lp
-            JOIN offre o ON o.idOffre = lp.idOffre
-            JOIN reservation r ON r.idReservation = lp.idReservation
-            SET lp.agencyStatus = 'APPROUVEE',
-                lp.agencyDecisionAt = NOW(),
-                lp.refusalReason = NULL
-            WHERE lp.idReservation = ?
-              AND lp.idOffre = ?
-              AND o.idAgence = ?
-              AND r.statut = 'ENATTENTE'
+            UPDATE reservation r
+            JOIN offer o
+                ON o.id = r.offer_id
+
+            SET
+                r.status = 'CONFIRMED',
+                r.updated_at = NOW()
+
+            WHERE r.id = ?
+              AND r.offer_id = ?
+              AND o.user_id = ?
+              AND r.status = 'PENDING'
         """;
 
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
-            ps.setInt(1, idReservation);
-            ps.setInt(2, idOffre);
-            ps.setInt(3, idAgence);
+        try (
+                PreparedStatement ps =
+                        cnx.prepareStatement(sql)
+        ) {
+
+            ps.setInt(1, reservationId);
+            ps.setInt(2, offerId);
+            ps.setInt(3, agencyUserId);
+
             return ps.executeUpdate() > 0;
+
         } catch (Exception e) {
+
             e.printStackTrace();
+
             return false;
         }
     }
 
     @Override
-    public boolean rejectLine(int idAgence, int idReservation, int idOffre, String reason) {
+    public boolean rejectLine(
+            int agencyUserId,
+            int reservationId,
+            int offerId,
+            String reason
+    ) {
 
         String sql = """
-            UPDATE lignepanier lp
-            JOIN offre o ON o.idOffre = lp.idOffre
-            JOIN reservation r ON r.idReservation = lp.idReservation
-            SET lp.agencyStatus = 'REFUSEE',
-                lp.agencyDecisionAt = NOW(),
-                lp.refusalReason = ?
-            WHERE lp.idReservation = ?
-              AND lp.idOffre = ?
-              AND o.idAgence = ?
-              AND r.statut = 'ENATTENTE'
+            UPDATE reservation r
+            JOIN offer o
+                ON o.id = r.offer_id
+
+            SET
+                r.status = 'REJECTED',
+                r.special_request = ?,
+                r.updated_at = NOW()
+
+            WHERE r.id = ?
+              AND r.offer_id = ?
+              AND o.user_id = ?
+              AND r.status = 'PENDING'
         """;
 
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
-            ps.setString(1, (reason == null || reason.trim().isEmpty()) ? "Not available" : reason.trim());
-            ps.setInt(2, idReservation);
-            ps.setInt(3, idOffre);
-            ps.setInt(4, idAgence);
+        try (
+                PreparedStatement ps =
+                        cnx.prepareStatement(sql)
+        ) {
+
+            ps.setString(
+                    1,
+                    (
+                            reason == null ||
+                                    reason.trim().isEmpty()
+                    )
+                            ? "Rejected"
+                            : reason.trim()
+            );
+
+            ps.setInt(2, reservationId);
+            ps.setInt(3, offerId);
+            ps.setInt(4, agencyUserId);
+
             return ps.executeUpdate() > 0;
+
         } catch (Exception e) {
+
             e.printStackTrace();
+
             return false;
         }
     }
 
-    public boolean isReservationFullyApproved(int idReservation) {
+    public boolean isReservationFullyApproved(
+            int reservationId
+    ) {
+
         String sql = """
-            SELECT COUNT(*) 
-            FROM lignepanier 
-            WHERE idReservation = ? AND (agencyStatus IS NULL OR agencyStatus <> 'APPROUVEE')
+            SELECT status
+            FROM reservation
+            WHERE id = ?
         """;
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
-            ps.setInt(1, idReservation);
-            try (ResultSet rs = ps.executeQuery()) {
-                rs.next();
-                return rs.getInt(1) == 0;
+
+        try (
+                PreparedStatement ps =
+                        cnx.prepareStatement(sql)
+        ) {
+
+            ps.setInt(1, reservationId);
+
+            try (
+                    ResultSet rs =
+                            ps.executeQuery()
+            ) {
+
+                if (rs.next()) {
+
+                    String status =
+                            rs.getString("status");
+
+                    return
+                            status != null &&
+                                    status.equalsIgnoreCase(
+                                            "CONFIRMED"
+                                    );
+                }
             }
+
         } catch (Exception e) {
+
             e.printStackTrace();
-            return false;
         }
+
+        return false;
     }
 
-    public boolean confirmReservationIfFullyApproved(int idReservation) {
-        if (!isReservationFullyApproved(idReservation)) return false;
+    public boolean confirmReservationIfFullyApproved(
+            int reservationId
+    ) {
 
         String sql = """
             UPDATE reservation
-            SET statut='CONFIRME', modePaiement='CASH', dateReservation=NOW()
-            WHERE idReservation=? AND statut='ENATTENTE'
+            SET
+                status = 'CONFIRMED',
+                updated_at = NOW()
+
+            WHERE id = ?
+              AND status = 'PENDING'
         """;
 
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
-            ps.setInt(1, idReservation);
+        try (
+                PreparedStatement ps =
+                        cnx.prepareStatement(sql)
+        ) {
+
+            ps.setInt(1, reservationId);
+
             return ps.executeUpdate() > 0;
+
         } catch (Exception e) {
+
             e.printStackTrace();
+
             return false;
         }
     }
 
-    public boolean approveLineAndConfirmIfReady(int idAgence, int idReservation, int idOffre) {
-        boolean ok = approveLine(idAgence, idReservation, idOffre);
-        if (!ok) return false;
-        return confirmReservationIfFullyApproved(idReservation);
+    public boolean approveLineAndConfirmIfReady(
+            int agencyUserId,
+            int reservationId,
+            int offerId
+    ) {
+
+        return approveLine(
+                agencyUserId,
+                reservationId,
+                offerId
+        );
     }
 }

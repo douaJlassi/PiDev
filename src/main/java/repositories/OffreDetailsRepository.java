@@ -15,78 +15,135 @@ public class OffreDetailsRepository {
         cnx = MyDBConnexion.getInstance().getConnection();
     }
 
+    public List<ServiceEntityDetails> findServicesDetailsByOffre(int offerId) {
 
-    public List<ServiceEntityDetails> findServicesDetailsByOffre(int idOffre) {
         List<ServiceEntityDetails> list = new ArrayList<>();
 
         String sql =
                 "SELECT " +
-                        "  s.idService, s.nom, s.description, s.prix, s.disponibilite, s.capacite, s.idAgence, " +
-                        "  os.quantite, os.prixOverride, " +
-                        "  v.numeroVol, v.villeDepart, v.villeArrivee, v.dateDepart, v.dateArrivee, " +
-                        "  h.nombreEtoiles, h.localisation, h.typeChambre " +
-                        "FROM offre_service os " +
-                        "JOIN service s ON s.idService = os.idService " +
-                        "LEFT JOIN vol v ON v.idService = s.idService " +
-                        "LEFT JOIN hotel h ON h.idService = s.idService " +
-                        "WHERE os.idOffre = ? " +
-                        "ORDER BY s.idService";
+                        " s.id, " +
+                        " s.name, " +
+                        " s.type, " +
+                        " s.description, " +
+                        " s.base_price, " +
+                        " s.is_available, " +
+                        " s.capacity, " +
+                        " s.agency_id, " +
+                        " s.image_url, " +
+                        " s.created_at, " +
+
+                        " os.id AS offerServiceId, " +
+                        " os.created_at AS attachedAt, " +
+
+                        " h.stars, " +
+                        " h.location AS hotel_location, " +
+                        " h.room_type " +
+
+                        "FROM offer_service os " +
+                        "JOIN service s ON s.id = os.service_id " +
+                        "LEFT JOIN hotel h ON h.id = s.id " +
+                        "WHERE os.offer_id = ? " +
+                        "ORDER BY s.id DESC";
 
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {
-            ps.setInt(1, idOffre);
+
+            ps.setInt(1, offerId);
 
             try (ResultSet rs = ps.executeQuery()) {
+
                 while (rs.next()) {
+
                     ServiceEntityDetails d = new ServiceEntityDetails();
 
-                    // ---- base service
-                    d.setIdService(rs.getInt("idService"));
-                    d.setNom(rs.getString("nom"));
+                    d.setId(rs.getInt("id"));
+                    d.setName(rs.getString("name"));
+
+                    String type = rs.getString("type");
+
                     d.setDescription(rs.getString("description"));
-                    d.setPrix(rs.getBigDecimal("prix"));
-                    d.setDisponibilite(rs.getBoolean("disponibilite"));
-                    d.setCapacite(rs.getInt("capacite"));
-                    d.setIdAgence(rs.getInt("idAgence"));
+                    d.setBasePrice(rs.getBigDecimal("base_price"));
+                    d.setAvailable(rs.getBoolean("is_available"));
 
-                    // ---- pivot
-                    d.setQuantite(rs.getInt("quantite"));
-                    d.setPrixOverride(rs.getBigDecimal("prixOverride")); // can be null
+                    Object capacityObj = rs.getObject("capacity");
+                    d.setCapacity(
+                            capacityObj == null
+                                    ? null
+                                    : ((Number) capacityObj).intValue()
+                    );
 
-                    // ---- VOL
-                    String numeroVol = rs.getString("numeroVol"); // null if not a vol
-                    d.setNumeroVol(numeroVol);
-                    d.setVilleDepart(rs.getString("villeDepart"));
-                    d.setVilleArrivee(rs.getString("villeArrivee"));
+                    Object agencyObj = rs.getObject("agency_id");
+                    d.setAgencyId(
+                            agencyObj == null
+                                    ? null
+                                    : ((Number) agencyObj).intValue()
+                    );
 
-                    Timestamp tsDep = rs.getTimestamp("dateDepart");
-                    Timestamp tsArr = rs.getTimestamp("dateArrivee");
-                    d.setDateDepart(tsDep != null ? tsDep.toLocalDateTime() : null);
-                    d.setDateArrivee(tsArr != null ? tsArr.toLocalDateTime() : null);
+                    d.setImageUrl(rs.getString("image_url"));
 
-                    // ---- HOTEL
+                    Timestamp createdAt = rs.getTimestamp("created_at");
+                    d.setCreatedAt(
+                            createdAt == null
+                                    ? null
+                                    : createdAt.toLocalDateTime()
+                    );
 
-                    Integer etoiles = (Integer) rs.getObject("nombreEtoiles");
-                    d.setNombreEtoiles(etoiles);
-                    d.setLocalisation(rs.getString("localisation"));
-                    d.setTypeChambre(rs.getString("typeChambre"));
+                    // HOTEL DETAILS
+                    Object starsObj = rs.getObject("stars");
+                    Integer stars = starsObj == null
+                            ? null
+                            : ((Number) starsObj).intValue();
 
-                    // ---- infer kind
-                    if (numeroVol != null && !numeroVol.isBlank()) {
-                        d.setKind("VOL");
-                    } else if (etoiles != null) {
-                        d.setKind("HOTEL");
-                    } else {
-                        d.setKind("SERVICE");
+                    d.setNombreEtoiles(stars);
+                    d.setLocalisation(rs.getString("hotel_location"));
+                    d.setTypeChambre(rs.getString("room_type"));
+
+                    // If service.type is empty, infer HOTEL if hotel data exists
+                    if (type == null || type.isBlank()) {
+                        type = stars != null ? "HOTEL" : "SERVICE";
                     }
+
+                    d.setType(type);
+                    d.setKind(type);
+
+                    // offer_service has no quantity / override price
+                    d.setQuantity(1);
+                    d.setOverridePrice(null);
+
+                    // Compatibility setters
+                    d.setIdService(rs.getInt("id"));
+                    d.setNom(rs.getString("name"));
+                    d.setPrix(rs.getBigDecimal("base_price"));
+                    d.setDisponibilite(rs.getBoolean("is_available"));
+
+                    Object capObj = rs.getObject("capacity");
+                    d.setCapacite(
+                            capObj == null
+                                    ? 0
+                                    : ((Number) capObj).intValue()
+                    );
+
+                    Object agObj = rs.getObject("agency_id");
+                    d.setIdAgence(
+                            agObj == null
+                                    ? 0
+                                    : ((Number) agObj).intValue()
+                    );
+
+                    d.setQuantite(1);
+                    d.setPrixOverride(null);
 
                     list.add(d);
                 }
             }
+
         } catch (SQLException e) {
-            throw new RuntimeException("Error findServicesDetailsByOffre: " + e.getMessage(), e);
+
+            throw new RuntimeException(
+                    "Error findServicesDetailsByOffre: " + e.getMessage(),
+                    e
+            );
         }
 
         return list;
     }
-
 }

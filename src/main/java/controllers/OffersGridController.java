@@ -18,55 +18,99 @@ import java.util.List;
 
 public class OffersGridController {
 
-    @FXML private TilePane tilePane;
+    @FXML
+    private TilePane tilePane;
 
-    @FXML private StackPane filtersHost;
-    @FXML private Button filtersBtn;
+    @FXML
+    private StackPane filtersHost;
+
+    @FXML
+    private Button filtersBtn;
 
     private OfferFiltersPanelController filtersCtrl;
 
-    private final IOffreRepository repo = new OffreRepository();
-    private OfferFilter currentFilter = new OfferFilter();
+    private final IOffreRepository repo =
+            new OffreRepository();
+
+    private OfferFilter currentFilter =
+            new OfferFilter();
 
     private boolean filtersVisible = false;
 
     @FXML
     public void initialize() {
-        // default filter: agency sees only its offers
+
+        // ------------------------------------
+        // Agency default scope
+        // ------------------------------------
+
         if (Session.isAgency()) {
-            currentFilter.getAgencyIds().clear();
-            currentFilter.getAgencyIds().add(Session.getUserId());
+
+            currentFilter.getStatuses().clear();
+            currentFilter.getStatuses().add("ACTIVE");
         }
 
-        // load filters panel inside right area
+        // ------------------------------------
+        // Load filters panel
+        // ------------------------------------
+
         loadFiltersPanel();
+
+        // ------------------------------------
+        // Initial load
+        // ------------------------------------
 
         refresh();
     }
 
     private void loadFiltersPanel() {
-        if (filtersHost == null) return;
+
+        if (filtersHost == null) {
+            return;
+        }
 
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/OfferFiltersPanel.fxml"));
+
+            FXMLLoader loader =
+                    new FXMLLoader(
+                            getClass().getResource(
+                                    "/fxml/OfferFiltersPanel.fxml"
+                            )
+                    );
+
             Parent panelRoot = loader.load();
+
             filtersCtrl = loader.getController();
 
             filtersHost.getChildren().setAll(panelRoot);
 
-            // initial state hidden
+            // hidden by default
             filtersHost.setVisible(false);
             filtersHost.setManaged(false);
 
-            // connect callbacks
+            // pass filter object
             filtersCtrl.setFilter(currentFilter);
-            filtersCtrl.setOnChanged(f -> {
-                currentFilter = (f == null) ? new OfferFilter() : f;
 
-                // keep agency scoped
+            // callback
+            filtersCtrl.setOnChanged(f -> {
+
+                currentFilter =
+                        (f == null)
+                                ? new OfferFilter()
+                                : f;
+
+                // keep ACTIVE status for agencies
                 if (Session.isAgency()) {
-                    currentFilter.getAgencyIds().clear();
-                    currentFilter.getAgencyIds().add(Session.getUserId());
+
+                    if (
+                            currentFilter.getStatuses() == null
+                    ) {
+                        currentFilter.setStatuses(
+                                new java.util.HashSet<>()
+                        );
+                    }
+
+                    currentFilter.getStatuses().add("ACTIVE");
                 }
 
                 refresh();
@@ -75,31 +119,50 @@ public class OffersGridController {
             filtersCtrl.setOnClose(this::hideFilters);
 
         } catch (Exception e) {
+
             e.printStackTrace();
-            showError("UI error", "Cannot load filters panel: " + e.getMessage());
+
+            showError(
+                    "UI error",
+                    "Cannot load filters panel: "
+                            + e.getMessage()
+            );
         }
     }
 
     @FXML
     private void onToggleFilters() {
+
         filtersVisible = !filtersVisible;
 
         if (filtersHost != null) {
+
             filtersHost.setVisible(filtersVisible);
             filtersHost.setManaged(filtersVisible);
         }
+
         if (filtersBtn != null) {
-            filtersBtn.setText(filtersVisible ? "Filters ◂" : "Filters ▾");
+
+            filtersBtn.setText(
+                    filtersVisible
+                            ? "Filters ◂"
+                            : "Filters ▾"
+            );
         }
     }
 
     private void hideFilters() {
+
         filtersVisible = false;
+
         if (filtersHost != null) {
+
             filtersHost.setVisible(false);
             filtersHost.setManaged(false);
         }
+
         if (filtersBtn != null) {
+
             filtersBtn.setText("Filters ▾");
         }
     }
@@ -111,44 +174,97 @@ public class OffersGridController {
 
     @FXML
     private void onAdd() {
+
         if (!Session.isAgency()) {
-            showError("Access denied", "Only agencies can add offers.");
+
+            showError(
+                    "Access denied",
+                    "Only agencies can add offers."
+            );
+
             return;
         }
-        OffreFormController.openDialog(null, this::refresh);
+
+        OffreFormController.openDialog(
+                null,
+                this::refresh
+        );
     }
 
     public void refresh() {
-        tilePane.getChildren().clear();
 
-        if (!Session.isAgency()) {
-            showError("Access denied", "This screen is for agencies only.");
+        if (tilePane == null) {
             return;
         }
 
-        List<Offre> offers = repo.searchActiveOffers(currentFilter);
+        tilePane.getChildren().clear();
+
+        // ------------------------------------
+        // LOAD OFFERS
+        // ------------------------------------
+
+        List<Offre> offers =
+                repo.searchActiveOffers(currentFilter);
+
+        // ------------------------------------
+        // DISPLAY CARDS
+        // ------------------------------------
 
         for (Offre offer : offers) {
+
+            // agencies see only their own offers
+            if (
+                    Session.isAgency() &&
+                            offer.getUserId() != Session.getUserId()
+            ) {
+                continue;
+            }
+
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/OfferCard.fxml"));
+
+                FXMLLoader loader =
+                        new FXMLLoader(
+                                getClass().getResource(
+                                        "/fxml/OfferCard.fxml"
+                                )
+                        );
+
                 Parent card = loader.load();
 
-                OfferCardController ctrl = loader.getController();
-                ctrl.setData(offer, this::refresh);
+                OfferCardController ctrl =
+                        loader.getController();
+
+                ctrl.setData(
+                        offer,
+                        this::refresh
+                );
 
                 tilePane.getChildren().add(card);
 
             } catch (IOException e) {
-                showError("UI error", e.getMessage());
+
+                showError(
+                        "UI error",
+                        e.getMessage()
+                );
             }
         }
     }
 
-    private void showError(String title, String msg) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
+    private void showError(
+            String title,
+            String msg
+    ) {
+
+        Alert alert =
+                new Alert(Alert.AlertType.ERROR);
+
         alert.setTitle(title);
+
         alert.setHeaderText(null);
+
         alert.setContentText(msg);
+
         alert.showAndWait();
     }
 }

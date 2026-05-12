@@ -14,147 +14,324 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import repositories.OffreDetailsRepository;
+import repositories.ReservationRepository;
 
+import java.math.RoundingMode;
 import java.util.List;
 
 public class OfferDetailsController {
 
-    @FXML private Label titleLbl;
-    @FXML private Label kindLbl;
-    @FXML private Label agencyLbl;
-    @FXML private Label datesLbl;
-    @FXML private Label priceLbl;
-    @FXML private Label descLbl;
-    @FXML private ImageView offerImg;
-    @FXML private VBox servicesBox;
-    @FXML private Button addToCartBtn;
+    @FXML
+    private Label titleLbl;
 
+    @FXML
+    private Label kindLbl;
+
+    @FXML
+    private Label agencyLbl;
+
+    @FXML
+    private Label datesLbl;
+
+    @FXML
+    private Label priceLbl;
+
+    @FXML
+    private Label descLbl;
+
+    @FXML
+    private ImageView offerImg;
+
+    @FXML
+    private VBox servicesBox;
+
+    @FXML
+    private Button addToCartBtn;
+
+    @FXML
+    private Label euroPriceLbl;
+
+    @FXML
+    private Label usdPriceLbl;
 
     private Offre offer;
 
-    private final OffreDetailsRepository detailsRepo = new OffreDetailsRepository();
-    private final services.ExchangeRateService fx = new services.ExchangeRateService();
-    private final repositories.ReservationRepository reservationRepo = new repositories.ReservationRepository();
-    private final repositories.LignePanierRepository ligneRepo = new repositories.LignePanierRepository();
+    private final OffreDetailsRepository detailsRepo =
+            new OffreDetailsRepository();
 
-    // Add these to your FXML fields at the top
-    @FXML private Label euroPriceLbl;
-    @FXML private Label usdPriceLbl;
+    private final services.ExchangeRateService fx =
+            new services.ExchangeRateService();
+
+    private final ReservationRepository reservationRepo =
+            new ReservationRepository();
 
     public void setOffer(Offre offer) {
+
         this.offer = offer;
 
-        // Basic Info
-        titleLbl.setText(offer.getTitre());
+        if (offer == null) {
+            showError("Offer error", "Offer data is missing.");
+            return;
+        }
+
+        titleLbl.setText(offer.getTitle());
+
         kindLbl.setText("OFFRE");
-        agencyLbl.setText(offer.getNomAgence() != null ? offer.getNomAgence() : ("OffreAgency #" + offer.getIdAgence()));
-        datesLbl.setText(offer.getDateDebut() + " → " + offer.getDateFin());
 
-        // Set Base TND Price
-        priceLbl.setText(String.format("%.3f TND", offer.getPrixPromo()));
+        String location =
+                offer.getLocation() != null && !offer.getLocation().isBlank()
+                        ? offer.getLocation()
+                        : "Unknown";
 
-        // Handle Exchange Rates
+        agencyLbl.setText("Location: " + location);
+
+        datesLbl.setText(
+                offer.getStartDate()
+                        + " → "
+                        + offer.getEndDate()
+        );
+
+        if (offer.getPromoPrice() != null) {
+
+            priceLbl.setText(
+                    String.format(
+                            "%.3f TND",
+                            offer.getPromoPrice()
+                    )
+            );
+
+        } else {
+
+            priceLbl.setText("---");
+        }
+
         try {
-            var eur = fx.convert(offer.getPrixPromo(), "TND", "EUR").setScale(2, java.math.RoundingMode.HALF_UP);
-            var usd = fx.convert(offer.getPrixPromo(), "TND", "USD").setScale(2, java.math.RoundingMode.HALF_UP);
 
-            euroPriceLbl.setText("€" + eur);
-            usdPriceLbl.setText("$" + usd);
-            System.out.println("FX EUR=" + eur + " USD=" + usd);
+            if (offer.getPromoPrice() != null) {
+
+                var eur =
+                        fx.convert(
+                                        offer.getPromoPrice(),
+                                        "TND",
+                                        "EUR"
+                                )
+                                .setScale(
+                                        2,
+                                        RoundingMode.HALF_UP
+                                );
+
+                var usd =
+                        fx.convert(
+                                        offer.getPromoPrice(),
+                                        "TND",
+                                        "USD"
+                                )
+                                .setScale(
+                                        2,
+                                        RoundingMode.HALF_UP
+                                );
+
+                euroPriceLbl.setText("€" + eur);
+                usdPriceLbl.setText("$" + usd);
+
+            } else {
+
+                euroPriceLbl.setText("--- €");
+                usdPriceLbl.setText("--- $");
+            }
+
         } catch (Exception e) {
+
             System.out.println("FX API failed: " + e.getMessage());
-            // Fallback: Show a generic estimate or keep it hidden
+
             euroPriceLbl.setText("--- €");
             usdPriceLbl.setText("--- $");
         }
 
-        descLbl.setText(offer.getDescription() == null ? "No description available." : offer.getDescription());
+        descLbl.setText(
+                offer.getDescription() == null || offer.getDescription().isBlank()
+                        ? "No description available."
+                        : offer.getDescription()
+        );
 
-        // Only show AddToCart to CLIENT
+        loadImage(offer.getImageUrl());
+
         boolean client = Session.isClient();
-        addToCartBtn.setVisible(client);
-        addToCartBtn.setManaged(client);
+
+        if (addToCartBtn != null) {
+            addToCartBtn.setVisible(client);
+            addToCartBtn.setManaged(client);
+            addToCartBtn.setText("Reserve now");
+        }
 
         loadServices();
     }
 
     private void loadServices() {
+
+        if (servicesBox == null) {
+            return;
+        }
+
         servicesBox.getChildren().clear();
         servicesBox.setFillWidth(true);
 
-        List<ServiceEntityDetails> services = detailsRepo.findServicesDetailsByOffre(offer.getIdOffre());
+        List<ServiceEntityDetails> services =
+                detailsRepo.findServicesDetailsByOffre(
+                        offer.getId()
+                );
+
         if (services.isEmpty()) {
-            Label empty = new Label("No services attached to this offer yet.");
+
+            Label empty =
+                    new Label(
+                            "No services attached to this offer yet."
+                    );
+
             servicesBox.getChildren().add(empty);
+
             return;
         }
 
         for (ServiceEntityDetails s : services) {
+
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/OffreServiceCard.fxml"));
+
+                FXMLLoader loader =
+                        new FXMLLoader(
+                                getClass().getResource(
+                                        "/fxml/OffreServiceCard.fxml"
+                                )
+                        );
+
                 Parent node = loader.load();
 
-                ServiceCardController ctrl = loader.getController();
+                ServiceCardController ctrl =
+                        loader.getController();
+
                 ctrl.setData(s);
 
                 servicesBox.getChildren().add(node);
+
             } catch (Exception e) {
-                Label err = new Label("Failed to load a service card: " + e.getMessage());
+
+                Label err =
+                        new Label(
+                                "Failed to load a service card: "
+                                        + e.getMessage()
+                        );
+
                 servicesBox.getChildren().add(err);
             }
         }
     }
 
     private void loadImage(String url) {
+
+        if (offerImg == null) {
+            return;
+        }
+
         Image img = null;
 
         if (url != null && !url.isBlank()) {
-            try { img = new Image(url, true); } catch (Exception ignored) {}
+
+            try {
+
+                img = new Image(url, true);
+
+            } catch (Exception ignored) {
+            }
         }
 
         if (img == null || img.isError()) {
+
             try {
-                var stream = getClass().getResourceAsStream("/images/placeholder.png");
-                if (stream != null) img = new Image(stream);
-            } catch (Exception ignored) {}
+
+                var stream =
+                        getClass().getResourceAsStream(
+                                "/images/placeholder.png"
+                        );
+
+                if (stream != null) {
+                    img = new Image(stream);
+                }
+
+            } catch (Exception ignored) {
+            }
         }
 
-        //offerImg.setImage(img);
+        offerImg.setImage(img);
     }
 
     @FXML
     private void onBack() {
-        Stage stage = (Stage) titleLbl.getScene().getWindow();
+
+        Stage stage =
+                (Stage) titleLbl
+                        .getScene()
+                        .getWindow();
+
         stage.close();
     }
 
     @FXML
     private void onAddToCart() {
-        if (!Session.isClient()) return;
+
+        if (!Session.isClient()) {
+            return;
+        }
+
+        if (offer == null) {
+            showError("Reservation error", "Offer data is missing.");
+            return;
+        }
 
         try {
-            int cartId = reservationRepo.getOrCreateDraftCart(Session.getUserId());
 
-            boolean added = ligneRepo.addOffer(
-                    cartId,
-                    offer.getIdOffre(),
-                    offer.getPrixPromo() // final price
+            int reservationId =
+                    reservationRepo.createReservationForOffer(
+                            Session.getUserId(),
+                            offer.getId(),
+                            offer.getPromoPrice()
+                    );
+
+            if (reservationId <= 0) {
+                showError(
+                        "Reservation error",
+                        "Could not create the reservation."
+                );
+                return;
+            }
+
+            Alert a =
+                    new Alert(Alert.AlertType.INFORMATION);
+
+            a.setTitle("Reservation");
+            a.setHeaderText(null);
+            a.setContentText(
+                    "Reservation request sent ✅\nReservation #" + reservationId
             );
 
-            reservationRepo.recomputeTotal(cartId);
-
-            Alert a = new Alert(Alert.AlertType.INFORMATION);
-            a.setTitle("Cart");
-            a.setHeaderText(null);
-            a.setContentText(added ? "Added to cart ✅" : "Already in cart.");
             a.showAndWait();
 
         } catch (Exception e) {
-            Alert a = new Alert(Alert.AlertType.ERROR);
-            a.setTitle("Cart error");
-            a.setHeaderText(null);
-            a.setContentText(e.getMessage());
-            a.showAndWait();
+
+            showError(
+                    "Reservation error",
+                    e.getMessage()
+            );
         }
+    }
+
+    private void showError(String title, String msg) {
+
+        Alert a =
+                new Alert(Alert.AlertType.ERROR);
+
+        a.setTitle(title);
+        a.setHeaderText(null);
+        a.setContentText(msg);
+        a.showAndWait();
     }
 }

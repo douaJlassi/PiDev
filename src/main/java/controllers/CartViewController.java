@@ -1,130 +1,56 @@
 package controllers;
 
 import app.Session;
-import entities.CartItem;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import repositories.LignePanierRepository;
-import repositories.ReservationRepository;
-import services.OffreEmailService;
-
-import java.util.List;
 
 public class CartViewController {
 
-    @FXML private VBox itemsBox;
-    @FXML private Label totalLbl;
-    @FXML private Label countLbl;
+    @FXML
+    private VBox itemsBox;
 
-    private final ReservationRepository reservationRepo = new ReservationRepository();
-    private final LignePanierRepository ligneRepo = new LignePanierRepository();
-    private final repositories.UserRepository userRepo = new repositories.UserRepository();
-    private final OffreEmailService offreEmailService = new OffreEmailService();
+    @FXML
+    private Label totalLbl;
 
-    private int cartId;
+    @FXML
+    private Label countLbl;
 
-    /*public void loadCart() {
-        if (!Session.isClient()) {
-            showError("Access denied", "Only clients can access the cart.");
-            return;
-        }
-
-        cartId = reservationRepo.getOrCreateDraftCart(Session.getUserId());
-        refresh();
-    }*/
     public void loadCart() {
-        if (!Session.isClient()) {
-            showError("Access denied", "Only clients can access the cart.");
-            return;
-        }
-
-        Integer existing = reservationRepo.findDraftCartId(Session.getUserId());
-        if (existing == null) {
-            cartId = 0;
-            showEmptyCart();
-            return;
-        }
-
-        cartId = existing;
-        refresh();
+        showNoCartMessage();
     }
 
-    private void showEmptyCart() {
-        itemsBox.getChildren().clear();
-        totalLbl.setText("Total: 0 TND");
-        itemsBox.getChildren().add(new Label("Your cart is empty."));
+    @FXML
+    public void initialize() {
+        showNoCartMessage();
     }
 
-    /*private void refresh() {
-        itemsBox.getChildren().clear();
+    private void showNoCartMessage() {
+        if (itemsBox != null) {
+            itemsBox.getChildren().clear();
 
-        List<CartItem> items = ligneRepo.findCartItems(cartId);
+            Label msg = new Label(
+                    "Cart is disabled.\nReservations are now created directly from each offer."
+            );
 
-        // total: easiest = recompute then query it (we add a method next step)
-        reservationRepo.recomputeTotal(cartId);
-        totalLbl.setText("Total: " + reservationRepo.getTotal(cartId) + " TND");
+            msg.setWrapText(true);
+            msg.setStyle(
+                    "-fx-font-size: 15px; " +
+                            "-fx-text-fill: #475569; " +
+                            "-fx-padding: 20;"
+            );
 
-        if (items.isEmpty()) {
-            itemsBox.getChildren().add(new Label("Your cart is empty."));
-            return;
+            itemsBox.getChildren().add(msg);
         }
 
-        for (CartItem it : items) {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/CartItemCard.fxml"));
-                Parent card = loader.load();
-
-                CartItemCardController ctrl = loader.getController();
-                ctrl.setData(it, () -> {
-                    ligneRepo.removeOffer(cartId, it.getIdOffre());
-                    reservationRepo.recomputeTotal(cartId);
-                    refresh();
-                });
-
-                itemsBox.getChildren().add(card);
-            } catch (Exception e) {
-                itemsBox.getChildren().add(new Label("Error loading cart item: " + e.getMessage()));
-            }
-        }
-    }*/
-    private void refresh() {
-        itemsBox.getChildren().clear();
-
-        if (cartId == 0) {
-            showEmptyCart();
-            return;
+        if (totalLbl != null) {
+            totalLbl.setText("Total: -");
         }
 
-        List<CartItem> items = ligneRepo.findCartItems(cartId);
-
-        reservationRepo.recomputeTotal(cartId);
-        totalLbl.setText("Total: " + reservationRepo.getTotal(cartId) + " TND");
-
-        int count = ligneRepo.countItems(cartId);
-        if (countLbl != null) countLbl.setText(count + " items");
-
-        if (items.isEmpty()) {
-            showEmptyCart();
-            return;
-        }
-
-        for (CartItem it : items) {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/CartItemCard.fxml"));
-                Parent card = loader.load();
-
-                CartItemCardController ctrl = loader.getController();
-                ctrl.setData(it, this::refresh);
-
-                itemsBox.getChildren().add(card);
-            } catch (Exception e) {
-                itemsBox.getChildren().add(new Label("Error loading cart item: " + e.getMessage()));
-            }
+        if (countLbl != null) {
+            countLbl.setText("0 items");
         }
     }
 
@@ -134,47 +60,20 @@ public class CartViewController {
         stage.close();
     }
 
-    private void showError(String title, String msg) {
-        Alert a = new Alert(Alert.AlertType.ERROR);
-        a.setTitle(title);
-        a.setHeaderText(null);
-        a.setContentText(msg);
-        a.showAndWait();
-    }
     @FXML
     private void onClear() {
-        if (cartId == 0) return;
-
-        ligneRepo.clearCart(cartId);
-        reservationRepo.recomputeTotal(cartId);
-        refresh();
+        showInfo(
+                "Cart disabled",
+                "There is no cart anymore. Please reserve directly from an offer."
+        );
     }
 
     @FXML
     private void onCheckout() {
-        if (cartId == 0) return;
-
-        boolean ok = reservationRepo.requestBooking(cartId, Session.getUserId());
-        if (!ok) {
-            showError("Checkout", "Checkout failed (cart might be empty or already confirmed).");
-            return;
-        }
-
         showInfo(
-                "Request sent ✅",
-                "Your reservation request has been sent to the agencies.\n\n" +
-                        "Next step:\n" +
-                        "• Agencies will approve or reject your offers.\n" +
-                        "• You will receive a confirmation email once everything is approved."
+                "Cart disabled",
+                "There is no checkout anymore. Reservations are created directly from offers."
         );
-
-        // optional: reset and refresh UI
-        cartId = 0;
-        refresh();
-
-        // optional: close cart window after sending request
-        // Stage stage = (Stage) itemsBox.getScene().getWindow();
-        // stage.close();
     }
 
     private void showInfo(String title, String msg) {
@@ -182,7 +81,6 @@ public class CartViewController {
         a.setTitle(title);
         a.setHeaderText(null);
         a.setContentText(msg);
-        a.getDialogPane().setPrefWidth(420);
         a.showAndWait();
     }
 }

@@ -16,99 +16,159 @@ public class ServiceRepository {
         cnx = MyDBConnexion.getInstance().getConnection();
     }
 
-    // ✅ only what you need for OffreForm: list services of the logged-in agency
-    public List<ServiceEntity> findAllByAgency(int idAgence) {
+    public List<ServiceEntity> findAllByAgency(int agencyId) {
         List<ServiceEntity> list = new ArrayList<>();
 
         String sql =
-                "SELECT s.idService, s.nom, " +
-                        "       CASE " +
-                        "           WHEN v.idService IS NOT NULL THEN 'VOL' " +
-                        "           WHEN h.idService IS NOT NULL THEN 'HOTEL' " +
-                        "           ELSE 'SERVICE' " +
-                        "       END AS kind " +
-                        "FROM service s " +
-                        "LEFT JOIN vol v ON v.idService = s.idService " +
-                        "LEFT JOIN hotel h ON h.idService = s.idService " +
-                        "WHERE s.idAgence = ? " +
-                        "ORDER BY s.idService DESC";
+                "SELECT id, name, type " +
+                        "FROM service " +
+                        "WHERE agency_id = ? OR agency_id IS NULL " +
+                        "ORDER BY id DESC";
 
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {
-            ps.setInt(1, idAgence);
+
+            ps.setInt(1, agencyId);
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     ServiceEntity s = new ServiceEntity();
-                    s.setIdService(rs.getInt("idService"));
-                    s.setNom(rs.getString("nom"));
-                    s.setKind(rs.getString("kind"));
+
+                    s.setId(rs.getInt("id"));
+                    s.setName(rs.getString("name"));
+                    s.setType(rs.getString("type"));
+
                     list.add(s);
                 }
             }
+
         } catch (SQLException e) {
-            throw new RuntimeException("Error findAllByAgency service: " + e.getMessage(), e);
+            throw new RuntimeException(
+                    "Error findAllByAgency service: " + e.getMessage(),
+                    e
+            );
         }
 
         return list;
     }
-    public ServiceEntityDetails findDetailsByIdService(int idService) {
+
+    public ServiceEntityDetails findDetailsByIdService(int serviceId) {
         String sql =
                 "SELECT " +
-                        "  s.idService, s.nom, s.description, s.prix, s.disponibilite, s.capacite, s.idAgence, " +
-                        "  v.numeroVol, v.villeDepart, v.villeArrivee, v.dateDepart, v.dateArrivee, " +
-                        "  h.nombreEtoiles, h.localisation, h.typeChambre " +
+                        " s.id, " +
+                        " s.name, " +
+                        " s.type, " +
+                        " s.description, " +
+                        " s.base_price, " +
+                        " s.is_available, " +
+                        " s.capacity, " +
+                        " s.agency_id, " +
+                        " s.image_url, " +
+                        " s.created_at, " +
+
+                        " h.stars, " +
+                        " h.location AS hotel_location, " +
+                        " h.room_type " +
+
                         "FROM service s " +
-                        "LEFT JOIN vol v ON v.idService = s.idService " +
-                        "LEFT JOIN hotel h ON h.idService = s.idService " +
-                        "WHERE s.idService = ?";
+                        "LEFT JOIN hotel h ON h.id = s.id " +
+                        "WHERE s.id = ?";
 
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {
-            ps.setInt(1, idService);
+
+            ps.setInt(1, serviceId);
 
             try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next()) return null;
+
+                if (!rs.next()) {
+                    return null;
+                }
 
                 ServiceEntityDetails d = new ServiceEntityDetails();
-                d.setIdService(rs.getInt("idService"));
-                d.setNom(rs.getString("nom"));
+
+                // -----------------------------
+                // SERVICE BASE INFO
+                // -----------------------------
+
+                d.setId(rs.getInt("id"));
+                d.setIdService(rs.getInt("id"));
+
+                d.setName(rs.getString("name"));
+                d.setNom(rs.getString("name"));
+
+                String type = rs.getString("type");
+
                 d.setDescription(rs.getString("description"));
-                d.setPrix(rs.getBigDecimal("prix"));
 
-                // if disponibilite is enum('true','false') you may need rs.getString and convert:
-                try { d.setDisponibilite(rs.getBoolean("disponibilite")); } catch (Exception ignored) {}
+                d.setBasePrice(rs.getBigDecimal("base_price"));
+                d.setPrix(rs.getBigDecimal("base_price"));
 
-                d.setCapacite(rs.getInt("capacite"));
-                d.setIdAgence(rs.getInt("idAgence"));
+                d.setAvailable(rs.getBoolean("is_available"));
+                d.setDisponibilite(rs.getBoolean("is_available"));
 
-                // VOL
-                String numeroVol = rs.getString("numeroVol");
-                d.setNumeroVol(numeroVol);
-                d.setVilleDepart(rs.getString("villeDepart"));
-                d.setVilleArrivee(rs.getString("villeArrivee"));
+                Object capacityObj = rs.getObject("capacity");
+                Integer capacity = capacityObj == null
+                        ? null
+                        : ((Number) capacityObj).intValue();
 
-                Timestamp tsDep = rs.getTimestamp("dateDepart");
-                Timestamp tsArr = rs.getTimestamp("dateArrivee");
-                d.setDateDepart(tsDep != null ? tsDep.toLocalDateTime() : null);
-                d.setDateArrivee(tsArr != null ? tsArr.toLocalDateTime() : null);
+                d.setCapacity(capacity);
+                d.setCapacite(capacity == null ? 0 : capacity);
 
-                // HOTEL
-                Integer etoiles = (Integer) rs.getObject("nombreEtoiles");
-                d.setNombreEtoiles(etoiles);
-                d.setLocalisation(rs.getString("localisation"));
-                d.setTypeChambre(rs.getString("typeChambre"));
+                Object agencyObj = rs.getObject("agency_id");
+                Integer agencyId = agencyObj == null
+                        ? null
+                        : ((Number) agencyObj).intValue();
 
-                // kind
-                if (numeroVol != null && !numeroVol.isBlank()) d.setKind("VOL");
-                else if (etoiles != null) d.setKind("HOTEL");
-                else d.setKind("SERVICE");
+                d.setAgencyId(agencyId);
+                d.setIdAgence(agencyId == null ? 0 : agencyId);
 
-                // for OfferForm preview: qty = selection count
+                d.setImageUrl(rs.getString("image_url"));
+
+                Timestamp createdAt = rs.getTimestamp("created_at");
+                d.setCreatedAt(
+                        createdAt == null
+                                ? null
+                                : createdAt.toLocalDateTime()
+                );
+
+                // -----------------------------
+                // HOTEL DETAILS
+                // -----------------------------
+
+                Object starsObj = rs.getObject("stars");
+                Integer stars = starsObj == null
+                        ? null
+                        : ((Number) starsObj).intValue();
+
+                d.setNombreEtoiles(stars);
+                d.setLocalisation(rs.getString("hotel_location"));
+                d.setTypeChambre(rs.getString("room_type"));
+
+                // If type is empty, infer it from hotel data
+                if (type == null || type.isBlank()) {
+                    type = stars != null ? "HOTEL" : "SERVICE";
+                }
+
+                d.setType(type);
+                d.setKind(type);
+
+                // -----------------------------
+                // DEFAULT VALUES
+                // -----------------------------
+
+                d.setQuantity(1);
                 d.setQuantite(1);
+
+                d.setOverridePrice(null);
+                d.setPrixOverride(null);
 
                 return d;
             }
+
         } catch (SQLException e) {
-            throw new RuntimeException("Error findDetailsByIdService: " + e.getMessage(), e);
+            throw new RuntimeException(
+                    "Error findDetailsByIdService: " + e.getMessage(),
+                    e
+            );
         }
     }
 }

@@ -1,31 +1,81 @@
 package entities;
 
 public class ServiceEntity {
-    private int idService;
-    private String nom;
-    private String kind; // "VOL" | "HOTEL" | "SERVICE"
 
-    public ServiceEntity() {}
+    private int id;
+    private String name;
+    private String type; // "VOL" | "HOTEL" | "SERVICE"
 
-    public ServiceEntity(int idService, String nom, String kind) {
-        this.idService = idService;
-        this.nom = nom;
-        this.kind = kind;
+    public ServiceEntity() {
     }
 
-    public int getIdService() { return idService; }
-    public void setIdService(int idService) { this.idService = idService; }
+    public ServiceEntity(int id, String name, String type) {
+        this.id = id;
+        this.name = name;
+        this.type = type;
+    }
 
-    public String getNom() { return nom; }
-    public void setNom(String nom) { this.nom = nom; }
+    // NEW GETTERS / SETTERS
 
-    public String getKind() { return kind; }
-    public void setKind(String kind) { this.kind = kind; }
+    public int getId() {
+        return id;
+    }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+
+    // OLD COMPATIBILITY GETTERS / SETTERS
+
+    public int getIdService() {
+        return id;
+    }
+
+    public void setIdService(int idService) {
+        this.id = idService;
+    }
+
+    public String getNom() {
+        return name;
+    }
+
+    public void setNom(String nom) {
+        this.name = nom;
+    }
+
+    public String getKind() {
+        return type;
+    }
+
+    public void setKind(String kind) {
+        this.type = kind;
+    }
 
     @Override
     public String toString() {
-        if (kind == null || kind.isBlank()) return nom;
-        return nom + " (" + kind + ")";
+        if (type == null || type.isBlank()) {
+            return name;
+        }
+
+        return name + " (" + type + ")";
     }
 }
