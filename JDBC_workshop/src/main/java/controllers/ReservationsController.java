@@ -24,11 +24,16 @@ public class ReservationsController implements Initializable {
    // user connectedUser;
     String username;
     String type;
+    @FXML
+    private FlowPane cardsContainer;
+    @FXML
+    private TextField txtSearch;
+    private List<reservation> allReservations;
     void setConnectedUser(Person person) {
       username = person.getUsername();
       type=person.getRole();
 
-        if (type.equals("USER")) {
+        if ("USER".equals(type)) {
             allReservations = getDummyData();
             List<reservation> filtered= allReservations.stream()
                     .filter(r ->r.getNom().equals(username) )
@@ -36,16 +41,14 @@ public class ReservationsController implements Initializable {
             renderServices(filtered);
 
         }
-        else if (type.equals("ADMIN")) {
+        else if ("ADMIN".equals(type)) {
             allReservations = getDummyData();
-            renderServices(allReservations);}
+            renderServices(allReservations);
+        }
+
     }
 
-    @FXML
-    private FlowPane cardsContainer;
-    @FXML
-    private TextField txtSearch;
-    private List<reservation> allReservations;
+
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -68,7 +71,6 @@ public class ReservationsController implements Initializable {
 
     private void renderServices(List<reservation> reservations) {
         cardsContainer.getChildren().clear();
-
         for (reservation r : reservations) {
             VBox card = createServiceCard(r);
             cardsContainer.getChildren().add(card);
@@ -170,8 +172,8 @@ public class ReservationsController implements Initializable {
             }
         });
         if (type.equals("ADMIN")) {
-            btnAccept.setVisible(false);
-            btnRefuse.setVisible(false);
+            btnAccept.setVisible(true);
+            btnRefuse.setVisible(true);
         }
         btnDelete.getStyleClass().addAll("btn-card-action", "btn-card-delete");
         btnAccept.getStyleClass().addAll("btn-card-action");

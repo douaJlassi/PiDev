@@ -35,8 +35,7 @@ public class ServicesController implements Initializable {
     void setConnectedUser(Person person) {
         username = person.getUsername();
         type=person.getRole();
-        allServices = getDummyData();
-        renderServices(allServices);
+
     }
     @FXML
     private FlowPane cardsContainer;
@@ -48,7 +47,7 @@ public class ServicesController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-     refreshServices();
+refreshServices();
     }
     public void refreshServices() {
         allServices = getDummyData();

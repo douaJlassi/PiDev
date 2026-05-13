@@ -20,12 +20,12 @@ public class ReservationService implements CRUDservices<String, reservation> {
         java.sql.Date sqlDate = java.sql.Date.valueOf(r.getDateReservation().toString());
         String req = "INSERT INTO reservations (date_reservation, statut, mode_paiement, idService, nom,seat_nb) VALUES (?, ?, ?, ?, ?,?)";
         try (PreparedStatement pst = connection.prepareStatement(req)) {
-            pst.setDate(1, sqlDate);
-            pst.setString(2, r.getStatut());
-            pst.setString(3, r.getModePaiement());
-            pst.setInt(4, r.getIdService());
-            pst.setString(5, r.getNom());
-            pst.setInt(6, r.getSeatNb());
+            pst.setDate(2, sqlDate);
+            pst.setString(3, r.getStatut());
+            pst.setString(4, r.getModePaiement());
+            pst.setInt(5, r.getIdService());
+            pst.setString(6, r.getNom());
+            pst.setInt(7, r.getSeatNb());
             pst.executeUpdate();
             System.out.println("Réservation ajoutée avec succès !");
         }
@@ -36,12 +36,12 @@ public class ReservationService implements CRUDservices<String, reservation> {
         java.sql.Date sqlDate = java.sql.Date.valueOf(r.getDateReservation().toString());
         String req = "UPDATE reservations SET date_reservation = ?, statut = ?, mode_paiement = ?, idService = ?, nom = ? WHERE id_reservation = ?";
         try (PreparedStatement pst = connection.prepareStatement(req)) {
-            pst.setDate(1, sqlDate);
-            pst.setString(2, r.getStatut());
-            pst.setString(3, r.getModePaiement());
-            pst.setInt(4, r.getIdService());
-            pst.setString(5, r.getNom());
-            pst.setInt(6, Integer.parseInt(id)); // Convertit l'ID de String en int
+            pst.setDate(2, sqlDate);
+            pst.setString(3, r.getStatut());
+            pst.setString(4, r.getModePaiement());
+            pst.setInt(5, r.getIdService());
+            pst.setString(6, r.getNom());
+            pst.setInt(1, Integer.parseInt(id)); // Convertit l'ID de String en int
             int rowsAffected = pst.executeUpdate();
             if (rowsAffected > 0) {
                 System.out.println("Réservation modifiée avec succès !");
@@ -307,11 +307,11 @@ public class ReservationService implements CRUDservices<String, reservation> {
                 + "AND idService = ? "
                 + "AND nom = ?";
         try (PreparedStatement st = connection.prepareStatement(req)) {
-             st.setDate(2, sqlDate); // java.sql.Date
-             st.setString(3, reservation.getStatut());
-             st.setString(4, reservation.getModePaiement());
-             st.setInt(5, reservation.getIdService());
-             st.setString(6, reservation.getNom());
+             st.setDate(1, sqlDate); // java.sql.Date
+             st.setString(2, reservation.getStatut());
+             st.setString(3, reservation.getModePaiement());
+             st.setInt(4, reservation.getIdService());
+             st.setString(5, reservation.getNom());
              ResultSet rs = st.executeQuery();
             int ID = -1;
             while (rs.next()) {

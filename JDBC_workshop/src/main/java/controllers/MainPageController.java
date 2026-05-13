@@ -1,5 +1,6 @@
 package controllers;
 
+import entities.reservation;
 import javafx.animation.KeyFrame;
 import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
@@ -37,11 +38,13 @@ import services.PersonService;
 import services.ProfileService;
 import services.ServiceMessage;
 import utils.SessionManager;
+import services.ReservationService;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainPageController {
@@ -133,7 +136,6 @@ public class MainPageController {
         personService = new PersonService();
         profileService = new ProfileService();
         System.out.println("MainPageController initialized");
-
         setupButtonActions();
         setupAvatarHoverHandler();
         setupAvatarClickHandler();
@@ -428,15 +430,15 @@ public class MainPageController {
 
             Parent root = loader.load();
 
+            // Pass the connected user so type/username are set before rendering
+            ReservationsController controller = loader.getController();
+            controller.setConnectedUser(currentUser);
+
             contentArea.getChildren().setAll(root);
 
             Scene scene = contentArea.getScene();
-
             if (scene != null) {
-                String css = getClass()
-                        .getResource("/css/app.css")
-                        .toExternalForm();
-
+                String css = getClass().getResource("/css/app.css").toExternalForm();
                 if (!scene.getStylesheets().contains(css)) {
                     scene.getStylesheets().add(css);
                 }
@@ -444,11 +446,10 @@ public class MainPageController {
 
         } catch (Exception e) {
             e.printStackTrace();
-
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Navigation error");
             alert.setHeaderText(null);
-            alert.setContentText("Cannot open services dashboard: " + e.getMessage());
+            alert.setContentText("Cannot open reservations dashboard: " + e.getMessage());
             alert.showAndWait();
         }
     }
