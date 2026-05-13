@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.shape.Circle?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.CreatePostController"
+      styleClass="cpd-root" spacing="0"
+      stylesheets="@../styles/dashboard.css">
+
+    <!-- ── USER STRIP ─────────────────────────────────────────── -->
+    <HBox styleClass="cpd-user-strip" alignment="CENTER_LEFT" spacing="12">
+        <Circle fx:id="userAvatarCircle" styleClass="avatar" radius="22"/>
+        <VBox spacing="3">
+            <Label fx:id="usernameLabel" styleClass="cpd-username" text="User"/>
+            <HBox spacing="6" alignment="CENTER_LEFT">
+                <Label text="Posting to" styleClass="cpd-audience-label"/>
+                <Label fx:id="audienceLabel" text="Public Feed"
+                       styleClass="cpd-audience-pill"/>
+            </HBox>
+        </VBox>
+    </HBox>
+
+    <Separator styleClass="cpd-divider" prefHeight="1"/>
+
+    <!-- ── MAIN TEXTAREA ─────────────────────────────────────── -->
+    <TextArea fx:id="contentArea"
+              promptText="Share your travel experience..."
+              wrapText="true" prefRowCount="5"
+              styleClass="cpd-textarea"/>
+
+    <!-- ── IMAGE PREVIEW (hidden until photo chosen) ─────────── -->
+    <StackPane fx:id="imagePreviewBox" styleClass="cpd-image-zone"
+               visible="false" managed="false" maxHeight="280">
+        <ImageView fx:id="imagePreview"
+                   fitWidth="488" fitHeight="260" preserveRatio="true" smooth="true"
+                   StackPane.alignment="CENTER"/>
+        <Button fx:id="removeImageBtn" text="X"
+                styleClass="cpd-remove-img-btn"
+                onAction="#onRemoveImage"
+                StackPane.alignment="TOP_RIGHT"/>
+    </StackPane>
+
+    <!-- ── DETAILS: location + agency ───────────────────────── -->
+    <VBox styleClass="cpd-details-section" spacing="0">
+
+        <HBox styleClass="cpd-field-row" alignment="CENTER_LEFT" spacing="10">
+            <Label text="Location" styleClass="cpd-field-icon"/>
+            <!-- PHASE 3: VBox container for PlacesAutocompleteField (created programmatically in controller) -->
+            <VBox fx:id="placeFieldContainer" >
+                <!-- PlacesAutocompleteField will be added here by CreatePostController.setupLocationField() -->
+            </VBox>
+        </HBox>
+
+        <Separator styleClass="cpd-inner-divider" prefHeight="1"/>
+
+        <HBox styleClass="cpd-field-row" alignment="CENTER_LEFT" spacing="10">
+            <Label text="Agency" styleClass="cpd-field-icon"/>
+            <ComboBox fx:id="agencyCombo"
+                      promptText="Tag an agency (optional)..."
+                      styleClass="cpd-agency-combo"
+                      maxWidth="350" HBox.hgrow="ALWAYS"
+                      onAction="#onAgencySelected"/>
+        </HBox>
+
+    </VBox>
+
+    <!-- ── AGENCY BANNER (shown when agency selected) ────────── -->
+    <HBox fx:id="agencyInfoBanner" styleClass="cpd-agency-banner"
+          alignment="CENTER_LEFT" spacing="8"
+          visible="false" managed="false">
+        <Label text="i" styleClass="cpd-banner-icon"/>
+        <Label fx:id="agencyBannerText" wrapText="true"
+               styleClass="cpd-banner-text" HBox.hgrow="ALWAYS"
+               text="This post will be reviewed by the agency before appearing publicly."/>
+    </HBox>
+
+    <!-- ── BOTTOM TOOLBAR ────────────────────────────────────── -->
+    <HBox styleClass="cpd-toolbar" alignment="CENTER_LEFT" spacing="10">
+        <Label text="Add to post:" styleClass="cpd-toolbar-label"/>
+        <Button fx:id="photoBtn" text="+ Photo"
+                styleClass="cpd-tool-btn" onAction="#onSelectPhoto"/>
+    </HBox>
+
+    <!-- ── ACTION BAR (Cancel / Share|Update) ────────────────── -->
+    <HBox fx:id="formActionBar" alignment="CENTER_RIGHT" spacing="10"
+          style="-fx-background-color: #f7f8fa; -fx-border-color: #e4e6eb; -fx-border-width: 1 0 0 0; -fx-padding: 14 20 14 20;">
+        <Button fx:id="formCancelBtn" text="Cancel" styleClass="secondary-btn"/>
+        <Button fx:id="formSubmitBtn" text="Share" styleClass="primary-btn"/>
+    </HBox>
+
+</VBox>

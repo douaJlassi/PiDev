@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.shape.Circle?>
+
+<BorderPane prefHeight="720.0" prefWidth="1080.0" styleClass="main-container" stylesheets="@AddStyle.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.AddActiviteController">
+
+
+
+
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="content-scroll">
+            <VBox spacing="25.0">
+                <padding>
+                    <Insets bottom="30.0" left="40.0" right="40.0" top="30.0" />
+                </padding>
+
+                <Button text="← Retour" onAction="#handleReturn" styleClass="return-button" />
+                <HBox alignment="CENTER_LEFT">
+                    <VBox HBox.hgrow="ALWAYS">
+                        <Label styleClass="header-title" text="Ajouter une Nouvelle Activité" />
+                        <Label styleClass="header-subtitle" text="Créez une nouvelle activité que les voyageurs peuvent réserver" />
+                    </VBox>
+
+                </HBox>
+
+                <HBox spacing="30.0">
+                    <VBox spacing="20.0" prefWidth="400.0">
+
+
+                        <VBox alignment="CENTER" onMouseClicked="#handleSelectImage" prefHeight="200.0" styleClass="image-upload-area">
+                            <StackPane>
+                                <ImageView fx:id="imagePreview" fitHeight="200.0" fitWidth="380.0" pickOnBounds="true" preserveRatio="true" />
+                                <VBox alignment="CENTER" spacing="10">
+                                    <Label style="-fx-font-size: 30;" text="+" textFill="WHITE" />
+                                    <Label text="Ajouter une Photo" textFill="WHITE" />
+                                </VBox>
+                            </StackPane>
+                        </VBox>
+
+                        <VBox spacing="8">
+                            <Label styleClass="form-label" text="Courte Description" />
+                            <TextArea fx:id="shortDescField" prefHeight="80.0" promptText="Ajoutez une brève description..." styleClass="form-field" wrapText="true" />
+                        </VBox>
+
+                        <VBox spacing="8">
+                            <Label styleClass="form-label" text="Destination" />
+                            <ComboBox fx:id="lieuCombo" maxWidth="1.7976931348623157E308" promptText="Choisissez un lieu..." styleClass="form-field" />
+                        </VBox>
+
+                        <VBox spacing="8">
+                            <Label styleClass="form-label" text="Nombre de Places" />
+                            <TextField fx:id="placesField" promptText="0" styleClass="form-field" />
+                        </VBox>
+                    </VBox>
+
+
+                    <VBox spacing="20.0" HBox.hgrow="ALWAYS">
+
+                        <VBox spacing="8">
+                            <Label styleClass="form-label" text="Titre de l'Activité" />
+                            <TextField fx:id="titreField" promptText="Entrez un titre pour votre activité" styleClass="form-field" />
+                        </VBox>
+
+                        <VBox spacing="8">
+                            <Label styleClass="form-label" text="Catégorie" />
+                            <ComboBox fx:id="categoryCombo" maxWidth="1.7976931348623157E308" promptText="Choisissez une catégorie..." styleClass="form-field" />
+                        </VBox>
+
+                        <HBox spacing="15">
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label styleClass="form-label" text="Date" />
+                                <DatePicker fx:id="datePicker" maxWidth="1.7976931348623157E308" styleClass="form-field" />
+                            </VBox>
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label styleClass="form-label" text="Heure" />
+                                <ComboBox fx:id="heureCombo" maxWidth="1.7976931348623157E308" promptText="Sélectionnez l'heure" styleClass="form-field" />
+                            </VBox>
+                        </HBox>
+
+                        <HBox spacing="15">
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label styleClass="form-label" text="Durée" />
+                                <TextField fx:id="dureeField" promptText="Ex: 2" styleClass="form-field" />
+                            </VBox>
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label styleClass="form-label" text="Prix par Personne" />
+                                <HBox alignment="CENTER_LEFT" styleClass="form-field">
+                                    <TextField fx:id="prixField" promptText="0" style="-fx-background-color: transparent;" HBox.hgrow="ALWAYS" />
+                                    <Label text="€" textFill="WHITE" />
+                                </HBox>
+                            </VBox>
+                        </HBox>
+
+                        <VBox spacing="8">
+                            <Label styleClass="form-label" text="Détails de l'Activité" />
+                            <TextArea fx:id="longDescField" prefHeight="150.0" promptText="Décrivez l'itinéraire, points d'intérêt..." styleClass="form-field" wrapText="true" />
+                        </VBox>
+
+                        <HBox alignment="CENTER_RIGHT" spacing="20">
+                            <Label text="Activité Publique" textFill="#b0b0b0" />
+                            <CheckBox fx:id="publicToggle" mnemonicParsing="false" styleClass="toggle-switch" />
+                            <Button onAction="#handleAddActivite" prefHeight="45.0" prefWidth="250.0" styleClass="btn-submit" text="Ajouter Activité" />
+                        </HBox>
+                    </VBox>
+                </HBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

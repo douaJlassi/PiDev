@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="controllers.DashboardControllersahar"
+            prefWidth="1300"
+            prefHeight="800"
+            style="-fx-background-color: #f8faff;">
+
+    <!-- Top Bar with Logo only (no navbar) -->
+
+    <!-- Center Content - Activities (full width) -->
+    <center>
+        <VBox spacing="20" style="-fx-background-color: #f8faff; -fx-padding: 25 30 30 30;">
+
+            <!-- Filter Bar -->
+            <VBox spacing="16" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 0);">
+                <HBox alignment="CENTER_LEFT" spacing="0">
+                    <Region prefWidth="4" prefHeight="20" style="-fx-background-color: #0FA5A2; -fx-background-radius: 2;"/>
+                    <Region prefWidth="10"/>
+                    <Text text="Filtres &amp; Recherche" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-fill: #1D4D7C;"/>
+                </HBox>
+
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Button fx:id="btnTous" text="Tous"
+                            style="-fx-background-color: #0FA5A2; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 8 20; -fx-background-radius: 20; -fx-cursor: hand;"/>
+                    <Button fx:id="btnAventure" text="🏔 Aventure"
+                            style="-fx-background-color: #f0f0f0; -fx-text-fill: #666; -fx-font-size: 14px; -fx-padding: 8 20; -fx-background-radius: 20; -fx-cursor: hand;"/>
+                    <Button fx:id="btnSport" text="⚽ Sport"
+                            style="-fx-background-color: #f0f0f0; -fx-text-fill: #666; -fx-font-size: 14px; -fx-padding: 8 20; -fx-background-radius: 20; -fx-cursor: hand;"/>
+
+                    <Region HBox.hgrow="ALWAYS"/>
+
+                    <ComboBox fx:id="placesFilterCombo" promptText="Disponibilité"
+                              style="-fx-background-color: #f0f0f0; -fx-background-radius: 20; -fx-padding: 5 15; -fx-font-size: 14px;" prefWidth="160"/>
+
+                    <TextField fx:id="customCategoryField"
+                               promptText="🔍 Catégorie personnalisée..."
+                               style="-fx-background-color: #f0f0f0; -fx-background-radius: 20; -fx-padding: 8 15; -fx-font-size: 14px;" prefWidth="220"/>
+
+                    <Button fx:id="searchCategoryButton" text="Rechercher"
+                            style="-fx-background-color: #0FA5A2; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 8 25; -fx-background-radius: 20; -fx-cursor: hand;"/>
+                </HBox>
+            </VBox>
+
+            <!-- Section heading -->
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <Region prefWidth="4" prefHeight="24" style="-fx-background-color: #FEC74C; -fx-background-radius: 2;"/>
+                <Text text="Activités Recommandées" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-fill: #1D4D7C;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+            </HBox>
+
+            <!-- Activities Grid -->
+            <ScrollPane fx:id="contentScrollPane" fitToWidth="true"
+                        style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;"
+                        VBox.vgrow="ALWAYS">
+                <FlowPane fx:id="activitiesFlowPane" hgap="20" vgap="20"
+                          prefWrapLength="900" styleClass="activities-flow"
+                          style="-fx-background-color: transparent; -fx-padding: 10 0 10 0;"/>
+            </ScrollPane>
+        </VBox>
+    </center>
+
+
+</BorderPane>

@@ -1,0 +1,329 @@
+/* ================================================
+   BackOffice Local Dashboard - Stylesheet
+   Thème : Modern Analytics — Bleu marine & Vert menthe
+   ================================================ */
+
+/* ── ROOT : Variables globales ─────────────────── */
+.root {
+    -fx-font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+
+    /* Palette */
+    --color-bg:        #F0F4F8;
+    --color-surface:   #FFFFFF;
+    --color-primary:   #0D3B66;
+    --color-accent:    #1ABC9C;
+    --color-accent2:   #3498DB;
+    --color-muted:     #95A5A6;
+    --color-border:    #DDE3EA;
+
+    /* Typographie */
+    --font-xs:   11px;
+    --font-sm:   13px;
+    --font-md:   15px;
+    --font-lg:   18px;
+    --font-xl:   22px;
+    --font-2xl:  36px;
+    --font-3xl:  48px;
+
+    /* Rayons */
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+
+    /* Ombres */
+    --shadow-card:  dropshadow(gaussian, rgba(13,59,102,0.10), 18, 0, 0, 4);
+    --shadow-hover: dropshadow(gaussian, rgba(13,59,102,0.18), 24, 0, 0, 8);
+}
+
+/* ── SCROLL PANE ───────────────────────────────── */
+.scroll-pane {
+    -fx-background-color: #F0F4F8;
+    -fx-border-color: transparent;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: #F0F4F8;
+}
+
+.scroll-pane .scroll-bar:vertical,
+.scroll-pane .scroll-bar:horizontal {
+    -fx-background-color: transparent;
+    -fx-pref-width: 6px;
+    -fx-pref-height: 6px;
+}
+
+.scroll-pane .scroll-bar:vertical .track,
+.scroll-pane .scroll-bar:horizontal .track {
+    -fx-background-color: #DDE3EA;
+    -fx-background-radius: 3px;
+}
+
+.scroll-pane .scroll-bar:vertical .thumb,
+.scroll-pane .scroll-bar:horizontal .thumb {
+    -fx-background-color: #1ABC9C;
+    -fx-background-radius: 3px;
+}
+
+.scroll-pane .corner {
+    -fx-background-color: transparent;
+}
+
+/* ── CONTENEUR PRINCIPAL (VBox racine) ─────────── */
+.root > .scroll-pane > .viewport > .vbox,
+ScrollPane > .viewport > VBox {
+    -fx-background-color: #F0F4F8;
+    -fx-padding: 28 32 28 32;
+    -fx-spacing: 24;
+}
+
+/* ── CARTE GÉNÉRIQUE ────────────────────────────── */
+/* Appliquée aux VBox enfants (cartes KPI, etc.) */
+.kpi-card {
+    -fx-background-color: white;
+    -fx-background-radius: 18px;
+    -fx-padding: 28 24 28 24;
+    -fx-effect: dropshadow(gaussian, rgba(13,59,102,0.09), 18, 0, 0, 4);
+    -fx-border-color: rgba(221,227,234,0.8);
+    -fx-border-width: 1px;
+    -fx-border-radius: 18px;
+}
+
+/* ── LABEL TITRE DE CARTE (ex: "Total Conversations") ── */
+.label-card-title {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #95A5A6;
+    -fx-letter-spacing: 1.2px;
+}
+
+/* ── LABEL VALEUR KPI (grand nombre) ──────────── */
+.label-kpi-value {
+    -fx-font-size: 44px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #0D3B66;
+    -fx-effect: dropshadow(gaussian, rgba(13,59,102,0.15), 4, 0, 0, 2);
+}
+
+/* ── CHARTS : Style commun ─────────────────────── */
+.chart {
+    -fx-background-color: white;
+    -fx-background-radius: 18px;
+    -fx-padding: 16 20 16 20;
+    -fx-effect: dropshadow(gaussian, rgba(13,59,102,0.09), 18, 0, 0, 4);
+    -fx-border-color: rgba(221,227,234,0.8);
+    -fx-border-width: 2px;
+    -fx-border-radius: 18px;
+}
+
+/* ── BORDURES COLORÉES PAR GRAPHIQUE ────────────── */
+
+/* PieChart — Chat Type Distribution : Bleu marine */
+.chart-pie-type {
+    -fx-border-color: #0D3B66;
+    -fx-border-width: 3px;
+    -fx-border-radius: 18px;
+    -fx-effect: dropshadow(gaussian, rgba(13,59,102,0.22), 20, 0, 0, 5);
+}
+
+/* BarChart — Top Groups by Size : Vert menthe */
+.chart-bar-group {
+    -fx-border-color: #1ABC9C;
+    -fx-border-width: 3px;
+    -fx-border-radius: 18px;
+    -fx-effect: dropshadow(gaussian, rgba(26,188,156,0.25), 20, 0, 0, 5);
+}
+
+/* PieChart — Message Content Mix : Bleu ciel */
+.chart-pie-media {
+    -fx-border-color: #3498DB;
+    -fx-border-width: 3px;
+    -fx-border-radius: 18px;
+    -fx-effect: dropshadow(gaussian, rgba(52,152,219,0.25), 20, 0, 0, 5);
+}
+
+/* LineChart — Messaging Traffic : Orange ambré */
+.chart-line-activity {
+    -fx-border-color: #E67E22;
+    -fx-border-width: 3px;
+    -fx-border-radius: 18px;
+    -fx-effect: dropshadow(gaussian, rgba(230,126,34,0.22), 20, 0, 0, 5);
+}
+
+/* Titre des graphiques */
+.chart-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #0D3B66;
+    -fx-padding: 0 0 8 0;
+}
+
+/* Zone de tracé (fond) */
+.chart-plot-background {
+    -fx-background-color: #F8FAFC;
+    -fx-background-radius: 10px;
+}
+
+/* Lignes de grille */
+.chart-horizontal-grid-lines {
+    -fx-stroke: #E8EDF2;
+    -fx-stroke-dash-array: 4 4;
+    -fx-stroke-width: 1px;
+}
+
+.chart-vertical-grid-lines {
+    -fx-stroke: #E8EDF2;
+    -fx-stroke-dash-array: 4 4;
+    -fx-stroke-width: 1px;
+}
+
+/* Axes */
+.axis {
+    -fx-tick-label-fill: #7F8C8D;
+    -fx-tick-label-font-size: 11px;
+    -fx-minor-tick-visible: false;
+}
+
+.axis-label {
+    -fx-font-size: 11px;
+    -fx-text-fill: #95A5A6;
+}
+
+/* Zéro ligne */
+.chart-zero-baseline-line {
+    -fx-stroke: #BDC3C7;
+    -fx-stroke-width: 1.5px;
+}
+
+/* Légende */
+.chart-legend {
+    -fx-background-color: transparent;
+    -fx-padding: 6 0 0 0;
+}
+
+.chart-legend-item {
+    -fx-font-size: 11px;
+    -fx-text-fill: #555F6B;
+}
+
+.chart-legend-item-symbol {
+    -fx-background-radius: 4px;
+}
+
+/* ── LINE CHART ─────────────────────────────────── */
+.line-chart {
+    -fx-background-radius: 18px;
+}
+
+/* Couleur de la série principale */
+.default-color0.chart-series-line {
+    -fx-stroke: #1ABC9C;
+    -fx-stroke-width: 2.5px;
+}
+
+.default-color1.chart-series-line {
+    -fx-stroke: #3498DB;
+    -fx-stroke-width: 2.5px;
+}
+
+.default-color2.chart-series-line {
+    -fx-stroke: #E74C3C;
+    -fx-stroke-width: 2.5px;
+}
+
+/* Points de données */
+.default-color0.chart-line-symbol {
+    -fx-background-color: #1ABC9C, white;
+    -fx-background-radius: 5px;
+    -fx-padding: 4px;
+}
+
+.default-color1.chart-line-symbol {
+    -fx-background-color: #3498DB, white;
+    -fx-background-radius: 5px;
+    -fx-padding: 4px;
+}
+
+.default-color2.chart-line-symbol {
+    -fx-background-color: #E74C3C, white;
+    -fx-background-radius: 5px;
+    -fx-padding: 4px;
+}
+
+/* ── BAR CHART ──────────────────────────────────── */
+.bar-chart {
+    -fx-background-radius: 18px;
+}
+
+/* Barres — série 0 */
+.default-color0.chart-bar {
+    -fx-bar-fill: #0D3B66;
+    -fx-background-radius: 5 5 0 0;
+}
+
+.default-color1.chart-bar {
+    -fx-bar-fill: #1ABC9C;
+    -fx-background-radius: 5 5 0 0;
+}
+
+.default-color2.chart-bar {
+    -fx-bar-fill: #3498DB;
+    -fx-background-radius: 5 5 0 0;
+}
+
+.default-color3.chart-bar {
+    -fx-bar-fill: #E67E22;
+    -fx-background-radius: 5 5 0 0;
+}
+
+.default-color4.chart-bar {
+    -fx-bar-fill: #9B59B6;
+    -fx-background-radius: 5 5 0 0;
+}
+
+/* Hover sur les barres */
+.chart-bar:hover {
+    -fx-bar-fill: derive(-fx-bar-fill, -15%);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 8, 0, 0, 2);
+}
+
+/* ── PIE CHART ──────────────────────────────────── */
+.pie-chart {
+    -fx-background-radius: 18px;
+}
+
+/* Palette camembert */
+.default-color0.chart-pie { -fx-pie-color: #0D3B66; }
+.default-color1.chart-pie { -fx-pie-color: #1ABC9C; }
+.default-color2.chart-pie { -fx-pie-color: #3498DB; }
+.default-color3.chart-pie { -fx-pie-color: #E67E22; }
+.default-color4.chart-pie { -fx-pie-color: #9B59B6; }
+.default-color5.chart-pie { -fx-pie-color: #E74C3C; }
+.default-color6.chart-pie { -fx-pie-color: #F1C40F; }
+.default-color7.chart-pie { -fx-pie-color: #27AE60; }
+
+/* Labels du pie */
+.chart-pie-label {
+    -fx-font-size: 11px;
+    -fx-fill: #555F6B;
+}
+
+.chart-pie-label-line {
+    -fx-stroke: #BDC3C7;
+    -fx-stroke-width: 1px;
+}
+
+/* ── TOOLTIP ────────────────────────────────────── */
+.tooltip {
+    -fx-background-color: #0D3B66;
+    -fx-background-radius: 8px;
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-padding: 8 14 8 14;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.22), 12, 0, 0, 4);
+}
+
+/* ── SÉPARATEUR OPTIONNEL ───────────────────────── */
+.separator .line {
+    -fx-border-color: #DDE3EA;
+    -fx-border-width: 1px;
+}

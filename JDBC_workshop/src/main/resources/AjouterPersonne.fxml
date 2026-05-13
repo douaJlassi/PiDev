@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
+
+<?import javafx.scene.effect.DropShadow?>
+<StackPane xmlns:fx="http://javafx.com/fxml"
+           fx:controller="controllers.AjouterPersonne"
+           prefWidth="1000" prefHeight="787">
+
+    <!-- Background -->
+    <ImageView fitWidth="1000" fitHeight="787" preserveRatio="false">
+        <image>
+            <Image url="@image/image11.jpg"/>
+        </image>
+    </ImageView>
+
+    <Rectangle width="1000" height="787"
+               fill="linear-gradient(to bottom right, rgba(25,40,75,0.45), rgba(45,35,65,0.55))"/>
+
+    <!-- MAIN -->
+    <HBox fx:id="mainContainer" alignment="CENTER" spacing="80">
+
+        <!-- LEFT PANEL -->
+        <VBox fx:id="leftPane" alignment="CENTER_LEFT" spacing="20" prefWidth="400"
+              style="-fx-background-color: rgba(255,255,255,0.08);
+                     -fx-background-radius: 30;
+                     -fx-padding: 40;">
+
+            <HBox spacing="0">
+                <Label text="Reh" style="-fx-text-fill:#0FA5A2;-fx-font-size:48px;-fx-font-weight:800;"/>
+                <Label text="let" style="-fx-text-fill:#FEC74C;-fx-font-size:48px;-fx-font-weight:800;"/>
+                <Label text="na.tn" style="-fx-text-fill:#1D4D7C;-fx-font-size:48px;-fx-font-weight:800;"/>
+            </HBox>
+
+            <Label text="Explore The World"
+                   style="-fx-text-fill:white;-fx-font-size:36px;-fx-font-weight:bold;"/>
+
+            <Label text="Join thousands of travelers discovering new experiences every day."
+                   wrapText="true"
+                   style="-fx-text-fill:rgba(255,255,255,0.9);-fx-font-size:16px;"/>
+
+        </VBox>
+
+        <!-- FORM PANEL -->
+        <StackPane fx:id="formPane" prefWidth="450">
+
+            <!-- SIGNUP -->
+            <VBox fx:id="signupPane" spacing="15" alignment="CENTER"
+                  style="-fx-background-color: rgba(255,255,255,0.15);
+                         -fx-background-radius: 30;
+                         -fx-border-color: rgba(255,255,255,0.25);
+                         -fx-border-radius: 30;">
+
+                <padding>
+                    <Insets top="35" bottom="35" left="35" right="35"/>
+                </padding>
+
+                <Label text="Create Account"
+                       style="-fx-text-fill:white;-fx-font-size:28px;-fx-font-weight:bold;"/>
+
+                <!-- First Name Field -->
+                <VBox spacing="3" style="-fx-padding: 0;">
+                    <TextField fx:id="firstNameField" promptText="First Name" prefHeight="48"
+                               style="-fx-background-color: rgba(255,255,255,0.20);
+                                      -fx-background-radius: 24;
+                                      -fx-border-radius: 24;
+                                      -fx-border-color: rgba(255,255,255,0.35);
+                                      -fx-text-fill: white;
+                                      -fx-font-size: 14px;
+                                      -fx-prompt-text-fill: rgba(255,255,255,0.75);
+                                      -fx-padding: 0 18;"/>
+                </VBox>
+
+                <!-- Last Name Field -->
+                <VBox spacing="3" style="-fx-padding: 0;">
+                    <TextField fx:id="lastNameField" promptText="Last Name" prefHeight="48"
+                               style="-fx-background-color: rgba(255,255,255,0.20);
+                                      -fx-background-radius: 24;
+                                      -fx-border-radius: 24;
+                                      -fx-border-color: rgba(255,255,255,0.35);
+                                      -fx-text-fill: white;
+                                      -fx-font-size: 14px;
+                                      -fx-prompt-text-fill: rgba(255,255,255,0.75);
+                                      -fx-padding: 0 18;"/>
+                </VBox>
+
+                <!-- Username Field -->
+                <VBox spacing="3" style="-fx-padding: 0;">
+                    <TextField fx:id="usernameField" promptText="Username" prefHeight="48"
+                               style="-fx-background-color: rgba(255,255,255,0.20);
+                                      -fx-background-radius: 24;
+                                      -fx-border-radius: 24;
+                                      -fx-border-color: rgba(255,255,255,0.35);
+                                      -fx-text-fill: white;
+                                      -fx-font-size: 14px;
+                                      -fx-prompt-text-fill: rgba(255,255,255,0.75);
+                                      -fx-padding: 0 18;"/>
+                </VBox>
+
+                <!-- Email Field -->
+                <VBox spacing="3" style="-fx-padding: 0;">
+                    <TextField fx:id="emailField" promptText="Email" prefHeight="48"
+                               style="-fx-background-color: rgba(255,255,255,0.20);
+                                      -fx-background-radius: 24;
+                                      -fx-border-radius: 24;
+                                      -fx-border-color: rgba(255,255,255,0.35);
+                                      -fx-text-fill: white;
+                                      -fx-font-size: 14px;
+                                      -fx-prompt-text-fill: rgba(255,255,255,0.75);
+                                      -fx-padding: 0 18;"/>
+                </VBox>
+
+                <!-- Date Field -->
+                <VBox spacing="3" style="-fx-padding: 0;">
+                    <TextField fx:id="dateField" promptText="DD/MM/YYYY" prefHeight="48"
+                               style="-fx-background-color: rgba(255,255,255,0.20);
+                                      -fx-background-radius: 24;
+                                      -fx-border-radius: 24;
+                                      -fx-border-color: rgba(255,255,255,0.35);
+                                      -fx-text-fill: white;
+                                      -fx-font-size: 14px;
+                                      -fx-prompt-text-fill: rgba(255,255,255,0.75);
+                                      -fx-padding: 0 18;"/>
+                </VBox>
+
+                <!-- Password Field -->
+                <VBox spacing="3" style="-fx-padding: 0;">
+                    <PasswordField fx:id="passwordField" promptText="Password" prefHeight="48"
+                                   style="-fx-background-color: rgba(255,255,255,0.20);
+                                          -fx-background-radius: 24;
+                                          -fx-border-radius: 24;
+                                          -fx-border-color: rgba(255,255,255,0.35);
+                                          -fx-text-fill: white;
+                                          -fx-font-size: 14px;
+                                          -fx-prompt-text-fill: rgba(255,255,255,0.75);
+                                          -fx-padding: 0 18;"/>
+                </VBox>
+
+                <!-- Confirm Password Field -->
+                <VBox spacing="3" style="-fx-padding: 0;">
+                    <PasswordField fx:id="confirmPasswordField" promptText="Confirm Password" prefHeight="48"
+                                   style="-fx-background-color: rgba(255,255,255,0.20);
+                                          -fx-background-radius: 24;
+                                          -fx-border-radius: 24;
+                                          -fx-border-color: rgba(255,255,255,0.35);
+                                          -fx-text-fill: white;
+                                          -fx-font-size: 14px;
+                                          -fx-prompt-text-fill: rgba(255,255,255,0.75);
+                                          -fx-padding: 0 18;"/>
+                </VBox>
+
+                <!-- Role Selection Section - FIXED with proper ToggleGroup definition -->
+                <VBox spacing="10" style="-fx-padding: 5 0 0 0;">
+                    <Label text="Register as:" style="-fx-text-fill:white; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+
+                    <!-- Define the ToggleGroup properly in fx:define -->
+                    <fx:define>
+                        <ToggleGroup fx:id="roleGroup"/>
+                    </fx:define>
+
+                    <!-- Regular User Option (default) -->
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <RadioButton fx:id="userRoleRadio" toggleGroup="$roleGroup" selected="true"
+                                     style="-fx-text-fill: white; -fx-mark-color: #0FA5A2;"/>
+                        <Label text="Regular User" style="-fx-text-fill:white; -fx-font-size: 14px;"/>
+                    </HBox>
+
+                    <!-- Travel Guider Option -->
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <RadioButton fx:id="guiderRoleRadio" toggleGroup="$roleGroup"
+                                     style="-fx-text-fill: white; -fx-mark-color: #FEC74C;"/>
+                        <Label text="Travel Guider" style="-fx-text-fill:white; -fx-font-size: 14px;"/>
+                        <Label text="ⓘ" style="-fx-text-fill: #FEC74C; -fx-font-size: 14px; -fx-cursor: hand;">
+                            <tooltip>
+                                <Tooltip text="Guiders can lead tours and create travel experiences"/>
+                            </tooltip>
+                        </Label>
+                    </HBox>
+
+                    <!-- Agency Option -->
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <RadioButton fx:id="agenceRoleRadio" toggleGroup="$roleGroup"
+                                     style="-fx-text-fill: white; -fx-mark-color: #1D4D7C;"/>
+                        <Label text="Agency" style="-fx-text-fill:white; -fx-font-size: 14px;"/>
+                        <Label text="ⓘ" style="-fx-text-fill: #1D4D7C; -fx-font-size: 14px; -fx-cursor: hand;">
+                            <tooltip>
+                                <Tooltip text="Agencies can create tours, manage packages, and handle multiple guider accounts"/>
+                            </tooltip>
+                        </Label>
+                    </HBox>
+                </VBox>
+
+                <!-- Sign Up Button -->
+                <Button fx:id="signupButton"
+                        text="Sign Up"
+                        prefWidth="220"
+                        prefHeight="48"
+                        style="-fx-background-color: linear-gradient(to right,#ff9966,#ff5e62);
+                               -fx-text-fill:white;
+                               -fx-font-weight:bold;
+                               -fx-font-size: 16px;
+                               -fx-background-radius: 24;
+                               -fx-cursor: hand;"
+                        onMouseEntered="#onSignupButtonHover"
+                        onMouseExited="#onSignupButtonExit"/>
+
+                <!-- Switch to Login Link -->
+                <Label text="Already have an account? Login"
+                       onMouseClicked="#switchToLogin"
+                       style="-fx-text-fill:white;-fx-underline:true;-fx-cursor:hand;-fx-font-size: 13px;"
+                       onMouseEntered="#onLinkHover"
+                       onMouseExited="#onLinkExit"/>
+
+            </VBox>
+
+            <!-- LOGIN -->
+            <VBox fx:id="loginPane"
+                  visible="false"
+                  spacing="15"
+                  alignment="CENTER"
+                  style="-fx-background-color: rgba(255,255,255,0.15);
+                         -fx-background-radius: 30;
+                         -fx-border-color: rgba(255,255,255,0.25);
+                         -fx-border-radius: 30;">
+
+                <padding>
+                    <Insets top="35" bottom="35" left="35" right="35"/>
+                </padding>
+
+                <Label text="Welcome Back"
+                       style="-fx-text-fill:white;-fx-font-size:28px;-fx-font-weight:bold;"/>
+
+                <!-- Email Field -->
+                <VBox spacing="3" style="-fx-padding: 0;">
+                    <TextField fx:id="loginEmailField" promptText="Email" prefHeight="48"
+                               style="-fx-background-color: rgba(255,255,255,0.20);
+                                      -fx-background-radius: 24;
+                                      -fx-border-radius: 24;
+                                      -fx-border-color: rgba(255,255,255,0.35);
+                                      -fx-text-fill:white;
+                                      -fx-font-size: 14px;
+                                      -fx-prompt-text-fill: rgba(255,255,255,0.75);
+                                      -fx-padding:0 18;"/>
+                </VBox>
+
+                <!-- Password Field -->
+                <VBox spacing="3" style="-fx-padding: 0;">
+                    <PasswordField fx:id="loginPasswordField" promptText="Password" prefHeight="48"
+                                   style="-fx-background-color: rgba(255,255,255,0.20);
+                                          -fx-background-radius: 24;
+                                          -fx-border-radius: 24;
+                                          -fx-border-color: rgba(255,255,255,0.35);
+                                          -fx-text-fill:white;
+                                          -fx-font-size: 14px;
+                                          -fx-prompt-text-fill: rgba(255,255,255,0.75);
+                                          -fx-padding:0 18;"/>
+                </VBox>
+
+                <!-- Face ID Email Verification Section -->
+
+
+                <!-- Login Button -->
+                <Button fx:id="loginButton"
+                        text="Login"
+                        prefWidth="220"
+                        prefHeight="48"
+                        style="-fx-background-color: linear-gradient(to right,#36d1dc,#5b86e5);
+                               -fx-text-fill:white;
+                               -fx-font-weight:bold;
+                               -fx-font-size: 16px;
+                               -fx-background-radius: 24;
+                               -fx-cursor: hand;"
+                        onAction="#handleLogin"
+                        onMouseEntered="#onLoginButtonHover"
+                        onMouseExited="#onLoginButtonExit"/>
+
+                <!-- Remember Me Checkbox -->
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <CheckBox fx:id="rememberMeCheckBox" style="-fx-cursor: hand;"/>
+                    <Label text="Remember me" style="-fx-font-size: 14px; -fx-text-fill: #666;"/>
+                </HBox>
+
+                <!-- Face ID Login Button -->
+                <Button fx:id="faceIDLoginButton"
+                        text="Login with Face ID"
+                        onAction="#handleFaceIDLogin"
+                        prefWidth="220"
+                        prefHeight="48"
+                        style="-fx-background-color: linear-gradient(to right,#667eea,#764ba2);
+                               -fx-text-fill:white;
+                               -fx-font-weight:bold;
+                               -fx-font-size: 16px;
+                               -fx-background-radius: 24;
+                               -fx-cursor: hand;
+                               -fx-margin: 10 0 0 0;">
+                    <effect>
+                        <DropShadow color="#00000066" radius="8" spread="0.3" offsetX="2" offsetY="2"/>
+                    </effect>
+                </Button>
+
+                <!-- QR Code Scanner Button -->
+                <Button fx:id="qrScanButton"
+                        text="📷 Scan QR Code"
+                        onAction="#handleQRScan"
+                        prefWidth="220"
+                        prefHeight="48"
+                        style="-fx-background-color: linear-gradient(to right,#FF8008,#FFA03A);
+                               -fx-text-fill:white;
+                               -fx-font-weight:bold;
+                               -fx-font-size: 16px;
+                               -fx-background-radius: 24;
+                               -fx-cursor: hand;
+                               -fx-margin: 10 0 0 0;">
+                    <effect>
+                        <DropShadow color="#00000066" radius="8" spread="0.3" offsetX="2" offsetY="2"/>
+                    </effect>
+                </Button>
+                <!-- Fingerprint Login Button -->
+                <Button fx:id="fingerprintLoginButton"
+                        text="🔑 Login with Fingerprint"
+                        onAction="#handleFingerprintLogin"
+                        prefWidth="220"
+                        prefHeight="48"
+                        style="-fx-background-color: linear-gradient(to right,#2ecc71,#27ae60);
+               -fx-text-fill:white;
+               -fx-font-weight:bold;
+               -fx-font-size: 16px;
+               -fx-background-radius: 24;
+               -fx-cursor: hand;
+               -fx-margin: 10 0 0 0;">
+                    <effect>
+                        <DropShadow color="#2ecc7166" radius="8" spread="0.3" offsetX="2" offsetY="2"/>
+                    </effect>
+                </Button>
+
+                <!-- Divider -->
+                <HBox alignment="CENTER" spacing="10" style="-fx-padding: 5 0;">
+                    <Rectangle width="100" height="1" fill="rgba(255,255,255,0.3)"/>
+                    <Label text="OR" style="-fx-text-fill:white; -fx-font-size: 12px;"/>
+                    <Rectangle width="100" height="1" fill="rgba(255,255,255,0.3)"/>
+                </HBox>
+
+                <!-- Forgot Password Link -->
+                <HBox alignment="CENTER" spacing="5" style="-fx-padding: 5 0;">
+                    <Label text="Forgot your password?" style="-fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 12px;"/>
+                    <Label text="Reset it here"
+                           fx:id="forgotPasswordLink"
+                           onMouseClicked="#handleForgotPassword"
+                           style="-fx-text-fill: #FEC74C; -fx-underline: true; -fx-cursor: hand; -fx-font-size: 12px; -fx-font-weight: bold;"
+                           onMouseEntered="#onLinkHover"
+                           onMouseExited="#onLinkExit"/>
+                </HBox>
+
+                <!-- Switch to Signup Link -->
+                <Label text="Don't have an account? Sign Up"
+                       onMouseClicked="#switchToSignup"
+                       style="-fx-text-fill:white;-fx-underline:true;-fx-cursor:hand;-fx-font-size: 13px;"
+                       onMouseEntered="#onLinkHover"
+                       onMouseExited="#onLinkExit"/>
+
+            </VBox>
+
+        </StackPane>
+
+    </HBox>
+
+</StackPane>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.SVGPath?>
+
+<VBox xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.ServiceCardController"
+      spacing="10"
+      styleClass="card"
+      style="-fx-padding: 15; -fx-border-color: #F1F5F9; -fx-border-width: 0 0 0 4; -fx-border-color: -brand-teal;">
+
+    <HBox spacing="15" alignment="CENTER_LEFT">
+        <VBox spacing="2" HBox.hgrow="ALWAYS">
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label fx:id="nameLbl" styleClass="card-title" style="-fx-font-size: 16px; -fx-text-fill: #1E293B;" text="Hotel Stay" />
+                <Label fx:id="kindLbl" styleClass="badge-service" style="-fx-font-size: 10px;" text="Accommodation" />
+            </HBox>
+            <Label fx:id="descLbl" wrapText="true" styleClass="dash-muted" text="Standard room with sea view" />
+        </VBox>
+
+        <VBox alignment="CENTER_RIGHT">
+            <Label text="SUBTOTAL" styleClass="dash-muted" style="-fx-font-size: 9px; -fx-font-weight: bold;" />
+            <Label fx:id="subtotalLbl" styleClass="price-teal" style="-fx-font-size: 18px;" text="120.000 TND" />
+        </VBox>
+    </HBox>
+
+    <Separator opacity="0.2" />
+
+    <HBox spacing="20" alignment="CENTER_LEFT">
+        <HBox spacing="5" alignment="CENTER_LEFT">
+            <SVGPath content="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"
+                     fill="#64748B" scaleX="0.6" scaleY="0.6"/>
+            <Label text="Unit:" styleClass="dash-muted" />
+            <Label fx:id="priceLbl" style="-fx-font-weight: bold;" text="60.000" />
+        </HBox>
+
+        <HBox spacing="5" alignment="CENTER_LEFT">
+            <SVGPath content="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+                     fill="#64748B" scaleX="0.6" scaleY="0.6"/>
+            <Label text="Qty:" styleClass="dash-muted" />
+            <Label fx:id="qtyLbl" style="-fx-font-weight: bold;" text="2" />
+        </HBox>
+
+        <Region HBox.hgrow="ALWAYS" />
+
+        <HBox spacing="5" alignment="CENTER_LEFT">
+            <Label fx:id="extraLbl" styleClass="dash-muted" style="-fx-font-style: italic; -fx-font-size: 11px;" text="No extra charges" />
+        </HBox>
+    </HBox>
+</VBox>

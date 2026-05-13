@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.SVGPath?>
+
+<?import javafx.scene.image.ImageView?>
+<VBox spacing="20" styleClass="dash-content" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.OfferDetailsController">
+    <padding>
+        <Insets top="25" right="25" bottom="25" left="25"/>
+    </padding>
+
+    <HBox alignment="CENTER_LEFT" spacing="15">
+        <Button onAction="#onBack" styleClass="btn-ghost" text="← Back" />
+        <VBox HBox.hgrow="ALWAYS">
+            <Label fx:id="titleLbl" styleClass="h1" text="Offer Title" style="-fx-font-size: 26px;" />
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label fx:id="agencyLbl" styleClass="dash-muted" text="Agency Name" />
+                <Label text="•" styleClass="dash-muted" />
+                <Label fx:id="kindLbl" styleClass="badge-service" text="PACKAGE" />
+            </HBox>
+        </VBox>
+    </HBox>
+
+    <ScrollPane fitToWidth="true" styleClass="scroll-pane" VBox.vgrow="ALWAYS">
+        <content>
+            <VBox spacing="25">
+                <padding>
+                    <Insets right="10" bottom="30"/>
+                </padding>
+
+                <VBox styleClass="card" style="-fx-padding: 25; -fx-border-color: -brand-teal; -fx-border-width: 0 0 0 5;">
+                    <HBox alignment="CENTER_LEFT" spacing="40">
+                        <ImageView fx:id="offerImg"
+                                   fitWidth="260"
+                                   fitHeight="170"
+                                   preserveRatio="false"
+                                   smooth="true"
+                                   style="-fx-background-radius: 16;" />
+                        <VBox spacing="10">
+
+                            <Label text="TOTAL TRIP PRICE" styleClass="dash-muted" style="-fx-font-weight: bold; -fx-font-size: 11px;" />
+                            <Label fx:id="priceLbl" text="0.000 TND" styleClass="price-teal" style="-fx-font-size: 32px; -fx-font-weight: 900;" />
+
+                            <HBox spacing="15" alignment="CENTER_LEFT" style="-fx-background-color: #F8FAFC; -fx-padding: 12 20; -fx-background-radius: 12; -fx-border-color: #E2E8F0; -fx-border-width: 1;">
+
+                                <HBox spacing="8" alignment="CENTER_LEFT">
+                                    <StackPane>
+                                        <SVGPath content="M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10,10-4.48,10-10S17.52,2,12,2z" fill="#003399" scaleX="0.6" scaleY="0.6"/>
+                                        <SVGPath content="M12,7l.6,1.8h1.9l-1.5,1.1.6,1.8-1.5-1.1-1.5,1.1.6-1.8-1.5-1.1h1.9z" fill="#FFCC00" scaleX="0.5" scaleY="0.5"/>
+                                    </StackPane>
+                                    <Label fx:id="euroPriceLbl" text="--- €" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #1E293B;" />
+                                </HBox>
+
+                                <Separator orientation="VERTICAL" prefHeight="20" opacity="0.5" />
+
+                                <HBox spacing="8" alignment="CENTER_LEFT">
+                                    <StackPane>
+                                        <SVGPath content="M2,4h20v16h-20z" fill="#B22234" scaleX="0.7" scaleY="0.6"/>
+                                        <SVGPath content="M2,4h10v8h-10z" fill="#3C3B6E" scaleX="0.7" scaleY="0.6" StackPane.alignment="TOP_LEFT"/>
+                                    </StackPane>
+                                    <Label fx:id="usdPriceLbl" text="--- $" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #1E293B;" />
+                                </HBox>
+
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label text="LIVE RATES" styleClass="dash-muted" style="-fx-font-size: 9px; -fx-font-weight: bold;"/>
+                            </HBox>
+                        </VBox>
+
+                        <Region HBox.hgrow="ALWAYS" />
+
+                        <VBox alignment="CENTER" spacing="8">
+                            <Button fx:id="addToCartBtn" onAction="#onAddToCart" text="Add to Cart"
+                                    prefWidth="220" prefHeight="50" styleClass="btn-primary" style="-fx-font-size: 16px;"/>
+                            <HBox alignment="CENTER" spacing="5">
+                                <SVGPath content="M19,4H18V2H16V4H8V2H6V4H5C3.89,4 3.01,4.9 3.01,6L3,20C3,21.1 3.89,22 5,22H19C20.11,22 21,21.1 21,20V6C21,4.9 20.11,4 19,4M19,20H5V10H19V20Z" fill="#64748B" scaleX="0.6" scaleY="0.6"/>
+                                <Label fx:id="datesLbl" text="Valid Period" styleClass="dash-muted" style="-fx-font-size: 11px;"/>
+                            </HBox>
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+                <VBox styleClass="card" style="-fx-padding: 20;" spacing="15">
+                    <Label text="About this Trip" styleClass="h2" style="-fx-text-fill: -brand-blue;" />
+                    <Label fx:id="descLbl" wrapText="true" style="-fx-line-spacing: 1.6; -fx-font-size: 15px; -fx-text-fill: #475569;"
+                           text="Detailed description of the travel package goes here..."/>
+                </VBox>
+
+                <VBox spacing="15">
+                    <Label text="Included services" styleClass="h2" style="-fx-padding: 0 0 0 5;"/>
+                    <VBox fx:id="servicesBox" spacing="12">
+                    </VBox>
+                </VBox>
+
+            </VBox>
+        </content>
+    </ScrollPane>
+</VBox>

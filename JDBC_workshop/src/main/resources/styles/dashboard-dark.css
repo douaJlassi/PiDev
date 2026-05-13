@@ -1,0 +1,659 @@
+/* =====================================================================
+   REHLETNA — DARK THEME
+   Loaded on top of dashboard.css. Only overrides color/fill values.
+   Structure, sizing, spacing all stay in dashboard.css.
+   ===================================================================== */
+
+/* ── Palette ──────────────────────────────────────────────────────────
+   Surface 0 (deepest bg):  #0f1117
+   Surface 1 (cards):       #1a1d27
+   Surface 2 (inputs/hover):#22263a
+   Surface 3 (borders):     #2e3250
+   Text primary:            #e8eaf0
+   Text secondary:          #8b90a7
+   Teal (accent):           #17B3A6  (unchanged)
+   Red (danger/liked):      #e74c3c  (unchanged)
+   ──────────────────────────────────────────────────────────────────── */
+
+/* ===== ROOT ===== */
+.dashboard-root {
+    -fx-background-color: #0f1117;
+}
+
+/* ===== NAV BAR ===== */
+.nav-bar {
+    -fx-background-color: #1a1d27;
+    -fx-border-color: #2e3250;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 8, 0, 0, 2);
+}
+
+/* ===== VIEW TOGGLE ===== */
+.view-toggle-container {
+    -fx-background-color: #22263a;
+}
+
+.view-toggle-btn {
+    -fx-text-fill: #8b90a7;
+}
+
+.view-toggle-btn:hover {
+    -fx-background-color: #2e3250;
+    -fx-text-fill: #e8eaf0;
+}
+
+.view-toggle-btn.active-view {
+    -fx-background-color: #1a1d27;
+    -fx-text-fill: #17B3A6;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 4, 0, 0, 1);
+}
+
+/* ===== SEARCH ===== */
+.search-field {
+    -fx-background-color: #22263a;
+    -fx-text-fill: #e8eaf0;
+    -fx-prompt-text-fill: #555a72;
+}
+
+.search-field:focused {
+    -fx-background-color: #2e3250;
+    -fx-border-color: #17B3A6;
+}
+
+/* ===== BUTTONS ===== */
+.icon-btn {
+    -fx-background-color: #22263a;
+    -fx-text-fill: #17B3A6;
+}
+
+.icon-btn:hover {
+    -fx-background-color: #2e3250;
+}
+
+.action-btn {
+    -fx-background-color: #22263a;
+    -fx-text-fill: #8b90a7;
+}
+
+.action-btn:hover {
+    -fx-background-color: #2e3250;
+    -fx-text-fill: #e8eaf0;
+}
+
+.action-btn.liked {
+    -fx-text-fill: #e74c3c;
+    -fx-background-color: rgba(231, 76, 60, 0.12);
+}
+
+/* ===== SCROLL PANE ===== */
+.posts-scroll-pane > .viewport {
+    -fx-background-color: #0f1117;
+}
+
+.posts-scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: #2e3250;
+}
+
+.posts-scroll-pane .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #17B3A6;
+}
+
+/* ===== POST CARDS ===== */
+.post-card-grid,
+.post-card-list {
+    -fx-background-color: #1a1d27;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 4, 0, 0, 1);
+}
+
+.post-card-grid:hover,
+.post-card-list:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 8, 0, 0, 2);
+}
+
+/* ===== POST HEADER ===== */
+.post-author-name {
+    -fx-text-fill: #e8eaf0;
+}
+
+.post-meta {
+    -fx-text-fill: #555a72;
+}
+
+/* ===== POST CONTENT ===== */
+.post-text,
+.post-text-preview {
+    -fx-text-fill: #c8cad8;
+}
+
+/* ===== POST STATS ===== */
+.post-stats {
+    -fx-border-color: #2e3250;
+}
+
+.post-stats-text {
+    -fx-text-fill: #555a72;
+}
+
+.post-stats-text:hover {
+    -fx-text-fill: #17B3A6;
+}
+
+/* ===== POST IMAGE ===== */
+.post-image-container {
+    -fx-background-color: #22263a;
+}
+
+/* ===== MENU BUTTON ===== */
+.post-menu-btn {
+    -fx-text-fill: #555a72;
+}
+
+.post-menu-btn:hover {
+    -fx-background-color: #22263a;
+    -fx-text-fill: #e8eaf0;
+}
+
+/* ===== AVATAR ===== */
+.avatar {
+    -fx-background-color: linear-gradient(135deg, #0D8F85 0%, #17B3A6 100%);
+}
+
+/* ===== SIDEBAR ===== */
+/* Sidebar stays dark in both modes — it already has its own dark navy palette.
+   We just deepen the backgrounds slightly in dark mode. */
+.sidebar {
+    -fx-background-color: #0d1520;
+}
+
+.sidebar-user-area {
+    -fx-background-color: #0d1520;
+}
+
+.sidebar-nav-btn {
+    -fx-text-fill: rgba(255,255,255,0.6);
+}
+
+.sidebar-nav-btn:hover {
+    -fx-background-color: rgba(255,255,255,0.07);
+    -fx-text-fill: white;
+}
+
+/* ===== EMPTY / LOADING STATES ===== */
+.empty-state {
+    -fx-background-color: #1a1d27;
+}
+
+.empty-state-text {
+    -fx-text-fill: #e8eaf0;
+}
+
+.empty-state-subtext {
+    -fx-text-fill: #555a72;
+}
+
+.loading-container {
+    -fx-background-color: #1a1d27;
+}
+
+.loading-text {
+    -fx-text-fill: #555a72;
+}
+
+/* ===== SEPARATOR ===== */
+.content-separator {
+    -fx-background-color: #2e3250;
+}
+
+/* ===== POST DETAIL VIEW ===== */
+/* ===== POST DETAIL — dark (editorial) ===== */
+.post-detail-view {
+    -fx-background-color: #13161f;
+}
+.split-view {
+    -fx-background-color: #13161f;
+}
+.detail-top-bar {
+    -fx-background-color: #0D9E92;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 6, 0, 0, 2);
+}
+.detail-title { -fx-text-fill: white; }
+.close-detail-btn {
+    -fx-background-color: rgba(255,255,255,0.15);
+    -fx-text-fill: white;
+}
+.close-detail-btn:hover { -fx-background-color: rgba(255,255,255,0.25); }
+.post-content-panel { -fx-background-color: #13161f; }
+.detail-hero-container {
+    -fx-background-color: transparent;
+    -fx-padding: 20 0 12 0;
+    -fx-effect: none;
+}
+.detail-content-card {
+    -fx-background-color: #1a1d27;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 8, 0, 0, 2);
+}
+.detail-author-name { -fx-text-fill: #e8eaf0; }
+.detail-author-hero { -fx-text-fill: white; }
+.detail-author-name-sa { -fx-text-fill: #e8eaf0; }
+.detail-date-sa { -fx-text-fill: #555a72; }
+.detail-post-text { -fx-text-fill: #c8cad8; }
+.detail-sep { -fx-background-color: #2e3250; }
+.comments-panel {
+    -fx-background-color: #0f1117;
+    -fx-border-color: #2e3250;
+}
+.comments-panel-header {
+    -fx-background-color: #1a1d27;
+    -fx-border-color: #2e3250;
+}
+.comments-panel-title { -fx-text-fill: #e8eaf0; }
+.comment-input-row {
+    -fx-background-color: #1a1d27;
+    -fx-border-color: #2e3250;
+}
+.comment-text-field {
+    -fx-background-color: #22263a;
+    -fx-text-fill: #e8eaf0;
+    -fx-prompt-text-fill: #555a72;
+}
+.comment-text-field:focused {
+    -fx-background-color: #2a2f45;
+    -fx-border-color: #17B3A6;
+}
+.comment-post-btn:disabled {
+    -fx-background-color: #22263a;
+    -fx-text-fill: #555a72;
+}
+.comments-list { -fx-background-color: #0f1117; }
+
+/* ===== COMMENT ITEMS ===== */
+.comment-item {
+    -fx-background-color: #1a1d27;
+    -fx-border-color: #2e3250;
+}
+
+.comment-username {
+    -fx-text-fill: #e8eaf0;
+}
+
+.comment-time {
+    -fx-text-fill: #555a72;
+}
+
+.comment-content {
+    -fx-text-fill: #a0a3b5;
+}
+
+/* ===== CREATE POST DIALOG ===== */
+.create-post-dialog {
+    -fx-background-color: #1a1d27;
+}
+
+.create-post-content {
+    -fx-background-color: #1a1d27;
+}
+
+.create-post-textarea {
+    -fx-text-fill: #e8eaf0;
+    -fx-prompt-text-fill: #555a72;
+}
+
+.create-post-textarea .content {
+    -fx-background-color: transparent;
+}
+
+.create-post-image-preview {
+    -fx-background-color: #22263a;
+}
+
+.create-post-location {
+    -fx-background-color: #22263a;
+    -fx-text-fill: #e8eaf0;
+    -fx-prompt-text-fill: #555a72;
+}
+
+.add-to-post-bar {
+    -fx-background-color: #22263a;
+    -fx-border-color: #2e3250;
+}
+
+.add-to-post-label {
+    -fx-text-fill: #e8eaf0;
+}
+
+.add-photo-btn {
+    -fx-background-color: #2e3250;
+}
+
+.add-photo-btn:hover {
+    -fx-background-color: #3a3f5c;
+}
+
+/* ===== DIALOGS ===== */
+.dialog-pane {
+    -fx-background-color: #1a1d27;
+}
+
+.dialog-label {
+    -fx-text-fill: #e8eaf0;
+}
+
+.dialog-text-field {
+    -fx-background-color: #22263a;
+    -fx-text-fill: #e8eaf0;
+    -fx-prompt-text-fill: #555a72;
+}
+
+.dialog-text-field:focused {
+    -fx-background-color: #2e3250;
+}
+
+.dialog-text-area {
+    -fx-background-color: #22263a;
+    -fx-text-fill: #e8eaf0;
+}
+
+.dialog-text-area:focused {
+    -fx-background-color: #2e3250;
+}
+
+/* ===== THEME TOGGLE BUTTON ===== */
+.theme-toggle-btn {
+    -fx-background-color: #22263a;
+    -fx-text-fill: #FFC107;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-padding: 11 16;
+    -fx-alignment: CENTER_LEFT;
+    -fx-border-color: rgba(255,193,7,0.3);
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+}
+
+.theme-toggle-btn:hover {
+    -fx-background-color: rgba(255,193,7,0.1);
+}
+
+/* ===== CREATE POST DIALOG — dark overrides ===== */
+
+/* ===== CREATE/EDIT PANEL — dark ===== */
+.create-edit-panel {
+    -fx-background-color: #1a1d27;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 12, 0, -4, 0);
+}
+
+/* ===== CREATE POST DIALOG — dark ===== */
+.cpd-root,
+.cpd-user-strip {
+    -fx-background-color: #1a1d27;
+}
+.cpd-username { -fx-text-fill: #e8eaf0; }
+.cpd-divider { -fx-background-color: #2e3250; }
+.cpd-inner-divider { -fx-background-color: #22263a; }
+
+.cpd-textarea {
+    -fx-text-fill: #e8eaf0;
+    -fx-prompt-text-fill: #555a72;
+}
+.cpd-image-zone { -fx-background-color: #22263a; }
+.cpd-details-section {
+    -fx-background-color: #1a1d27;
+    -fx-border-color: #2e3250;
+}
+.cpd-field-row:hover { -fx-background-color: #22263a; }
+.cpd-field-input {
+    -fx-text-fill: #e8eaf0;
+    -fx-prompt-text-fill: #555a72;
+}
+.cpd-agency-combo { -fx-text-fill: #e8eaf0; }
+.cpd-agency-combo .arrow { -fx-background-color: #555a72; }
+.cpd-agency-combo .list-cell {
+    -fx-text-fill: #e8eaf0;
+    -fx-background-color: #22263a;
+}
+.cpd-agency-combo .list-cell:hover { -fx-background-color: #2e3250; }
+.cpd-toolbar {
+    -fx-background-color: #13161f;
+    -fx-border-color: #2e3250;
+}
+.cpd-toolbar-label { -fx-text-fill: #8b90a7; }
+.cpd-tool-btn {
+    -fx-background-color: #22263a;
+    -fx-border-color: rgba(23,179,166,0.3);
+}
+.cpd-tool-btn:hover {
+    -fx-background-color: rgba(23,179,166,0.12);
+    -fx-border-color: #17B3A6;
+}
+
+/* ===== AGENCY DASHBOARD — dark ===== */
+.agency-title-label { -fx-text-fill: #e8eaf0; }
+
+/* ===== AGENCY LOGIN — dark overrides ===== */
+.login-root { -fx-background-color: #0f1117; }
+.login-form-panel { -fx-background-color: #1a1d27; }
+.login-form-title { -fx-text-fill: #e8eaf0; }
+.login-form-subtitle { -fx-text-fill: #8b90a7; }
+.login-field-label { -fx-text-fill: #e8eaf0; }
+.login-field {
+    -fx-background-color: #22263a;
+    -fx-text-fill: #e8eaf0;
+    -fx-prompt-text-fill: #555a72;
+}
+.login-field:focused {
+    -fx-background-color: #2e3250;
+    -fx-border-color: #17B3A6;
+}
+.login-footer-note { -fx-text-fill: #555a72; }
+
+/* ===== PLACES AUTOCOMPLETE FIELD — dark ===== */
+.places-autocomplete-field {
+    -fx-background-color: #22263a;
+    -fx-border-color: #2e3250;
+    -fx-text-fill: #e8eaf0;
+    -fx-prompt-text-fill: #555a72;
+}
+
+.places-autocomplete-field:focused {
+    -fx-background-color: #2e3250;
+    -fx-border-color: #17B3A6;
+}
+
+.places-autocomplete-field .context-menu {
+    -fx-background-color: #1a1d27;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 12, 0, 0, 4);
+}
+
+.suggestion-item {
+    -fx-background-color: #1a1d27;
+}
+
+.suggestion-item:hover {
+    -fx-background-color: #22263a;
+}
+
+.suggestion-main-text {
+    -fx-text-fill: #e8eaf0;
+}
+
+.suggestion-secondary-text {
+    -fx-text-fill: #8b90a7;
+}
+
+/* ===== WEATHER BADGE — dark ===== */
+.weather-badge {
+    -fx-background-color: rgba(255, 193, 7, 0.15);
+}
+
+.weather-text {
+    -fx-text-fill: #FFB74D;
+}
+
+.weather-badge:hover {
+    -fx-background-color: rgba(255, 193, 7, 0.2);
+}
+
+.weather-tooltip {
+    -fx-background-color: rgba(26, 29, 39, 0.95);
+}
+/* ===== MAP VIEW — dark ===== */
+.map-view-root {
+    -fx-background-color: #1a1d27;
+}
+
+.map-header {
+    -fx-background-color: #1a1d27;
+    -fx-border-color: #2e3250;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 4, 0, 0, 1);
+}
+
+.map-header-title {
+    -fx-text-fill: #e8eaf0;
+}
+
+.map-status-label {
+    -fx-text-fill: #8b90a7;
+}
+
+/* ── Map zoom buttons dark ── */
+.map-zoom-btn {
+    -fx-background-color: #22263a;
+    -fx-text-fill: #e8eaf0;
+    -fx-border-color: #2e3250;
+}
+.map-zoom-btn:hover { -fx-background-color: #2e3250; }
+
+/* ── Map canvas container dark ── */
+.map-canvas-container { -fx-background-color: #0f1117; }
+
+/* ── Pin count pill dark ── */
+.map-pin-count {
+    -fx-background-color: rgba(26,29,39,0.95);
+    -fx-text-fill: #17B3A6;
+}
+
+/* =====================================================================
+   AI CHAT PANEL — Dark theme overrides
+   ===================================================================== */
+
+.chat-panel-root {
+    -fx-background-color: #1a1d27;
+}
+
+.chat-header {
+    -fx-background-color: #1a1d27;
+    -fx-border-color: #2e3250;
+}
+
+.chat-title {
+    -fx-text-fill: #e8eaf0;
+}
+.chat-subtitle {
+    -fx-text-fill: #8b90a7;
+}
+
+.chat-icon-btn {
+    -fx-text-fill: #8b90a7;
+}
+.chat-icon-btn:hover {
+    -fx-background-color: #22263a;
+    -fx-text-fill: #e8eaf0;
+}
+
+.chat-close-btn {
+    -fx-text-fill: #8b90a7;
+}
+.chat-close-btn:hover {
+    -fx-background-color: rgba(220,38,38,0.15);
+    -fx-text-fill: #f87171;
+}
+
+.chat-scroll {
+    -fx-background-color: #0f1117;
+    -fx-background: #0f1117;
+}
+.chat-scroll .viewport {
+    -fx-background-color: #0f1117;
+}
+.chat-messages-box {
+    -fx-background-color: #0f1117;
+}
+
+.chat-bubble-assistant {
+    -fx-background-color: #22263a;
+    -fx-text-fill: #e8eaf0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 4, 0, 0, 1);
+}
+
+.chat-bubble-typing {
+    -fx-background-color: #22263a;
+    -fx-text-fill: #8b90a7;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 4, 0, 0, 1);
+}
+
+.chat-suggestions-box {
+    -fx-background-color: #1a1d27;
+    -fx-border-color: #2e3250;
+}
+.chat-suggestions-label {
+    -fx-text-fill: #555a72;
+}
+.chat-suggestion-chip {
+    -fx-background-color: #22263a;
+    -fx-text-fill: #8b90a7;
+}
+.chat-suggestion-chip:hover {
+    -fx-background-color: #2e3250;
+    -fx-text-fill: #17B3A6;
+}
+
+.chat-input-bar {
+    -fx-background-color: #1a1d27;
+    -fx-border-color: #2e3250;
+}
+.chat-input-field {
+    -fx-background-color: #22263a;
+    -fx-text-fill: #e8eaf0;
+    -fx-prompt-text-fill: #555a72;
+}
+.chat-input-field:focused {
+    -fx-background-color: #2e3250;
+    -fx-border-color: #17B3A6;
+}
+
+/* ── Unsplash suggest button — dark ── */
+.unsplash-suggest-btn {
+    -fx-text-fill: #17B3A6;
+    -fx-border-color: #17B3A6;
+}
+.unsplash-suggest-btn:hover {
+    -fx-background-color: rgba(23,179,166,0.12);
+}
+.unsplash-suggest-btn:disabled {
+    -fx-text-fill: #555a72;
+    -fx-border-color: #555a72;
+}
+
+/* ===== POST DETAIL top bar — dark override ===== */
+.detail-top-bar {
+    -fx-background-color: #1a1d27;
+    -fx-border-color: #2e3250;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 6, 0, 0, 2);
+}
+
+.close-detail-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #8b90a7;
+    -fx-border-color: #2e3250;
+}
+
+.close-detail-btn:hover {
+    -fx-background-color: #22263a;
+    -fx-text-fill: #17B3A6;
+    -fx-border-color: #17B3A6;
+}
+
+.detail-hero-image {
+    -fx-effect: none;
+}

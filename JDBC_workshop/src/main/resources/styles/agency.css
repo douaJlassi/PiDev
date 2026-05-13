@@ -1,0 +1,292 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   REHLETNA — Agency Back Office CSS
+   Design language: matches dashboard.css exactly
+   Colors: teal #17B3A6, navy #1a2a3a, light bg #f0f2f5, white cards
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ROOT */
+.agency-root {
+    -fx-background-color: #f0f2f5;
+}
+
+/* ═══════════════════════════════════════════════════
+   HEADER — matches .nav-bar from dashboard.css
+════════════════════════════════════════════════════ */
+.agency-header {
+    -fx-background-color: white;
+    -fx-border-color: #e4e6eb;
+    -fx-border-width: 0 0 1 0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.10), 8, 0, 0, 2);
+}
+
+/* Logo mark — teal circle like the sidebar avatar */
+.agency-logo-mark {
+    -fx-background-color: #17B3A6;
+    -fx-background-radius: 10;
+}
+.agency-logo-letter {
+    -fx-text-fill: white;
+    -fx-font-size: 17px;
+    -fx-font-weight: 900;
+}
+
+/* Brand text */
+.agency-brand-name {
+    -fx-text-fill: #1a2a3a;
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+    -fx-letter-spacing: 2;
+}
+.agency-brand-sub {
+    -fx-text-fill: #65676b;
+    -fx-font-size: 10px;
+    -fx-letter-spacing: 1;
+}
+
+/* Divider */
+.agency-header-divider {
+    -fx-background-color: #e4e6eb;
+}
+
+/* Agency name in header */
+.agency-header-eyebrow {
+    -fx-text-fill: #17B3A6;
+    -fx-font-size: 9px;
+    -fx-font-weight: 700;
+    -fx-letter-spacing: 2;
+}
+.agency-header-name {
+    -fx-text-fill: #050505;
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+}
+
+/* Refresh icon button — matches .icon-btn */
+.agency-icon-btn {
+    -fx-background-color: #f0f2f5;
+    -fx-text-fill: #17B3A6;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-min-width: 36;
+    -fx-min-height: 36;
+    -fx-max-width: 36;
+    -fx-max-height: 36;
+    -fx-background-radius: 50;
+    -fx-cursor: hand;
+}
+.agency-icon-btn:hover {
+    -fx-background-color: #e4e6eb;
+}
+
+/* Theme toggle — matches .theme-toggle-btn */
+.agency-theme-btn {
+    -fx-background-color: rgba(255,193,7,0.08);
+    -fx-text-fill: #b8860b;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-padding: 9 16;
+    -fx-border-color: rgba(184,134,11,0.3);
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+}
+.agency-theme-btn:hover {
+    -fx-background-color: rgba(255,193,7,0.15);
+}
+
+/* ═══════════════════════════════════════════════════
+   BODY
+════════════════════════════════════════════════════ */
+.agency-body {
+    -fx-background-color: #f0f2f5;
+}
+
+/* ═══════════════════════════════════════════════════
+   STAT CARDS — white cards with colored top stripe
+════════════════════════════════════════════════════ */
+.stat-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 6, 0, 0, 2);
+}
+.stat-card-pending {
+    -fx-border-color: #FFC107 transparent transparent transparent;
+    -fx-border-width: 3 0 0 0;
+}
+.stat-card-approved {
+    -fx-border-color: #17B3A6 transparent transparent transparent;
+    -fx-border-width: 3 0 0 0;
+}
+.stat-card-rejected {
+    -fx-border-color: #e74c3c transparent transparent transparent;
+    -fx-border-width: 3 0 0 0;
+}
+
+.stat-label {
+    -fx-font-size: 10px;
+    -fx-font-weight: 700;
+    -fx-letter-spacing: 1.5;
+}
+.stat-card-pending  .stat-label { -fx-text-fill: #b8860b; }
+.stat-card-approved .stat-label { -fx-text-fill: #0D8F85; }
+.stat-card-rejected .stat-label { -fx-text-fill: #c0392b; }
+
+.stat-number {
+    -fx-font-size: 34px;
+    -fx-font-weight: 900;
+}
+.stat-card-pending  .stat-number { -fx-text-fill: #FFC107; }
+.stat-card-approved .stat-number { -fx-text-fill: #17B3A6; }
+.stat-card-rejected .stat-number { -fx-text-fill: #e74c3c; }
+
+.stat-sub {
+    -fx-font-size: 12px;
+    -fx-text-fill: #65676b;
+}
+
+/* ═══════════════════════════════════════════════════
+   FILTER BAR — pill toggle tabs
+════════════════════════════════════════════════════ */
+.filter-bar-label {
+    -fx-text-fill: #65676b;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+}
+
+/* Container that wraps the tabs, matches .view-toggle-container */
+.agency-filter-bar {
+    -fx-background-color: transparent;
+}
+
+.filter-tab {
+    -fx-background-color: white;
+    -fx-text-fill: #65676b;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-padding: 8 18;
+    -fx-background-radius: 8;
+    -fx-border-color: #e4e6eb;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 3, 0, 0, 1);
+}
+.filter-tab:hover {
+    -fx-background-color: #f0f2f5;
+    -fx-text-fill: #050505;
+}
+.filter-tab:selected {
+    -fx-background-color: #17B3A6;
+    -fx-text-fill: white;
+    -fx-border-color: #17B3A6;
+    -fx-font-weight: 700;
+    -fx-effect: dropshadow(gaussian, rgba(23,179,166,0.25), 6, 0, 0, 2);
+}
+
+/* ═══════════════════════════════════════════════════
+   SCROLL PANE — matches .posts-scroll-pane
+════════════════════════════════════════════════════ */
+.agency-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+}
+.agency-scroll > .viewport {
+    -fx-background-color: #f0f2f5;
+}
+.agency-scroll .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 12;
+}
+.agency-scroll .scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+}
+.agency-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color: #bcc0c4;
+    -fx-background-radius: 6;
+}
+.agency-scroll .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #8a8d91;
+}
+.agency-scroll .scroll-bar:vertical .increment-button,
+.agency-scroll .scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+/* ═══════════════════════════════════════════════════
+   SUBMISSION LIST
+════════════════════════════════════════════════════ */
+.agency-submission-list {
+    -fx-background-color: transparent;
+}
+
+/* ═══════════════════════════════════════════════════
+   SUBMISSION CARD — white card matching .post-card-grid
+════════════════════════════════════════════════════ */
+.agency-submission-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 18 20 18 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 6, 0, 0, 2);
+    -fx-cursor: default;
+}
+.agency-submission-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.13), 10, 0, 0, 3);
+}
+
+/* Left status stripe — 3px left border, matches agency filter btn selected style */
+.card-pending {
+    -fx-border-color: #FFC107 transparent transparent #FFC107;
+    -fx-border-width: 0 0 0 3;
+    -fx-border-radius: 0 0 0 0;
+    -fx-background-radius: 12;
+}
+.card-approved {
+    -fx-border-color: #17B3A6 transparent transparent #17B3A6;
+    -fx-border-width: 0 0 0 3;
+    -fx-background-radius: 12;
+}
+.card-rejected {
+    -fx-border-color: #e74c3c transparent transparent #e74c3c;
+    -fx-border-width: 0 0 0 3;
+    -fx-background-radius: 12;
+}
+
+/* ═══════════════════════════════════════════════════
+   CARD INNER LABELS
+════════════════════════════════════════════════════ */
+.card-author-name {
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #050505;
+}
+.card-author-date {
+    -fx-font-size: 11px;
+    -fx-text-fill: #65676b;
+}
+.card-content-text {
+    -fx-font-size: 14px;
+    -fx-text-fill: #050505;
+    -fx-line-spacing: 3;
+}
+.agency-placeholder {
+    -fx-text-fill: #65676b;
+    -fx-font-size: 14px;
+    -fx-padding: 40 0;
+}
+
+/* Centered content column */
+.agency-content-column {
+    -fx-alignment: TOP_LEFT;
+}
+
+/* Submission cards fill content column but have a readable max width */
+.agency-submission-card {
+    -fx-max-width: 960;
+}

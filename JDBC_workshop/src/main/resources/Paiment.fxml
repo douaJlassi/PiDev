@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.shape.*?>
+
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="controllers.PaiementController"
+           stylesheets="@paiment.css"
+           prefWidth="520" prefHeight="820"
+           styleClass="root-pane">
+
+    <Circle centerX="420" centerY="-60" radius="280" styleClass="ambient-circle-top" mouseTransparent="true"/>
+    <Circle centerX="-60" centerY="880" radius="240" styleClass="ambient-circle-bot" mouseTransparent="true"/>
+
+    <VBox alignment="TOP_CENTER" styleClass="modal-overlay">
+        <padding><Insets top="28" right="28" bottom="28" left="28"/></padding>
+
+        <!-- AMOUNT -->
+        <VBox alignment="CENTER" styleClass="amount-display" spacing="4">
+            <Label text="MONTANT TOTAL" styleClass="amount-label"/>
+            <HBox alignment="CENTER" spacing="4">
+                <Label fx:id="amountValueLabel" text="0" styleClass="amount-value"/>
+                <Label text="DT" styleClass="amount-currency"/>
+            </HBox>
+        </VBox>
+
+        <Region prefHeight="20"/>
+
+        <!-- CARD VISUAL -->
+        <StackPane styleClass="card-scene" prefHeight="200" prefWidth="460">
+            <!-- FRONT -->
+            <VBox fx:id="cardFront" styleClass="card-face,card-front"
+                  prefHeight="200" prefWidth="460">
+                <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
+                <HBox alignment="CENTER_LEFT">
+                    <StackPane styleClass="chip" prefWidth="48" prefHeight="36"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <StackPane prefWidth="46" prefHeight="28">
+                        <Circle styleClass="brand-red" radius="14" translateX="-9"/>
+                        <Circle styleClass="brand-yellow" radius="14" translateX="9"/>
+                    </StackPane>
+                </HBox>
+                <Region VBox.vgrow="ALWAYS"/>
+                <Label fx:id="cardNumberDisplay" text="•••• •••• •••• ••••"
+                       styleClass="card-number-display"/>
+                <Region prefHeight="14"/>
+                <HBox alignment="BOTTOM_LEFT">
+                    <VBox spacing="3">
+                        <Label text="TITULAIRE" styleClass="card-label"/>
+                        <Label fx:id="cardHolderDisplay" text="VOTRE NOM" styleClass="card-value"/>
+                    </VBox>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <VBox spacing="3" alignment="CENTER_RIGHT">
+                        <Label text="EXPIRE LE" styleClass="card-label"/>
+                        <Label fx:id="cardExpiryDisplay" text="MM/AA" styleClass="card-value"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <!-- BACK -->
+            <VBox fx:id="cardBack" styleClass="card-face,card-back"
+                  prefHeight="200" prefWidth="460" visible="false" managed="false">
+                <Region prefHeight="28"/>
+                <Rectangle styleClass="magnetic-strip" width="460" height="50"/>
+                <Region prefHeight="16"/>
+                <HBox alignment="CENTER" spacing="12">
+                    <padding><Insets left="24" right="24"/></padding>
+                    <HBox styleClass="signature-stripe" HBox.hgrow="ALWAYS"
+                          prefHeight="40" alignment="CENTER_LEFT">
+                        <padding><Insets left="10"/></padding>
+                        <Label text="Signature autorisée" styleClass="signature-text"/>
+                    </HBox>
+                    <VBox alignment="CENTER" styleClass="cvv-box" prefWidth="60" prefHeight="40">
+                        <Label fx:id="cvvDisplay" text="•••" styleClass="cvv-text"/>
+                    </VBox>
+                </HBox>
+                <Region VBox.vgrow="ALWAYS"/>
+                <HBox alignment="CENTER_LEFT">
+                    <padding><Insets left="24" right="24" bottom="16"/></padding>
+                    <StackPane prefWidth="46" prefHeight="28">
+                        <Circle styleClass="brand-red" radius="14" translateX="-9"/>
+                        <Circle styleClass="brand-yellow" radius="14" translateX="9"/>
+                    </StackPane>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <StackPane styleClass="hologram" prefWidth="48" prefHeight="48"/>
+                </HBox>
+            </VBox>
+        </StackPane>
+
+        <Region prefHeight="24"/>
+
+        <!-- FORM -->
+        <VBox styleClass="form-container">
+            <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
+            <HBox alignment="CENTER_LEFT" spacing="8">
+                <Region styleClass="title-line" prefWidth="20" prefHeight="1"/>
+                <Label text="DÉTAILS DE PAIEMENT" styleClass="form-title"/>
+            </HBox>
+            <Region prefHeight="20"/>
+
+            <!-- Card Number -->
+            <VBox fx:id="groupCardNumber" styleClass="field-group" spacing="6">
+                <Label text="NUMÉRO DE CARTE" styleClass="field-label"/>
+                <StackPane styleClass="field-wrapper">
+                    <Label text="💳" styleClass="field-icon" StackPane.alignment="CENTER_LEFT">
+                        <StackPane.margin><Insets left="14"/></StackPane.margin>
+                    </Label>
+                    <TextField fx:id="cardNumberField" promptText="0000  0000  0000  0000"
+                               styleClass="card-input" maxWidth="Infinity"/>
+                    <HBox fx:id="cardTypeBadge" StackPane.alignment="CENTER_RIGHT"
+                          visible="false" managed="false">
+                        <StackPane.margin><Insets right="12"/></StackPane.margin>
+                        <Circle styleClass="badge-red" radius="11"/>
+                        <Circle styleClass="badge-yellow" radius="11" translateX="-8"/>
+                    </HBox>
+                </StackPane>
+                <Label fx:id="errorCardNumber" text="Numéro de carte invalide"
+                       styleClass="field-error" visible="false" managed="false"/>
+            </VBox>
+            <Region prefHeight="16"/>
+
+            <!-- Card Holder -->
+            <VBox fx:id="groupCardHolder" styleClass="field-group" spacing="6">
+                <Label text="NOM DU TITULAIRE" styleClass="field-label"/>
+                <StackPane styleClass="field-wrapper">
+                    <Label text="👤" styleClass="field-icon" StackPane.alignment="CENTER_LEFT">
+                        <StackPane.margin><Insets left="14"/></StackPane.margin>
+                    </Label>
+                    <TextField fx:id="cardHolderField" promptText="PRÉNOM NOM"
+                               styleClass="card-input" maxWidth="Infinity"/>
+                </StackPane>
+                <Label fx:id="errorCardHolder" text="Nom requis"
+                       styleClass="field-error" visible="false" managed="false"/>
+            </VBox>
+            <Region prefHeight="16"/>
+
+            <!-- Expiry + CVV -->
+            <HBox spacing="14">
+                <VBox fx:id="groupExpiry" styleClass="field-group" spacing="6" HBox.hgrow="ALWAYS">
+                    <Label text="EXPIRATION" styleClass="field-label"/>
+                    <StackPane styleClass="field-wrapper">
+                        <Label text="📅" styleClass="field-icon" StackPane.alignment="CENTER_LEFT">
+                            <StackPane.margin><Insets left="14"/></StackPane.margin>
+                        </Label>
+                        <TextField fx:id="cardExpiryField" promptText="MM/AA"
+                                   styleClass="card-input" maxWidth="Infinity"/>
+                    </StackPane>
+                    <Label fx:id="errorExpiry" text="Date invalide"
+                           styleClass="field-error" visible="false" managed="false"/>
+                </VBox>
+                <VBox fx:id="groupCVV" styleClass="field-group" spacing="6" HBox.hgrow="ALWAYS">
+                    <Label text="CODE CVV" styleClass="field-label"/>
+                    <StackPane styleClass="field-wrapper">
+                        <Label text="🔒" styleClass="field-icon" StackPane.alignment="CENTER_LEFT">
+                            <StackPane.margin><Insets left="14"/></StackPane.margin>
+                        </Label>
+                        <PasswordField fx:id="cardCVVField" promptText="•••"
+                                       styleClass="card-input" maxWidth="Infinity"/>
+                    </StackPane>
+                    <Label fx:id="errorCVV" text="CVV invalide"
+                           styleClass="field-error" visible="false" managed="false"/>
+                </VBox>
+            </HBox>
+
+            <Region prefHeight="18"/>
+            <HBox alignment="CENTER" spacing="20" styleClass="security-row">
+                <Label text="🔐  SSL 256-BIT" styleClass="security-badge"/>
+                <Label text="✓  3D SECURE" styleClass="security-badge"/>
+                <Label text="🛡  PCI DSS" styleClass="security-badge"/>
+            </HBox>
+            <Region prefHeight="16"/>
+
+            <Button fx:id="payButton" text="PAYER MAINTENANT"
+                    styleClass="pay-btn" maxWidth="Infinity"
+                    onAction="#handlePay" disable="true"/>
+            <Region prefHeight="10"/>
+            <Button fx:id="cancelButton" text="Annuler"
+                    styleClass="cancel-btn" maxWidth="Infinity"
+                    onAction="#handleCancel"/>
+        </VBox>
+    </VBox>
+</StackPane>

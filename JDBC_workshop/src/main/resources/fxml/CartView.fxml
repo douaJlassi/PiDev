@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="20" styleClass="dash-content" xmlns:fx="http://javafx.com/fxml" fx:controller="controllers.CartViewController">
+    <padding>
+        <Insets top="30" right="30" bottom="30" left="30"/>
+    </padding>
+
+    <VBox spacing="15" styleClass="card" style="-fx-padding: 20;">
+        <HBox alignment="CENTER_LEFT" spacing="20">
+            <Button onAction="#onBack" styleClass="btn-ghost" text="←" />
+
+            <VBox HBox.hgrow="ALWAYS">
+                <Label text="My Shopping Cart" styleClass="h1" style="-fx-font-size: 22px;" />
+                <HBox spacing="8" alignment="CENTER_LEFT">
+                    <Label fx:id="countLbl" text="0 items" styleClass="dash-muted" />
+                    <Label text="•" styleClass="dash-muted" />
+                    <Label text="Ready for checkout" styleClass="dash-muted" />
+                </HBox>
+            </VBox>
+
+            <VBox alignment="CENTER_RIGHT" spacing="2">
+                <Label text="Estimated Total" styleClass="dash-muted" style="-fx-font-size: 11px;" />
+                <Label fx:id="totalLbl" text="0.000 TND" styleClass="price-teal" style="-fx-font-size: 20px;" />
+            </VBox>
+        </HBox>
+
+        <Separator opacity="0.3" />
+
+        <HBox spacing="15" alignment="CENTER_RIGHT">
+            <Button text="Clear Cart" onAction="#onClear" styleClass="btn-ghost"
+                    style="-fx-text-fill: #EF4444; -fx-border-color: #FEE2E2;" />
+            <Button text="Proceed to Checkout" onAction="#onCheckout" styleClass="btn-primary"
+                    prefWidth="200" prefHeight="40" style="-fx-background-radius: 10;" />
+        </HBox>
+    </VBox>
+
+    <VBox VBox.vgrow="ALWAYS" spacing="10">
+        <Label text="Items in your cart" styleClass="h2" style="-fx-padding: 0 0 5 5;" />
+
+        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="scroll-pane">
+            <content>
+                <VBox fx:id="itemsBox" spacing="12" styleClass="services-container">
+                    <padding>
+                        <Insets top="5" right="10" bottom="20" left="5" />
+                    </padding>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </VBox>
+</VBox>

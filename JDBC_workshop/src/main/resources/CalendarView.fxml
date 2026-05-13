@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.*?>
+<StackPane xmlns="http://javafx.com/javafx/17"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="controllers.CalendarController"
+           styleClass="root-stack"
+           stylesheets="@style.css">
+
+    <Pane styleClass="bg-blob-1" mouseTransparent="true"/>
+    <Pane styleClass="bg-blob-2" mouseTransparent="true"/>
+
+    <VBox styleClass="calendar-card" alignment="TOP_CENTER" spacing="0">
+
+        <!-- Header -->
+        <HBox styleClass="cal-header" alignment="CENTER_LEFT" spacing="0">
+            <Label styleClass="cal-title" text="Calendrier"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button fx:id="btnPrevMonth" styleClass="nav-btn" text="‹" onAction="#handlePrevMonth"/>
+            <Label fx:id="lblMonthYear" styleClass="month-label" text="Mars 2026"/>
+            <Button fx:id="btnNextMonth" styleClass="nav-btn" text="›" onAction="#handleNextMonth"/>
+        </HBox>
+
+        <!-- Day-of-week row -->
+        <GridPane fx:id="dayNamesGrid" styleClass="day-names-grid"/>
+
+        <!-- Divider -->
+        <Pane styleClass="divider"/>
+
+        <!-- Calendar grid -->
+        <GridPane fx:id="calendarGrid" styleClass="calendar-grid"/>
+
+        <!-- Footer info -->
+        <HBox styleClass="cal-footer" alignment="CENTER_LEFT" spacing="10">
+            <Pane styleClass="legend-dot-active"/>
+            <Label fx:id="infoLabel" styleClass="info-label" text="Sélectionnez une date"/>
+        </HBox>
+
+    </VBox>
+</StackPane>

@@ -1,0 +1,59 @@
+
+.context-menu {
+    -fx-background-color: linear-gradient(to bottom, #1a2a3a, #0d1f2d);
+    -fx-background-radius: 14;
+    -fx-border-color: rgba(0, 200, 190, 0.25);
+    -fx-border-width: 1;
+    -fx-border-radius: 14;
+    -fx-effect: dropshadow(gaussian, rgba(0, 180, 170, 0.35), 30, 0.3, 0, 8);
+    -fx-padding: 8 6 8 6;
+}
+
+.menu-item {
+    -fx-background-color: transparent;
+    -fx-background-radius: 10;
+    -fx-padding: 10 16 10 16;
+    -fx-cursor: hand;
+}
+
+.menu-item:hover, .menu-item:focused {
+    -fx-background-color: linear-gradient(to right, rgba(0,200,190,0.18), rgba(0,160,155,0.05));
+    -fx-background-radius: 10;
+}
+
+.menu-item .label {
+    -fx-text-fill: #d0eeee;
+    -fx-font-size: 13.5px;
+}
+
+.menu-item:hover .label {
+    -fx-text-fill: #ffffff;
+}
+
+.separator *.line {
+    -fx-border-color: rgba(0, 200, 190, 0.2);
+    -fx-border-width: 0.8 0 0 0;
+}
+
+.menu-item-danger .label {
+    -fx-text-fill: #ff7b7b;
+}
+.menu-item-danger:hover {
+    -fx-background-color: linear-gradient(to right, rgba(255,80,80,0.18), rgba(200,50,50,0.05));
+}
+
+.menu-item-warning .label {
+    -fx-text-fill: #ffb347;
+}
+.menu-item-warning:hover {
+    -fx-background-color: linear-gradient(to right, rgba(255,150,50,0.18), rgba(200,100,20,0.05));
+}
+
+.btn-options:hover {
+    -fx-background-color: rgba(0, 200, 190, 0.15);
+    -fx-background-radius: 8;
+}
+.btn-options:showing {
+    -fx-background-color: rgba(0, 200, 190, 0.25);
+    -fx-background-radius: 8;
+}
