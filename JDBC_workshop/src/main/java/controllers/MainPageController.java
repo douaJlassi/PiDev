@@ -168,7 +168,7 @@ public class MainPageController {
     @FXML
     private void showChatView() {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/views/ChatView.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("/ChatView.fxml"));
             mainBorderPane.setCenter(root);
             refreshBadge();
         } catch (IOException e) {
